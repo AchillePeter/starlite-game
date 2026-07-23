@@ -6278,7 +6278,7 @@
         else { u.command = 'hold'; u.destination = { x: u.x, y: u.y }; }
       }
       
-      function placementError(type, cx, cy) {
+      function placementError(type, cx, cy, { ignoreExploration = false } = {}) {
         const d = BUILDING_DATA[type];
         if (!d) return 'Unknown building.';
         const left = cx - d.w / 2 - 3, right = cx + d.w / 2 + 3;
@@ -6291,7 +6291,7 @@
         const ty1 = clamp(Math.floor(bottom / TILE), 0, ROWS - 1);
         for (let ty = ty0; ty <= ty1; ty++) {
           for (let tx = tx0; tx <= tx1; tx++) {
-            if (!state.explored[ty][tx]) return 'You must explore the whole build site first.';
+            if (!ignoreExploration && !state.explored[ty][tx]) return 'You must explore the whole build site first.';
             if (terrain[ty][tx] !== 0) return 'Cannot build on water or mountains.';
           }
         }
@@ -6326,7 +6326,7 @@
       // When a clicked tile clips a nearby obstacle, search the closest tile
       // centres within a strict three-tile radius. This solves adjacency clicks
       // without allowing the game to relocate a building somewhere surprising.
-      function nearestBuildPlacement(type, requestedTx, requestedTy, initialError) {
+      function nearestBuildPlacement(type, requestedTx, requestedTy, initialError, options = {}) {
         if (!AUTO_PLACEMENT_ERRORS.has(initialError)) return null;
         let best = null;
         for (let oy = -AUTO_PLACEMENT_MAX_TILES; oy <= AUTO_PLACEMENT_MAX_TILES; oy++) {
@@ -6336,7 +6336,7 @@
             const tx = requestedTx + ox, ty = requestedTy + oy;
             if (tx < 0 || ty < 0 || tx >= COLS || ty >= ROWS) continue;
             const cx = tx * TILE + TILE / 2, cy = ty * TILE + TILE / 2;
-            if (placementError(type, cx, cy)) continue;
+            if (placementError(type, cx, cy, options)) continue;
             if (!best || distanceSq < best.distanceSq ||
                 (distanceSq === best.distanceSq && (ty < best.ty || (ty === best.ty && tx < best.tx)))) {
               best = { tx, ty, cx, cy, distanceSq, tileDistance: Math.sqrt(distanceSq) };
@@ -6349,7 +6349,7 @@
       // Resolve the exact tile-centred footprint used by both the live placement
       // ghost and the final construction command. Keeping these paths shared avoids
       // a green preview ever disagreeing with the actual build result.
-      function resolveBuildingPlacement(type, p) {
+      function resolveBuildingPlacement(type, p, options = {}) {
         const d = BUILDING_DATA[type];
         if (!d || !p || !Number.isFinite(p.x) || !Number.isFinite(p.y)) {
           return { valid: false, type, cx: 0, cy: 0, error: d ? 'Choose a build site on the battlefield.' : 'Unknown building.', adjusted: null };
@@ -6358,8 +6358,8 @@
         const ty = clamp(Math.floor(p.y / TILE), 0, ROWS - 1);
         const requestedCx = tx * TILE + TILE / 2;
         const requestedCy = ty * TILE + TILE / 2;
-        const error = placementError(type, requestedCx, requestedCy);
-        const adjusted = error ? nearestBuildPlacement(type, tx, ty, error) : null;
+        const error = placementError(type, requestedCx, requestedCy, options);
+        const adjusted = error ? nearestBuildPlacement(type, tx, ty, error, options) : null;
         if (!error) {
           return { valid: true, type, tx, ty, cx: requestedCx, cy: requestedCy, requestedCx, requestedCy, error: null, adjusted: null };
         }
@@ -6413,7 +6413,7 @@
         return !!adjusted && resourceFieldAt(adjusted.cx, adjusted.cy)?.id === clickedField.id;
       }
       
-      function constructBuilding(type, p, team = 'player') {
+      function constructBuilding(type, p, team = 'player', options = {}) {
         if (state.gameOver) return;
         const d = BUILDING_DATA[type];
         if (!d) return;
@@ -6431,7 +6431,7 @@
           toast('Complete both a BARRACKS and a GARAGE before constructing a SUPPORT CAMP.', COLORS.warn); return;
         }
         if (!canAfford(cost.costM, cost.costG, team)) { toast(`Not enough resources for ${d.label}.`, COLORS.bad); return; }
-        const placement = resolveBuildingPlacement(type, p);
+        const placement = resolveBuildingPlacement(type, p, options);
         if (!placement.valid) {
           const error = placement.error;
           toast(AUTO_PLACEMENT_ERRORS.has(error) ? `No valid build site within ${AUTO_PLACEMENT_MAX_TILES} tiles. ${error}` : error, COLORS.warn);
@@ -6466,7 +6466,7 @@
         return site;
       }
       
-      function constructGasExtractor(node, team = 'player') {
+      function constructGasExtractor(node, team = 'player', { ignoreExploration = false } = {}) {
         if (state.gameOver || !node || node.type !== 'gas') return false;
         if (node.depleted) {
           toast('This gas leak is depleted.', COLORS.warn);
@@ -6474,7 +6474,7 @@
         }
         const tx = clamp(Math.floor(node.x / TILE), 0, COLS - 1);
         const ty = clamp(Math.floor(node.y / TILE), 0, ROWS - 1);
-        if (!state.explored[ty]?.[tx]) {
+        if (!ignoreExploration && !state.explored[ty]?.[tx]) {
           toast('You must explore the gas leak before building an extractor.', COLORS.warn);
           return false;
         }
@@ -6782,10 +6782,10 @@
           case 'harvest':
             return applyHarvestCommand(command);
           case 'build':
-            return !!constructBuilding(command.buildingType, command.point, command.team);
+            return !!constructBuilding(command.buildingType, command.point, command.team, { ignoreExploration: true });
           case 'buildGasExtractor': {
             const node = resourceNodes.find(candidate => candidate.id === command.nodeId);
-            return !!constructGasExtractor(node, command.team);
+            return !!constructGasExtractor(node, command.team, { ignoreExploration: true });
           }
           case 'produce': {
             const producers = (command.producerIds || [])
@@ -8872,7 +8872,15 @@
           const remoteHash = remoteBySource.get(sourceId);
           if (!remoteHash) continue;
           if (localHash !== remoteHash) {
-            console.warn(`[sync] checksum mismatch at tick ${tick} from ${sourceId}: local=${localHash} remote=${remoteHash}`);
+            const message = `[sync] checksum mismatch at tick ${tick} from ${sourceId}: local=${localHash} remote=${remoteHash}`;
+            console.warn(message);
+            failCommandSync('CHECKSUM MISMATCH · MATCH PAUSED', {
+              tick,
+              sourceId,
+              localHash,
+              remoteHash
+            });
+            return false;
           }
         }
         if (expectedRemoteSourceIds().every(sourceId => remoteBySource.has(sourceId))) {
@@ -10882,6 +10890,12 @@
           toast('This gas leak is depleted.', COLORS.warn);
           return;
         }
+        const tx = clamp(Math.floor(node.x / TILE), 0, COLS - 1);
+        const ty = clamp(Math.floor(node.y / TILE), 0, ROWS - 1);
+        if (!state.explored[ty]?.[tx]) {
+          toast('You must explore the gas leak before building an extractor.', COLORS.warn);
+          return;
+        }
         const existing = gasExtractorFor(node, false);
         if (existing) {
           if (existing.underConstruction) openConstructionMenu(existing, screenPt);
@@ -10912,9 +10926,14 @@
       function placePendingBuilding(worldPoint) {
         const type = state.placingBuildingType;
         if (!type) return false;
+        const placement = resolveBuildingPlacement(type, worldPoint);
+        if (!placement.valid) {
+          toast(placement.error, COLORS.warn);
+          return false;
+        }
         queueGameplayCommand({
           type: 'build', team: activeCommandTeam(), buildingType: type,
-          point: { x: worldPoint.x, y: worldPoint.y }
+          point: { x: placement.cx, y: placement.cy }
         });
         state.placingBuildingType = null;
         openBuildMenu();
