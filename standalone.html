@@ -9432,7 +9432,7 @@
     Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep1["canvas"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep1["state"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "BUILDING_GLB_HOLDERS", { enumerable: true, get: () => BUILDING_GLB_HOLDERS }); Object.defineProperty(__exports, "DEFAULT_GLB_HOLDER", { enumerable: true, get: () => DEFAULT_GLB_HOLDER }); Object.defineProperty(__exports, "DEFAULT_PORTRAIT_GLB", { enumerable: true, get: () => DEFAULT_PORTRAIT_GLB }); Object.defineProperty(__exports, "GENERIC_GLB_HOLDER", { enumerable: true, get: () => GENERIC_GLB_HOLDER }); Object.defineProperty(__exports, "MAX_UNIT_PORTRAIT_LEVEL", { enumerable: true, get: () => MAX_UNIT_PORTRAIT_LEVEL }); Object.defineProperty(__exports, "PORTRAIT_ROTATION_SECONDS", { enumerable: true, get: () => PORTRAIT_ROTATION_SECONDS }); Object.defineProperty(__exports, "UNIT_GLB_HOLDERS", { enumerable: true, get: () => UNIT_GLB_HOLDERS }); Object.defineProperty(__exports, "hideGLBPortrait", { enumerable: true, get: () => hideGLBPortrait }); Object.defineProperty(__exports, "holderForPortraitSubject", { enumerable: true, get: () => holderForPortraitSubject }); Object.defineProperty(__exports, "loadGLBForHolder", { enumerable: true, get: () => loadGLBForHolder }); Object.defineProperty(__exports, "parseGLB", { enumerable: true, get: () => parseGLB }); Object.defineProperty(__exports, "portraitRendererStatus", { enumerable: true, get: () => portraitRendererStatus }); Object.defineProperty(__exports, "syncGLBPortrait", { enumerable: true, get: () => syncGLBPortrait });
+      Object.defineProperty(__exports, "BUILDING_GLB_HOLDERS", { enumerable: true, get: () => BUILDING_GLB_HOLDERS }); Object.defineProperty(__exports, "BUILDING_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => BUILDING_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "DEFAULT_GLB_HOLDER", { enumerable: true, get: () => DEFAULT_GLB_HOLDER }); Object.defineProperty(__exports, "DEFAULT_PORTRAIT_GLB", { enumerable: true, get: () => DEFAULT_PORTRAIT_GLB }); Object.defineProperty(__exports, "GENERIC_GLB_HOLDER", { enumerable: true, get: () => GENERIC_GLB_HOLDER }); Object.defineProperty(__exports, "MAX_UNIT_PORTRAIT_LEVEL", { enumerable: true, get: () => MAX_UNIT_PORTRAIT_LEVEL }); Object.defineProperty(__exports, "PORTRAIT_ROTATION_SECONDS", { enumerable: true, get: () => PORTRAIT_ROTATION_SECONDS }); Object.defineProperty(__exports, "UNIT_GLB_HOLDERS", { enumerable: true, get: () => UNIT_GLB_HOLDERS }); Object.defineProperty(__exports, "UNIT_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => UNIT_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "hideGLBPortrait", { enumerable: true, get: () => hideGLBPortrait }); Object.defineProperty(__exports, "holderForPortraitSubject", { enumerable: true, get: () => holderForPortraitSubject }); Object.defineProperty(__exports, "loadGLBForHolder", { enumerable: true, get: () => loadGLBForHolder }); Object.defineProperty(__exports, "parseGLB", { enumerable: true, get: () => parseGLB }); Object.defineProperty(__exports, "portraitRendererStatus", { enumerable: true, get: () => portraitRendererStatus }); Object.defineProperty(__exports, "syncGLBPortrait", { enumerable: true, get: () => syncGLBPortrait });
       // Simplified GLB portrait viewport for the command console.
       // Uses lightweight category-based placeholders and per-category camera framing.
       
@@ -9452,6 +9452,45 @@
       const BUILDING_PORTRAIT_GLB = './assets/simple_building.glb';
       const TURRET_PORTRAIT_GLB = './assets/simple_turret.glb';
       const HOUSE_PORTRAIT_GLB = './assets/simple_house.glb';
+      
+      // Dedicated asset placeholders. Missing dedicated files transparently fall
+      // back to the existing category portraits until their GLBs are added.
+      const UNIT_PORTRAIT_GLB_PLACEHOLDERS = Object.freeze({
+        forager: './assets/simple_forager.glb',
+        roboMiner: './assets/simple_robo_miner.glb',
+        mechanic: './assets/simple_mechanic.glb',
+        infantry: './assets/simple_infantry.glb',
+        assault: './assets/simple_assault.glb',
+        mortar: './assets/simple_mortar.glb',
+        mecha: './assets/simple_mecha.glb',
+        jeep: './assets/simple_jeep.glb',
+        armoredJeep: './assets/simple_armored_jeep.glb',
+        heavy: './assets/simple_heavy.glb',
+        titanTank: './assets/simple_titan_tank.glb',
+        helicopter: './assets/simple_helicopter.glb',
+        doubleChopper: './assets/simple_double_chopper.glb',
+        antiAirFighter: './assets/simple_anti_air_fighter.glb',
+        bomber: './assets/simple_bomber.glb',
+        healer: './assets/simple_healer.glb',
+        radar: './assets/simple_radar.glb',
+        forceFieldTruck: './assets/simple_force_field_truck.glb'
+      });
+      
+      const BUILDING_PORTRAIT_GLB_PLACEHOLDERS = Object.freeze({
+        hq: './assets/simple_hq.glb',
+        turret: './assets/simple_turret.glb',
+        antiAirTurret: './assets/simple_anti_air_turret.glb',
+        radarTurret: './assets/simple_radar_turret.glb',
+        barracks: './assets/simple_barracks.glb',
+        garage: './assets/simple_garage.glb',
+        airBay: './assets/simple_air_bay.glb',
+        supportCamp: './assets/simple_support_camp.glb',
+        gasExtractor: './assets/simple_gas_extractor.glb',
+        minersHut: './assets/simple_miners_hut.glb',
+        housing: './assets/simple_housing.glb',
+        researchFacility: './assets/simple_research_facility.glb',
+        laboratory: './assets/simple_laboratory.glb'
+      });
       const PORTRAIT_ROTATION_SECONDS = 8;
       
       // One authoritative commander presentation is used whenever a requested portrait
@@ -9490,6 +9529,8 @@
           type,
           level,
           glb: DEFAULT_PORTRAIT_GLB_PATH,
+          fallbackGlb: null,
+          loadedGlb: null,
           phase: hashPhase(`${kind}:${type}${levelSuffix}`),
           rotationMode: 'full',
           animationMode: 'none',
@@ -9540,7 +9581,13 @@
         for (const type of types) {
           const base = UNIT_GLB_HOLDERS[type];
           if (!base?.levels) continue;
-          for (let level = 1; level <= MAX_UNIT_PORTRAIT_LEVEL; level++) Object.assign(base.levels[level], options, { glb });
+          const dedicatedGlb = UNIT_PORTRAIT_GLB_PLACEHOLDERS[type] || glb;
+          for (let level = 1; level <= MAX_UNIT_PORTRAIT_LEVEL; level++) {
+            Object.assign(base.levels[level], options, {
+              glb: dedicatedGlb,
+              fallbackGlb: dedicatedGlb === glb ? null : glb
+            });
+          }
         }
       }
       
@@ -9548,7 +9595,11 @@
         for (const type of types) {
           const holder = BUILDING_GLB_HOLDERS[type];
           if (!holder) continue;
-          Object.assign(holder, options, { glb });
+          const dedicatedGlb = BUILDING_PORTRAIT_GLB_PLACEHOLDERS[type] || glb;
+          Object.assign(holder, options, {
+            glb: dedicatedGlb,
+            fallbackGlb: dedicatedGlb === glb ? null : glb
+          });
         }
       }
       
@@ -9839,7 +9890,7 @@
       
       function shouldUseCommanderFallback(holder) {
         if (!holder || holder === DEFAULT_GLB_HOLDER || holder.glb === DEFAULT_PORTRAIT_GLB_PATH) return true;
-        if (holder.model || (renderer.loadedGLB === holder.glb && renderer.currentEntry?.model)) return false;
+        if (holder.model || (renderer.loadedGLB === (holder.loadedGlb || holder.glb) && renderer.currentEntry?.model)) return false;
         if (holder.error) return true;
         if (modelCache.has(holder.glb)) return false;
         return !canLoadExternalPortraits();
@@ -9899,36 +9950,51 @@
         renderer.loadedGLB = glbPath;
       }
       
+      function loadPortraitModel(glbPath) {
+        let shared = modelCache.get(glbPath);
+        if (shared) return shared;
+        shared = (async () => {
+          const canFetch = canLoadExternalPortraits();
+          if (canFetch) {
+            try {
+              const response = await fetch(glbPath, { cache: 'no-cache' });
+              if (!response.ok) throw new Error(`GLB request failed: ${response.status}`);
+              return parseGLB(await response.arrayBuffer());
+            } catch (error) {
+              if (glbPath !== DEFAULT_PORTRAIT_GLB_PATH) throw error;
+            }
+          }
+          const embedded = EMBEDDED_PORTRAIT_GLBS[glbPath];
+          if (!embedded) throw new Error(`Portrait GLB requires HTTP loading: ${glbPath}`);
+          return parseGLB(base64ArrayBuffer(embedded));
+        })();
+        modelCache.set(glbPath, shared);
+        shared.catch(() => modelCache.delete(glbPath));
+        return shared;
+      }
+      
       function loadGLBForHolder(holder) {
         if (!holder) return Promise.resolve(null);
         if (holder.model) return Promise.resolve(holder.model);
         if (holder.loading) return holder.loading;
-        let shared = modelCache.get(holder.glb);
-        if (!shared) {
-          shared = (async () => {
-            const canFetch = canLoadExternalPortraits();
-            if (canFetch) {
-              try {
-                const response = await fetch(holder.glb, { cache: 'no-cache' });
-                if (!response.ok) throw new Error(`GLB request failed: ${response.status}`);
-                return parseGLB(await response.arrayBuffer());
-              } catch (error) {
-                if (holder.glb !== DEFAULT_PORTRAIT_GLB_PATH) throw error;
-              }
-            }
-            const embedded = EMBEDDED_PORTRAIT_GLBS[holder.glb];
-            if (!embedded) throw new Error(`Portrait GLB requires HTTP loading: ${holder.glb}`);
-            return parseGLB(base64ArrayBuffer(embedded));
-          })();
-          modelCache.set(holder.glb, shared);
-        }
-        holder.loading = shared.then(model => {
+        holder.loading = (async () => {
+          let loadedGlb = holder.glb;
+          try {
+            const model = await loadPortraitModel(holder.glb);
+            return { model, loadedGlb };
+          } catch (primaryError) {
+            if (!holder.fallbackGlb || holder.fallbackGlb === holder.glb) throw primaryError;
+            loadedGlb = holder.fallbackGlb;
+            const model = await loadPortraitModel(holder.fallbackGlb);
+            return { model, loadedGlb };
+          }
+        })().then(({ model, loadedGlb }) => {
           holder.model = model;
+          holder.loadedGlb = loadedGlb;
           holder.error = null;
-          if (renderer.activeHolder === holder && renderer.loadedGLB !== holder.glb) setRendererModel(model, holder.glb);
+          if (renderer.activeHolder === holder && renderer.loadedGLB !== loadedGlb) setRendererModel(model, loadedGlb);
           return model;
         }).catch(error => {
-          modelCache.delete(holder.glb);
           holder.error = error?.message || 'GLB LOAD FAILED';
           holder.loading = null;
           return null;
@@ -10081,17 +10147,17 @@
           if (subjectHolder !== DEFAULT_GLB_HOLDER && canLoadExternalPortraits() && !subjectHolder.model && !subjectHolder.error) {
             void loadGLBForHolder(subjectHolder);
           }
-        } else if (renderer.loadedGLB === activeHolder.glb && renderer.currentEntry?.model) {
+        } else if (renderer.loadedGLB === (activeHolder.loadedGlb || activeHolder.glb) && renderer.currentEntry?.model) {
           activeHolder.model ||= renderer.currentEntry.model;
         } else if (activeHolder.model) {
-          setRendererModel(activeHolder.model, activeHolder.glb);
+          setRendererModel(activeHolder.model, activeHolder.loadedGlb || activeHolder.glb);
         } else {
           void loadGLBForHolder(activeHolder);
         }
       
         overlay.dataset.holder = subjectHolder.id;
         overlay.dataset.presentationHolder = activeHolder.id;
-        overlay.dataset.glb = activeHolder.glb;
+        overlay.dataset.glb = activeHolder.loadedGlb || activeHolder.glb;
         overlay.dataset.requestedGlb = subjectHolder.glb;
         overlay.dataset.level = subjectHolder.level === null ? '' : String(subjectHolder.level);
         overlay.style.display = 'block';
