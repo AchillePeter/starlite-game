@@ -9901,7 +9901,7 @@
             const canFetch = canLoadExternalPortraits();
             if (canFetch) {
               try {
-                const response = await fetch(holder.glb, { cache: 'force-cache' });
+                const response = await fetch(holder.glb, { cache: 'no-cache' });
                 if (!response.ok) throw new Error(`GLB request failed: ${response.status}`);
                 return parseGLB(await response.arrayBuffer());
               } catch (error) {
@@ -9920,6 +9920,7 @@
           if (renderer.activeHolder === holder && renderer.loadedGLB !== holder.glb) setRendererModel(model, holder.glb);
           return model;
         }).catch(error => {
+          modelCache.delete(holder.glb);
           holder.error = error?.message || 'GLB LOAD FAILED';
           holder.loading = null;
           return null;
