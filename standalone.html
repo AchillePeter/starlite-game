@@ -9585,7 +9585,7 @@
           for (let level = 1; level <= MAX_UNIT_PORTRAIT_LEVEL; level++) {
             Object.assign(base.levels[level], options, {
               glb: dedicatedGlb,
-              fallbackGlb: dedicatedGlb === glb ? null : glb
+              fallbackGlb: null
             });
           }
         }
@@ -9598,7 +9598,7 @@
           const dedicatedGlb = BUILDING_PORTRAIT_GLB_PLACEHOLDERS[type] || glb;
           Object.assign(holder, options, {
             glb: dedicatedGlb,
-            fallbackGlb: dedicatedGlb === glb ? null : glb
+            fallbackGlb: null
           });
         }
       }
