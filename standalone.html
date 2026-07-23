@@ -3011,6 +3011,19 @@
       
         const livingHQs = getLivingHQs();
         const localTeams = new Set(state.localCommandTeams || ['player']);
+        // In multiplayer every peer must continue simulating after an elimination;
+        // stopping only the defeated client's update loop would immediately desync a
+        // three- or four-player room. All peers end together when one HQ remains.
+        if (state.multiplayerActive) {
+          if (livingHQs.length <= 1) {
+            const winnerTeam = livingHQs[0]?.team || attacker?.team || null;
+            endGame(winnerTeam === (state.activeCommandTeam || 'player'), winnerTeam);
+            return;
+          }
+          toast(`${teamLabel(hq.team)} command core destroyed · ${livingHQs.length} commanders remain.`, colorForTeam(hq.team, 'light'));
+          return;
+        }
+      
         const livingLocalHQs = livingHQs.filter(candidate => localTeams.has(candidate.team));
         if (localTeams.has(hq.team) && !livingLocalHQs.length) {
           endGame(false, attacker?.team || livingHQs[0]?.team || null);
@@ -4208,7 +4221,7 @@
     
 
     with (__imports) {
-      Object.defineProperty(__exports, "DEFAULT_COMMAND_DELAY_TICKS", { enumerable: true, get: () => DEFAULT_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MAX_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MAX_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MIN_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "applyQueuedCommands", { enumerable: true, get: () => applyQueuedCommands }); Object.defineProperty(__exports, "getActiveCommandSource", { enumerable: true, get: () => getActiveCommandSource }); Object.defineProperty(__exports, "getActiveCommandTeam", { enumerable: true, get: () => getActiveCommandTeam }); Object.defineProperty(__exports, "getCurrentCommandTick", { enumerable: true, get: () => getCurrentCommandTick }); Object.defineProperty(__exports, "queueCommand", { enumerable: true, get: () => queueCommand }); Object.defineProperty(__exports, "queuedCommandCount", { enumerable: true, get: () => queuedCommandCount }); Object.defineProperty(__exports, "registerCommandSource", { enumerable: true, get: () => registerCommandSource }); Object.defineProperty(__exports, "resetCommandSync", { enumerable: true, get: () => resetCommandSync }); Object.defineProperty(__exports, "setActiveCommandSource", { enumerable: true, get: () => setActiveCommandSource }); Object.defineProperty(__exports, "setActiveCommandTeam", { enumerable: true, get: () => setActiveCommandTeam }); Object.defineProperty(__exports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => setLocalCommandEnvelopeListener });
+      Object.defineProperty(__exports, "DEFAULT_COMMAND_DELAY_TICKS", { enumerable: true, get: () => DEFAULT_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MAX_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MAX_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MIN_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "applyQueuedCommands", { enumerable: true, get: () => applyQueuedCommands }); Object.defineProperty(__exports, "getActiveCommandSource", { enumerable: true, get: () => getActiveCommandSource }); Object.defineProperty(__exports, "getActiveCommandTeam", { enumerable: true, get: () => getActiveCommandTeam }); Object.defineProperty(__exports, "getCurrentCommandTick", { enumerable: true, get: () => getCurrentCommandTick }); Object.defineProperty(__exports, "getRegisteredCommandSourceIds", { enumerable: true, get: () => getRegisteredCommandSourceIds }); Object.defineProperty(__exports, "getRegisteredCommandSources", { enumerable: true, get: () => getRegisteredCommandSources }); Object.defineProperty(__exports, "queueCommand", { enumerable: true, get: () => queueCommand }); Object.defineProperty(__exports, "queuedCommandCount", { enumerable: true, get: () => queuedCommandCount }); Object.defineProperty(__exports, "registerCommandSource", { enumerable: true, get: () => registerCommandSource }); Object.defineProperty(__exports, "resetCommandSync", { enumerable: true, get: () => resetCommandSync }); Object.defineProperty(__exports, "setActiveCommandSource", { enumerable: true, get: () => setActiveCommandSource }); Object.defineProperty(__exports, "setActiveCommandTeam", { enumerable: true, get: () => setActiveCommandTeam }); Object.defineProperty(__exports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => setLocalCommandEnvelopeListener });
       // Deterministic tick-buffered command queue. Input and future networking only
       // enqueue plain data; gameplay mutations happen when main.js applies a tick.
       
@@ -4286,6 +4299,18 @@
       
       function getCurrentCommandTick() {
         return currentTick;
+      }
+      
+      function getRegisteredCommandSources() {
+        return [...sources.values()].map(source => ({
+          id: source.id,
+          team: source.team,
+          local: source.local
+        }));
+      }
+      
+      function getRegisteredCommandSourceIds() {
+        return [...sources.keys()];
       }
       
       function getActiveCommandSource() {
@@ -4371,7 +4396,7 @@
     
 
     with (__imports) {
-      Object.defineProperty(__exports, "ADRENALINE_COOLDOWN", { enumerable: true, get: () => ADRENALINE_COOLDOWN }); Object.defineProperty(__exports, "ADRENALINE_DURATION", { enumerable: true, get: () => ADRENALINE_DURATION }); Object.defineProperty(__exports, "ADRENALINE_RADIUS", { enumerable: true, get: () => ADRENALINE_RADIUS }); Object.defineProperty(__exports, "ADRENALINE_SPEED_MULTIPLIER", { enumerable: true, get: () => ADRENALINE_SPEED_MULTIPLIER }); Object.defineProperty(__exports, "BASE_POP_CAP", { enumerable: true, get: () => BASE_POP_CAP }); Object.defineProperty(__exports, "BLOC_AMOUNT", { enumerable: true, get: () => BLOC_AMOUNT }); Object.defineProperty(__exports, "BUILDING_DATA", { enumerable: true, get: () => BUILDING_DATA }); Object.defineProperty(__exports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => CENTER_STOCK_BONUS }); Object.defineProperty(__exports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => CENTER_YIELD_BONUS }); Object.defineProperty(__exports, "COLORS", { enumerable: true, get: () => COLORS }); Object.defineProperty(__exports, "COLS", { enumerable: true, get: () => COLS }); Object.defineProperty(__exports, "COMPUTER_TEAMS", { enumerable: true, get: () => COMPUTER_TEAMS }); Object.defineProperty(__exports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => DEFAULT_KEYBINDS }); Object.defineProperty(__exports, "DUEL_WORLD_H", { enumerable: true, get: () => DUEL_WORLD_H }); Object.defineProperty(__exports, "DUEL_WORLD_W", { enumerable: true, get: () => DUEL_WORLD_W }); Object.defineProperty(__exports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => ENEMY_BUILD_PLAN }); Object.defineProperty(__exports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => ENEMY_PLAN_REFERENCE_ANGLE }); Object.defineProperty(__exports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => ENEMY_UPGRADE_PLAN }); Object.defineProperty(__exports, "GAME_MODES", { enumerable: true, get: () => GAME_MODES }); Object.defineProperty(__exports, "GAME_MODE_ORDER", { enumerable: true, get: () => GAME_MODE_ORDER }); Object.defineProperty(__exports, "GATHER_TIME", { enumerable: true, get: () => GATHER_TIME }); Object.defineProperty(__exports, "HOUSING_CAP", { enumerable: true, get: () => HOUSING_CAP }); Object.defineProperty(__exports, "HOUSING_COST_MULTIPLIER", { enumerable: true, get: () => HOUSING_COST_MULTIPLIER }); Object.defineProperty(__exports, "HOUSING_UPGRADE", { enumerable: true, get: () => HOUSING_UPGRADE }); Object.defineProperty(__exports, "LAB_UNIT_LABELS", { enumerable: true, get: () => LAB_UNIT_LABELS }); Object.defineProperty(__exports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => LAB_UPGRADE_CATEGORIES }); Object.defineProperty(__exports, "LOAD_GAS", { enumerable: true, get: () => LOAD_GAS }); Object.defineProperty(__exports, "LOAD_MINERAL", { enumerable: true, get: () => LOAD_MINERAL }); Object.defineProperty(__exports, "HUMAN_TEAM", { enumerable: true, get: () => HUMAN_TEAM }); Object.defineProperty(__exports, "HUMAN_TEAMS", { enumerable: true, get: () => HUMAN_TEAMS }); Object.defineProperty(__exports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => MINERS_HUT_UPGRADES }); Object.defineProperty(__exports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => PLAYER_MOVE_OVERRIDE }); Object.defineProperty(__exports, "PRODUCTION_TECH", { enumerable: true, get: () => PRODUCTION_TECH }); Object.defineProperty(__exports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => RESOURCE_FIELD_BUILD_RADIUS }); Object.defineProperty(__exports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => ROBO_MINERS_PER_DROPOFF }); Object.defineProperty(__exports, "ROWS", { enumerable: true, get: () => ROWS }); Object.defineProperty(__exports, "SIMILAR_RESOURCE_DISTANCE", { enumerable: true, get: () => SIMILAR_RESOURCE_DISTANCE }); Object.defineProperty(__exports, "STORAGE_KEYS", { enumerable: true, get: () => STORAGE_KEYS }); Object.defineProperty(__exports, "TEAM_STYLES", { enumerable: true, get: () => TEAM_STYLES }); Object.defineProperty(__exports, "TILE", { enumerable: true, get: () => TILE }); Object.defineProperty(__exports, "TURRET_TECH", { enumerable: true, get: () => TURRET_TECH }); Object.defineProperty(__exports, "UNIT_DATA", { enumerable: true, get: () => UNIT_DATA }); Object.defineProperty(__exports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => UNIT_UPGRADE_DATA }); Object.defineProperty(__exports, "VEHICLE_UNIT_TYPES", { enumerable: true, get: () => VEHICLE_UNIT_TYPES }); Object.defineProperty(__exports, "WALKER_UNIT_TYPES", { enumerable: true, get: () => WALKER_UNIT_TYPES }); Object.defineProperty(__exports, "WORLD_H", { enumerable: true, get: () => WORLD_H }); Object.defineProperty(__exports, "WORLD_W", { enumerable: true, get: () => WORLD_W }); Object.defineProperty(__exports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => ZOOM_OUT_DUEL_FRACTION }); Object.defineProperty(__exports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => KEYBIND_DEFINITIONS }); Object.defineProperty(__exports, "areHostileTeams", { enumerable: true, get: () => areHostileTeams }); Object.defineProperty(__exports, "clamp", { enumerable: true, get: () => clamp }); Object.defineProperty(__exports, "configureHumanTeams", { enumerable: true, get: () => configureHumanTeams }); Object.defineProperty(__exports, "configureWorldScale", { enumerable: true, get: () => configureWorldScale }); Object.defineProperty(__exports, "dist", { enumerable: true, get: () => dist }); Object.defineProperty(__exports, "effectiveSightRadius", { enumerable: true, get: () => effectiveSightRadius }); Object.defineProperty(__exports, "isAirUnit", { enumerable: true, get: () => isAirUnit }); Object.defineProperty(__exports, "isAirUnitType", { enumerable: true, get: () => isAirUnitType }); Object.defineProperty(__exports, "isComputerTeam", { enumerable: true, get: () => isComputerTeam }); Object.defineProperty(__exports, "isHumanTeam", { enumerable: true, get: () => isHumanTeam }); Object.defineProperty(__exports, "isResourceHarvester", { enumerable: true, get: () => isResourceHarvester }); Object.defineProperty(__exports, "isResourceHarvesterType", { enumerable: true, get: () => isResourceHarvesterType }); Object.defineProperty(__exports, "playUnitAnimation", { enumerable: true, get: () => playUnitAnimation }); Object.defineProperty(__exports, "pointInRect", { enumerable: true, get: () => pointInRect }); Object.defineProperty(__exports, "rotateOffset", { enumerable: true, get: () => rotateOffset }); Object.defineProperty(__exports, "sameMovementLayer", { enumerable: true, get: () => sameMovementLayer }); Object.defineProperty(__exports, "sqrDist", { enumerable: true, get: () => sqrDist }); Object.defineProperty(__exports, "teamColor", { enumerable: true, get: () => teamColor }); Object.defineProperty(__exports, "teamLabel", { enumerable: true, get: () => teamLabel }); Object.defineProperty(__exports, "teamStyle", { enumerable: true, get: () => teamStyle }); Object.defineProperty(__exports, "unitAnimationPose", { enumerable: true, get: () => unitAnimationPose }); Object.defineProperty(__exports, "unitUpgradeData", { enumerable: true, get: () => unitUpgradeData }); Object.defineProperty(__exports, "unitUpgradeTiers", { enumerable: true, get: () => unitUpgradeTiers });
+      Object.defineProperty(__exports, "ADRENALINE_COOLDOWN", { enumerable: true, get: () => ADRENALINE_COOLDOWN }); Object.defineProperty(__exports, "ADRENALINE_DURATION", { enumerable: true, get: () => ADRENALINE_DURATION }); Object.defineProperty(__exports, "ADRENALINE_RADIUS", { enumerable: true, get: () => ADRENALINE_RADIUS }); Object.defineProperty(__exports, "ADRENALINE_SPEED_MULTIPLIER", { enumerable: true, get: () => ADRENALINE_SPEED_MULTIPLIER }); Object.defineProperty(__exports, "BASE_POP_CAP", { enumerable: true, get: () => BASE_POP_CAP }); Object.defineProperty(__exports, "BLOC_AMOUNT", { enumerable: true, get: () => BLOC_AMOUNT }); Object.defineProperty(__exports, "BUILDING_DATA", { enumerable: true, get: () => BUILDING_DATA }); Object.defineProperty(__exports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => CENTER_STOCK_BONUS }); Object.defineProperty(__exports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => CENTER_YIELD_BONUS }); Object.defineProperty(__exports, "COLORS", { enumerable: true, get: () => COLORS }); Object.defineProperty(__exports, "COLS", { enumerable: true, get: () => COLS }); Object.defineProperty(__exports, "COMPUTER_TEAMS", { enumerable: true, get: () => COMPUTER_TEAMS }); Object.defineProperty(__exports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => DEFAULT_KEYBINDS }); Object.defineProperty(__exports, "DUEL_WORLD_H", { enumerable: true, get: () => DUEL_WORLD_H }); Object.defineProperty(__exports, "DUEL_WORLD_W", { enumerable: true, get: () => DUEL_WORLD_W }); Object.defineProperty(__exports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => ENEMY_BUILD_PLAN }); Object.defineProperty(__exports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => ENEMY_PLAN_REFERENCE_ANGLE }); Object.defineProperty(__exports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => ENEMY_UPGRADE_PLAN }); Object.defineProperty(__exports, "GAME_MODES", { enumerable: true, get: () => GAME_MODES }); Object.defineProperty(__exports, "GAME_MODE_ORDER", { enumerable: true, get: () => GAME_MODE_ORDER }); Object.defineProperty(__exports, "GATHER_TIME", { enumerable: true, get: () => GATHER_TIME }); Object.defineProperty(__exports, "HOUSING_CAP", { enumerable: true, get: () => HOUSING_CAP }); Object.defineProperty(__exports, "HOUSING_COST_MULTIPLIER", { enumerable: true, get: () => HOUSING_COST_MULTIPLIER }); Object.defineProperty(__exports, "HOUSING_UPGRADE", { enumerable: true, get: () => HOUSING_UPGRADE }); Object.defineProperty(__exports, "LAB_UNIT_LABELS", { enumerable: true, get: () => LAB_UNIT_LABELS }); Object.defineProperty(__exports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => LAB_UPGRADE_CATEGORIES }); Object.defineProperty(__exports, "LOAD_GAS", { enumerable: true, get: () => LOAD_GAS }); Object.defineProperty(__exports, "LOAD_MINERAL", { enumerable: true, get: () => LOAD_MINERAL }); Object.defineProperty(__exports, "HUMAN_TEAM", { enumerable: true, get: () => HUMAN_TEAM }); Object.defineProperty(__exports, "HUMAN_TEAMS", { enumerable: true, get: () => HUMAN_TEAMS }); Object.defineProperty(__exports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => MINERS_HUT_UPGRADES }); Object.defineProperty(__exports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => MULTIPLAYER_TEAMS }); Object.defineProperty(__exports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => PLAYER_MOVE_OVERRIDE }); Object.defineProperty(__exports, "PRODUCTION_TECH", { enumerable: true, get: () => PRODUCTION_TECH }); Object.defineProperty(__exports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => RESOURCE_FIELD_BUILD_RADIUS }); Object.defineProperty(__exports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => ROBO_MINERS_PER_DROPOFF }); Object.defineProperty(__exports, "ROWS", { enumerable: true, get: () => ROWS }); Object.defineProperty(__exports, "SIMILAR_RESOURCE_DISTANCE", { enumerable: true, get: () => SIMILAR_RESOURCE_DISTANCE }); Object.defineProperty(__exports, "STORAGE_KEYS", { enumerable: true, get: () => STORAGE_KEYS }); Object.defineProperty(__exports, "TEAM_STYLES", { enumerable: true, get: () => TEAM_STYLES }); Object.defineProperty(__exports, "TILE", { enumerable: true, get: () => TILE }); Object.defineProperty(__exports, "TURRET_TECH", { enumerable: true, get: () => TURRET_TECH }); Object.defineProperty(__exports, "UNIT_DATA", { enumerable: true, get: () => UNIT_DATA }); Object.defineProperty(__exports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => UNIT_UPGRADE_DATA }); Object.defineProperty(__exports, "VEHICLE_UNIT_TYPES", { enumerable: true, get: () => VEHICLE_UNIT_TYPES }); Object.defineProperty(__exports, "WALKER_UNIT_TYPES", { enumerable: true, get: () => WALKER_UNIT_TYPES }); Object.defineProperty(__exports, "WORLD_H", { enumerable: true, get: () => WORLD_H }); Object.defineProperty(__exports, "WORLD_W", { enumerable: true, get: () => WORLD_W }); Object.defineProperty(__exports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => ZOOM_OUT_DUEL_FRACTION }); Object.defineProperty(__exports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => KEYBIND_DEFINITIONS }); Object.defineProperty(__exports, "areHostileTeams", { enumerable: true, get: () => areHostileTeams }); Object.defineProperty(__exports, "clamp", { enumerable: true, get: () => clamp }); Object.defineProperty(__exports, "configureHumanTeams", { enumerable: true, get: () => configureHumanTeams }); Object.defineProperty(__exports, "configureWorldScale", { enumerable: true, get: () => configureWorldScale }); Object.defineProperty(__exports, "dist", { enumerable: true, get: () => dist }); Object.defineProperty(__exports, "effectiveSightRadius", { enumerable: true, get: () => effectiveSightRadius }); Object.defineProperty(__exports, "isAirUnit", { enumerable: true, get: () => isAirUnit }); Object.defineProperty(__exports, "isAirUnitType", { enumerable: true, get: () => isAirUnitType }); Object.defineProperty(__exports, "isComputerTeam", { enumerable: true, get: () => isComputerTeam }); Object.defineProperty(__exports, "isHumanTeam", { enumerable: true, get: () => isHumanTeam }); Object.defineProperty(__exports, "isResourceHarvester", { enumerable: true, get: () => isResourceHarvester }); Object.defineProperty(__exports, "isResourceHarvesterType", { enumerable: true, get: () => isResourceHarvesterType }); Object.defineProperty(__exports, "playUnitAnimation", { enumerable: true, get: () => playUnitAnimation }); Object.defineProperty(__exports, "pointInRect", { enumerable: true, get: () => pointInRect }); Object.defineProperty(__exports, "rotateOffset", { enumerable: true, get: () => rotateOffset }); Object.defineProperty(__exports, "sameMovementLayer", { enumerable: true, get: () => sameMovementLayer }); Object.defineProperty(__exports, "sqrDist", { enumerable: true, get: () => sqrDist }); Object.defineProperty(__exports, "teamColor", { enumerable: true, get: () => teamColor }); Object.defineProperty(__exports, "teamLabel", { enumerable: true, get: () => teamLabel }); Object.defineProperty(__exports, "teamStyle", { enumerable: true, get: () => teamStyle }); Object.defineProperty(__exports, "unitAnimationPose", { enumerable: true, get: () => unitAnimationPose }); Object.defineProperty(__exports, "unitUpgradeData", { enumerable: true, get: () => unitUpgradeData }); Object.defineProperty(__exports, "unitUpgradeTiers", { enumerable: true, get: () => unitUpgradeTiers });
       // World dimensions, balance data, upgrade data, unit families, and pure helpers.
       // Extracted from the original single-file build and shared by every runtime mode.
       // The duel battlefield is the reference size. Larger free-for-all modes scale
@@ -4424,8 +4449,11 @@
       // Front-end, game-mode, team, and keybinding data
       // ---------------------------------------------------------------------------
       const HUMAN_TEAM = 'player';
-      const HUMAN_TEAMS = Object.freeze(['player', 'player2']);
-      let runtimeHumanTeams = new Set(HUMAN_TEAMS);
+      // Teams that can be controlled by human command sources. Runtime ownership is
+      // configured per match so the enemy slots remain CPUs in single-player modes.
+      const HUMAN_TEAMS = Object.freeze(['player', 'player2', 'enemy', 'enemy2', 'enemy3']);
+      const MULTIPLAYER_TEAMS = Object.freeze(['player', 'enemy', 'enemy2', 'enemy3']);
+      let runtimeHumanTeams = new Set([HUMAN_TEAM]);
       const COMPUTER_TEAMS = Object.freeze(['enemy', 'enemy2', 'enemy3']);
       
       // The first computer keeps the original red palette. Extra computer players
@@ -4438,7 +4466,7 @@
         enemy3: Object.freeze({ label: 'VIOLET CPU', primary: '#b879ff', light: '#dfb8ff', dark: '#59337d' })
       });
       
-      function configureHumanTeams(teams = HUMAN_TEAMS) {
+      function configureHumanTeams(teams = [HUMAN_TEAM]) {
         runtimeHumanTeams = new Set((teams || []).map(team => String(team || '').trim()).filter(Boolean));
         if (!runtimeHumanTeams.size) runtimeHumanTeams.add(HUMAN_TEAM);
         return [...runtimeHumanTeams];
@@ -4465,7 +4493,12 @@
       }
       
       function teamLabel(team) {
-        if (isHumanTeam(team)) return team === HUMAN_TEAM ? 'PLAYER' : 'PLAYER 2';
+        if (isHumanTeam(team)) {
+          const humanOrder = [...runtimeHumanTeams];
+          const index = humanOrder.indexOf(team);
+          if (humanOrder.length === 1 && team === HUMAN_TEAM) return 'PLAYER';
+          return `PLAYER ${index >= 0 ? index + 1 : '?'}`;
+        }
         return teamStyle(team).label;
       }
       
@@ -4483,8 +4516,16 @@
           computerCount: 3, mapScale: 1.5, enabled: true, pvp: false, randomCorners: true
         }),
         pvp: Object.freeze({
-          id: 'pvp', label: 'HOST / JOIN PVP', description: 'Two-player lockstep match through the StarLite relay.',
-          computerCount: 0, spawnCount: 2, enabled: true, pvp: true, randomCorners: true
+          id: 'pvp', label: 'HOST / JOIN 1v1 PVP', description: 'Two-player lockstep match through the StarLite relay.',
+          computerCount: 0, spawnCount: 2, mapScale: 1, enabled: true, pvp: true, randomCorners: true
+        }),
+        pvp3: Object.freeze({
+          id: 'pvp-3', label: 'HOST / JOIN 3-PLAYER PVP', description: 'Three human commanders in one free-for-all room.',
+          computerCount: 0, spawnCount: 3, mapScale: 1.2, enabled: true, pvp: true, randomCorners: true
+        }),
+        pvp4: Object.freeze({
+          id: 'pvp-4', label: 'HOST / JOIN 4-PLAYER PVP', description: 'Four human commanders in one free-for-all room.',
+          computerCount: 0, spawnCount: 4, mapScale: 1.5, enabled: true, pvp: true, randomCorners: true
         }),
         sandbox: Object.freeze({
           id: 'sandbox', label: 'SANDBOX MODE',
@@ -4492,7 +4533,7 @@
           computerCount: 3, mapScale: 1.5, enabled: true, pvp: false, sandbox: true
         })
       });
-      const GAME_MODE_ORDER = Object.freeze(['duel', 'threeWay', 'fourWay', 'pvp']);
+      const GAME_MODE_ORDER = Object.freeze(['duel', 'threeWay', 'fourWay', 'pvp', 'pvp3', 'pvp4']);
       
       const STORAGE_KEYS = Object.freeze({
         keybinds: 'starlite.keybinds.v1',
@@ -7087,7 +7128,7 @@
   __define("main.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("multiplayer.js"); const __dep6 = __require("syncChecksum.js"); const __dep7 = __require("economy.js"); const __dep8 = __require("menu.js"); const __dep9 = __require("rendering.js"); const __dep10 = __require("state.js"); const __dep11 = __require("terrain.js"); const __dep12 = __require("workerBridge.js");
-    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep4["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep4["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep4["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep4["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep5["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep5["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep5["connectMultiplayer"] }); Object.defineProperty(__imports, "multiplayerSession", { enumerable: true, get: () => __dep5["multiplayerSession"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep5["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep5["sendSyncChecksum"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep5["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep6["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep6["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep7["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep7["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep7["teamEconomyState"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep8["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep9["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep9["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep10["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep10["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep10["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep10["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep10["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep10["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep10["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep10["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep10["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep10["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep10["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep10["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep10["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep10["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep10["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep10["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep10["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep11["generateTerrain"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep11["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep11["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep11["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep12["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep12["setDeterministicLockstepMode"] });
+    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep4["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep4["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep4["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep4["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep5["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep5["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerSession", { enumerable: true, get: () => __dep5["multiplayerSession"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep5["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep5["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep5["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep5["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep6["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep6["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep7["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep7["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep7["teamEconomyState"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep8["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep9["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep9["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep10["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep10["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep10["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep10["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep10["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep10["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep10["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep10["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep10["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep10["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep10["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep10["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep10["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep10["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep10["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep10["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep10["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep11["generateTerrain"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep11["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep11["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep11["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep12["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep12["setDeterministicLockstepMode"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeGameMode", { enumerable: true, get: () => activeGameMode }); Object.defineProperty(__exports, "bootstrapWorld", { enumerable: true, get: () => bootstrapWorld }); Object.defineProperty(__exports, "competitiveSpawnLayout", { enumerable: true, get: () => competitiveSpawnLayout }); Object.defineProperty(__exports, "enemyHQ", { enumerable: true, get: () => enemyHQ }); Object.defineProperty(__exports, "enemyHQs", { enumerable: true, get: () => enemyHQs }); Object.defineProperty(__exports, "getActiveTeams", { enumerable: true, get: () => getActiveTeams }); Object.defineProperty(__exports, "getHQForTeam", { enumerable: true, get: () => getHQForTeam }); Object.defineProperty(__exports, "getLivingHQs", { enumerable: true, get: () => getLivingHQs }); Object.defineProperty(__exports, "getNearestHostileHQ", { enumerable: true, get: () => getNearestHostileHQ }); Object.defineProperty(__exports, "matchSeedForMode", { enumerable: true, get: () => matchSeedForMode }); Object.defineProperty(__exports, "normalizedGameCode", { enumerable: true, get: () => normalizedGameCode }); Object.defineProperty(__exports, "playerHQ", { enumerable: true, get: () => playerHQ }); Object.defineProperty(__exports, "setLocalCommandTeam", { enumerable: true, get: () => setLocalCommandTeam }); Object.defineProperty(__exports, "startStarLite", { enumerable: true, get: () => startStarLite });
@@ -7146,29 +7187,22 @@
       
       async function resolveMultiplayerMode(mode) {
         if (!mode?.pvp) return mode;
-        const gameCode = normalizedGameCode(mode);
-        const role = mode.pvpRole;
-        const localTeam = mode.localHumanTeams?.[0];
-        const remoteTeam = mode.remoteHumanTeams?.[0];
-        const hostSeed = role === 'host' ? createRandomSeed() : null;
-        const connected = await connectMultiplayer({
-          roomCode: gameCode,
-          role,
-          localTeam,
-          remoteTeam,
-          seed: hostSeed,
+        const connected = multiplayerSession();
+        if (!connected?.started) throw new Error('The multiplayer lobby has not started this match.');
+        const gameCode = normalizedGameCode(mode) || connected.roomCode;
+        setMultiplayerCallbacks({
           onDisconnect: pauseMultiplayerMatch,
-          onPeerReady: () => {
-            if (!state.multiplayerPaused) state.multiplayerStatus = '';
-          }
+          onLobbyUpdate: null
         });
         setRandomSeed(connected.seed);
         return {
           ...mode,
           gameCode,
           seed: connected.seed,
-          localHumanTeams: [localTeam],
-          remoteHumanTeams: [remoteTeam]
+          pvpRole: connected.role,
+          localHumanTeams: [connected.localTeam],
+          remoteHumanTeams: [...connected.remoteTeams],
+          multiplayerPlayers: connected.players
         };
       }
       
@@ -7373,7 +7407,7 @@
         hqByTeam.set(team, hq);
         addResourceField(x, y, resourceAngle, {
           starting: true,
-          enemy: COMPUTER_TEAMS.includes(team),
+          enemy: isComputerTeam(team),
           ownerTeam: team,
           minerals: 7,
           gases: 2,
@@ -7447,7 +7481,9 @@
         state.multiplayerRoomCode = mode.pvp ? gameCode : null;
         state.multiplayerRole = mode.pvp ? mode.pvpRole : null;
         state.multiplayerRemoteTeam = configuredRemoteTeams[0] || null;
-        state.multiplayerStatus = mode.pvp ? `ROOM ${gameCode} · WAITING FOR OPPONENT` : '';
+        state.multiplayerRemoteTeams = configuredRemoteTeams;
+        state.multiplayerPlayers = mode.pvp ? (mode.multiplayerPlayers || []) : [];
+        state.multiplayerStatus = '';
         resetCommandSync({
           tick: 0,
           localTeams: configuredLocalTeams,
@@ -7525,7 +7561,6 @@
         centerCamOn(activeHQ.x, activeHQ.y);
         recomputeVisibility();
         state.gameStarted = true;
-        if (mode.pvp && multiplayerSession()?.peerReady) state.multiplayerStatus = '';
         openBuildMenu();
       }
       
@@ -7618,14 +7653,16 @@
 
   __define("menu.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js");
-    Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js");
+    Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "actionForKeyboardEvent", { enumerable: true, get: () => actionForKeyboardEvent }); Object.defineProperty(__exports, "getKeybinds", { enumerable: true, get: () => getKeybinds }); Object.defineProperty(__exports, "isMenuOpen", { enumerable: true, get: () => isMenuOpen }); Object.defineProperty(__exports, "keybindCodeLabel", { enumerable: true, get: () => keybindCodeLabel }); Object.defineProperty(__exports, "matchesKeybind", { enumerable: true, get: () => matchesKeybind }); Object.defineProperty(__exports, "resetKeybinds", { enumerable: true, get: () => resetKeybinds }); Object.defineProperty(__exports, "showMainMenu", { enumerable: true, get: () => showMainMenu });
       // StarLite title screen, animated grass backdrop, game-mode selection, and
       // persistent keyboard settings. The menu creates its own DOM/CSS, so the
       // existing HTML only needs to keep loading main.js as a module.
+      
+      
       
       
       
@@ -7808,6 +7845,15 @@
         .starlite-menu__room { margin-top: 14px; padding: 16px; border: 1px solid rgba(125,232,255,.35); border-radius: 11px; background: rgba(23,67,78,.42); text-align: center; }
         .starlite-menu__room small { display: block; color: #badde4; font-size: 10px; letter-spacing: .18em; }
         .starlite-menu__room-code { display: block; margin: 7px 0 13px; color: #7de8ff; font: 900 30px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .18em; }
+        .starlite-menu__lobby-list { display: grid; gap: 7px; margin: 12px 0; text-align: left; }
+        .starlite-menu__lobby-player { min-height: 42px; padding: 8px 10px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; border: 1px solid rgba(190,216,232,.16); border-radius: 8px; background: rgba(5,12,17,.38); }
+        .starlite-menu__lobby-player strong { display: block; color: #edf7f8; font-size: 12px; letter-spacing: .07em; }
+        .starlite-menu__lobby-player small { margin-top: 2px; color: #8fa6ae; letter-spacing: .05em; }
+        .starlite-menu__ready-indicator { color: #f4c679; font: 800 10px ui-monospace, monospace; letter-spacing: .08em; }
+        .starlite-menu__lobby-player[data-ready="true"] { border-color: rgba(135,224,111,.42); background: rgba(38,80,45,.28); }
+        .starlite-menu__lobby-player[data-ready="true"] .starlite-menu__ready-indicator { color: #87e06f; }
+        .starlite-menu__lobby-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+        .starlite-menu__lobby-controls > :only-child { grid-column: 1 / -1; }
         .starlite-menu__pvp-back { margin-top: 14px; width: 100%; }
         @media (max-width: 560px) {
           .starlite-menu__layout { align-content: start; overflow: auto; padding-bottom: 104px; }
@@ -7951,6 +7997,10 @@
         return [...bytes].map(value => GAME_CODE_ALPHABET[value % GAME_CODE_ALPHABET.length]).join('');
       }
       
+      function gameModeById(id) {
+        return Object.values(GAME_MODES).find(mode => mode.id === id) || null;
+      }
+      
       function modeCardsMarkup() {
         return GAME_MODE_ORDER.map(key => {
           const mode = GAME_MODES[key];
@@ -8002,16 +8052,20 @@
               <div class="starlite-menu__utility"><button class="starlite-menu__secondary" type="button" data-open-keybinds>CHANGE KEYBINDS</button></div>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="pvp">
-              <h2 class="starlite-menu__heading">PVP relay match</h2>
-              <p class="starlite-menu__pvp-copy">The host creates a room code. The joining player enters that same code; both clients then run the same lockstep simulation.</p>
-              <div class="starlite-menu__pvp-actions">
+              <h2 class="starlite-menu__heading" data-pvp-heading>PVP relay match</h2>
+              <p class="starlite-menu__pvp-copy" data-pvp-copy>The host creates a room code. Every player joins the same deterministic lockstep room.</p>
+              <div class="starlite-menu__pvp-actions" data-pvp-actions>
                 <button class="starlite-menu__secondary" type="button" data-pvp-host>HOST</button>
                 <button class="starlite-menu__secondary" type="button" data-pvp-join>JOIN</button>
               </div>
               <div class="starlite-menu__room starlite-hidden" data-pvp-room>
-                <small>SHARE THIS ROOM CODE</small>
+                <small>ROOM CODE</small>
                 <strong class="starlite-menu__room-code" data-pvp-room-code></strong>
-                <button class="starlite-menu__secondary" type="button" data-pvp-start-host>START HOST SESSION</button>
+                <div class="starlite-menu__lobby-list" data-pvp-players></div>
+                <div class="starlite-menu__lobby-controls">
+                  <button class="starlite-menu__secondary" type="button" data-pvp-ready>READY UP</button>
+                  <button class="starlite-menu__secondary starlite-hidden" type="button" data-pvp-start-host disabled>START MATCH</button>
+                </div>
               </div>
               <p class="starlite-menu__status" data-pvp-status role="status" aria-live="polite"></p>
               <button class="starlite-menu__secondary starlite-menu__pvp-back" type="button" data-close-pvp>BACK</button>
@@ -8035,11 +8089,21 @@
         const keybindView = root.querySelector('[data-view="keybinds"]');
         const status = modeView.querySelector('.starlite-menu__status');
         const pvpStatus = root.querySelector('[data-pvp-status]');
+        const pvpHeading = root.querySelector('[data-pvp-heading]');
+        const pvpCopy = root.querySelector('[data-pvp-copy]');
+        const pvpActions = root.querySelector('[data-pvp-actions]');
         const pvpRoom = root.querySelector('[data-pvp-room]');
         const pvpRoomCode = root.querySelector('[data-pvp-room-code]');
+        const pvpPlayers = root.querySelector('[data-pvp-players]');
+        const pvpReadyButton = root.querySelector('[data-pvp-ready]');
+        const pvpStartButton = root.querySelector('[data-pvp-start-host]');
         const keybindStatus = root.querySelector('[data-keybind-status]');
         let capturingAction = null;
         let hostedGameCode = '';
+        let selectedPvpMode = GAME_MODES.pvp;
+        let pvpConnectionPending = null;
+        let lobbySnapshot = null;
+        let lobbyFinishing = false;
       
         function renderKeybindButtons() {
           for (const button of root.querySelectorAll('[data-keybind]')) {
@@ -8050,23 +8114,79 @@
           }
         }
       
-        function openPvp() {
+        function renderPvpLobby(snapshot = lobbySnapshot) {
+          lobbySnapshot = snapshot || null;
+          const slotCount = snapshot?.slotCount || selectedPvpMode.spawnCount || 2;
+          const players = snapshot?.players || [];
+          pvpPlayers.innerHTML = Array.from({ length: slotCount }, (_, slot) => {
+            const player = players.find(candidate => candidate.slot === slot);
+            const ready = !!player?.ready;
+            const labels = [`PLAYER ${slot + 1}`];
+            if (player?.host) labels.push('HOST');
+            if (player?.clientId === snapshot?.clientId) labels.push('YOU');
+            return `<div class="starlite-menu__lobby-player" data-ready="${ready}">
+              <span><strong>${labels.join(' · ')}</strong><small>${player ? player.team.toUpperCase() : 'WAITING FOR CONNECTION'}</small></span>
+              <span class="starlite-menu__ready-indicator">${player ? (ready ? 'READY' : 'NOT READY') : 'EMPTY'}</span>
+            </div>`;
+          }).join('');
+      
+          const connected = !!snapshot?.connected;
+          const assigned = !!snapshot?.localTeam;
+          const lobbyMode = gameModeById(snapshot?.modeId);
+          if (lobbyMode) {
+            pvpHeading.textContent = `${lobbyMode.spawnCount}-PLAYER PVP LOBBY`;
+            pvpCopy.textContent = `Host or join a ${lobbyMode.spawnCount}-player free-for-all. The match starts only after every connected slot is ready.`;
+          }
+          const joining = !!snapshot?.roomCode;
+          pvpActions.classList.toggle('starlite-hidden', joining);
+          pvpRoom.classList.toggle('starlite-hidden', !joining);
+          pvpReadyButton.disabled = !connected || !assigned || !!snapshot?.started;
+          pvpReadyButton.textContent = snapshot?.localReady ? 'UNREADY' : 'READY UP';
+          const isHost = snapshot?.role === 'host';
+          pvpStartButton.classList.toggle('starlite-hidden', !isHost);
+          pvpStartButton.disabled = !snapshot?.canStart;
+      
+          if (!snapshot) return;
+          if (!assigned) { pvpStatus.textContent = 'Connected · waiting for the host roster…'; return; }
+          const missing = Math.max(0, slotCount - players.length);
+          const unready = players.filter(player => !player.ready).length;
+          if (missing) pvpStatus.textContent = `Waiting for ${missing} more player${missing === 1 ? '' : 's'}…`;
+          else if (unready) pvpStatus.textContent = `All slots connected · ${unready} player${unready === 1 ? '' : 's'} not ready.`;
+          else if (isHost) pvpStatus.textContent = 'All players ready. Start the match.';
+          else pvpStatus.textContent = 'Ready · waiting for the host to start.';
+        }
+      
+        function openPvp(mode) {
+          selectedPvpMode = mode || GAME_MODES.pvp;
           status.textContent = '';
           modeView.classList.add('starlite-hidden');
           keybindView.classList.add('starlite-hidden');
           pvpView.classList.remove('starlite-hidden');
+          pvpHeading.textContent = `${selectedPvpMode.spawnCount}-PLAYER PVP LOBBY`;
+          pvpCopy.textContent = `Host or join a ${selectedPvpMode.spawnCount}-player free-for-all. The match starts only after every connected slot is ready.`;
           pvpStatus.textContent = '';
+          pvpActions.classList.remove('starlite-hidden');
+          pvpRoom.classList.add('starlite-hidden');
+          pvpRoomCode.textContent = '';
+          lobbySnapshot = null;
+          renderPvpLobby(null);
           pvpView.querySelector('[data-pvp-host]')?.focus();
         }
       
         function closePvp() {
+          if (pvpConnectionPending && !lobbyFinishing) closeMultiplayer();
+          pvpConnectionPending = null;
+          lobbySnapshot = null;
           hostedGameCode = '';
           pvpRoom.classList.add('starlite-hidden');
+          pvpActions.classList.remove('starlite-hidden');
           pvpRoomCode.textContent = '';
+          pvpPlayers.innerHTML = '';
           pvpStatus.textContent = '';
           pvpView.classList.add('starlite-hidden');
           modeView.classList.remove('starlite-hidden');
-          root.querySelector('[data-mode="pvp"]')?.focus();
+          const key = GAME_MODE_ORDER.find(candidate => GAME_MODES[candidate] === selectedPvpMode) || 'pvp';
+          root.querySelector(`[data-mode="${key}"]`)?.focus();
         }
       
         function openKeybinds() {
@@ -8123,6 +8243,7 @@
       
         return new Promise(resolve => {
           function finish(mode) {
+            lobbyFinishing = true;
             storageSet(STORAGE_KEYS.lastGameMode, mode.id);
             menuOpen = false;
             delete document.documentElement.dataset.starliteMenuOpen;
@@ -8133,6 +8254,60 @@
             resolve(mode);
           }
       
+          function beginPvpConnection(role, gameCode) {
+            if (pvpConnectionPending) return;
+            hostedGameCode = gameCode;
+            pvpRoomCode.textContent = gameCode;
+            pvpActions.classList.add('starlite-hidden');
+            pvpRoom.classList.remove('starlite-hidden');
+            pvpReadyButton.disabled = true;
+            pvpStartButton.disabled = true;
+            pvpStartButton.classList.toggle('starlite-hidden', role !== 'host');
+            pvpStatus.textContent = 'Connecting to the StarLite relay…';
+            renderPvpLobby({
+              role,
+              roomCode: gameCode,
+              slotCount: selectedPvpMode.spawnCount,
+              players: [],
+              connected: false,
+              localReady: false,
+              canStart: false
+            });
+      
+            const pending = connectMultiplayer({
+              roomCode: gameCode,
+              role,
+              slotCount: selectedPvpMode.spawnCount,
+              modeId: selectedPvpMode.id,
+              seed: role === 'host' ? createRandomSeed() : undefined,
+              onLobbyUpdate: renderPvpLobby,
+              onDisconnect: message => { if (!lobbyFinishing) pvpStatus.textContent = message; }
+            });
+            pvpConnectionPending = pending;
+            pending.then(connected => {
+              if (pvpConnectionPending !== pending || lobbyFinishing) return;
+              const resolvedMode = gameModeById(connected.modeId) || selectedPvpMode;
+              finish({
+                ...resolvedMode,
+                pvpRole: connected.role,
+                gameCode: connected.roomCode,
+                seed: connected.seed,
+                localHumanTeams: [connected.localTeam],
+                remoteHumanTeams: [...connected.remoteTeams],
+                multiplayerConnected: true,
+                multiplayerPlayers: connected.players
+              });
+            }).catch(error => {
+              if (pvpConnectionPending !== pending || lobbyFinishing) return;
+              console.warn('PVP lobby connection failed.', error);
+              pvpConnectionPending = null;
+              closeMultiplayer();
+              pvpActions.classList.remove('starlite-hidden');
+              pvpRoom.classList.add('starlite-hidden');
+              pvpStatus.textContent = error?.message || 'Could not join the PVP lobby.';
+            });
+          }
+      
           for (const button of root.querySelectorAll('[data-mode]')) {
             button.addEventListener('click', () => {
               const mode = GAME_MODES[button.dataset.mode];
@@ -8141,7 +8316,7 @@
                 return;
               }
               if (mode.pvp) {
-                openPvp();
+                openPvp(mode);
                 return;
               }
               finish(mode);
@@ -8149,21 +8324,7 @@
           }
       
           root.querySelector('[data-pvp-host]').addEventListener('click', () => {
-            hostedGameCode = generateMenuGameCode();
-            pvpRoomCode.textContent = hostedGameCode;
-            pvpRoom.classList.remove('starlite-hidden');
-            pvpStatus.textContent = 'Share the code, then start the host session.';
-            root.querySelector('[data-pvp-start-host]')?.focus();
-          });
-          root.querySelector('[data-pvp-start-host]').addEventListener('click', () => {
-            if (!hostedGameCode) return;
-            finish({
-              ...GAME_MODES.pvp,
-              pvpRole: 'host',
-              gameCode: hostedGameCode,
-              localHumanTeams: ['player'],
-              remoteHumanTeams: ['enemy']
-            });
+            beginPvpConnection('host', generateMenuGameCode());
           });
           root.querySelector('[data-pvp-join]').addEventListener('click', () => {
             const code = normalizeMenuGameCode(window.prompt('Enter the host room code:') || '');
@@ -8171,13 +8332,14 @@
               pvpStatus.textContent = 'Enter a valid room code to join.';
               return;
             }
-            finish({
-              ...GAME_MODES.pvp,
-              pvpRole: 'join',
-              gameCode: code,
-              localHumanTeams: ['enemy'],
-              remoteHumanTeams: ['player']
-            });
+            beginPvpConnection('join', code);
+          });
+          pvpReadyButton.addEventListener('click', () => {
+            if (!lobbySnapshot?.connected) return;
+            setMultiplayerReady(!lobbySnapshot.localReady);
+          });
+          pvpStartButton.addEventListener('click', () => {
+            if (!startMultiplayerMatch()) pvpStatus.textContent = 'Every slot must be connected and ready before starting.';
           });
       
           const previousMode = storageGet(STORAGE_KEYS.lastGameMode);
@@ -8197,34 +8359,69 @@
 
   __define("multiplayer.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("commandSync.js");
-    Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep0["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep0["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep0["setLocalCommandEnvelopeListener"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("commandSync.js");
+    Object.defineProperty(__imports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => __dep0["MULTIPLAYER_TEAMS"] }); Object.defineProperty(__imports, "getRegisteredCommandSources", { enumerable: true, get: () => __dep1["getRegisteredCommandSources"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep1["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep1["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeListener"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam });
-      // WebSocket relay transport for deterministic two-player lockstep matches.
-      // The relay only groups peers by room; all gameplay remains command/tick based.
+      Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "setMultiplayerCallbacks", { enumerable: true, get: () => setMultiplayerCallbacks }); Object.defineProperty(__exports, "setMultiplayerReady", { enumerable: true, get: () => setMultiplayerReady }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam }); Object.defineProperty(__exports, "startMultiplayerMatch", { enumerable: true, get: () => startMultiplayerMatch });
+      // WebSocket relay transport for deterministic two-to-four-player lockstep.
+      // The host owns lobby membership, slot/team assignment, and the shared seed;
+      // gameplay itself remains command/tick based on every client.
+      
       
       
       
       const RELAY_URL = 'wss://starlite-relay.onrender.com';
+      const MIN_PLAYERS = 2;
+      const MAX_PLAYERS = 4;
+      const HEARTBEAT_INTERVAL_MS = 2000;
+      const PEER_TIMEOUT_MS = 10000;
       
       let socket = null;
       let session = null;
-      let remoteConfirmedTick = 0;
-      let localConfirmedTick = 0;
+      let connectionPromise = null;
+      let connectionResolve = null;
+      let connectionReject = null;
       let disconnected = false;
+      let commandQueueActive = false;
+      let pendingJoinSeed = null;
+      let heartbeatTimer = 0;
+      let watchdogTimer = 0;
+      let lobbyRevision = 0;
       let onDisconnectCallback = null;
-      let onPeerReadyCallback = null;
-      let peerReady = false;
-      let seedResendTimer = 0;
+      let onLobbyUpdateCallback = null;
+      
+      const hostRoster = new Map();
+      const lastSeenByClient = new Map();
+      const confirmedTicksBySource = new Map();
       const outgoingEnvelopeHistory = [];
       const incomingEnvelopeBuffer = [];
       const receivedEnvelopeKeys = new Set();
-      let commandQueueActive = false;
-      let pendingJoinSeed = null;
       const localChecksums = new Map();
       const remoteChecksums = new Map();
+      
+      function createClientId() {
+        const bytes = new Uint8Array(8);
+        if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
+        else {
+          const base = Date.now() ^ Math.floor((globalThis.performance?.now?.() || 0) * 1000);
+          for (let index = 0; index < bytes.length; index++) bytes[index] = (base >>> ((index % 4) * 8)) + index * 37;
+        }
+        return [...bytes].map(value => value.toString(16).padStart(2, '0')).join('');
+      }
+      
+      function normalizeRoomCode(value) {
+        return String(value || '').trim().toUpperCase();
+      }
+      
+      function normalizeSlotCount(value) {
+        const count = Math.trunc(Number(value) || 0);
+        return Math.max(MIN_PLAYERS, Math.min(MAX_PLAYERS, count));
+      }
+      
+      function sourceIdForTeam(team) {
+        return `remote:${team}`;
+      }
       
       function sendPayload(payload) {
         if (!socket || socket.readyState !== WebSocket.OPEN) return false;
@@ -8232,37 +8429,180 @@
         return true;
       }
       
-      function sourceIdForTeam(team) {
-        return `remote:${team}`;
+      function publicPlayer(player) {
+        return {
+          clientId: player.clientId,
+          slot: player.slot,
+          team: player.team,
+          sourceId: player.sourceId,
+          ready: !!player.ready,
+          host: !!player.host,
+          connected: player.connected !== false
+        };
       }
       
-      function compareChecksum(tick) {
-        const localHash = localChecksums.get(tick);
-        const remoteHash = remoteChecksums.get(tick);
-        if (!localHash || !remoteHash) return;
-        if (localHash !== remoteHash) {
-          console.warn(`[sync] checksum mismatch at tick ${tick}: local=${localHash} remote=${remoteHash}`);
-        }
-        localChecksums.delete(tick);
-        remoteChecksums.delete(tick);
+      function sortedPlayers(players = session?.players || []) {
+        return [...players].sort((a, b) => a.slot - b.slot).map(publicPlayer);
       }
       
-      function markPeerReady() {
-        if (peerReady) return;
-        peerReady = true;
-        if (seedResendTimer) clearInterval(seedResendTimer);
-        seedResendTimer = 0;
-        if (typeof onPeerReadyCallback === 'function') onPeerReadyCallback();
+      function registeredSourceIds() {
+        return getRegisteredCommandSources().map(source => source.id);
+      }
+      
+      function expectedRemoteSourceIds() {
+        if (!session?.sourceIds?.length) return [];
+        return session.sourceIds.filter(sourceId => sourceId !== session.localSourceId);
+      }
+      
+      function lobbyCanStart() {
+        if (!session || session.role !== 'host' || session.started) return false;
+        const players = sortedPlayers();
+        return players.length === session.slotCount && players.every(player => player.ready && player.connected);
+      }
+      
+      function snapshotSession() {
+        if (!session) return null;
+        const confirmedTicks = Object.fromEntries(confirmedTicksBySource);
+        return {
+          ...session,
+          players: sortedPlayers(),
+          remoteTeams: [...(session.remoteTeams || [])],
+          remoteSourceIds: [...(session.remoteSourceIds || [])],
+          sourceIds: [...(session.sourceIds || [])],
+          connected: !!socket && socket.readyState === WebSocket.OPEN && !disconnected,
+          localReady: !!session.players?.find(player => player.clientId === session.clientId)?.ready,
+          canStart: lobbyCanStart(),
+          peerReady: !!session.started,
+          confirmedTicks,
+          localConfirmedTick: confirmedTicks[session.localSourceId] || 0,
+          remoteConfirmedTicks: Object.fromEntries(
+            (session.remoteSourceIds || []).map(sourceId => [sourceId, confirmedTicks[sourceId] || 0])
+          )
+        };
+      }
+      
+      function emitLobbyUpdate() {
+        if (typeof onLobbyUpdateCallback === 'function') onLobbyUpdateCallback(snapshotSession());
+      }
+      
+      function setMultiplayerCallbacks({ onDisconnect, onLobbyUpdate } = {}) {
+        if (onDisconnect !== undefined) onDisconnectCallback = typeof onDisconnect === 'function' ? onDisconnect : null;
+        if (onLobbyUpdate !== undefined) onLobbyUpdateCallback = typeof onLobbyUpdate === 'function' ? onLobbyUpdate : null;
+        emitLobbyUpdate();
       }
       
       function failCommandSync(error, details = null) {
         console.warn('Multiplayer command sync failed.', error, details || '');
         disconnected = true;
         setLocalCommandEnvelopeListener(null);
-        if (typeof onDisconnectCallback === 'function') {
-          onDisconnectCallback('COMMAND SYNC ERROR · MATCH PAUSED');
-        }
+        if (typeof onDisconnectCallback === 'function') onDisconnectCallback('COMMAND SYNC ERROR · MATCH PAUSED');
         return false;
+      }
+      
+      function rejectConnection(error) {
+        if (!connectionReject) return;
+        const reject = connectionReject;
+        connectionResolve = null;
+        connectionReject = null;
+        reject(error instanceof Error ? error : new Error(String(error)));
+      }
+      
+      function resolveConnection() {
+        if (!connectionResolve || !session?.started) return;
+        const resolve = connectionResolve;
+        connectionResolve = null;
+        connectionReject = null;
+        resolve(snapshotSession());
+      }
+      
+      function configureRoster(payload, started = false) {
+        if (!session || !payload || payload.hostId === undefined) return false;
+        const slotCount = normalizeSlotCount(payload.slotCount);
+        const rows = Array.isArray(payload.players) ? payload.players : [];
+        const players = [];
+        const usedSlots = new Set();
+        const usedTeams = new Set();
+        const usedSources = new Set();
+        for (const row of rows) {
+          const slot = Math.trunc(Number(row?.slot));
+          const team = String(row?.team || '');
+          const sourceId = String(row?.sourceId || '');
+          const clientId = String(row?.clientId || '');
+          if (!clientId || slot < 0 || slot >= slotCount || !MULTIPLAYER_TEAMS.includes(team)) continue;
+          if (sourceId !== sourceIdForTeam(team) || usedSlots.has(slot) || usedTeams.has(team) || usedSources.has(sourceId)) continue;
+          usedSlots.add(slot); usedTeams.add(team); usedSources.add(sourceId);
+          players.push({
+            clientId,
+            slot,
+            team,
+            sourceId,
+            ready: !!row.ready,
+            host: clientId === payload.hostId,
+            connected: row.connected !== false
+          });
+        }
+        players.sort((a, b) => a.slot - b.slot);
+        const localPlayer = players.find(player => player.clientId === session.clientId);
+        if (!localPlayer) return false;
+      
+        session.hostId = String(payload.hostId);
+        session.modeId = String(payload.modeId || session.modeId || 'pvp');
+        session.slotCount = slotCount;
+        if (Number.isFinite(payload.seed)) session.seed = payload.seed;
+        session.players = players;
+        session.localTeam = localPlayer.team;
+        session.localSourceId = localPlayer.sourceId;
+        session.sourceIds = players.map(player => player.sourceId);
+        session.remoteTeams = players.filter(player => player.clientId !== session.clientId).map(player => player.team);
+        session.remoteSourceIds = players.filter(player => player.clientId !== session.clientId).map(player => player.sourceId);
+        session.started = !!started;
+      
+        for (const player of players) {
+          registerCommandSource({
+            id: player.sourceId,
+            team: player.team,
+            local: player.clientId === session.clientId
+          });
+          if (!confirmedTicksBySource.has(player.sourceId)) confirmedTicksBySource.set(player.sourceId, 0);
+          if (player.clientId !== session.clientId && !lastSeenByClient.has(player.clientId)) {
+            lastSeenByClient.set(player.clientId, Date.now());
+          }
+        }
+        for (const sourceId of [...confirmedTicksBySource.keys()]) {
+          if (!session.sourceIds.includes(sourceId)) confirmedTicksBySource.delete(sourceId);
+        }
+        emitLobbyUpdate();
+        if (session.started) resolveConnection();
+        return true;
+      }
+      
+      function hostPlayers() {
+        return [...hostRoster.values()].sort((a, b) => a.slot - b.slot).map(publicPlayer);
+      }
+      
+      function broadcastLobby() {
+        if (!session || session.role !== 'host') return false;
+        const payload = {
+          type: 'lobby',
+          hostId: session.clientId,
+          revision: ++lobbyRevision,
+          modeId: session.modeId,
+          slotCount: session.slotCount,
+          seed: session.seed,
+          players: hostPlayers()
+        };
+        configureRoster(payload, false);
+        sendPayload(payload);
+        return true;
+      }
+      
+      function markSeen(message) {
+        if (!session || !message || typeof message !== 'object') return;
+        let clientId = typeof message.clientId === 'string' ? message.clientId : '';
+        if (!clientId && typeof message.sourceId === 'string') {
+          clientId = session.players?.find(player => player.sourceId === message.sourceId)?.clientId || '';
+        }
+        if (clientId && clientId !== session.clientId) lastSeenByClient.set(clientId, Date.now());
       }
       
       function enqueueReceivedEnvelope(envelope) {
@@ -8282,7 +8622,10 @@
       }
       
       function handleEnvelope(envelope) {
-        if (!session || !envelope || envelope.sourceId !== session.remoteSourceId) return false;
+        if (!session || !envelope || envelope.sourceId === session.localSourceId) return false;
+        if (!session.sourceIds?.includes(envelope.sourceId)) return false;
+        const player = session.players?.find(row => row.sourceId === envelope.sourceId);
+        if (!player || envelope.team !== player.team) return false;
         if (!envelope.command || !Number.isFinite(envelope.targetTick) || !Number.isFinite(envelope.sequence)) return false;
         const key = `${envelope.sourceId}:${Math.trunc(envelope.sequence)}`;
         if (receivedEnvelopeKeys.has(key)) return true;
@@ -8294,7 +8637,66 @@
         return enqueueReceivedEnvelope(envelope);
       }
       
-      function handleMessage(raw, resolveSeed) {
+      function pruneOutgoingHistory() {
+        const remotes = expectedRemoteSourceIds();
+        if (!remotes.length) return;
+        const confirmedThrough = remotes.reduce(
+          (minimum, sourceId) => Math.min(minimum, confirmedTicksBySource.get(sourceId) || 0),
+          Infinity
+        );
+        for (let index = outgoingEnvelopeHistory.length - 1; index >= 0; index--) {
+          if (outgoingEnvelopeHistory[index].targetTick <= confirmedThrough) outgoingEnvelopeHistory.splice(index, 1);
+        }
+      }
+      
+      function compareChecksums(tick) {
+        const localHash = localChecksums.get(tick);
+        const remoteBySource = remoteChecksums.get(tick);
+        if (!localHash || !remoteBySource) return;
+        for (const sourceId of expectedRemoteSourceIds()) {
+          const remoteHash = remoteBySource.get(sourceId);
+          if (!remoteHash) continue;
+          if (localHash !== remoteHash) {
+            console.warn(`[sync] checksum mismatch at tick ${tick} from ${sourceId}: local=${localHash} remote=${remoteHash}`);
+          }
+        }
+        if (expectedRemoteSourceIds().every(sourceId => remoteBySource.has(sourceId))) {
+          localChecksums.delete(tick);
+          remoteChecksums.delete(tick);
+        }
+      }
+      
+      function handleHostHello(message) {
+        if (!session || session.role !== 'host' || session.started) return;
+        const clientId = String(message.clientId || '');
+        if (!clientId || clientId === session.clientId) return;
+        lastSeenByClient.set(clientId, Date.now());
+        if (!hostRoster.has(clientId)) {
+          const occupied = new Set([...hostRoster.values()].map(player => player.slot));
+          let slot = -1;
+          for (let index = 0; index < session.slotCount; index++) {
+            if (!occupied.has(index)) { slot = index; break; }
+          }
+          if (slot < 0) {
+            sendPayload({ type: 'reject', targetClientId: clientId, reason: 'This room is full.' });
+            return;
+          }
+          const team = MULTIPLAYER_TEAMS[slot];
+          hostRoster.set(clientId, {
+            clientId,
+            slot,
+            team,
+            sourceId: sourceIdForTeam(team),
+            ready: false,
+            host: false,
+            connected: true
+          });
+        }
+        sendPayload({ type: 'seed', seed: session.seed, hostId: session.clientId });
+        broadcastLobby();
+      }
+      
+      function handleMessage(raw) {
         let message;
         try {
           message = JSON.parse(typeof raw === 'string' ? raw : String(raw));
@@ -8303,148 +8705,254 @@
           return;
         }
         if (!message || typeof message !== 'object') return;
+        markSeen(message);
       
         if (message.command && message.sourceId && Number.isFinite(message.targetTick)) {
           handleEnvelope(message);
           return;
         }
+        if (message.type === 'hello') {
+          handleHostHello(message);
+          return;
+        }
+        if (message.type === 'presence') return;
         if (message.type === 'seed') {
           if (session?.role === 'join' && Number.isFinite(message.seed)) pendingJoinSeed = message.seed;
           return;
         }
-        if (message.type === 'handshakeReady' && session?.role === 'join') {
-          const seed = Number.isFinite(message.seed) ? message.seed : pendingJoinSeed;
-          if (Number.isFinite(seed)) resolveSeed(seed);
-          return;
-        }
         if (message.type === 'seedRequest' && session?.role === 'host') {
-          sendPayload({ type: 'seed', seed: session.seed });
-          for (const envelope of outgoingEnvelopeHistory) sendPayload(envelope);
-          if (localConfirmedTick > 0) {
-            sendPayload({ type: 'confirm', sourceId: session.localSourceId, confirmedTick: localConfirmedTick });
-          }
-          sendPayload({ type: 'handshakeReady', seed: session.seed });
+          sendPayload({ type: 'seed', seed: session.seed, hostId: session.clientId });
+          broadcastLobby();
           return;
         }
-        if (message.type === 'confirm' && message.sourceId === session?.remoteSourceId) {
-          remoteConfirmedTick = Math.max(remoteConfirmedTick, Math.trunc(Number(message.confirmedTick) || 0));
-          for (let index = outgoingEnvelopeHistory.length - 1; index >= 0; index--) {
-            if (outgoingEnvelopeHistory[index].targetTick <= remoteConfirmedTick) outgoingEnvelopeHistory.splice(index, 1);
-          }
-          markPeerReady();
+        if (message.type === 'lobby' && session?.role === 'join') {
+          if (Number.isFinite(message.seed)) pendingJoinSeed = message.seed;
+          configureRoster({ ...message, seed: Number.isFinite(message.seed) ? message.seed : pendingJoinSeed }, false);
           return;
         }
-        if (message.type === 'checksum' && message.sourceId === session?.remoteSourceId) {
+        if (message.type === 'ready' && session?.role === 'host' && !session.started) {
+          const clientId = String(message.clientId || '');
+          const player = hostRoster.get(clientId);
+          if (player) {
+            player.ready = !!message.ready;
+            player.connected = true;
+            broadcastLobby();
+          }
+          return;
+        }
+        if (message.type === 'start') {
+          const seed = Number.isFinite(message.seed) ? message.seed : pendingJoinSeed;
+          if (!Number.isFinite(seed)) return;
+          configureRoster({ ...message, seed }, true);
+          return;
+        }
+        if (message.type === 'reject' && message.targetClientId === session?.clientId) {
+          rejectConnection(new Error(message.reason || 'The host rejected this connection.'));
+          closeMultiplayer();
+          return;
+        }
+        if (message.type === 'confirm' && session?.sourceIds?.includes(message.sourceId) && message.sourceId !== session.localSourceId) {
+          const confirmedTick = Math.max(0, Math.trunc(Number(message.confirmedTick) || 0));
+          confirmedTicksBySource.set(message.sourceId, Math.max(confirmedTicksBySource.get(message.sourceId) || 0, confirmedTick));
+          pruneOutgoingHistory();
+          return;
+        }
+        if (message.type === 'checksum' && session?.sourceIds?.includes(message.sourceId) && message.sourceId !== session.localSourceId) {
           const tick = Math.max(0, Math.trunc(Number(message.tick) || 0));
           if (tick && typeof message.hash === 'string') {
-            remoteChecksums.set(tick, message.hash);
-            compareChecksum(tick);
+            if (!remoteChecksums.has(tick)) remoteChecksums.set(tick, new Map());
+            remoteChecksums.get(tick).set(message.sourceId, message.hash);
+            compareChecksums(tick);
           }
         }
       }
       
-      function connectMultiplayer({ roomCode, role, localTeam, remoteTeam, seed, onDisconnect, onPeerReady } = {}) {
-        const normalizedRoomCode = String(roomCode || '').trim().toUpperCase();
+      function sendPresence() {
+        if (!session) return;
+        sendPayload({
+          type: 'presence',
+          clientId: session.clientId,
+          sourceId: session.localSourceId || null
+        });
+      }
+      
+      function checkPeerTimeouts() {
+        if (!session || disconnected) return;
+        const now = Date.now();
+        if (!session.started && session.role === 'host') {
+          let changed = false;
+          for (const [clientId, player] of hostRoster) {
+            if (clientId === session.clientId) continue;
+            if (now - (lastSeenByClient.get(clientId) || 0) <= PEER_TIMEOUT_MS) continue;
+            hostRoster.delete(clientId);
+            lastSeenByClient.delete(clientId);
+            changed = true;
+          }
+          if (changed) broadcastLobby();
+          return;
+        }
+        if (!session.started) return;
+        for (const player of session.players || []) {
+          if (player.clientId === session.clientId) continue;
+          if (now - (lastSeenByClient.get(player.clientId) || 0) <= PEER_TIMEOUT_MS) continue;
+          disconnected = true;
+          setLocalCommandEnvelopeListener(null);
+          if (typeof onDisconnectCallback === 'function') {
+            onDisconnectCallback(`${player.host ? 'HOST' : `PLAYER ${player.slot + 1}`} DISCONNECTED · MATCH PAUSED`);
+          }
+          return;
+        }
+      }
+      
+      function startTimers() {
+        if (heartbeatTimer) clearInterval(heartbeatTimer);
+        if (watchdogTimer) clearInterval(watchdogTimer);
+        heartbeatTimer = setInterval(sendPresence, HEARTBEAT_INTERVAL_MS);
+        watchdogTimer = setInterval(checkPeerTimeouts, HEARTBEAT_INTERVAL_MS);
+      }
+      
+      function connectMultiplayer({ roomCode, role, slotCount = 2, modeId = 'pvp', seed, onDisconnect, onLobbyUpdate } = {}) {
+        const normalizedRoomCode = normalizeRoomCode(roomCode);
         const normalizedRole = role === 'host' ? 'host' : role === 'join' ? 'join' : '';
-        const normalizedLocalTeam = String(localTeam || '').trim();
-        const normalizedRemoteTeam = String(remoteTeam || '').trim();
-        if (!normalizedRoomCode || !normalizedRole || !normalizedLocalTeam || !normalizedRemoteTeam) {
-          return Promise.reject(new TypeError('Multiplayer requires roomCode, role, localTeam, and remoteTeam.'));
+        if (!normalizedRoomCode || !normalizedRole) {
+          return Promise.reject(new TypeError('Multiplayer requires roomCode and role.'));
         }
         if (normalizedRole === 'host' && !Number.isFinite(seed)) {
           return Promise.reject(new TypeError('The host must provide a numeric match seed.'));
         }
       
         closeMultiplayer();
-        remoteConfirmedTick = 0;
-        localConfirmedTick = 0;
         disconnected = false;
-        peerReady = false;
-        localChecksums.clear();
-        remoteChecksums.clear();
-        outgoingEnvelopeHistory.length = 0;
-        incomingEnvelopeBuffer.length = 0;
-        receivedEnvelopeKeys.clear();
         commandQueueActive = false;
         pendingJoinSeed = null;
+        lobbyRevision = 0;
         onDisconnectCallback = typeof onDisconnect === 'function' ? onDisconnect : null;
-        onPeerReadyCallback = typeof onPeerReady === 'function' ? onPeerReady : null;
+        onLobbyUpdateCallback = typeof onLobbyUpdate === 'function' ? onLobbyUpdate : null;
+        const clientId = createClientId();
         session = {
           roomCode: normalizedRoomCode,
           role: normalizedRole,
-          localTeam: normalizedLocalTeam,
-          remoteTeam: normalizedRemoteTeam,
-          localSourceId: sourceIdForTeam(normalizedLocalTeam),
-          remoteSourceId: sourceIdForTeam(normalizedRemoteTeam),
-          seed: normalizedRole === 'host' ? seed : null
+          clientId,
+          hostId: normalizedRole === 'host' ? clientId : null,
+          modeId: String(modeId || 'pvp'),
+          slotCount: normalizedRole === 'host' ? normalizeSlotCount(slotCount) : 0,
+          seed: normalizedRole === 'host' ? seed : null,
+          players: [],
+          localTeam: null,
+          localSourceId: null,
+          remoteTeams: [],
+          remoteSourceIds: [],
+          sourceIds: [],
+          started: false
         };
       
-        return new Promise((resolve, reject) => {
-          let settled = false;
-          const resolveSeed = receivedSeed => {
-            if (settled) return;
-            settled = true;
-            session.seed = receivedSeed;
-            resolve({ ...session });
-          };
+        if (normalizedRole === 'host') {
+          const team = MULTIPLAYER_TEAMS[0];
+          hostRoster.set(clientId, {
+            clientId,
+            slot: 0,
+            team,
+            sourceId: sourceIdForTeam(team),
+            ready: false,
+            host: true,
+            connected: true
+          });
+          configureRoster({
+            hostId: clientId,
+            modeId: session.modeId,
+            slotCount: session.slotCount,
+            seed,
+            players: hostPlayers()
+          }, false);
+        }
       
-          let connectionSocket;
-          try {
-            connectionSocket = new WebSocket(RELAY_URL);
-            socket = connectionSocket;
-          } catch (error) {
-            session = null;
-            reject(error);
+        connectionPromise = new Promise((resolve, reject) => {
+          connectionResolve = resolve;
+          connectionReject = reject;
+        });
+      
+        let connectionSocket;
+        try {
+          connectionSocket = new WebSocket(RELAY_URL);
+          socket = connectionSocket;
+        } catch (error) {
+          rejectConnection(error);
+          return connectionPromise;
+        }
+      
+        connectionSocket.addEventListener('open', () => {
+          if (socket !== connectionSocket) return;
+          // The room selector remains the relay's first payload.
+          sendPayload({ roomCode: normalizedRoomCode });
+          // The host seed is deliberately the first protocol payload after room join.
+          if (normalizedRole === 'host') sendPayload({ type: 'seed', seed, hostId: clientId });
+          sendPayload({ type: 'hello', clientId, role: normalizedRole, requestedModeId: session.modeId });
+          if (normalizedRole === 'join') sendPayload({ type: 'seedRequest', clientId });
+          startTimers();
+          if (normalizedRole === 'host') broadcastLobby();
+          else emitLobbyUpdate();
+        });
+      
+        connectionSocket.addEventListener('message', event => {
+          if (socket === connectionSocket) handleMessage(event.data);
+        });
+        connectionSocket.addEventListener('error', () => {
+          if (socket !== connectionSocket) return;
+          if (!session?.started) rejectConnection(new Error('Could not connect to the StarLite relay.'));
+        });
+        connectionSocket.addEventListener('close', () => {
+          if (socket !== connectionSocket) return;
+          disconnected = true;
+          setLocalCommandEnvelopeListener(null);
+          if (!session?.started) {
+            rejectConnection(new Error('The StarLite relay closed before the lobby started.'));
             return;
           }
-      
-          connectionSocket.addEventListener('open', () => {
-            if (socket !== connectionSocket) return;
-            // The room selector must be the first payload accepted by the relay.
-            sendPayload({ roomCode: normalizedRoomCode });
-            registerCommandSource({ id: session.remoteSourceId, team: normalizedRemoteTeam, local: false });
-            setLocalCommandEnvelopeListener(envelope => {
-              outgoingEnvelopeHistory.push(envelope);
-              sendPayload(envelope);
-            });
-            if (normalizedRole === 'host') {
-              sendPayload({ type: 'seed', seed });
-              seedResendTimer = setInterval(() => {
-                if (!peerReady) sendPayload({ type: 'seed', seed });
-              }, 1000);
-              resolveSeed(seed);
-            } else {
-              sendPayload({ type: 'seedRequest' });
-            }
-          });
-      
-          connectionSocket.addEventListener('message', event => {
-            if (socket === connectionSocket) handleMessage(event.data, resolveSeed);
-          });
-          connectionSocket.addEventListener('error', () => {
-            if (socket !== connectionSocket) return;
-            if (!settled) {
-              settled = true;
-              reject(new Error('Could not connect to the StarLite relay.'));
-            }
-          });
-          connectionSocket.addEventListener('close', () => {
-            if (socket !== connectionSocket) return;
-            disconnected = true;
-            setLocalCommandEnvelopeListener(null);
-            if (!settled) {
-              settled = true;
-              reject(new Error('The StarLite relay closed before the match handshake completed.'));
-              return;
-            }
-            if (typeof onDisconnectCallback === 'function') onDisconnectCallback('CONNECTION LOST · MATCH PAUSED');
-          });
+          if (typeof onDisconnectCallback === 'function') onDisconnectCallback('CONNECTION LOST · MATCH PAUSED');
         });
+      
+        return connectionPromise;
+      }
+      
+      function setMultiplayerReady(ready = true) {
+        if (!session || session.started || !socket || socket.readyState !== WebSocket.OPEN) return false;
+        const value = !!ready;
+        if (session.role === 'host') {
+          const player = hostRoster.get(session.clientId);
+          if (!player) return false;
+          player.ready = value;
+          broadcastLobby();
+          return true;
+        }
+        const localPlayer = session.players?.find(player => player.clientId === session.clientId);
+        if (localPlayer) localPlayer.ready = value;
+        emitLobbyUpdate();
+        return sendPayload({ type: 'ready', clientId: session.clientId, ready: value });
+      }
+      
+      function startMultiplayerMatch() {
+        if (!lobbyCanStart()) return false;
+        const payload = {
+          type: 'start',
+          hostId: session.clientId,
+          modeId: session.modeId,
+          slotCount: session.slotCount,
+          seed: session.seed,
+          players: hostPlayers()
+        };
+        sendPayload({ type: 'seed', seed: session.seed, hostId: session.clientId });
+        sendPayload(payload);
+        configureRoster(payload, true);
+        return true;
       }
       
       function activateMultiplayerCommandQueue() {
-        if (!session) return false;
+        if (!session?.started) return false;
         commandQueueActive = true;
+        setLocalCommandEnvelopeListener(envelope => {
+          outgoingEnvelopeHistory.push(envelope);
+          sendPayload(envelope);
+        });
         incomingEnvelopeBuffer.sort((a, b) =>
           a.targetTick - b.targetTick ||
           (a.sourceId < b.sourceId ? -1 : a.sourceId > b.sourceId ? 1 : a.sequence - b.sequence)
@@ -8455,12 +8963,14 @@
       }
       
       function confirmLocalCommandsThrough(tick) {
-        if (!session || disconnected) return false;
+        if (!session?.started || disconnected || !session.localSourceId) return false;
         const confirmedTick = Math.max(0, Math.trunc(Number(tick) || 0));
-        if (confirmedTick <= localConfirmedTick) return true;
-        localConfirmedTick = confirmedTick;
+        const previous = confirmedTicksBySource.get(session.localSourceId) || 0;
+        if (confirmedTick <= previous) return true;
+        confirmedTicksBySource.set(session.localSourceId, confirmedTick);
         return sendPayload({
           type: 'confirm',
+          clientId: session.clientId,
           sourceId: session.localSourceId,
           confirmedTick
         });
@@ -8468,18 +8978,23 @@
       
       function multiplayerTickReady(tick) {
         if (!session) return true;
-        if (disconnected || !socket || socket.readyState !== WebSocket.OPEN) return false;
+        if (!session.started || disconnected || !socket || socket.readyState !== WebSocket.OPEN) return false;
         const targetTick = Math.max(0, Math.trunc(Number(tick) || 0));
-        return localConfirmedTick >= targetTick && remoteConfirmedTick >= targetTick;
+        const registered = new Set(registeredSourceIds());
+        if (session.sourceIds.length !== session.slotCount) return false;
+        return session.sourceIds.every(sourceId =>
+          registered.has(sourceId) && (confirmedTicksBySource.get(sourceId) || 0) >= targetTick
+        );
       }
       
       function sendSyncChecksum(pair) {
-        if (!session || !pair || !Number.isFinite(pair.tick) || typeof pair.hash !== 'string') return false;
+        if (!session?.started || !pair || !Number.isFinite(pair.tick) || typeof pair.hash !== 'string') return false;
         const tick = Math.max(0, Math.trunc(pair.tick));
         localChecksums.set(tick, pair.hash);
-        compareChecksum(tick);
+        compareChecksums(tick);
         return sendPayload({
           type: 'checksum',
+          clientId: session.clientId,
           sourceId: session.localSourceId,
           tick,
           hash: pair.hash
@@ -8487,32 +9002,38 @@
       }
       
       function multiplayerSession() {
-        return session ? {
-          ...session,
-          connected: !!socket && socket.readyState === WebSocket.OPEN && !disconnected,
-          peerReady,
-          localConfirmedTick,
-          remoteConfirmedTick
-        } : null;
+        return snapshotSession();
       }
       
       function closeMultiplayer() {
+        const pendingReject = connectionReject;
+        connectionResolve = null;
+        connectionReject = null;
+        if (pendingReject) pendingReject(new Error('Multiplayer lobby closed.'));
         const closingSocket = socket;
         socket = null;
         setLocalCommandEnvelopeListener(null);
-        if (seedResendTimer) clearInterval(seedResendTimer);
-        seedResendTimer = 0;
-        session = null;
-        disconnected = false;
-        peerReady = false;
-        onDisconnectCallback = null;
-        onPeerReadyCallback = null;
+        if (heartbeatTimer) clearInterval(heartbeatTimer);
+        if (watchdogTimer) clearInterval(watchdogTimer);
+        heartbeatTimer = 0;
+        watchdogTimer = 0;
         if (closingSocket && closingSocket.readyState < WebSocket.CLOSING) closingSocket.close();
+        session = null;
+        connectionPromise = null;
+        disconnected = false;
+        commandQueueActive = false;
+        pendingJoinSeed = null;
+        lobbyRevision = 0;
+        onDisconnectCallback = null;
+        onLobbyUpdateCallback = null;
+        hostRoster.clear();
+        lastSeenByClient.clear();
+        confirmedTicksBySource.clear();
         outgoingEnvelopeHistory.length = 0;
         incomingEnvelopeBuffer.length = 0;
         receivedEnvelopeKeys.clear();
-        commandQueueActive = false;
-        pendingJoinSeed = null;
+        localChecksums.clear();
+        remoteChecksums.clear();
       }
     }
   });
@@ -12974,6 +13495,8 @@
         multiplayerRoomCode: null,
         multiplayerRole: null,
         multiplayerRemoteTeam: null,
+        multiplayerRemoteTeams: [],
+        multiplayerPlayers: [],
         eliminatedTeams: new Set(),
         winnerTeam: null,
         incomeClock: 0,
