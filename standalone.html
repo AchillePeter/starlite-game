@@ -3402,6 +3402,20 @@
           }
         }
       
+        ctx.save();
+        ctx.strokeStyle = 'rgba(156,242,255,.62)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 2]);
+        for (const radar of structures) {
+          if (radar.team !== activeCommandTeam() || radar.type !== 'radarTurret' || radar.hp <= 0 || radar.underConstruction) continue;
+          const range = radar.radarRange || BUILDING_DATA.radarTurret?.radarRange || 0;
+          if (range <= 0) continue;
+          ctx.beginPath();
+          ctx.ellipse(map.x + radar.x * map.sx, map.y + radar.y * map.sy, range * map.sx, range * map.sy, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      
         const dot = (entity, color, size) => {
           if (entity.team !== activeCommandTeam() && !isVisibleToTeam(activeCommandTeam(), entity.x, entity.y) && !detectedByRadarTurret(entity, activeCommandTeam())) return;
           ctx.fillStyle = color;
@@ -4259,7 +4273,7 @@
     
 
     with (__imports) {
-      Object.defineProperty(__exports, "DEFAULT_COMMAND_DELAY_TICKS", { enumerable: true, get: () => DEFAULT_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MAX_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MAX_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MIN_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "applyQueuedCommands", { enumerable: true, get: () => applyQueuedCommands }); Object.defineProperty(__exports, "getActiveCommandSource", { enumerable: true, get: () => getActiveCommandSource }); Object.defineProperty(__exports, "getActiveCommandTeam", { enumerable: true, get: () => getActiveCommandTeam }); Object.defineProperty(__exports, "getCurrentCommandTick", { enumerable: true, get: () => getCurrentCommandTick }); Object.defineProperty(__exports, "queueCommand", { enumerable: true, get: () => queueCommand }); Object.defineProperty(__exports, "queuedCommandCount", { enumerable: true, get: () => queuedCommandCount }); Object.defineProperty(__exports, "registerCommandSource", { enumerable: true, get: () => registerCommandSource }); Object.defineProperty(__exports, "resetCommandSync", { enumerable: true, get: () => resetCommandSync }); Object.defineProperty(__exports, "setActiveCommandSource", { enumerable: true, get: () => setActiveCommandSource }); Object.defineProperty(__exports, "setActiveCommandTeam", { enumerable: true, get: () => setActiveCommandTeam }); Object.defineProperty(__exports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => setLocalCommandEnvelopeListener });
+      Object.defineProperty(__exports, "DEFAULT_COMMAND_DELAY_TICKS", { enumerable: true, get: () => DEFAULT_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MAX_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MAX_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MIN_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "applyQueuedCommands", { enumerable: true, get: () => applyQueuedCommands }); Object.defineProperty(__exports, "getActiveCommandSource", { enumerable: true, get: () => getActiveCommandSource }); Object.defineProperty(__exports, "getActiveCommandTeam", { enumerable: true, get: () => getActiveCommandTeam }); Object.defineProperty(__exports, "getCurrentCommandTick", { enumerable: true, get: () => getCurrentCommandTick }); Object.defineProperty(__exports, "getRegisteredCommandSourceIds", { enumerable: true, get: () => getRegisteredCommandSourceIds }); Object.defineProperty(__exports, "getRegisteredCommandSources", { enumerable: true, get: () => getRegisteredCommandSources }); Object.defineProperty(__exports, "queueCommand", { enumerable: true, get: () => queueCommand }); Object.defineProperty(__exports, "queuedCommandCount", { enumerable: true, get: () => queuedCommandCount }); Object.defineProperty(__exports, "registerCommandSource", { enumerable: true, get: () => registerCommandSource }); Object.defineProperty(__exports, "resetCommandSync", { enumerable: true, get: () => resetCommandSync }); Object.defineProperty(__exports, "setActiveCommandSource", { enumerable: true, get: () => setActiveCommandSource }); Object.defineProperty(__exports, "setActiveCommandTeam", { enumerable: true, get: () => setActiveCommandTeam }); Object.defineProperty(__exports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => setLocalCommandEnvelopeListener });
       // Deterministic tick-buffered command queue. Input and future networking only
       // enqueue plain data; gameplay mutations happen when main.js applies a tick.
       
@@ -4337,6 +4351,18 @@
       
       function getCurrentCommandTick() {
         return currentTick;
+      }
+      
+      function getRegisteredCommandSources() {
+        return [...sources.values()].map(source => ({
+          id: source.id,
+          team: source.team,
+          local: source.local
+        }));
+      }
+      
+      function getRegisteredCommandSourceIds() {
+        return [...sources.keys()];
       }
       
       function getActiveCommandSource() {
@@ -9805,8 +9831,9 @@
       
       function shouldUseCommanderFallback(holder) {
         if (!holder || holder === DEFAULT_GLB_HOLDER || holder.glb === DEFAULT_PORTRAIT_GLB_PATH) return true;
+        if (holder.model || (renderer.loadedGLB === holder.glb && renderer.currentEntry?.model)) return false;
         if (holder.error) return true;
-        if (holder.model || modelCache.has(holder.glb)) return false;
+        if (modelCache.has(holder.glb)) return false;
         return !canLoadExternalPortraits();
       }
       
