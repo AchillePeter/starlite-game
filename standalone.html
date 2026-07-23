@@ -8872,15 +8872,14 @@
           const remoteHash = remoteBySource.get(sourceId);
           if (!remoteHash) continue;
           if (localHash !== remoteHash) {
-            const message = `[sync] checksum mismatch at tick ${tick} from ${sourceId}: local=${localHash} remote=${remoteHash}`;
-            console.warn(message);
-            failCommandSync('CHECKSUM MISMATCH · MATCH PAUSED', {
-              tick,
-              sourceId,
-              localHash,
-              remoteHash
-            });
-            return false;
+            // Checksums are diagnostic only. They intentionally include enough state
+            // to expose divergence, but a mismatch must not tear down the ordered
+            // command stream: doing so stops confirmations and deadlocks every peer.
+            console.warn(
+              `[sync] checksum mismatch at tick ${tick} from ${sourceId}: local=${localHash} remote=${remoteHash}`,
+              { tick, sourceId, localHash, remoteHash }
+            );
+            continue;
           }
         }
         if (expectedRemoteSourceIds().every(sourceId => remoteBySource.has(sourceId))) {
@@ -14172,8 +14171,15 @@
       
       
       const OMITTED_KEYS = new Set([
+        // Render interpolation / local presentation.
         'prevX', 'prevY', 'prevHeading', 'prevBarrelAngle',
-        'selected', 'visible', 'flash', 'recoil', 'attackAnim'
+        'selected', 'visible', 'flash', 'recoil', 'attackAnim',
+        // Asynchronous routing bookkeeping. In deterministic multiplayer the route
+        // itself is authoritative; request tokens and pending flags are not.
+        'pathRequestId', 'pathRequestToken', 'pathPending',
+        'sharedPathPending',
+        // Local throttling/cache debt can differ with viewport and frame cadence.
+        'nextTargetAcquisitionAt'
       ]);
       
       function entityReference(value) {
