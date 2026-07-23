@@ -122,8 +122,8 @@
 
   __define("ai.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("main.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("state.js"); const __dep6 = __require("terrain.js"); const __dep7 = __require("workerBridge.js");
-    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep0["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep0["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => __dep0["ENEMY_UPGRADE_PLAN"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep0["rotateOffset"] }); Object.defineProperty(__imports, "teamColor", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep0["teamLabel"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "beginProductionTechJob", { enumerable: true, get: () => __dep2["beginProductionTechJob"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "teamPopulationCap", { enumerable: true, get: () => __dep2["teamPopulationCap"] }); Object.defineProperty(__imports, "teamPopulationUsed", { enumerable: true, get: () => __dep2["teamPopulationUsed"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "getHQForTeam", { enumerable: true, get: () => __dep3["getHQForTeam"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "getNearestHostileHQ", { enumerable: true, get: () => __dep3["getNearestHostileHQ"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep4["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep4["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep5["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep5["addUnit"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep5["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep5["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep5["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep5["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep5["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep6["isBlocked"] }); Object.defineProperty(__imports, "requestAIAnalysis", { enumerable: true, get: () => __dep7["requestAIAnalysis"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("main.js"); const __dep3 = __require("pathing.js"); const __dep4 = __require("state.js"); const __dep5 = __require("terrain.js"); const __dep6 = __require("workerBridge.js"); const __dep7 = __require("prng.js");
+    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep0["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep0["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => __dep0["ENEMY_UPGRADE_PLAN"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep0["rotateOffset"] }); Object.defineProperty(__imports, "teamColor", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep0["teamLabel"] }); Object.defineProperty(__imports, "beginProductionTechJob", { enumerable: true, get: () => __dep1["beginProductionTechJob"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep1["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep1["productionTechLevel"] }); Object.defineProperty(__imports, "teamPopulationCap", { enumerable: true, get: () => __dep1["teamPopulationCap"] }); Object.defineProperty(__imports, "teamPopulationUsed", { enumerable: true, get: () => __dep1["teamPopulationUsed"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep1["unitBuildTimeFor"] }); Object.defineProperty(__imports, "getHQForTeam", { enumerable: true, get: () => __dep2["getHQForTeam"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep2["getLivingHQs"] }); Object.defineProperty(__imports, "getNearestHostileHQ", { enumerable: true, get: () => __dep2["getNearestHostileHQ"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep3["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep3["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep4["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep4["addUnit"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep4["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep4["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep4["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep4["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep4["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep5["isBlocked"] }); Object.defineProperty(__imports, "requestAIAnalysis", { enumerable: true, get: () => __dep6["requestAIAnalysis"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep7["rand"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeComputerTeams", { enumerable: true, get: () => activeComputerTeams }); Object.defineProperty(__exports, "computerAIState", { enumerable: true, get: () => computerAIState }); Object.defineProperty(__exports, "computerBuildPosition", { enumerable: true, get: () => computerBuildPosition }); Object.defineProperty(__exports, "createComputerAIState", { enumerable: true, get: () => createComputerAIState }); Object.defineProperty(__exports, "initializeComputerAIs", { enumerable: true, get: () => initializeComputerAIs }); Object.defineProperty(__exports, "launchComputerWave", { enumerable: true, get: () => launchComputerWave }); Object.defineProperty(__exports, "queueComputerProduction", { enumerable: true, get: () => queueComputerProduction }); Object.defineProperty(__exports, "startComputerBuilding", { enumerable: true, get: () => startComputerBuilding }); Object.defineProperty(__exports, "updateComputerAI", { enumerable: true, get: () => updateComputerAI }); Object.defineProperty(__exports, "updateComputerAIs", { enumerable: true, get: () => updateComputerAIs }); Object.defineProperty(__exports, "updateEnemyAI", { enumerable: true, get: () => updateEnemyAI });
@@ -532,7 +532,10 @@
         if (!spec || ai.minerals < spec.costM || ai.gas < spec.costG) return;
         ai.minerals -= spec.costM;
         ai.gas -= spec.costG;
-        beginProductionTechJob(team, plan.type, plan.toLevel, spec);
+        if (!beginProductionTechJob(team, plan.type, plan.toLevel, spec, researchFacility)) {
+          ai.minerals += spec.costM;
+          ai.gas += spec.costG;
+        }
       }
       
       function queueComputerProduction(team) {
@@ -3362,6 +3365,17 @@
           : COLORS.warn;
       }
       
+      function detectedByRadarTurret(entity, team) {
+        if (!entity || entity.team === team) return true;
+        for (const radar of structures) {
+          if (radar.team !== team || radar.type !== 'radarTurret' || radar.hp <= 0 || radar.underConstruction) continue;
+          const range = radar.radarRange || BUILDING_DATA.radarTurret?.radarRange || 0;
+          const dx = radar.x - entity.x, dy = radar.y - entity.y;
+          if (dx * dx + dy * dy <= range * range) return true;
+        }
+        return false;
+      }
+      
       function renderMinimapNow() {
         const zone = consoleLayout().map;
         const map = minimapGeom();
@@ -3389,7 +3403,7 @@
         }
       
         const dot = (entity, color, size) => {
-          if (entity.team !== activeCommandTeam() && !isVisibleToTeam(activeCommandTeam(), entity.x, entity.y)) return;
+          if (entity.team !== activeCommandTeam() && !isVisibleToTeam(activeCommandTeam(), entity.x, entity.y) && !detectedByRadarTurret(entity, activeCommandTeam())) return;
           ctx.fillStyle = color;
           ctx.fillRect(map.x + entity.x * map.sx - size / 2, map.y + entity.y * map.sy - size / 2, size, size);
         };
@@ -3670,6 +3684,10 @@
           const queued = Array.isArray(structure.labQueue) ? structure.labQueue.length : 0;
           return `RESEARCHING · ${Math.ceil(structure.labJob.timeLeft)}s${queued ? ` · ${queued} QUEUED` : ''}`;
         }
+        if (structure.researchJob) {
+          const queued = Array.isArray(structure.researchQueue) ? structure.researchQueue.length : 0;
+          return `FACILITY RESEARCH · ${Math.ceil(structure.researchJob.timeLeft)}s${queued ? ` · ${queued} QUEUED` : ''}`;
+        }
         if (structure.turretTechJob) return `TURRET RESEARCH · ${Math.ceil(structure.turretTechJob.timeLeft)}s`;
         if (structure.queue?.length) return `${structure.queue.length} PRODUCTION ORDER${structure.queue.length === 1 ? '' : 'S'}`;
         return 'OPERATIONAL';
@@ -3695,6 +3713,14 @@
           total: item.total,
           color: COLORS.mineral
         };
+      }
+      
+      function facilityResearchEntry(item) {
+        if (!item) return null;
+        const label = item.researchKind === 'turretTech'
+          ? `TURRET TECHNOLOGY · L${item.toLevel}`
+          : `${BUILDING_DATA[item.structureType]?.label || String(item.structureType || 'BUILDING').toUpperCase()} TECHNOLOGY · L${item.toLevel}`;
+        return { label, timeLeft: item.timeLeft, total: item.total, color: COLORS.warn };
       }
       
       // Production jobs that pause a building's unit queue are shown as the active
@@ -3723,6 +3749,9 @@
         } else if (structure.labJob) {
           active = labProductionEntry(structure.labJob);
           waiting = (Array.isArray(structure.labQueue) ? structure.labQueue : []).map(labProductionEntry).filter(Boolean);
+        } else if (structure.researchJob) {
+          active = facilityResearchEntry(structure.researchJob);
+          waiting = (Array.isArray(structure.researchQueue) ? structure.researchQueue : []).map(facilityResearchEntry).filter(Boolean);
         } else if (structure.turretTechJob) {
           active = {
             label: `TURRET TECHNOLOGY · L${structure.turretTechJob.toLevel}`,
@@ -3864,10 +3893,12 @@
         if (drawStructureProductionQueue(zone, productionOwner, x, rowY, maxW, compact)) return;
       
         const queue = selected.reduce((sum, structure) => sum + (structure.queue?.length || 0) +
-          (structure.labJob ? 1 : 0) + (structure.labQueue?.length || 0), 0);
+          (structure.labJob ? 1 : 0) + (structure.labQueue?.length || 0) +
+          (structure.researchJob ? 1 : 0) + (structure.researchQueue?.length || 0), 0);
         drawConsoleText(`QUEUE ${queue}   SIGHT ${Math.round(primary.sight || 0)}`, x, rowY, compact ? 8 : 11, COLORS.player2, 'left', maxW);
         rowY += compact ? 13 : 18;
         if (primary.spawnFlag) drawConsoleText('SPAWN FLAG ACTIVE', x, rowY, compact ? 8 : 11, COLORS.good, 'left', maxW);
+        else if (primary.type === 'radarTurret') drawConsoleText(`MINIMAP DETECTION ${Math.round(primary.radarRange || BUILDING_DATA.radarTurret?.radarRange || 0)} · FOG UNAFFECTED`, x, rowY, compact ? 8 : 11, '#9cf2ff', 'left', maxW);
         else if (primary.damage > 0) drawConsoleText(`DMG ${Math.round(primary.damage * 10) / 10}   RNG ${Math.round(primary.range || 0)}`, x, rowY, compact ? 8 : 11, COLORS.warn, 'left', maxW);
       }
       
@@ -3959,6 +3990,9 @@
         ],
         antiAirTurret: [
           '.22.22.', '..222..', '..111..', '.12221.', '1233321', '1222221', '.11111.'
+        ],
+        radarTurret: [
+          '...2...', '..222..', '.2.1.2.', '..111..', '.12221.', '1233321', '.11111.'
         ],
         gasExtractor: [
           '.2...2.', '.2.1.2.', '..121..', '.12221.', '1233321', '1222221', '.11111.'
@@ -4698,6 +4732,7 @@
       const BUILDING_DATA = {
         turret: TURRET,
         antiAirTurret: { label: 'ANTI-AIR TURRET', costM: 115, costG: 90, hp: 300, sight: 230, range: 205, damage: 42, cooldown: 1.1, w: 34, h: 34, buildTime: 8 },
+        radarTurret: { label: 'RADAR TURRET', costM: 130, costG: 115, hp: 280, sight: 105, radarRange: 760, w: 34, h: 34, buildTime: 8 },
         barracks: { label: 'BARRACKS', costM: 110, costG: 20, hp: 360, sight: 120, w: 54, h: 42, buildTime: 8 },
         garage:  { label: 'GARAGE',   costM: 140, costG: 60, hp: 440, sight: 110, w: 58, h: 46, buildTime: 11 },
         airBay: { label: 'AIR BAY', costM: 175, costG: 115, hp: 390, sight: 150, w: 60, h: 48, buildTime: 12 },
@@ -5024,7 +5059,7 @@
     Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "ADRENALINE_COOLDOWN", { enumerable: true, get: () => __dep1["ADRENALINE_COOLDOWN"] }); Object.defineProperty(__imports, "ADRENALINE_DURATION", { enumerable: true, get: () => __dep1["ADRENALINE_DURATION"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BASE_POP_CAP", { enumerable: true, get: () => __dep1["BASE_POP_CAP"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_COST_MULTIPLIER", { enumerable: true, get: () => __dep1["HOUSING_COST_MULTIPLIER"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "SIMILAR_RESOURCE_DISTANCE", { enumerable: true, get: () => __dep1["SIMILAR_RESOURCE_DISTANCE"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "dist", { enumerable: true, get: () => __dep1["dist"] }); Object.defineProperty(__imports, "isAirUnitType", { enumerable: true, get: () => __dep1["isAirUnitType"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep1["isComputerTeam"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "isResourceHarvesterType", { enumerable: true, get: () => __dep1["isResourceHarvesterType"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamColor", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep2["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep2["random"] }); Object.defineProperty(__imports, "getNearestHostileHQ", { enumerable: true, get: () => __dep3["getNearestHostileHQ"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep4["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep4["addUnit"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep4["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep4["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep4["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep4["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep4["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep5["isBlocked"] }); Object.defineProperty(__imports, "nearestOpenTile", { enumerable: true, get: () => __dep5["nearestOpenTile"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep5["terrain"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "MAX_LEVEL", { enumerable: true, get: () => MAX_LEVEL }); Object.defineProperty(__exports, "activateAdrenalineRush", { enumerable: true, get: () => activateAdrenalineRush }); Object.defineProperty(__exports, "adrenalineMenuItem", { enumerable: true, get: () => adrenalineMenuItem }); Object.defineProperty(__exports, "applyUnitUpgradeEffect", { enumerable: true, get: () => applyUnitUpgradeEffect }); Object.defineProperty(__exports, "assignBuildJob", { enumerable: true, get: () => assignBuildJob }); Object.defineProperty(__exports, "assignHarvest", { enumerable: true, get: () => assignHarvest }); Object.defineProperty(__exports, "beginProductionTechJob", { enumerable: true, get: () => beginProductionTechJob }); Object.defineProperty(__exports, "buildingCostFor", { enumerable: true, get: () => buildingCostFor }); Object.defineProperty(__exports, "buildingSellValue", { enumerable: true, get: () => buildingSellValue }); Object.defineProperty(__exports, "canAfford", { enumerable: true, get: () => canAfford }); Object.defineProperty(__exports, "cancelLaboratoryUpgrade", { enumerable: true, get: () => cancelLaboratoryUpgrade }); Object.defineProperty(__exports, "cancelMinersHutConversion", { enumerable: true, get: () => cancelMinersHutConversion }); Object.defineProperty(__exports, "cancelProductionItem", { enumerable: true, get: () => cancelProductionItem }); Object.defineProperty(__exports, "cancelStructureUpgrade", { enumerable: true, get: () => cancelStructureUpgrade }); Object.defineProperty(__exports, "cancelTurretTechUpgrade", { enumerable: true, get: () => cancelTurretTechUpgrade }); Object.defineProperty(__exports, "clearBuildJob", { enumerable: true, get: () => clearBuildJob }); Object.defineProperty(__exports, "completeMinersHutConversion", { enumerable: true, get: () => completeMinersHutConversion }); Object.defineProperty(__exports, "completedUnitUpgradeLevel", { enumerable: true, get: () => completedUnitUpgradeLevel }); Object.defineProperty(__exports, "creditTeamResources", { enumerable: true, get: () => creditTeamResources }); Object.defineProperty(__exports, "constructBuilding", { enumerable: true, get: () => constructBuilding }); Object.defineProperty(__exports, "constructGasExtractor", { enumerable: true, get: () => constructGasExtractor }); Object.defineProperty(__exports, "enemyPopulationCap", { enumerable: true, get: () => enemyPopulationCap }); Object.defineProperty(__exports, "enemyPopulationUsed", { enumerable: true, get: () => enemyPopulationUsed }); Object.defineProperty(__exports, "fieldHasDropoff", { enumerable: true, get: () => fieldHasDropoff }); Object.defineProperty(__exports, "fieldHasResources", { enumerable: true, get: () => fieldHasResources }); Object.defineProperty(__exports, "gasExtractionReady", { enumerable: true, get: () => gasExtractionReady }); Object.defineProperty(__exports, "gasExtractorFor", { enumerable: true, get: () => gasExtractorFor }); Object.defineProperty(__exports, "hasOperationalPlayerStructure", { enumerable: true, get: () => hasOperationalPlayerStructure }); Object.defineProperty(__exports, "hasOperationalTeamStructure", { enumerable: true, get: () => hasOperationalTeamStructure }); Object.defineProperty(__exports, "hasPlayerStructure", { enumerable: true, get: () => hasPlayerStructure }); Object.defineProperty(__exports, "hasTeamStructure", { enumerable: true, get: () => hasTeamStructure }); Object.defineProperty(__exports, "housingCapacity", { enumerable: true, get: () => housingCapacity }); Object.defineProperty(__exports, "incomeRates", { enumerable: true, get: () => incomeRates }); Object.defineProperty(__exports, "isHarvestableResource", { enumerable: true, get: () => isHarvestableResource }); Object.defineProperty(__exports, "isProductionBuilding", { enumerable: true, get: () => isProductionBuilding }); Object.defineProperty(__exports, "isResourceDropoff", { enumerable: true, get: () => isResourceDropoff }); Object.defineProperty(__exports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => LAB_UPGRADE_QUEUE_LIMIT }); Object.defineProperty(__exports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => labCommittedUnitUpgradeLevel }); Object.defineProperty(__exports, "labUpgradeForJob", { enumerable: true, get: () => labUpgradeForJob }); Object.defineProperty(__exports, "labUpgradeOrders", { enumerable: true, get: () => labUpgradeOrders }); Object.defineProperty(__exports, "minersHutOptionAvailableAt", { enumerable: true, get: () => minersHutOptionAvailableAt }); Object.defineProperty(__exports, "nearestAvailableForager", { enumerable: true, get: () => nearestAvailableForager }); Object.defineProperty(__exports, "nearestDropoff", { enumerable: true, get: () => nearestDropoff }); Object.defineProperty(__exports, "nearestResource", { enumerable: true, get: () => nearestResource }); Object.defineProperty(__exports, "playerCreatableUnitTypes", { enumerable: true, get: () => playerCreatableUnitTypes }); Object.defineProperty(__exports, "populationCap", { enumerable: true, get: () => populationCap }); Object.defineProperty(__exports, "populationUsed", { enumerable: true, get: () => populationUsed }); Object.defineProperty(__exports, "productionTechJob", { enumerable: true, get: () => productionTechJob }); Object.defineProperty(__exports, "productionTechLevel", { enumerable: true, get: () => productionTechLevel }); Object.defineProperty(__exports, "productionTechPeers", { enumerable: true, get: () => productionTechPeers }); Object.defineProperty(__exports, "productionTypesFor", { enumerable: true, get: () => productionTypesFor }); Object.defineProperty(__exports, "queueUnit", { enumerable: true, get: () => queueUnit }); Object.defineProperty(__exports, "queueUnitAcross", { enumerable: true, get: () => queueUnitAcross }); Object.defineProperty(__exports, "resourceDropoffForNode", { enumerable: true, get: () => resourceDropoffForNode }); Object.defineProperty(__exports, "resolveBuildingPlacement", { enumerable: true, get: () => resolveBuildingPlacement }); Object.defineProperty(__exports, "resourceDropoffMultiplier", { enumerable: true, get: () => resourceDropoffMultiplier }); Object.defineProperty(__exports, "sellBuilding", { enumerable: true, get: () => sellBuilding }); Object.defineProperty(__exports, "resumeForaging", { enumerable: true, get: () => resumeForaging }); Object.defineProperty(__exports, "roboMinerCapacity", { enumerable: true, get: () => roboMinerCapacity }); Object.defineProperty(__exports, "roboMinerCommitted", { enumerable: true, get: () => roboMinerCommitted }); Object.defineProperty(__exports, "startMinersHutConversion", { enumerable: true, get: () => startMinersHutConversion }); Object.defineProperty(__exports, "startProductionUpgrade", { enumerable: true, get: () => startProductionUpgrade }); Object.defineProperty(__exports, "startTurretTechUpgrade", { enumerable: true, get: () => startTurretTechUpgrade }); Object.defineProperty(__exports, "startUnitUpgrade", { enumerable: true, get: () => startUnitUpgrade }); Object.defineProperty(__exports, "structureHasCancelableUpgrade", { enumerable: true, get: () => structureHasCancelableUpgrade }); Object.defineProperty(__exports, "structureLabel", { enumerable: true, get: () => structureLabel }); Object.defineProperty(__exports, "teamEconomyState", { enumerable: true, get: () => teamEconomyState }); Object.defineProperty(__exports, "teamPopulationCap", { enumerable: true, get: () => teamPopulationCap }); Object.defineProperty(__exports, "teamPopulationUsed", { enumerable: true, get: () => teamPopulationUsed }); Object.defineProperty(__exports, "toast", { enumerable: true, get: () => toast }); Object.defineProperty(__exports, "turretTechLevelFor", { enumerable: true, get: () => turretTechLevelFor }); Object.defineProperty(__exports, "unitBuildTimeFor", { enumerable: true, get: () => unitBuildTimeFor }); Object.defineProperty(__exports, "updateProduction", { enumerable: true, get: () => updateProduction }); Object.defineProperty(__exports, "upgradeCost", { enumerable: true, get: () => upgradeCost }); Object.defineProperty(__exports, "upgradeHousing", { enumerable: true, get: () => upgradeHousing }); Object.defineProperty(__exports, "upgradeStructure", { enumerable: true, get: () => upgradeStructure });
+      Object.defineProperty(__exports, "MAX_LEVEL", { enumerable: true, get: () => MAX_LEVEL }); Object.defineProperty(__exports, "activateAdrenalineRush", { enumerable: true, get: () => activateAdrenalineRush }); Object.defineProperty(__exports, "adrenalineMenuItem", { enumerable: true, get: () => adrenalineMenuItem }); Object.defineProperty(__exports, "applyUnitUpgradeEffect", { enumerable: true, get: () => applyUnitUpgradeEffect }); Object.defineProperty(__exports, "assignBuildJob", { enumerable: true, get: () => assignBuildJob }); Object.defineProperty(__exports, "assignHarvest", { enumerable: true, get: () => assignHarvest }); Object.defineProperty(__exports, "beginProductionTechJob", { enumerable: true, get: () => beginProductionTechJob }); Object.defineProperty(__exports, "buildingCostFor", { enumerable: true, get: () => buildingCostFor }); Object.defineProperty(__exports, "buildingSellValue", { enumerable: true, get: () => buildingSellValue }); Object.defineProperty(__exports, "canAfford", { enumerable: true, get: () => canAfford }); Object.defineProperty(__exports, "cancelLaboratoryUpgrade", { enumerable: true, get: () => cancelLaboratoryUpgrade }); Object.defineProperty(__exports, "cancelMinersHutConversion", { enumerable: true, get: () => cancelMinersHutConversion }); Object.defineProperty(__exports, "cancelProductionItem", { enumerable: true, get: () => cancelProductionItem }); Object.defineProperty(__exports, "cancelFacilityResearchJob", { enumerable: true, get: () => cancelFacilityResearchJob }); Object.defineProperty(__exports, "cancelStructureUpgrade", { enumerable: true, get: () => cancelStructureUpgrade }); Object.defineProperty(__exports, "cancelTurretTechUpgrade", { enumerable: true, get: () => cancelTurretTechUpgrade }); Object.defineProperty(__exports, "clearBuildJob", { enumerable: true, get: () => clearBuildJob }); Object.defineProperty(__exports, "completeMinersHutConversion", { enumerable: true, get: () => completeMinersHutConversion }); Object.defineProperty(__exports, "completedUnitUpgradeLevel", { enumerable: true, get: () => completedUnitUpgradeLevel }); Object.defineProperty(__exports, "creditTeamResources", { enumerable: true, get: () => creditTeamResources }); Object.defineProperty(__exports, "constructBuilding", { enumerable: true, get: () => constructBuilding }); Object.defineProperty(__exports, "constructGasExtractor", { enumerable: true, get: () => constructGasExtractor }); Object.defineProperty(__exports, "enemyPopulationCap", { enumerable: true, get: () => enemyPopulationCap }); Object.defineProperty(__exports, "enemyPopulationUsed", { enumerable: true, get: () => enemyPopulationUsed }); Object.defineProperty(__exports, "fieldHasDropoff", { enumerable: true, get: () => fieldHasDropoff }); Object.defineProperty(__exports, "fieldHasResources", { enumerable: true, get: () => fieldHasResources }); Object.defineProperty(__exports, "gasExtractionReady", { enumerable: true, get: () => gasExtractionReady }); Object.defineProperty(__exports, "gasExtractorFor", { enumerable: true, get: () => gasExtractorFor }); Object.defineProperty(__exports, "hasOperationalPlayerStructure", { enumerable: true, get: () => hasOperationalPlayerStructure }); Object.defineProperty(__exports, "hasOperationalTeamStructure", { enumerable: true, get: () => hasOperationalTeamStructure }); Object.defineProperty(__exports, "hasPlayerStructure", { enumerable: true, get: () => hasPlayerStructure }); Object.defineProperty(__exports, "hasTeamStructure", { enumerable: true, get: () => hasTeamStructure }); Object.defineProperty(__exports, "housingCapacity", { enumerable: true, get: () => housingCapacity }); Object.defineProperty(__exports, "incomeRates", { enumerable: true, get: () => incomeRates }); Object.defineProperty(__exports, "isHarvestableResource", { enumerable: true, get: () => isHarvestableResource }); Object.defineProperty(__exports, "isProductionBuilding", { enumerable: true, get: () => isProductionBuilding }); Object.defineProperty(__exports, "isResourceDropoff", { enumerable: true, get: () => isResourceDropoff }); Object.defineProperty(__exports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => LAB_UPGRADE_QUEUE_LIMIT }); Object.defineProperty(__exports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => labCommittedUnitUpgradeLevel }); Object.defineProperty(__exports, "labUpgradeForJob", { enumerable: true, get: () => labUpgradeForJob }); Object.defineProperty(__exports, "labUpgradeOrders", { enumerable: true, get: () => labUpgradeOrders }); Object.defineProperty(__exports, "minersHutOptionAvailableAt", { enumerable: true, get: () => minersHutOptionAvailableAt }); Object.defineProperty(__exports, "nearestAvailableForager", { enumerable: true, get: () => nearestAvailableForager }); Object.defineProperty(__exports, "nearestDropoff", { enumerable: true, get: () => nearestDropoff }); Object.defineProperty(__exports, "nearestResource", { enumerable: true, get: () => nearestResource }); Object.defineProperty(__exports, "playerCreatableUnitTypes", { enumerable: true, get: () => playerCreatableUnitTypes }); Object.defineProperty(__exports, "populationCap", { enumerable: true, get: () => populationCap }); Object.defineProperty(__exports, "populationUsed", { enumerable: true, get: () => populationUsed }); Object.defineProperty(__exports, "productionTechJob", { enumerable: true, get: () => productionTechJob }); Object.defineProperty(__exports, "productionTechLevel", { enumerable: true, get: () => productionTechLevel }); Object.defineProperty(__exports, "productionTechPeers", { enumerable: true, get: () => productionTechPeers }); Object.defineProperty(__exports, "productionTypesFor", { enumerable: true, get: () => productionTypesFor }); Object.defineProperty(__exports, "queueUnit", { enumerable: true, get: () => queueUnit }); Object.defineProperty(__exports, "queueUnitAcross", { enumerable: true, get: () => queueUnitAcross }); Object.defineProperty(__exports, "resourceDropoffForNode", { enumerable: true, get: () => resourceDropoffForNode }); Object.defineProperty(__exports, "resolveBuildingPlacement", { enumerable: true, get: () => resolveBuildingPlacement }); Object.defineProperty(__exports, "resourceDropoffMultiplier", { enumerable: true, get: () => resourceDropoffMultiplier }); Object.defineProperty(__exports, "sellBuilding", { enumerable: true, get: () => sellBuilding }); Object.defineProperty(__exports, "resumeForaging", { enumerable: true, get: () => resumeForaging }); Object.defineProperty(__exports, "roboMinerCapacity", { enumerable: true, get: () => roboMinerCapacity }); Object.defineProperty(__exports, "roboMinerCommitted", { enumerable: true, get: () => roboMinerCommitted }); Object.defineProperty(__exports, "startMinersHutConversion", { enumerable: true, get: () => startMinersHutConversion }); Object.defineProperty(__exports, "startProductionUpgrade", { enumerable: true, get: () => startProductionUpgrade }); Object.defineProperty(__exports, "startTurretTechUpgrade", { enumerable: true, get: () => startTurretTechUpgrade }); Object.defineProperty(__exports, "startUnitUpgrade", { enumerable: true, get: () => startUnitUpgrade }); Object.defineProperty(__exports, "structureHasCancelableUpgrade", { enumerable: true, get: () => structureHasCancelableUpgrade }); Object.defineProperty(__exports, "structureLabel", { enumerable: true, get: () => structureLabel }); Object.defineProperty(__exports, "teamEconomyState", { enumerable: true, get: () => teamEconomyState }); Object.defineProperty(__exports, "teamPopulationCap", { enumerable: true, get: () => teamPopulationCap }); Object.defineProperty(__exports, "teamPopulationUsed", { enumerable: true, get: () => teamPopulationUsed }); Object.defineProperty(__exports, "toast", { enumerable: true, get: () => toast }); Object.defineProperty(__exports, "turretTechLevelFor", { enumerable: true, get: () => turretTechLevelFor }); Object.defineProperty(__exports, "unitBuildTimeFor", { enumerable: true, get: () => unitBuildTimeFor }); Object.defineProperty(__exports, "updateProduction", { enumerable: true, get: () => updateProduction }); Object.defineProperty(__exports, "upgradeCost", { enumerable: true, get: () => upgradeCost }); Object.defineProperty(__exports, "upgradeHousing", { enumerable: true, get: () => upgradeHousing }); Object.defineProperty(__exports, "upgradeStructure", { enumerable: true, get: () => upgradeStructure });
       // Harvesting, construction, production, research, upgrades, and related queues.
       // Extracted from the original single-file build; gameplay logic is intentionally unchanged.
       
@@ -5323,10 +5358,11 @@
       function adrenalineMenuItem(source, reopen) {
         const hq = teamHQ(source?.team);
         if (!adrenalineUnlocked(source?.team)) {
-          const unlocking = hq?.upgradeJob?.toLevel === 3;
+          const hqUpgrade = productionTechJob(source.team, 'hq');
+          const unlocking = hqUpgrade?.toLevel === 3;
           return {
             label: unlocking ? 'ADRENALINE RUSH · UNLOCKING' : 'ADRENALINE RUSH · LOCKED',
-            sub: unlocking ? `${Math.ceil(hq.upgradeJob.timeLeft)}s · HQ tier 3 research` : 'upgrade the HQ to tier 3',
+            sub: unlocking ? `${Math.ceil(hqUpgrade.timeLeft)}s · HQ tier 3 research` : 'upgrade the HQ to tier 3',
             enabled: false,
             action: () => {}
           };
@@ -5423,7 +5459,9 @@
       
       function startTurretTechUpgrade(facility) {
         if (state.gameOver || !facility || facility.type !== 'researchFacility' ||
-            facility.hp <= 0 || facility.underConstruction || facility.turretTechJob || turretTechLevelFor(facility.team) >= TURRET_TECH.maxLevel) return false;
+            facility.hp <= 0 || facility.underConstruction ||
+            pendingFacilityResearchJob(facility, job => job.researchKind === 'turretTech') ||
+            turretTechLevelFor(facility.team) >= TURRET_TECH.maxLevel) return false;
         const toLevel = turretTechLevelFor(facility.team) + 1;
         const spec = TURRET_TECH.upgrades[toLevel];
         if (!spec) return false;
@@ -5432,23 +5470,21 @@
           return false;
         }
         pay(spec.costM, spec.costG, facility.team);
-        facility.turretTechJob = {
+        const job = {
+          researchKind: 'turretTech', team: facility.team,
           toLevel, timeLeft: spec.time, total: spec.time, unlock: spec.unlock,
           costM: spec.costM, costG: spec.costG
         };
+        enqueueFacilityResearchJob(facility, job);
         burst(facility.x, facility.y, COLORS.warn, 16, true);
-        toast(`TURRET TECHNOLOGY L${toLevel} research started (${spec.time}s).`, COLORS.warn);
+        const queued = facility.researchJob === job ? 'started' : `queued · position ${facility.researchQueue.length + 1}`;
+        toast(`TURRET TECHNOLOGY L${toLevel} research ${queued} (${spec.time}s).`, COLORS.warn);
         return true;
       }
       
       function cancelTurretTechUpgrade(facility) {
-        const job = facility?.turretTechJob;
-        if (!job || facility.hp <= 0) return false;
-        facility.turretTechJob = null;
-        creditTeamResources(facility.team, job.costM || 0, job.costG || 0);
-        burst(facility.x, facility.y, COLORS.bad, 9, true);
-        toast(`TURRET TECHNOLOGY L${job.toLevel} cancelled · full refund.`, COLORS.good);
-        return true;
+        const job = pendingFacilityResearchJob(facility, item => item.researchKind === 'turretTech');
+        return cancelFacilityResearchJob(facility, job);
       }
       
       function housingCapacity(s) {
@@ -5541,16 +5577,64 @@
           (!operationalOnly || !s.underConstruction));
       }
       
-      function beginProductionTechJob(team, type, toLevel, spec) {
+      function validResearchFacility(facility, team) {
+        return !!facility && facility.type === 'researchFacility' && facility.team === team &&
+          facility.hp > 0 && !facility.underConstruction;
+      }
+      
+      function researchFacilityForTeam(team, preferred = null) {
+        if (validResearchFacility(preferred, team)) return preferred;
+        return structures.find(structure => validResearchFacility(structure, team)) || null;
+      }
+      
+      function ensureFacilityResearchQueue(facility) {
+        if (!Array.isArray(facility.researchQueue)) facility.researchQueue = [];
+        return facility.researchQueue;
+      }
+      
+      function facilityResearchOrders(facility) {
+        if (!facility) return [];
+        return [facility.researchJob, ...ensureFacilityResearchQueue(facility)].filter(Boolean);
+      }
+      
+      function pendingFacilityResearchJob(facility, predicate = () => true) {
+        return facilityResearchOrders(facility).find(predicate) || null;
+      }
+      
+      function enqueueFacilityResearchJob(facility, job) {
+        if (!facility || !job) return false;
+        ensureFacilityResearchQueue(facility);
+        job.facilityId = facility.id;
+        if (!facility.researchJob) facility.researchJob = job;
+        else facility.researchQueue.push(job);
+        return true;
+      }
+      
+      function removeFacilityResearchJob(facility, job) {
+        if (!facility || !job) return false;
+        ensureFacilityResearchQueue(facility);
+        if (facility.researchJob === job) {
+          facility.researchJob = facility.researchQueue.shift() || null;
+          return true;
+        }
+        const index = facility.researchQueue.indexOf(job);
+        if (index < 0) return false;
+        facility.researchQueue.splice(index, 1);
+        return true;
+      }
+      
+      function beginProductionTechJob(team, type, toLevel, spec, preferredFacility = null) {
         ensureProductionTechTeam(team);
         if (!spec || productionTechJob(team, type)) return null;
+        const facility = researchFacilityForTeam(team, preferredFacility);
+        if (!facility) return null;
         const job = {
-          team, structureType: type, toLevel,
+          researchKind: 'productionTech', team, structureType: type, toLevel,
           timeLeft: spec.time, total: spec.time, unlock: spec.unlock,
           costM: spec.costM, costG: spec.costG
         };
         state.productionTechJobs[team][type] = job;
-        for (const peer of productionTechPeers(team, type)) peer.upgradeJob = job;
+        enqueueFacilityResearchJob(facility, job);
         return job;
       }
       
@@ -5559,9 +5643,21 @@
         if (state.productionTechJobs[job.team]?.[job.structureType] === job) {
           delete state.productionTechJobs[job.team][job.structureType];
         }
-        for (const peer of productionTechPeers(job.team, job.structureType)) {
-          if (peer.upgradeJob === job) peer.upgradeJob = null;
-        }
+      }
+      
+      function researchJobLabel(job) {
+        if (!job) return 'RESEARCH';
+        if (job.researchKind === 'turretTech') return `TURRET TECHNOLOGY L${job.toLevel}`;
+        return `${structureLabel(job.structureType)} L${job.toLevel}`;
+      }
+      
+      function cancelFacilityResearchJob(facility, job = facility?.researchJob) {
+        if (!facility || facility.hp <= 0 || !job || !removeFacilityResearchJob(facility, job)) return false;
+        if (job.researchKind === 'productionTech') clearProductionTechJob(job);
+        creditTeamResources(facility.team, job.costM || 0, job.costG || 0);
+        burst(facility.x, facility.y, COLORS.bad, 9, true);
+        toast(`${researchJobLabel(job)} research cancelled · full refund.`, COLORS.good);
+        return true;
       }
       
       function completeProductionTechJob(job) {
@@ -5772,7 +5868,7 @@
         if (!spec) return false;
         if (!canAfford(spec.costM, spec.costG, s.team)) { toast('Not enough resources for the building upgrade.', COLORS.bad); return false; }
         pay(spec.costM, spec.costG, s.team);
-        const job = beginProductionTechJob(s.team, s.type, toLevel, spec);
+        const job = beginProductionTechJob(s.team, s.type, toLevel, spec, researchFacility);
         if (!job) {
           creditTeamResources(s.team, spec.costM, spec.costG);
           return false;
@@ -5863,6 +5959,7 @@
       
       function cancelProductionItem(producer, item, kind = 'unit') {
         if (!producer || producer.hp <= 0 || !item) return false;
+        if (kind === 'research') return cancelFacilityResearchJob(producer, item);
         if (kind === 'upgrade') {
           if (productionTechJob(item.team, item.structureType) !== item) return false;
           clearProductionTechJob(item);
@@ -5906,12 +6003,13 @@
       
       function structureHasCancelableUpgrade(s) {
         return !!s && s.hp > 0 && !!(
-          s.upgradeJob || s.conversionJob || s.labJob || s.turretTechJob
+          s.upgradeJob || s.conversionJob || s.labJob || s.turretTechJob || s.researchJob
         );
       }
       
       function cancelStructureUpgrade(s) {
         if (!structureHasCancelableUpgrade(s)) return false;
+        if (s.researchJob) return cancelFacilityResearchJob(s, s.researchJob);
         if (s.upgradeJob) return cancelProductionItem(s, s.upgradeJob, 'upgrade');
         if (s.conversionJob) return cancelMinersHutConversion(s);
         if (s.labJob) return cancelLaboratoryUpgrade(s);
@@ -5947,6 +6045,14 @@
           refundG += s.turretTechJob.costG || 0;
           s.turretTechJob = null;
         }
+        const researchOrders = facilityResearchOrders(s);
+        for (const job of researchOrders) {
+          refundM += job.costM || 0;
+          refundG += job.costG || 0;
+          if (job.researchKind === 'productionTech') clearProductionTechJob(job);
+        }
+        s.researchJob = null;
+        if (Array.isArray(s.researchQueue)) s.researchQueue.length = 0;
         const labOrders = [s.labJob, ...(Array.isArray(s.labQueue) ? s.labQueue : [])].filter(Boolean);
         for (const job of labOrders) {
           refundM += job.costM || 0;
@@ -6052,21 +6158,34 @@
       }
       
       function updateProduction(dt) {
-        for (const team of Object.keys(state.productionTechJobs || {})) {
-          for (const job of Object.values(state.productionTechJobs[team])) {
-            job.timeLeft = Math.max(0, job.timeLeft - dt);
-            if (job.timeLeft <= 0) completeProductionTechJob(job);
-          }
-        }
         for (const facility of structures) {
-          if (facility.type !== 'researchFacility' || facility.hp <= 0 || facility.underConstruction || !facility.turretTechJob) continue;
-          facility.turretTechJob.timeLeft = Math.max(0, facility.turretTechJob.timeLeft - dt);
-          if (facility.turretTechJob.timeLeft <= 0) {
-            const completed = facility.turretTechJob;
-            facility.turretTechJob = null;
-            setTurretTechLevelFor(facility.team, completed.toLevel);
-            burst(facility.x, facility.y, COLORS.warn, 22, true);
-            toast(`TURRET TECHNOLOGY L${turretTechLevelFor(facility.team)} ready — field upgrades unlocked.`, COLORS.good);
+          if (facility.type !== 'researchFacility') continue;
+          ensureFacilityResearchQueue(facility);
+          if (facility.hp <= 0) {
+            for (const job of facilityResearchOrders(facility)) {
+              if (job.researchKind === 'productionTech') clearProductionTechJob(job);
+            }
+            facility.researchJob = null;
+            facility.researchQueue.length = 0;
+            continue;
+          }
+          if (facility.underConstruction) continue;
+          if (!facility.researchJob && facility.researchQueue.length) facility.researchJob = facility.researchQueue.shift();
+          if (!facility.researchJob) continue;
+          facility.researchJob.timeLeft = Math.max(0, facility.researchJob.timeLeft - dt);
+          if (facility.researchJob.timeLeft <= 0) {
+            const completed = facility.researchJob;
+            facility.researchJob = null;
+            if (completed.researchKind === 'productionTech') {
+              completeProductionTechJob(completed);
+            } else if (completed.researchKind === 'turretTech') {
+              setTurretTechLevelFor(facility.team, completed.toLevel);
+              burst(facility.x, facility.y, COLORS.warn, 22, true);
+              if (state.localCommandTeams?.includes(facility.team)) {
+                toast(`TURRET TECHNOLOGY L${turretTechLevelFor(facility.team)} ready — field upgrades unlocked.`, COLORS.good);
+              }
+            }
+            if (facility.researchQueue.length) facility.researchJob = facility.researchQueue.shift();
           }
         }
         for (const lab of structures) {
@@ -6085,7 +6204,6 @@
         for (const producer of structures) {
           if (producer.hp <= 0 || producer.underConstruction || !isProductionBuilding(producer)) continue;
           if (producer.conversionJob) continue;
-          if (producer.upgradeJob) continue;
           if (!producer.queue.length) continue;
           const item = producer.queue[0];
           item.timeLeft -= dt;
@@ -6622,6 +6740,10 @@
       function resolveCancelItem(command, producer) {
         if (command.kind === 'upgrade') return producer.upgradeJob;
         if (command.kind === 'turretTech') return producer.turretTechJob;
+        if (command.kind === 'research') {
+          const index = Math.max(0, Math.trunc(command.queueIndex || 0));
+          return index === 0 ? producer.researchJob : producer.researchQueue?.[index - 1] || null;
+        }
         const index = Math.max(0, Math.trunc(command.queueIndex || 0));
         return producer.queue?.[index] || null;
       }
@@ -6782,7 +6904,7 @@
           if (own.type === 'housing') { openHousingMenu(own, screenPt); return; }
           if (own.type === 'researchFacility') { openResearchFacilityMenu(own, screenPt); return; }
           if (own.type === 'laboratory') { openLaboratoryMenu(own, screenPt); return; }
-          if (own.type === 'turret' || own.type === 'antiAirTurret') { openUpgradeMenu(own, screenPt); return; }
+          if (own.type === 'turret' || own.type === 'antiAirTurret' || own.type === 'radarTurret') { openUpgradeMenu(own, screenPt); return; }
         }
       
         // 2. A resource node -> send selected foragers to harvest it.
@@ -9403,7 +9525,7 @@
       applyUnitGroup(['antiAirFighter', 'bomber'], AIRPLANE_PORTRAIT_GLB, { cameraTilt: -0.52, cameraDistance: 2.38, cameraLift: -0.02 });
       
       applyBuildingGroup(['hq', 'barracks', 'garage', 'airBay', 'supportCamp', 'gasExtractor', 'minersHut', 'researchFacility', 'laboratory'], BUILDING_PORTRAIT_GLB, { cameraTilt: -0.76, cameraDistance: 2.04, cameraLift: -0.10 });
-      applyBuildingGroup(['turret', 'antiAirTurret'], TURRET_PORTRAIT_GLB, { cameraTilt: -0.76, cameraDistance: 1.92, cameraLift: -0.08 });
+      applyBuildingGroup(['turret', 'antiAirTurret', 'radarTurret'], TURRET_PORTRAIT_GLB, { cameraTilt: -0.76, cameraDistance: 1.92, cameraLift: -0.08 });
       applyBuildingGroup(['housing'], HOUSE_PORTRAIT_GLB, { cameraTilt: -0.76, cameraDistance: 1.94, cameraLift: -0.12 });
       
       function unitPortraitLevel(subject) {
@@ -10127,14 +10249,17 @@
           }
           producer.queue.forEach((item, index) => rows.push({ producer, source, item, index, kind: 'unit' }));
         }
-        const researchFacilities = structures.filter(s => s.team === activeCommandTeam() && s.hp > 0 && !s.underConstruction && s.type === 'researchFacility' && s.turretTechJob);
-        researchFacilities.forEach((facility, index) => rows.push({
-          producer: facility,
-          source: researchFacilities.length > 1 ? `RES${index + 1}` : 'RES',
-          item: facility.turretTechJob,
-          index: 0,
-          kind: 'turretTech'
-        }));
+        const researchFacilities = structures.filter(s => s.team === activeCommandTeam() && s.hp > 0 && !s.underConstruction && s.type === 'researchFacility');
+        researchFacilities.forEach((facility, facilityIndex) => {
+          const orders = [facility.researchJob, ...(Array.isArray(facility.researchQueue) ? facility.researchQueue : [])].filter(Boolean);
+          orders.forEach((item, index) => rows.push({
+            producer: facility,
+            source: researchFacilities.length > 1 ? `RES${facilityIndex + 1}` : 'RES',
+            item,
+            index,
+            kind: 'research'
+          }));
+        });
       
         const headH = 22, rowH = 18;
         const availableRows = Math.max(1, Math.floor((VIEW_H - y - 14 - headH) / rowH));
@@ -10148,7 +10273,7 @@
       
         shown.forEach((row, i) => {
           const ry = y + headH + i * rowH;
-          const active = row.kind !== 'unit' || (!row.producer.upgradeJob && !row.producer.conversionJob && row.index === 0);
+          const active = row.kind === 'research' ? row.index === 0 : row.kind !== 'unit' || (!row.producer.conversionJob && row.index === 0);
           ctx.fillStyle = i % 2 ? 'rgba(29,37,50,.92)' : 'rgba(23,30,42,.92)';
           ctx.fillRect(x + 5, ry, w - 10, rowH - 1);
           if (active) {
@@ -10156,11 +10281,16 @@
             ctx.fillStyle = 'rgba(135,224,111,.22)';
             ctx.fillRect(x + 5, ry, Math.floor((w - 10) * frac), rowH - 1);
           }
+          const researchLabel = row.item.researchKind === 'turretTech'
+            ? `TURRET TECH → L${row.item.toLevel}`
+            : `${BUILDING_DATA[row.item.structureType]?.label || String(row.item.structureType || 'BUILDING').toUpperCase()} → L${row.item.toLevel}`;
           const rowLabel = row.kind === 'upgrade'
             ? `${row.source} · UPGRADE → L${row.item.toLevel}`
-            : row.kind === 'turretTech'
-              ? `${row.source} · TURRET TECH → L${row.item.toLevel}`
-              : `${row.source} · ${row.index + 1}. ${UNIT_DATA[row.item.type].label} · T${UNIT_DATA[row.item.type].tier || 0}`;
+            : row.kind === 'research'
+              ? `${row.source} · ${row.index + 1}. ${researchLabel}`
+              : row.kind === 'turretTech'
+                ? `${row.source} · TURRET TECH → L${row.item.toLevel}`
+                : `${row.source} · ${row.index + 1}. ${UNIT_DATA[row.item.type].label} · T${UNIT_DATA[row.item.type].tier || 0}`;
           drawText(rowLabel, x + 10, ry + 3, 10, active ? COLORS.text : COLORS.muted);
           const cancelRect = { x: x + w - 68, y: ry + 1, w: 60, h: rowH - 3 };
           state.queueHitRects.push({ ...row, rect: cancelRect });
@@ -10403,7 +10533,7 @@
           const allPeers = productionTechPeers(productionTeam, buildingType, true);
           items.push({
             label: `ALL ${structureLabel(buildingType)} BUILDINGS · RESEARCHING L${activeUpgrade.toLevel}`,
-            sub: `${Math.ceil(activeUpgrade.timeLeft)}s · ${activeUpgrade.unlock} · ${allPeers.length} queue${allPeers.length === 1 ? '' : 's'} paused`,
+            sub: `${Math.ceil(activeUpgrade.timeLeft)}s · ${activeUpgrade.unlock} · research facility queue · production remains active`,
             tone: 'research',
             enabled: false,
             action: () => {}
@@ -10431,12 +10561,15 @@
             .sort((a, b) => a.id - b.id)
         })).filter(group => group.peers.length && PRODUCTION_TECH[group.type]);
         const items = [];
+        const researchOrders = [facility.researchJob, ...(Array.isArray(facility.researchQueue) ? facility.researchQueue : [])].filter(Boolean);
+        const researchPosition = job => researchOrders.indexOf(job);
         const turretCreated = structures.some(s => s.team === facility.team && (s.type === 'turret' || s.type === 'antiAirTurret') && s.hp > 0 && !s.underConstruction);
-        if (facility.turretTechJob) {
-          const job = facility.turretTechJob;
+        const turretJob = researchOrders.find(job => job.researchKind === 'turretTech');
+        if (turretJob) {
+          const position = researchPosition(turretJob);
           items.push({
-            label: `TURRET TECH · RESEARCHING L${job.toLevel}`,
-            sub: `${Math.ceil(job.timeLeft)}s · unlocks individual turret upgrades`,
+            label: `TURRET TECH · ${position === 0 ? 'RESEARCHING' : 'QUEUED'} L${turretJob.toLevel}`,
+            sub: position === 0 ? `${Math.ceil(turretJob.timeLeft)}s · unlocks individual turret upgrades` : `queue position ${position + 1} · ${turretJob.unlock}`,
             tone: 'research',
             enabled: false,
             action: () => {}
@@ -10454,7 +10587,7 @@
           const spec = TURRET_TECH.upgrades[toLevel];
           items.push({
             label: `TURRET TECHNOLOGY · L${turretTechLevelFor(facility.team)} → L${toLevel}`,
-            sub: `${spec.costM}M ${spec.costG}G · ${spec.time}s · unlock field L${toLevel}`,
+            sub: `${spec.costM}M ${spec.costG}G · ${spec.time}s · queued in this facility`,
             tone: 'research',
             costM: spec.costM,
             costG: spec.costG,
@@ -10468,9 +10601,10 @@
           const job = productionTechJob(facility.team, type);
           const name = peers.length > 1 ? `${peers.length} × ${structureLabel(type)}` : structureLabel(type);
           if (job) {
+            const position = researchPosition(job);
             return {
-              label: `${name} · ALL UPGRADING TO L${job.toLevel}`,
-              sub: `${Math.ceil(job.timeLeft)}s · ${job.unlock}`,
+              label: `${name} · ${position === 0 ? 'RESEARCHING' : 'QUEUED'} L${job.toLevel}`,
+              sub: position === 0 ? `${Math.ceil(job.timeLeft)}s · ${job.unlock}` : `queue position ${position + 1} · ${job.unlock}`,
               tone: 'research',
               enabled: false,
               action: () => {}
@@ -10483,7 +10617,7 @@
           const spec = tech.upgrades[toLevel];
           return {
             label: `${name} · L${level} → L${toLevel}`,
-            sub: `${spec.costM}M ${spec.costG}G · ${spec.time}s · ${spec.unlock}`,
+            sub: `${spec.costM}M ${spec.costG}G · ${spec.time}s · queued here · unit production continues`,
             tone: 'research',
             costM: spec.costM,
             costG: spec.costG,
@@ -10491,8 +10625,10 @@
             afterQueue: () => openResearchFacilityMenu(facility, screenPt)
           };
         }));
-        openMenu(screenPt, 'RESEARCH · STRUCTURES & TURRETS', items, true);
+        const queueSuffix = researchOrders.length ? ` · ${researchOrders.length} ORDER${researchOrders.length === 1 ? '' : 'S'}` : '';
+        openMenu(screenPt, `RESEARCH · STRUCTURES & TURRETS${queueSuffix}`, items, true);
       }
+      
       function labCategoryTone(categoryId) {
         if (categoryId === 'infantry' || categoryId === 'air') return 'military';
         if (categoryId === 'vehicle') return 'defense';
@@ -10665,6 +10801,14 @@
         openMenu(screenPt, `${d.label} SITE`, [{ label: s.constructionStarted ? 'CONSTRUCTING' : 'AWAITING BUILDER', sub: status, tone: 'info', enabled: false, action: () => {} }]);
       }
       function openUpgradeMenu(s, screenPt) {
+        if (s.type === 'radarTurret') {
+          openMenu(screenPt, BUILDING_DATA.radarTurret.label, [{
+            label: 'LONG-RANGE MINIMAP DETECTION',
+            sub: `${Math.round(s.radarRange || BUILDING_DATA.radarTurret.radarRange)} range · reveals enemy markers only · fog remains`,
+            tone: 'info', enabled: false, action: () => {}
+          }]);
+          return;
+        }
         if (s.type !== 'turret' && s.type !== 'antiAirTurret') return;
         const label = BUILDING_DATA[s.type].label;
         if ((s.level || 1) >= MAX_LEVEL) {
@@ -10789,6 +10933,7 @@
       
         items.push(makeItem('turret', 'ground auto-defence', 'defense'));
         items.push(makeItem('antiAirTurret', 'air defence only · two field upgrades', 'defense'));
+        items.push(makeItem('radarTurret', 'long-range enemy detection on the minimap · does not clear fog', 'defense'));
         const placing = BUILDING_DATA[state.placingBuildingType];
         openMenu(state.mouse, placing ? `PLACE ${placing.label} · CLICK MAP` : 'CONSTRUCTION', items, true);
       }
@@ -11118,6 +11263,26 @@
             ctx.beginPath(); ctx.arc(s.x, s.y, 12 + Math.sin(state.elapsed * 5) * 1.5, 0, Math.PI * 2); ctx.stroke();
             ctx.fillStyle = COLORS.warn; ctx.fillRect(s.x - 2, s.y - 2, 4, 4);
           }
+        } else if (s.type === 'radarTurret') {
+          ctx.fillStyle = '#0c141d';
+          ctx.fillRect(x - 2, y + 5, s.w + 4, s.h - 1);
+          ctx.fillStyle = flash ? '#ffffff' : '#263746';
+          ctx.fillRect(x, y, s.w, s.h);
+          ctx.strokeStyle = team; ctx.lineWidth = 2 / cam.zoom;
+          ctx.strokeRect(x + 1, y + 1, s.w - 2, s.h - 2);
+          ctx.fillStyle = '#14212c';
+          ctx.fillRect(s.x - 3, y - 12, 6, 18);
+          ctx.save();
+          ctx.translate(s.x, y - 9);
+          ctx.rotate(state.elapsed * .55 + s.id * .13);
+          ctx.strokeStyle = '#9cf2ff';
+          ctx.lineWidth = 2 / cam.zoom;
+          ctx.beginPath(); ctx.arc(0, 0, 10, -.7, .7); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-8, -6); ctx.lineTo(8, 6); ctx.stroke();
+          ctx.restore();
+          ctx.fillStyle = '#d9fbff';
+          ctx.fillRect(s.x - 2, y - 11, 4, 4);
+          if (!s.underConstruction) drawText('RADAR', s.x, y + s.h + 5, 8, '#9cf2ff', 'center');
         } else if (s.type === 'barracks') {
           // L2 side armour.
           ctx.fillStyle = '#1a2735';
@@ -11235,6 +11400,7 @@
         if (s.upgradeJob) return { job: s.upgradeJob, color: COLORS.warn };
         if (s.conversionJob) return { job: s.conversionJob, color: COLORS.warn };
         if (s.labJob) return { job: s.labJob, color: COLORS.mineral };
+        if (s.researchJob) return { job: s.researchJob, color: COLORS.warn };
         if (s.turretTechJob) return { job: s.turretTechJob, color: COLORS.warn };
         if (s.queue?.length) return { job: s.queue[0], color: COLORS.good };
         return null;
@@ -11664,7 +11830,7 @@
           ctx.restore();
         }
         drawStructureWorkBar(s, y);
-        hpBar(s, s.type === 'hq' ? 58 : Math.max(34, s.w), -s.h / 2 - 10);
+        if (!s.underConstruction) hpBar(s, s.type === 'hq' ? 58 : Math.max(34, s.w), -s.h / 2 - 10);
       }
       
       function fortressActiveVisual(u) {
@@ -13571,6 +13737,8 @@
         multiplayerRoomCode: null,
         multiplayerRole: null,
         multiplayerRemoteTeam: null,
+        multiplayerRemoteTeams: [],
+        multiplayerPlayers: [],
         eliminatedTeams: new Set(),
         winnerTeam: null,
         incomeClock: 0,
@@ -13736,20 +13904,21 @@
         if (type === 'hq') base = { w: 60, h: 52, hp: isHumanTeam(team) ? 720 : 820, sight: 170 };
         else if (BUILDING_DATA[type]) {
           const d = BUILDING_DATA[type];
-          base = { w: d.w, h: d.h, hp: d.hp, sight: d.sight, range: d.range, damage: d.damage, cooldown: d.cooldown };
+          base = { w: d.w, h: d.h, hp: d.hp, sight: d.sight, range: d.range, damage: d.damage, cooldown: d.cooldown, radarRange: d.radarRange };
         }
         else base = { w: 42, h: 38, hp: 230, sight: 95 };   // mines
         const inheritedLevel = state.productionTechLevels?.[team]?.[type] || 1;
-        const inheritedUpgradeJob = state.productionTechJobs?.[team]?.[type] || null;
         const s = {
           id: nextId++, kind: 'structure', type, team, x, y, prevX: x, prevY: y,
           maxHp: base.hp, hp: base.hp, w: base.w, h: base.h, sight: base.sight,
-          range: base.range || 0, damage: base.damage || 0, cooldown: base.cooldown || 0,
+          range: base.range || 0, damage: base.damage || 0, cooldown: base.cooldown || 0, radarRange: base.radarRange || 0,
           cooldownLeft: 0, target: null, barrelAngle: -Math.PI / 2, flash: 0, recoil: 0, queue: [], level: inheritedLevel,
           spawnFlag: null,
           adrenalineAuraUntil: 0,
-          upgradeJob: inheritedUpgradeJob,
+          upgradeJob: null,
           turretTechJob: null,
+          researchJob: null,
+          researchQueue: [],
           conversionJob: null,
           labJob: null,
           labQueue: [],
