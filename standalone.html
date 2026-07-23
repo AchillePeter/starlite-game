@@ -3011,19 +3011,6 @@
       
         const livingHQs = getLivingHQs();
         const localTeams = new Set(state.localCommandTeams || ['player']);
-        // In multiplayer every peer must continue simulating after an elimination;
-        // stopping only the defeated client's update loop would immediately desync a
-        // three- or four-player room. All peers end together when one HQ remains.
-        if (state.multiplayerActive) {
-          if (livingHQs.length <= 1) {
-            const winnerTeam = livingHQs[0]?.team || attacker?.team || null;
-            endGame(winnerTeam === (state.activeCommandTeam || 'player'), winnerTeam);
-            return;
-          }
-          toast(`${teamLabel(hq.team)} command core destroyed · ${livingHQs.length} commanders remain.`, colorForTeam(hq.team, 'light'));
-          return;
-        }
-      
         const livingLocalHQs = livingHQs.filter(candidate => localTeams.has(candidate.team));
         if (localTeams.has(hq.team) && !livingLocalHQs.length) {
           endGame(false, attacker?.team || livingHQs[0]?.team || null);
@@ -3549,6 +3536,13 @@
         return null;
       }
       
+      function activeMultiplayerUsername() {
+        if (!state.multiplayerActive) return '';
+        const team = activeCommandTeam();
+        const player = (state.multiplayerPlayers || []).find(candidate => candidate.team === team);
+        return String(player?.username || '').trim().slice(0, 20);
+      }
+      
       function drawPortraitPanel() {
         const layout = consoleLayout();
         const zone = layout.portrait;
@@ -3560,7 +3554,17 @@
         const compact = layout.compact;
         const headerH = compact ? 18 : 23;
         const footerH = compact ? 22 : 29;
-        drawConsoleText('GLB PORTRAIT', zone.x + 6, zone.y + (compact ? 4 : 5), compact ? 7 : 9, COLORS.warn, 'left', zone.w - 12, 800);
+        const commanderName = activeMultiplayerUsername();
+        drawConsoleText(
+          commanderName || 'GLB PORTRAIT',
+          zone.x + 6,
+          zone.y + (compact ? 4 : 5),
+          compact ? 7 : 9,
+          commanderName ? COLORS.good : COLORS.warn,
+          'left',
+          zone.w - 12,
+          800
+        );
         const modelRect = {
           x: zone.x + 6,
           y: zone.y + headerH,
@@ -4221,7 +4225,7 @@
     
 
     with (__imports) {
-      Object.defineProperty(__exports, "DEFAULT_COMMAND_DELAY_TICKS", { enumerable: true, get: () => DEFAULT_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MAX_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MAX_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MIN_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "applyQueuedCommands", { enumerable: true, get: () => applyQueuedCommands }); Object.defineProperty(__exports, "getActiveCommandSource", { enumerable: true, get: () => getActiveCommandSource }); Object.defineProperty(__exports, "getActiveCommandTeam", { enumerable: true, get: () => getActiveCommandTeam }); Object.defineProperty(__exports, "getCurrentCommandTick", { enumerable: true, get: () => getCurrentCommandTick }); Object.defineProperty(__exports, "getRegisteredCommandSourceIds", { enumerable: true, get: () => getRegisteredCommandSourceIds }); Object.defineProperty(__exports, "getRegisteredCommandSources", { enumerable: true, get: () => getRegisteredCommandSources }); Object.defineProperty(__exports, "queueCommand", { enumerable: true, get: () => queueCommand }); Object.defineProperty(__exports, "queuedCommandCount", { enumerable: true, get: () => queuedCommandCount }); Object.defineProperty(__exports, "registerCommandSource", { enumerable: true, get: () => registerCommandSource }); Object.defineProperty(__exports, "resetCommandSync", { enumerable: true, get: () => resetCommandSync }); Object.defineProperty(__exports, "setActiveCommandSource", { enumerable: true, get: () => setActiveCommandSource }); Object.defineProperty(__exports, "setActiveCommandTeam", { enumerable: true, get: () => setActiveCommandTeam }); Object.defineProperty(__exports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => setLocalCommandEnvelopeListener });
+      Object.defineProperty(__exports, "DEFAULT_COMMAND_DELAY_TICKS", { enumerable: true, get: () => DEFAULT_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MAX_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MAX_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => MIN_COMMAND_DELAY_TICKS }); Object.defineProperty(__exports, "applyQueuedCommands", { enumerable: true, get: () => applyQueuedCommands }); Object.defineProperty(__exports, "getActiveCommandSource", { enumerable: true, get: () => getActiveCommandSource }); Object.defineProperty(__exports, "getActiveCommandTeam", { enumerable: true, get: () => getActiveCommandTeam }); Object.defineProperty(__exports, "getCurrentCommandTick", { enumerable: true, get: () => getCurrentCommandTick }); Object.defineProperty(__exports, "queueCommand", { enumerable: true, get: () => queueCommand }); Object.defineProperty(__exports, "queuedCommandCount", { enumerable: true, get: () => queuedCommandCount }); Object.defineProperty(__exports, "registerCommandSource", { enumerable: true, get: () => registerCommandSource }); Object.defineProperty(__exports, "resetCommandSync", { enumerable: true, get: () => resetCommandSync }); Object.defineProperty(__exports, "setActiveCommandSource", { enumerable: true, get: () => setActiveCommandSource }); Object.defineProperty(__exports, "setActiveCommandTeam", { enumerable: true, get: () => setActiveCommandTeam }); Object.defineProperty(__exports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => setLocalCommandEnvelopeListener });
       // Deterministic tick-buffered command queue. Input and future networking only
       // enqueue plain data; gameplay mutations happen when main.js applies a tick.
       
@@ -4299,18 +4303,6 @@
       
       function getCurrentCommandTick() {
         return currentTick;
-      }
-      
-      function getRegisteredCommandSources() {
-        return [...sources.values()].map(source => ({
-          id: source.id,
-          team: source.team,
-          local: source.local
-        }));
-      }
-      
-      function getRegisteredCommandSourceIds() {
-        return [...sources.keys()];
       }
       
       function getActiveCommandSource() {
@@ -4537,7 +4529,8 @@
       
       const STORAGE_KEYS = Object.freeze({
         keybinds: 'starlite.keybinds.v1',
-        lastGameMode: 'starlite.lastGameMode.v1'
+        lastGameMode: 'starlite.lastGameMode.v1',
+        username: 'starlite.username.v1'
       });
       
       // KeyboardEvent.code values are layout-independent and survive keyboard
@@ -7128,7 +7121,7 @@
   __define("main.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("multiplayer.js"); const __dep6 = __require("syncChecksum.js"); const __dep7 = __require("economy.js"); const __dep8 = __require("menu.js"); const __dep9 = __require("rendering.js"); const __dep10 = __require("state.js"); const __dep11 = __require("terrain.js"); const __dep12 = __require("workerBridge.js");
-    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep4["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep4["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep4["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep4["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep5["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep5["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerSession", { enumerable: true, get: () => __dep5["multiplayerSession"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep5["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep5["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep5["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep5["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep6["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep6["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep7["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep7["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep7["teamEconomyState"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep8["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep9["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep9["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep10["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep10["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep10["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep10["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep10["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep10["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep10["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep10["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep10["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep10["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep10["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep10["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep10["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep10["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep10["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep10["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep10["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep11["generateTerrain"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep11["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep11["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep11["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep12["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep12["setDeterministicLockstepMode"] });
+    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep4["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep4["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep4["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep4["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep5["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep5["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep5["connectMultiplayer"] }); Object.defineProperty(__imports, "multiplayerSession", { enumerable: true, get: () => __dep5["multiplayerSession"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep5["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep5["sendSyncChecksum"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep5["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep6["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep6["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep7["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep7["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep7["teamEconomyState"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep8["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep9["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep9["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep10["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep10["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep10["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep10["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep10["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep10["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep10["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep10["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep10["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep10["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep10["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep10["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep10["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep10["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep10["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep10["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep10["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep11["generateTerrain"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep11["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep11["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep11["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep12["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep12["setDeterministicLockstepMode"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeGameMode", { enumerable: true, get: () => activeGameMode }); Object.defineProperty(__exports, "bootstrapWorld", { enumerable: true, get: () => bootstrapWorld }); Object.defineProperty(__exports, "competitiveSpawnLayout", { enumerable: true, get: () => competitiveSpawnLayout }); Object.defineProperty(__exports, "enemyHQ", { enumerable: true, get: () => enemyHQ }); Object.defineProperty(__exports, "enemyHQs", { enumerable: true, get: () => enemyHQs }); Object.defineProperty(__exports, "getActiveTeams", { enumerable: true, get: () => getActiveTeams }); Object.defineProperty(__exports, "getHQForTeam", { enumerable: true, get: () => getHQForTeam }); Object.defineProperty(__exports, "getLivingHQs", { enumerable: true, get: () => getLivingHQs }); Object.defineProperty(__exports, "getNearestHostileHQ", { enumerable: true, get: () => getNearestHostileHQ }); Object.defineProperty(__exports, "matchSeedForMode", { enumerable: true, get: () => matchSeedForMode }); Object.defineProperty(__exports, "normalizedGameCode", { enumerable: true, get: () => normalizedGameCode }); Object.defineProperty(__exports, "playerHQ", { enumerable: true, get: () => playerHQ }); Object.defineProperty(__exports, "setLocalCommandTeam", { enumerable: true, get: () => setLocalCommandTeam }); Object.defineProperty(__exports, "startStarLite", { enumerable: true, get: () => startStarLite });
@@ -7187,22 +7180,29 @@
       
       async function resolveMultiplayerMode(mode) {
         if (!mode?.pvp) return mode;
-        const connected = multiplayerSession();
-        if (!connected?.started) throw new Error('The multiplayer lobby has not started this match.');
-        const gameCode = normalizedGameCode(mode) || connected.roomCode;
-        setMultiplayerCallbacks({
+        const gameCode = normalizedGameCode(mode);
+        const role = mode.pvpRole;
+        const localTeam = mode.localHumanTeams?.[0];
+        const remoteTeam = mode.remoteHumanTeams?.[0];
+        const hostSeed = role === 'host' ? createRandomSeed() : null;
+        const connected = await connectMultiplayer({
+          roomCode: gameCode,
+          role,
+          localTeam,
+          remoteTeam,
+          seed: hostSeed,
           onDisconnect: pauseMultiplayerMatch,
-          onLobbyUpdate: null
+          onPeerReady: () => {
+            if (!state.multiplayerPaused) state.multiplayerStatus = '';
+          }
         });
         setRandomSeed(connected.seed);
         return {
           ...mode,
           gameCode,
           seed: connected.seed,
-          pvpRole: connected.role,
-          localHumanTeams: [connected.localTeam],
-          remoteHumanTeams: [...connected.remoteTeams],
-          multiplayerPlayers: connected.players
+          localHumanTeams: [localTeam],
+          remoteHumanTeams: [remoteTeam]
         };
       }
       
@@ -7407,7 +7407,7 @@
         hqByTeam.set(team, hq);
         addResourceField(x, y, resourceAngle, {
           starting: true,
-          enemy: isComputerTeam(team),
+          enemy: COMPUTER_TEAMS.includes(team),
           ownerTeam: team,
           minerals: 7,
           gases: 2,
@@ -7481,9 +7481,7 @@
         state.multiplayerRoomCode = mode.pvp ? gameCode : null;
         state.multiplayerRole = mode.pvp ? mode.pvpRole : null;
         state.multiplayerRemoteTeam = configuredRemoteTeams[0] || null;
-        state.multiplayerRemoteTeams = configuredRemoteTeams;
-        state.multiplayerPlayers = mode.pvp ? (mode.multiplayerPlayers || []) : [];
-        state.multiplayerStatus = '';
+        state.multiplayerStatus = mode.pvp ? `ROOM ${gameCode} · WAITING FOR OPPONENT` : '';
         resetCommandSync({
           tick: 0,
           localTeams: configuredLocalTeams,
@@ -7561,6 +7559,7 @@
         centerCamOn(activeHQ.x, activeHQ.y);
         recomputeVisibility();
         state.gameStarted = true;
+        if (mode.pvp && multiplayerSession()?.peerReady) state.multiplayerStatus = '';
         openBuildMenu();
       }
       
@@ -7677,6 +7676,28 @@
       function storageSet(key, value) {
         try { window.localStorage.setItem(key, value); return true; }
         catch { return false; }
+      }
+      
+      const DEFAULT_USERNAME = 'Commander';
+      const COMPUTER_MODE_KEYS = Object.freeze(['duel', 'threeWay', 'fourWay']);
+      const PVP_MODE_KEYS = Object.freeze(['pvp', 'pvp3', 'pvp4']);
+      
+      function sanitizeMenuUsername(value) {
+        return String(value || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().replace(/\s+/g, ' ').slice(0, 20);
+      }
+      
+      function normalizeMenuUsername(value) {
+        return sanitizeMenuUsername(value) || DEFAULT_USERNAME;
+      }
+      
+      function loadMenuUsername() {
+        return normalizeMenuUsername(storageGet(STORAGE_KEYS.username));
+      }
+      
+      function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[character]);
       }
       
       function validKeybinds(candidate) {
@@ -7823,20 +7844,16 @@
         }
         .starlite-menu__key[data-capturing="true"] { border-color: #b8f288; color: #b8f288; animation: starlite-pulse .8s ease-in-out infinite alternate; }
         .starlite-menu__settings-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 15px; }
-        .starlite-menu__sandbox {
-          position: absolute; left: clamp(14px, 2.4vw, 32px); bottom: clamp(14px, 2.4vw, 28px);
-          width: min(285px, calc(100% - 28px)); min-height: 60px; padding: 10px 14px;
-          display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px;
-          border: 1px solid rgba(125, 232, 255, .42); border-radius: 11px;
-          color: #effcff; background: rgba(23, 67, 78, .78); text-align: left; cursor: pointer;
-          box-shadow: 0 12px 32px rgba(0,0,0,.28); backdrop-filter: blur(10px);
+        .starlite-menu__identity { display: grid; gap: 6px; margin: 0 0 16px; color: #b6d9ae; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+        .starlite-menu__identity input {
+          width: 100%; min-height: 43px; padding: 9px 12px; border: 1px solid rgba(178,221,151,.32); border-radius: 9px;
+          color: #f0f8ed; background: rgba(5,12,8,.52); font: 750 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         }
-        .starlite-menu__sandbox:hover, .starlite-menu__sandbox:focus-visible {
-          outline: none; border-color: #7de8ff; background: rgba(32, 91, 105, .9); transform: translateY(-1px);
-        }
-        .starlite-menu__sandbox strong { display: block; font-size: 14px; letter-spacing: .08em; }
-        .starlite-menu__sandbox small { display: block; margin-top: 3px; color: #badde4; font-size: 11px; line-height: 1.25; }
-        .starlite-menu__sandbox-mark { color: #7de8ff; font: 900 23px ui-monospace, monospace; }
+        .starlite-menu__identity input:focus { outline: 2px solid #9de36f; outline-offset: 2px; border-color: #9de36f; }
+        .starlite-menu__identity small { color: #8fa68a; font-size: 10px; font-weight: 600; letter-spacing: .03em; }
+        .starlite-menu__branch-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+        .starlite-menu__branch-actions > :only-child,
+        .starlite-menu__branch-actions > .starlite-hidden + .starlite-menu__secondary { grid-column: 1 / -1; }
         .starlite-menu__footer { margin-top: 13px; color: rgba(226, 241, 216, .6); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
         .starlite-hidden { display: none !important; }
         @keyframes starlite-pulse { to { box-shadow: 0 0 18px rgba(173, 239, 116, .35); } }
@@ -7860,7 +7877,7 @@
           .starlite-menu__title { font-size: 58px; }
           .starlite-menu__panel { padding: 15px; }
           .starlite-menu__button { min-height: 59px; }
-          .starlite-menu__sandbox { position: fixed; width: calc(100% - 28px); }
+          .starlite-menu__branch-actions { grid-template-columns: 1fr; }
         }
         @media (prefers-reduced-motion: reduce) {
           .starlite-menu__button, .starlite-menu__key { transition: none; animation: none !important; }
@@ -8001,12 +8018,17 @@
         return Object.values(GAME_MODES).find(mode => mode.id === id) || null;
       }
       
-      function modeCardsMarkup() {
-        return GAME_MODE_ORDER.map(key => {
+      function modeSizeLabel(mode) {
+        const total = mode.pvp ? mode.spawnCount : mode.computerCount + 1;
+        return total === 2 ? '2 PLAYERS · 1v1' : `${total} PLAYERS · FREE-FOR-ALL`;
+      }
+      
+      function modeCardsMarkup(keys) {
+        return keys.map(key => {
           const mode = GAME_MODES[key];
           const offline = !mode.enabled;
           return `<button class="starlite-menu__button${offline ? ' starlite-menu__button--offline' : ''}" type="button" data-mode="${key}">
-            <span><strong>${mode.label}</strong><small>${mode.description}</small></span>
+            <span><strong>${modeSizeLabel(mode)}</strong><small>${mode.description}</small></span>
             <span class="starlite-menu__chevron" aria-hidden="true">${offline ? '●' : '›'}</span>
           </button>`;
         }).join('');
@@ -8032,6 +8054,7 @@
         const previousOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
       
+        const username = loadMenuUsername();
         const root = document.createElement('div');
         root.id = 'starlite-menu';
         root.setAttribute('role', 'dialog');
@@ -8039,17 +8062,37 @@
         root.setAttribute('aria-label', 'StarLite main menu');
         root.innerHTML = `
           <canvas aria-hidden="true"></canvas><div class="starlite-menu__shade" aria-hidden="true"></div>
-          <button class="starlite-menu__sandbox" type="button" data-mode="sandbox">
-            <span><strong>SANDBOX MODE</strong><small>Full production tech · free lab research · themed enemy villages</small></span>
-            <span class="starlite-menu__sandbox-mark" aria-hidden="true">▣</span>
-          </button>
           <main class="starlite-menu__layout">
             <header class="starlite-menu__brand"><p class="starlite-menu__eyebrow">Tactical command</p><h1 class="starlite-menu__title">Star<span>Lite</span></h1></header>
-            <section class="starlite-menu__panel" data-view="modes">
-              <h2 class="starlite-menu__heading">Choose a game mode</h2>
-              <div class="starlite-menu__modes">${modeCardsMarkup()}</div>
+            <section class="starlite-menu__panel" data-view="categories">
+              <h2 class="starlite-menu__heading">Choose opponent</h2>
+              <label class="starlite-menu__identity">
+                <span>COMMANDER USERNAME</span>
+                <input type="text" maxlength="20" autocomplete="nickname" spellcheck="false" value="${escapeHTML(username)}" data-username>
+                <small>Saved on this device and shown in multiplayer.</small>
+              </label>
+              <div class="starlite-menu__modes">
+                <button class="starlite-menu__button" type="button" data-category="computer">
+                  <span><strong>COMPUTER</strong><small>Play against one to three computer commanders.</small></span>
+                  <span class="starlite-menu__chevron" aria-hidden="true">›</span>
+                </button>
+                <button class="starlite-menu__button" type="button" data-category="pvp">
+                  <span><strong>PVP</strong><small>Host or join a two-, three-, or four-player relay match.</small></span>
+                  <span class="starlite-menu__chevron" aria-hidden="true">›</span>
+                </button>
+              </div>
               <p class="starlite-menu__status" role="status" aria-live="polite"></p>
               <div class="starlite-menu__utility"><button class="starlite-menu__secondary" type="button" data-open-keybinds>CHANGE KEYBINDS</button></div>
+            </section>
+            <section class="starlite-menu__panel starlite-hidden" data-view="sizes">
+              <h2 class="starlite-menu__heading" data-size-heading>Choose game size</h2>
+              <p class="starlite-menu__pvp-copy" data-size-copy>Choose the total number of commanders.</p>
+              <div class="starlite-menu__modes" data-size-modes></div>
+              <p class="starlite-menu__status" data-size-status role="status" aria-live="polite"></p>
+              <div class="starlite-menu__branch-actions">
+                <button class="starlite-menu__secondary" type="button" data-computer-sandbox>SANDBOX MODE</button>
+                <button class="starlite-menu__secondary" type="button" data-close-sizes>BACK</button>
+              </div>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="pvp">
               <h2 class="starlite-menu__heading" data-pvp-heading>PVP relay match</h2>
@@ -8084,10 +8127,17 @@
         document.body.appendChild(root);
       
         const stopBackdrop = startMenuBackdrop(root.querySelector('canvas'));
-        const modeView = root.querySelector('[data-view="modes"]');
+        const categoryView = root.querySelector('[data-view="categories"]');
+        const sizeView = root.querySelector('[data-view="sizes"]');
         const pvpView = root.querySelector('[data-view="pvp"]');
         const keybindView = root.querySelector('[data-view="keybinds"]');
-        const status = modeView.querySelector('.starlite-menu__status');
+        const status = categoryView.querySelector('.starlite-menu__status');
+        const sizeHeading = root.querySelector('[data-size-heading]');
+        const sizeCopy = root.querySelector('[data-size-copy]');
+        const sizeModes = root.querySelector('[data-size-modes]');
+        const sizeStatus = root.querySelector('[data-size-status]');
+        const sandboxButton = root.querySelector('[data-computer-sandbox]');
+        const usernameInput = root.querySelector('[data-username]');
         const pvpStatus = root.querySelector('[data-pvp-status]');
         const pvpHeading = root.querySelector('[data-pvp-heading]');
         const pvpCopy = root.querySelector('[data-pvp-copy]');
@@ -8100,10 +8150,30 @@
         const keybindStatus = root.querySelector('[data-keybind-status]');
         let capturingAction = null;
         let hostedGameCode = '';
+        let selectedBranch = 'computer';
         let selectedPvpMode = GAME_MODES.pvp;
         let pvpConnectionPending = null;
         let lobbySnapshot = null;
         let lobbyFinishing = false;
+      
+        function currentUsername() {
+          const value = normalizeMenuUsername(usernameInput.value);
+          usernameInput.value = value;
+          storageSet(STORAGE_KEYS.username, value);
+          return value;
+        }
+      
+        usernameInput.addEventListener('input', () => {
+          storageSet(STORAGE_KEYS.username, sanitizeMenuUsername(usernameInput.value));
+        });
+        usernameInput.addEventListener('change', currentUsername);
+        usernameInput.addEventListener('blur', currentUsername);
+      
+        function showOnly(view) {
+          for (const candidate of [categoryView, sizeView, pvpView, keybindView]) {
+            candidate.classList.toggle('starlite-hidden', candidate !== view);
+          }
+        }
       
         function renderKeybindButtons() {
           for (const button of root.querySelectorAll('[data-keybind]')) {
@@ -8124,8 +8194,10 @@
             const labels = [`PLAYER ${slot + 1}`];
             if (player?.host) labels.push('HOST');
             if (player?.clientId === snapshot?.clientId) labels.push('YOU');
+            const name = player ? escapeHTML(player.username || `Player ${slot + 1}`) : `PLAYER ${slot + 1}`;
+            const detail = player ? `${labels.join(' · ')} · ${player.team.toUpperCase()}` : 'WAITING FOR CONNECTION';
             return `<div class="starlite-menu__lobby-player" data-ready="${ready}">
-              <span><strong>${labels.join(' · ')}</strong><small>${player ? player.team.toUpperCase() : 'WAITING FOR CONNECTION'}</small></span>
+              <span><strong>${name}</strong><small>${detail}</small></span>
               <span class="starlite-menu__ready-indicator">${player ? (ready ? 'READY' : 'NOT READY') : 'EMPTY'}</span>
             </div>`;
           }).join('');
@@ -8156,12 +8228,30 @@
           else pvpStatus.textContent = 'Ready · waiting for the host to start.';
         }
       
+        function openSizeSelection(branch) {
+          selectedBranch = branch === 'pvp' ? 'pvp' : 'computer';
+          status.textContent = '';
+          sizeStatus.textContent = '';
+          const pvp = selectedBranch === 'pvp';
+          sizeHeading.textContent = pvp ? 'Choose PVP game size' : 'Choose computer game size';
+          sizeCopy.textContent = pvp
+            ? 'Choose the total number of human commanders in the room.'
+            : 'Choose the total number of commanders in the match.';
+          sizeModes.innerHTML = modeCardsMarkup(pvp ? PVP_MODE_KEYS : COMPUTER_MODE_KEYS);
+          sandboxButton.classList.toggle('starlite-hidden', pvp);
+          showOnly(sizeView);
+          sizeModes.querySelector('[data-mode]')?.focus();
+        }
+      
+        function closeSizes() {
+          showOnly(categoryView);
+          root.querySelector(`[data-category="${selectedBranch}"]`)?.focus();
+        }
+      
         function openPvp(mode) {
           selectedPvpMode = mode || GAME_MODES.pvp;
-          status.textContent = '';
-          modeView.classList.add('starlite-hidden');
-          keybindView.classList.add('starlite-hidden');
-          pvpView.classList.remove('starlite-hidden');
+          sizeStatus.textContent = '';
+          showOnly(pvpView);
           pvpHeading.textContent = `${selectedPvpMode.spawnCount}-PLAYER PVP LOBBY`;
           pvpCopy.textContent = `Host or join a ${selectedPvpMode.spawnCount}-player free-for-all. The match starts only after every connected slot is ready.`;
           pvpStatus.textContent = '';
@@ -8183,16 +8273,13 @@
           pvpRoomCode.textContent = '';
           pvpPlayers.innerHTML = '';
           pvpStatus.textContent = '';
-          pvpView.classList.add('starlite-hidden');
-          modeView.classList.remove('starlite-hidden');
-          const key = GAME_MODE_ORDER.find(candidate => GAME_MODES[candidate] === selectedPvpMode) || 'pvp';
-          root.querySelector(`[data-mode="${key}"]`)?.focus();
+          showOnly(sizeView);
+          sizeModes.querySelector(`[data-mode="${GAME_MODE_ORDER.find(key => GAME_MODES[key] === selectedPvpMode) || 'pvp'}"]`)?.focus();
         }
       
         function openKeybinds() {
           status.textContent = '';
-          modeView.classList.add('starlite-hidden');
-          keybindView.classList.remove('starlite-hidden');
+          showOnly(keybindView);
           capturingAction = null;
           renderKeybindButtons();
           root.querySelector('[data-keybind]')?.focus();
@@ -8201,12 +8288,12 @@
         function closeKeybinds() {
           capturingAction = null;
           renderKeybindButtons();
-          keybindView.classList.add('starlite-hidden');
-          modeView.classList.remove('starlite-hidden');
+          showOnly(categoryView);
           root.querySelector('[data-open-keybinds]')?.focus();
         }
       
         root.querySelector('[data-open-keybinds]').addEventListener('click', openKeybinds);
+        root.querySelector('[data-close-sizes]').addEventListener('click', closeSizes);
         root.querySelector('[data-close-pvp]').addEventListener('click', closePvp);
         root.querySelector('[data-close-keybinds]').addEventListener('click', closeKeybinds);
         root.querySelector('[data-reset-keybinds]').addEventListener('click', () => {
@@ -8244,6 +8331,7 @@
         return new Promise(resolve => {
           function finish(mode) {
             lobbyFinishing = true;
+            currentUsername();
             storageSet(STORAGE_KEYS.lastGameMode, mode.id);
             menuOpen = false;
             delete document.documentElement.dataset.starliteMenuOpen;
@@ -8256,6 +8344,7 @@
       
           function beginPvpConnection(role, gameCode) {
             if (pvpConnectionPending) return;
+            const commanderName = currentUsername();
             hostedGameCode = gameCode;
             pvpRoomCode.textContent = gameCode;
             pvpActions.classList.add('starlite-hidden');
@@ -8280,6 +8369,7 @@
               slotCount: selectedPvpMode.spawnCount,
               modeId: selectedPvpMode.id,
               seed: role === 'host' ? createRandomSeed() : undefined,
+              username: commanderName,
               onLobbyUpdate: renderPvpLobby,
               onDisconnect: message => { if (!lobbyFinishing) pvpStatus.textContent = message; }
             });
@@ -8308,20 +8398,21 @@
             });
           }
       
-          for (const button of root.querySelectorAll('[data-mode]')) {
-            button.addEventListener('click', () => {
-              const mode = GAME_MODES[button.dataset.mode];
-              if (!mode?.enabled) {
-                status.textContent = 'This mode is currently unavailable.';
-                return;
-              }
-              if (mode.pvp) {
-                openPvp(mode);
-                return;
-              }
-              finish(mode);
-            });
+          for (const button of root.querySelectorAll('[data-category]')) {
+            button.addEventListener('click', () => openSizeSelection(button.dataset.category));
           }
+          sizeModes.addEventListener('click', event => {
+            const button = event.target.closest('[data-mode]');
+            if (!button || !sizeModes.contains(button)) return;
+            const mode = GAME_MODES[button.dataset.mode];
+            if (!mode?.enabled) {
+              sizeStatus.textContent = 'This mode is currently unavailable.';
+              return;
+            }
+            if (mode.pvp) openPvp(mode);
+            else finish(mode);
+          });
+          sandboxButton.addEventListener('click', () => finish(GAME_MODES.sandbox));
       
           root.querySelector('[data-pvp-host]').addEventListener('click', () => {
             beginPvpConnection('host', generateMenuGameCode());
@@ -8343,8 +8434,8 @@
           });
       
           const previousMode = storageGet(STORAGE_KEYS.lastGameMode);
-          const previousButton = [...root.querySelectorAll('[data-mode]')].find(button => GAME_MODES[button.dataset.mode]?.id === previousMode);
-          (previousButton || root.querySelector('[data-mode]'))?.focus();
+          const previousWasPvp = PVP_MODE_KEYS.some(key => GAME_MODES[key]?.id === previousMode);
+          root.querySelector(`[data-category="${previousWasPvp ? 'pvp' : 'computer'}"]`)?.focus();
         });
       }
       
@@ -8423,6 +8514,11 @@
         return `remote:${team}`;
       }
       
+      function normalizeUsername(value) {
+        const cleaned = String(value || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().replace(/\s+/g, ' ');
+        return cleaned.slice(0, 20) || 'Commander';
+      }
+      
       function sendPayload(payload) {
         if (!socket || socket.readyState !== WebSocket.OPEN) return false;
         socket.send(JSON.stringify(payload));
@@ -8435,6 +8531,7 @@
           slot: player.slot,
           team: player.team,
           sourceId: player.sourceId,
+          username: normalizeUsername(player.username),
           ready: !!player.ready,
           host: !!player.host,
           connected: player.connected !== false
@@ -8528,6 +8625,7 @@
           const team = String(row?.team || '');
           const sourceId = String(row?.sourceId || '');
           const clientId = String(row?.clientId || '');
+          const username = normalizeUsername(row?.username);
           if (!clientId || slot < 0 || slot >= slotCount || !MULTIPLAYER_TEAMS.includes(team)) continue;
           if (sourceId !== sourceIdForTeam(team) || usedSlots.has(slot) || usedTeams.has(team) || usedSources.has(sourceId)) continue;
           usedSlots.add(slot); usedTeams.add(team); usedSources.add(sourceId);
@@ -8536,6 +8634,7 @@
             slot,
             team,
             sourceId,
+            username,
             ready: !!row.ready,
             host: clientId === payload.hostId,
             connected: row.connected !== false
@@ -8671,6 +8770,7 @@
         const clientId = String(message.clientId || '');
         if (!clientId || clientId === session.clientId) return;
         lastSeenByClient.set(clientId, Date.now());
+        const username = normalizeUsername(message.username);
         if (!hostRoster.has(clientId)) {
           const occupied = new Set([...hostRoster.values()].map(player => player.slot));
           let slot = -1;
@@ -8687,10 +8787,15 @@
             slot,
             team,
             sourceId: sourceIdForTeam(team),
+            username,
             ready: false,
             host: false,
             connected: true
           });
+        } else {
+          const player = hostRoster.get(clientId);
+          player.username = username;
+          player.connected = true;
         }
         sendPayload({ type: 'seed', seed: session.seed, hostId: session.clientId });
         broadcastLobby();
@@ -8811,7 +8916,7 @@
         watchdogTimer = setInterval(checkPeerTimeouts, HEARTBEAT_INTERVAL_MS);
       }
       
-      function connectMultiplayer({ roomCode, role, slotCount = 2, modeId = 'pvp', seed, onDisconnect, onLobbyUpdate } = {}) {
+      function connectMultiplayer({ roomCode, role, slotCount = 2, modeId = 'pvp', seed, username, onDisconnect, onLobbyUpdate } = {}) {
         const normalizedRoomCode = normalizeRoomCode(roomCode);
         const normalizedRole = role === 'host' ? 'host' : role === 'join' ? 'join' : '';
         if (!normalizedRoomCode || !normalizedRole) {
@@ -8829,10 +8934,12 @@
         onDisconnectCallback = typeof onDisconnect === 'function' ? onDisconnect : null;
         onLobbyUpdateCallback = typeof onLobbyUpdate === 'function' ? onLobbyUpdate : null;
         const clientId = createClientId();
+        const normalizedUsername = normalizeUsername(username);
         session = {
           roomCode: normalizedRoomCode,
           role: normalizedRole,
           clientId,
+          username: normalizedUsername,
           hostId: normalizedRole === 'host' ? clientId : null,
           modeId: String(modeId || 'pvp'),
           slotCount: normalizedRole === 'host' ? normalizeSlotCount(slotCount) : 0,
@@ -8853,6 +8960,7 @@
             slot: 0,
             team,
             sourceId: sourceIdForTeam(team),
+            username: normalizedUsername,
             ready: false,
             host: true,
             connected: true
@@ -8886,7 +8994,7 @@
           sendPayload({ roomCode: normalizedRoomCode });
           // The host seed is deliberately the first protocol payload after room join.
           if (normalizedRole === 'host') sendPayload({ type: 'seed', seed, hostId: clientId });
-          sendPayload({ type: 'hello', clientId, role: normalizedRole, requestedModeId: session.modeId });
+          sendPayload({ type: 'hello', clientId, role: normalizedRole, requestedModeId: session.modeId, username: normalizedUsername });
           if (normalizedRole === 'join') sendPayload({ type: 'seedRequest', clientId });
           startTimers();
           if (normalizedRole === 'host') broadcastLobby();
@@ -13495,8 +13603,6 @@
         multiplayerRoomCode: null,
         multiplayerRole: null,
         multiplayerRemoteTeam: null,
-        multiplayerRemoteTeams: [],
-        multiplayerPlayers: [],
         eliminatedTeams: new Set(),
         winnerTeam: null,
         incomeClock: 0,
