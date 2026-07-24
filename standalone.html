@@ -3400,7 +3400,7 @@
   __define("commandPanel.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("state.js"); const __dep3 = __require("commandSync.js"); const __dep4 = __require("terrain.js"); const __dep5 = __require("uiLayout.js"); const __dep6 = __require("portraitRenderer.js");
-    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep0["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "buildingSellValue", { enumerable: true, get: () => __dep1["buildingSellValue"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep1["canAfford"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep1["incomeRates"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep1["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep1["populationUsed"] }); Object.defineProperty(__imports, "structureHasCancelableUpgrade", { enumerable: true, get: () => __dep1["structureHasCancelableUpgrade"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep2["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep2["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep2["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep2["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep2["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep2["canvas"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep2["ctx"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep3["queueCommand"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep4["dirtTiles"] }); Object.defineProperty(__imports, "isVisibleToTeam", { enumerable: true, get: () => __dep4["isVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep4["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep4["terrain"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep4["transitionTiles"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep5["commandConsoleLayout"] }); Object.defineProperty(__imports, "hideGLBPortrait", { enumerable: true, get: () => __dep6["hideGLBPortrait"] }); Object.defineProperty(__imports, "portraitRendererStatus", { enumerable: true, get: () => __dep6["portraitRendererStatus"] }); Object.defineProperty(__imports, "syncGLBPortrait", { enumerable: true, get: () => __dep6["syncGLBPortrait"] });
+    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep0["pointInRect"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "buildingSellValue", { enumerable: true, get: () => __dep1["buildingSellValue"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep1["canAfford"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep1["incomeRates"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep1["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep1["populationUsed"] }); Object.defineProperty(__imports, "structureHasCancelableUpgrade", { enumerable: true, get: () => __dep1["structureHasCancelableUpgrade"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep2["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep2["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep2["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep2["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep2["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep2["canvas"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep2["ctx"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep3["queueCommand"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep4["dirtTiles"] }); Object.defineProperty(__imports, "isVisibleToTeam", { enumerable: true, get: () => __dep4["isVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep4["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep4["terrain"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep4["transitionTiles"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep5["commandConsoleLayout"] }); Object.defineProperty(__imports, "hideGLBPortrait", { enumerable: true, get: () => __dep6["hideGLBPortrait"] }); Object.defineProperty(__imports, "portraitRendererStatus", { enumerable: true, get: () => __dep6["portraitRendererStatus"] }); Object.defineProperty(__imports, "syncGLBPortrait", { enumerable: true, get: () => __dep6["syncGLBPortrait"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "clearCommandMenu", { enumerable: true, get: () => clearCommandMenu }); Object.defineProperty(__exports, "drawCommandPanel", { enumerable: true, get: () => drawCommandPanel }); Object.defineProperty(__exports, "drawPixelResourceIcon", { enumerable: true, get: () => drawPixelResourceIcon }); Object.defineProperty(__exports, "handleCommandPanelClick", { enumerable: true, get: () => handleCommandPanelClick }); Object.defineProperty(__exports, "isCommandConsolePoint", { enumerable: true, get: () => isCommandConsolePoint }); Object.defineProperty(__exports, "menuItemEnabled", { enumerable: true, get: () => menuItemEnabled }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "setCommandMenu", { enumerable: true, get: () => setCommandMenu });
@@ -3554,6 +3554,42 @@
         return pointInRect(p, consoleLayout().panel);
       }
       
+      function storedGroundTagDefinitions() {
+        try {
+          const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.groundTags) || 'null');
+          if (stored) return normalizeGroundTagCollection(stored);
+          const legacy = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.groundTag) || 'null');
+          return normalizeGroundTagCollection(legacy ? [legacy] : [DEFAULT_GROUND_TAG]);
+        } catch {
+          return normalizeGroundTagCollection([DEFAULT_GROUND_TAG]);
+        }
+      }
+      
+      function beginGroundTagPlacement(tag) {
+        state.groundTagDefinition = normalizeGroundTagDefinition(tag);
+        state.groundTagMenuOpen = false;
+        state.groundTagMenuRects = [];
+        state.placingGroundTag = true;
+        state.placingBuildingType = null;
+        state.placingSpawnFlag = false;
+        state.spawnFlagMode = null;
+        state.spawnFlagStructureIds = [];
+        clearCommandMenu();
+        toast(`Place ${state.groundTagDefinition.name} on open ground.`, COLORS.warn);
+        return true;
+      }
+      
+      function toggleGroundTagMenu() {
+        state.groundTagDefinitions = storedGroundTagDefinitions();
+        state.groundTagMenuOpen = !state.groundTagMenuOpen;
+        state.groundTagMenuRects = [];
+        if (state.groundTagMenuOpen) {
+          state.placingGroundTag = false;
+          clearCommandMenu();
+        }
+        return state.groundTagMenuOpen;
+      }
+      
       function menuToneFor(item) {
         if (item.tone && MENU_TONES[item.tone]) return MENU_TONES[item.tone];
         const label = String(item.label || '').toUpperCase();
@@ -3598,6 +3634,19 @@
       }
       
       function handleCommandPanelClick(p) {
+        for (const hit of state.groundTagMenuRects || []) {
+          if (!pointInRect(p, hit.rect)) continue;
+          if (!state.gameOver) beginGroundTagPlacement(hit.tag);
+          return true;
+        }
+        if (state.groundTagButtonRect && pointInRect(p, state.groundTagButtonRect)) {
+          if (!state.gameOver) toggleGroundTagMenu();
+          return true;
+        }
+        if (state.groundTagMenuOpen) {
+          state.groundTagMenuOpen = false;
+          state.groundTagMenuRects = [];
+        }
         if (!isCommandConsolePoint(p)) return false;
         if (state.gameOver) return true;
       
@@ -4531,6 +4580,85 @@
         }
       }
       
+      function drawGroundTagThumbnail(tagValue, x, y, size) {
+        const tag = normalizeGroundTagDefinition(tagValue);
+        ctx.fillStyle = tag.background;
+        ctx.fillRect(x, y, size, size);
+        const pixel = size / GROUND_TAG_PIXEL_SIZE;
+        for (let index = 0; index < tag.pixels.length; index++) {
+          const color = tag.pixels[index];
+          if (color === '#00000000') continue;
+          ctx.fillStyle = color;
+          ctx.fillRect(
+            x + (index % GROUND_TAG_PIXEL_SIZE) * pixel,
+            y + Math.floor(index / GROUND_TAG_PIXEL_SIZE) * pixel,
+            Math.ceil(pixel), Math.ceil(pixel)
+          );
+        }
+      }
+      
+      function drawGroundTagMenu(buttonRect) {
+        state.groundTagMenuRects = [];
+        if (!state.groundTagMenuOpen) return;
+        const tags = state.groundTagDefinitions?.length ? state.groundTagDefinitions : storedGroundTagDefinitions();
+        state.groundTagDefinitions = tags;
+        const columns = tags.length > 6 ? 2 : 1;
+        const rows = Math.ceil(tags.length / columns);
+        const itemW = 132;
+        const itemH = 38;
+        const gap = 4;
+        const pad = 6;
+        const panelW = columns * itemW + (columns - 1) * gap + pad * 2;
+        const panelH = rows * itemH + (rows - 1) * gap + pad * 2;
+        const panelX = clamp(buttonRect.x + buttonRect.w - panelW, 4, Math.max(4, CW - panelW - 4));
+        const panelY = Math.max(4, buttonRect.y - panelH - 5);
+        ctx.fillStyle = 'rgba(7,11,17,.97)';
+        ctx.fillRect(panelX, panelY, panelW, panelH);
+        ctx.strokeStyle = '#607594';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(panelX + .5, panelY + .5, panelW - 1, panelH - 1);
+        tags.forEach((tag, index) => {
+          const column = Math.floor(index / rows);
+          const row = index % rows;
+          const rect = {
+            x: panelX + pad + column * (itemW + gap),
+            y: panelY + pad + row * (itemH + gap),
+            w: itemW, h: itemH
+          };
+          const hover = pointInRect(state.mouse, rect);
+          ctx.fillStyle = hover ? '#2f4057' : '#192332';
+          ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+          ctx.strokeStyle = hover ? COLORS.player2 : '#42536d';
+          ctx.strokeRect(rect.x + .5, rect.y + .5, rect.w - 1, rect.h - 1);
+          drawGroundTagThumbnail(tag, rect.x + 5, rect.y + 5, rect.h - 10);
+          drawConsoleText(tag.name, rect.x + rect.h + 2, rect.y + 12, 9, COLORS.text, 'left', rect.w - rect.h - 7);
+          state.groundTagMenuRects.push({ rect, tag });
+        });
+      }
+      
+      function drawGroundTagButton() {
+        const mapZone = consoleLayout().map;
+        const size = mapZone.h < 120 ? 24 : 30;
+        const rect = {
+          x: Math.round(mapZone.x + mapZone.w - size),
+          y: Math.max(4, Math.round(mapZone.y - size - 5)),
+          w: size, h: size
+        };
+        state.groundTagButtonRect = rect;
+        const hover = pointInRect(state.mouse, rect);
+        ctx.fillStyle = state.groundTagMenuOpen || state.placingGroundTag ? '#365c43' : hover ? '#26384d' : 'rgba(12,19,27,.94)';
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.strokeStyle = state.groundTagMenuOpen || state.placingGroundTag ? COLORS.good : hover ? COLORS.player2 : '#596b85';
+        ctx.lineWidth = state.groundTagMenuOpen || state.placingGroundTag || hover ? 2 : 1;
+        ctx.strokeRect(rect.x + .5, rect.y + .5, rect.w - 1, rect.h - 1);
+      
+        const tags = state.groundTagDefinitions?.length ? state.groundTagDefinitions : storedGroundTagDefinitions();
+        state.groundTagDefinitions = tags;
+        const selected = tags.find(tag => tag.id === state.groundTagDefinition?.id) || tags[0];
+        drawGroundTagThumbnail(selected, rect.x + 5, rect.y + 5, size - 10);
+        drawGroundTagMenu(rect);
+      }
+      
       function drawCommandPanel() {
         const layout = consoleLayout();
         ctx.save();
@@ -4545,6 +4673,7 @@
         ctx.fillStyle = 'rgba(149,181,218,.18)';
         ctx.fillRect(0, layout.panel.y + 2, CW, 2);
         drawMinimap();
+        drawGroundTagButton();
         drawPortraitPanel();
         drawInfoPanel();
         drawActionPanel();
@@ -4734,7 +4863,7 @@
     
 
     with (__imports) {
-      Object.defineProperty(__exports, "ADRENALINE_COOLDOWN", { enumerable: true, get: () => ADRENALINE_COOLDOWN }); Object.defineProperty(__exports, "ADRENALINE_DURATION", { enumerable: true, get: () => ADRENALINE_DURATION }); Object.defineProperty(__exports, "ADRENALINE_RADIUS", { enumerable: true, get: () => ADRENALINE_RADIUS }); Object.defineProperty(__exports, "ADRENALINE_SPEED_MULTIPLIER", { enumerable: true, get: () => ADRENALINE_SPEED_MULTIPLIER }); Object.defineProperty(__exports, "BASE_POP_CAP", { enumerable: true, get: () => BASE_POP_CAP }); Object.defineProperty(__exports, "BLOC_AMOUNT", { enumerable: true, get: () => BLOC_AMOUNT }); Object.defineProperty(__exports, "BUILDING_DATA", { enumerable: true, get: () => BUILDING_DATA }); Object.defineProperty(__exports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => CENTER_STOCK_BONUS }); Object.defineProperty(__exports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => CENTER_YIELD_BONUS }); Object.defineProperty(__exports, "COLORS", { enumerable: true, get: () => COLORS }); Object.defineProperty(__exports, "COLS", { enumerable: true, get: () => COLS }); Object.defineProperty(__exports, "COMPUTER_TEAMS", { enumerable: true, get: () => COMPUTER_TEAMS }); Object.defineProperty(__exports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => DEFAULT_KEYBINDS }); Object.defineProperty(__exports, "DUEL_WORLD_H", { enumerable: true, get: () => DUEL_WORLD_H }); Object.defineProperty(__exports, "DUEL_WORLD_W", { enumerable: true, get: () => DUEL_WORLD_W }); Object.defineProperty(__exports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => ENEMY_BUILD_PLAN }); Object.defineProperty(__exports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => ENEMY_PLAN_REFERENCE_ANGLE }); Object.defineProperty(__exports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => ENEMY_UPGRADE_PLAN }); Object.defineProperty(__exports, "GAME_MODES", { enumerable: true, get: () => GAME_MODES }); Object.defineProperty(__exports, "GAME_MODE_ORDER", { enumerable: true, get: () => GAME_MODE_ORDER }); Object.defineProperty(__exports, "GATHER_TIME", { enumerable: true, get: () => GATHER_TIME }); Object.defineProperty(__exports, "HOUSING_CAP", { enumerable: true, get: () => HOUSING_CAP }); Object.defineProperty(__exports, "HOUSING_COST_MULTIPLIER", { enumerable: true, get: () => HOUSING_COST_MULTIPLIER }); Object.defineProperty(__exports, "HOUSING_UPGRADE", { enumerable: true, get: () => HOUSING_UPGRADE }); Object.defineProperty(__exports, "LAB_UNIT_LABELS", { enumerable: true, get: () => LAB_UNIT_LABELS }); Object.defineProperty(__exports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => LAB_UPGRADE_CATEGORIES }); Object.defineProperty(__exports, "LOAD_GAS", { enumerable: true, get: () => LOAD_GAS }); Object.defineProperty(__exports, "LOAD_MINERAL", { enumerable: true, get: () => LOAD_MINERAL }); Object.defineProperty(__exports, "HUMAN_TEAM", { enumerable: true, get: () => HUMAN_TEAM }); Object.defineProperty(__exports, "HUMAN_TEAMS", { enumerable: true, get: () => HUMAN_TEAMS }); Object.defineProperty(__exports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => MINERS_HUT_UPGRADES }); Object.defineProperty(__exports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => MULTIPLAYER_TEAMS }); Object.defineProperty(__exports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => PLAYER_MOVE_OVERRIDE }); Object.defineProperty(__exports, "PRODUCTION_TECH", { enumerable: true, get: () => PRODUCTION_TECH }); Object.defineProperty(__exports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => RESOURCE_FIELD_BUILD_RADIUS }); Object.defineProperty(__exports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => ROBO_MINERS_PER_DROPOFF }); Object.defineProperty(__exports, "ROWS", { enumerable: true, get: () => ROWS }); Object.defineProperty(__exports, "SIMILAR_RESOURCE_DISTANCE", { enumerable: true, get: () => SIMILAR_RESOURCE_DISTANCE }); Object.defineProperty(__exports, "STORAGE_KEYS", { enumerable: true, get: () => STORAGE_KEYS }); Object.defineProperty(__exports, "TEAM_STYLES", { enumerable: true, get: () => TEAM_STYLES }); Object.defineProperty(__exports, "TILE", { enumerable: true, get: () => TILE }); Object.defineProperty(__exports, "TURRET_TECH", { enumerable: true, get: () => TURRET_TECH }); Object.defineProperty(__exports, "UNIT_DATA", { enumerable: true, get: () => UNIT_DATA }); Object.defineProperty(__exports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => UNIT_UPGRADE_DATA }); Object.defineProperty(__exports, "VEHICLE_UNIT_TYPES", { enumerable: true, get: () => VEHICLE_UNIT_TYPES }); Object.defineProperty(__exports, "WALKER_UNIT_TYPES", { enumerable: true, get: () => WALKER_UNIT_TYPES }); Object.defineProperty(__exports, "WORLD_H", { enumerable: true, get: () => WORLD_H }); Object.defineProperty(__exports, "WORLD_W", { enumerable: true, get: () => WORLD_W }); Object.defineProperty(__exports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => ZOOM_OUT_DUEL_FRACTION }); Object.defineProperty(__exports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => KEYBIND_DEFINITIONS }); Object.defineProperty(__exports, "areHostileTeams", { enumerable: true, get: () => areHostileTeams }); Object.defineProperty(__exports, "clamp", { enumerable: true, get: () => clamp }); Object.defineProperty(__exports, "configureHumanTeams", { enumerable: true, get: () => configureHumanTeams }); Object.defineProperty(__exports, "configureWorldScale", { enumerable: true, get: () => configureWorldScale }); Object.defineProperty(__exports, "dist", { enumerable: true, get: () => dist }); Object.defineProperty(__exports, "effectiveSightRadius", { enumerable: true, get: () => effectiveSightRadius }); Object.defineProperty(__exports, "isAirUnit", { enumerable: true, get: () => isAirUnit }); Object.defineProperty(__exports, "isAirUnitType", { enumerable: true, get: () => isAirUnitType }); Object.defineProperty(__exports, "isComputerTeam", { enumerable: true, get: () => isComputerTeam }); Object.defineProperty(__exports, "isHumanTeam", { enumerable: true, get: () => isHumanTeam }); Object.defineProperty(__exports, "isResourceHarvester", { enumerable: true, get: () => isResourceHarvester }); Object.defineProperty(__exports, "isResourceHarvesterType", { enumerable: true, get: () => isResourceHarvesterType }); Object.defineProperty(__exports, "playUnitAnimation", { enumerable: true, get: () => playUnitAnimation }); Object.defineProperty(__exports, "pointInRect", { enumerable: true, get: () => pointInRect }); Object.defineProperty(__exports, "rotateOffset", { enumerable: true, get: () => rotateOffset }); Object.defineProperty(__exports, "sameMovementLayer", { enumerable: true, get: () => sameMovementLayer }); Object.defineProperty(__exports, "sqrDist", { enumerable: true, get: () => sqrDist }); Object.defineProperty(__exports, "teamColor", { enumerable: true, get: () => teamColor }); Object.defineProperty(__exports, "teamLabel", { enumerable: true, get: () => teamLabel }); Object.defineProperty(__exports, "teamStyle", { enumerable: true, get: () => teamStyle }); Object.defineProperty(__exports, "unitAnimationPose", { enumerable: true, get: () => unitAnimationPose }); Object.defineProperty(__exports, "unitUpgradeData", { enumerable: true, get: () => unitUpgradeData }); Object.defineProperty(__exports, "unitUpgradeTiers", { enumerable: true, get: () => unitUpgradeTiers });
+      Object.defineProperty(__exports, "ADRENALINE_COOLDOWN", { enumerable: true, get: () => ADRENALINE_COOLDOWN }); Object.defineProperty(__exports, "ADRENALINE_DURATION", { enumerable: true, get: () => ADRENALINE_DURATION }); Object.defineProperty(__exports, "ADRENALINE_RADIUS", { enumerable: true, get: () => ADRENALINE_RADIUS }); Object.defineProperty(__exports, "ADRENALINE_SPEED_MULTIPLIER", { enumerable: true, get: () => ADRENALINE_SPEED_MULTIPLIER }); Object.defineProperty(__exports, "BASE_POP_CAP", { enumerable: true, get: () => BASE_POP_CAP }); Object.defineProperty(__exports, "BLOC_AMOUNT", { enumerable: true, get: () => BLOC_AMOUNT }); Object.defineProperty(__exports, "BUILDING_DATA", { enumerable: true, get: () => BUILDING_DATA }); Object.defineProperty(__exports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => CENTER_STOCK_BONUS }); Object.defineProperty(__exports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => CENTER_YIELD_BONUS }); Object.defineProperty(__exports, "COLORS", { enumerable: true, get: () => COLORS }); Object.defineProperty(__exports, "COLS", { enumerable: true, get: () => COLS }); Object.defineProperty(__exports, "COMPUTER_TEAMS", { enumerable: true, get: () => COMPUTER_TEAMS }); Object.defineProperty(__exports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => DEFAULT_GROUND_TAG }); Object.defineProperty(__exports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => DEFAULT_KEYBINDS }); Object.defineProperty(__exports, "DUEL_WORLD_H", { enumerable: true, get: () => DUEL_WORLD_H }); Object.defineProperty(__exports, "DUEL_WORLD_W", { enumerable: true, get: () => DUEL_WORLD_W }); Object.defineProperty(__exports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => ENEMY_BUILD_PLAN }); Object.defineProperty(__exports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => ENEMY_PLAN_REFERENCE_ANGLE }); Object.defineProperty(__exports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => ENEMY_UPGRADE_PLAN }); Object.defineProperty(__exports, "GAME_MODES", { enumerable: true, get: () => GAME_MODES }); Object.defineProperty(__exports, "GAME_MODE_ORDER", { enumerable: true, get: () => GAME_MODE_ORDER }); Object.defineProperty(__exports, "GATHER_TIME", { enumerable: true, get: () => GATHER_TIME }); Object.defineProperty(__exports, "GROUND_TAG_COLORS", { enumerable: true, get: () => GROUND_TAG_COLORS }); Object.defineProperty(__exports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => GROUND_TAG_PIXEL_SIZE }); Object.defineProperty(__exports, "GROUND_TAG_SIZE", { enumerable: true, get: () => GROUND_TAG_SIZE }); Object.defineProperty(__exports, "HOUSING_CAP", { enumerable: true, get: () => HOUSING_CAP }); Object.defineProperty(__exports, "HOUSING_COST_MULTIPLIER", { enumerable: true, get: () => HOUSING_COST_MULTIPLIER }); Object.defineProperty(__exports, "HOUSING_UPGRADE", { enumerable: true, get: () => HOUSING_UPGRADE }); Object.defineProperty(__exports, "LAB_UNIT_LABELS", { enumerable: true, get: () => LAB_UNIT_LABELS }); Object.defineProperty(__exports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => LAB_UPGRADE_CATEGORIES }); Object.defineProperty(__exports, "LOAD_GAS", { enumerable: true, get: () => LOAD_GAS }); Object.defineProperty(__exports, "LOAD_MINERAL", { enumerable: true, get: () => LOAD_MINERAL }); Object.defineProperty(__exports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => MAX_GROUND_TAGS_PER_TEAM }); Object.defineProperty(__exports, "MAX_OWNED_GROUND_TAGS", { enumerable: true, get: () => MAX_OWNED_GROUND_TAGS }); Object.defineProperty(__exports, "HUMAN_TEAM", { enumerable: true, get: () => HUMAN_TEAM }); Object.defineProperty(__exports, "HUMAN_TEAMS", { enumerable: true, get: () => HUMAN_TEAMS }); Object.defineProperty(__exports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => MINERS_HUT_UPGRADES }); Object.defineProperty(__exports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => MULTIPLAYER_TEAMS }); Object.defineProperty(__exports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => PLAYER_MOVE_OVERRIDE }); Object.defineProperty(__exports, "PRODUCTION_TECH", { enumerable: true, get: () => PRODUCTION_TECH }); Object.defineProperty(__exports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => RESOURCE_FIELD_BUILD_RADIUS }); Object.defineProperty(__exports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => ROBO_MINERS_PER_DROPOFF }); Object.defineProperty(__exports, "ROWS", { enumerable: true, get: () => ROWS }); Object.defineProperty(__exports, "SIMILAR_RESOURCE_DISTANCE", { enumerable: true, get: () => SIMILAR_RESOURCE_DISTANCE }); Object.defineProperty(__exports, "STORAGE_KEYS", { enumerable: true, get: () => STORAGE_KEYS }); Object.defineProperty(__exports, "TEAM_STYLES", { enumerable: true, get: () => TEAM_STYLES }); Object.defineProperty(__exports, "TILE", { enumerable: true, get: () => TILE }); Object.defineProperty(__exports, "TURRET_TECH", { enumerable: true, get: () => TURRET_TECH }); Object.defineProperty(__exports, "UNIT_DATA", { enumerable: true, get: () => UNIT_DATA }); Object.defineProperty(__exports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => UNIT_UPGRADE_DATA }); Object.defineProperty(__exports, "VEHICLE_UNIT_TYPES", { enumerable: true, get: () => VEHICLE_UNIT_TYPES }); Object.defineProperty(__exports, "WALKER_UNIT_TYPES", { enumerable: true, get: () => WALKER_UNIT_TYPES }); Object.defineProperty(__exports, "WORLD_H", { enumerable: true, get: () => WORLD_H }); Object.defineProperty(__exports, "WORLD_W", { enumerable: true, get: () => WORLD_W }); Object.defineProperty(__exports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => ZOOM_OUT_DUEL_FRACTION }); Object.defineProperty(__exports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => KEYBIND_DEFINITIONS }); Object.defineProperty(__exports, "areHostileTeams", { enumerable: true, get: () => areHostileTeams }); Object.defineProperty(__exports, "clamp", { enumerable: true, get: () => clamp }); Object.defineProperty(__exports, "configureHumanTeams", { enumerable: true, get: () => configureHumanTeams }); Object.defineProperty(__exports, "configureWorldScale", { enumerable: true, get: () => configureWorldScale }); Object.defineProperty(__exports, "dist", { enumerable: true, get: () => dist }); Object.defineProperty(__exports, "effectiveSightRadius", { enumerable: true, get: () => effectiveSightRadius }); Object.defineProperty(__exports, "isAirUnit", { enumerable: true, get: () => isAirUnit }); Object.defineProperty(__exports, "isAirUnitType", { enumerable: true, get: () => isAirUnitType }); Object.defineProperty(__exports, "isComputerTeam", { enumerable: true, get: () => isComputerTeam }); Object.defineProperty(__exports, "isHumanTeam", { enumerable: true, get: () => isHumanTeam }); Object.defineProperty(__exports, "isResourceHarvester", { enumerable: true, get: () => isResourceHarvester }); Object.defineProperty(__exports, "isResourceHarvesterType", { enumerable: true, get: () => isResourceHarvesterType }); Object.defineProperty(__exports, "normalizeGroundTagCollection", { enumerable: true, get: () => normalizeGroundTagCollection }); Object.defineProperty(__exports, "normalizeGroundTagDefinition", { enumerable: true, get: () => normalizeGroundTagDefinition }); Object.defineProperty(__exports, "playUnitAnimation", { enumerable: true, get: () => playUnitAnimation }); Object.defineProperty(__exports, "pointInRect", { enumerable: true, get: () => pointInRect }); Object.defineProperty(__exports, "rotateOffset", { enumerable: true, get: () => rotateOffset }); Object.defineProperty(__exports, "sameMovementLayer", { enumerable: true, get: () => sameMovementLayer }); Object.defineProperty(__exports, "sqrDist", { enumerable: true, get: () => sqrDist }); Object.defineProperty(__exports, "teamColor", { enumerable: true, get: () => teamColor }); Object.defineProperty(__exports, "teamLabel", { enumerable: true, get: () => teamLabel }); Object.defineProperty(__exports, "teamStyle", { enumerable: true, get: () => teamStyle }); Object.defineProperty(__exports, "unitAnimationPose", { enumerable: true, get: () => unitAnimationPose }); Object.defineProperty(__exports, "unitUpgradeData", { enumerable: true, get: () => unitUpgradeData }); Object.defineProperty(__exports, "unitUpgradeTiers", { enumerable: true, get: () => unitUpgradeTiers });
       // World dimensions, balance data, upgrade data, unit families, and pure helpers.
       // Extracted from the original single-file build and shared by every runtime mode.
       // The duel battlefield is the reference size. Larger free-for-all modes scale
@@ -4876,8 +5005,78 @@
       const STORAGE_KEYS = Object.freeze({
         keybinds: 'starlite.keybinds.v1',
         lastGameMode: 'starlite.lastGameMode.v1',
-        username: 'starlite.username.v1'
+        username: 'starlite.username.v1',
+        groundTag: 'starlite.groundTag.v1', // legacy single-tag migration
+        groundTags: 'starlite.groundTags.v2'
       });
+      
+      const GROUND_TAG_SIZE = 3;
+      const GROUND_TAG_PIXEL_SIZE = 24;
+      const MAX_OWNED_GROUND_TAGS = 12;
+      const MAX_GROUND_TAGS_PER_TEAM = 64;
+      const GROUND_TAG_COLORS = Object.freeze([
+        '#ffffff', '#000000', '#f4ffe9', '#a7ef74', '#58a6ff',
+        '#ff6b6b', '#ffd166', '#a878ff', '#64d8ff', '#273246'
+      ]);
+      const DEFAULT_GROUND_TAG_PIXELS = Object.freeze(
+        Array(GROUND_TAG_PIXEL_SIZE * GROUND_TAG_PIXEL_SIZE).fill('#00000000')
+      );
+      const DEFAULT_GROUND_TAG = Object.freeze({
+        id: 'command-mark',
+        name: 'COMMAND MARK',
+        background: '#ffffff',
+        pixels: DEFAULT_GROUND_TAG_PIXELS
+      });
+      
+      function normalizeGroundTagColor(value, fallback = '#00000000') {
+        const color = String(value || '').trim().toLowerCase();
+        if (color === '#00000000' || color === 'transparent') return '#00000000';
+        return /^#[0-9a-f]{6}$/.test(color) ? color : fallback;
+      }
+      
+      function normalizeGroundTagDefinition(candidate) {
+        const source = candidate && typeof candidate === 'object' ? candidate : DEFAULT_GROUND_TAG;
+        const name = String(source.name || DEFAULT_GROUND_TAG.name)
+          .replace(/[\u0000-\u001f\u007f]/g, '')
+          .trim()
+          .replace(/\s+/g, ' ')
+          .slice(0, 20) || DEFAULT_GROUND_TAG.name;
+        const rawId = String(source.id || '').replace(/[^a-z0-9_-]/gi, '').slice(0, 48);
+        const fallbackId = `legacy-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 32) || 'tag'}`;
+        const id = rawId || fallbackId;
+        const background = normalizeGroundTagColor(source.background, DEFAULT_GROUND_TAG.background);
+        const expected = GROUND_TAG_PIXEL_SIZE * GROUND_TAG_PIXEL_SIZE;
+        let pixels;
+        if (Array.isArray(source.pixels) && source.pixels.length === expected) {
+          pixels = source.pixels.map(color => normalizeGroundTagColor(color));
+        } else if (Array.isArray(source.cells) && source.cells.length === GROUND_TAG_SIZE * GROUND_TAG_SIZE) {
+          const scale = GROUND_TAG_PIXEL_SIZE / GROUND_TAG_SIZE;
+          pixels = Array.from({ length: expected }, (_, index) => {
+            const x = index % GROUND_TAG_PIXEL_SIZE;
+            const y = Math.floor(index / GROUND_TAG_PIXEL_SIZE);
+            const cellX = Math.min(GROUND_TAG_SIZE - 1, Math.floor(x / scale));
+            const cellY = Math.min(GROUND_TAG_SIZE - 1, Math.floor(y / scale));
+            return normalizeGroundTagColor(source.cells[cellY * GROUND_TAG_SIZE + cellX]);
+          });
+        } else {
+          pixels = [...DEFAULT_GROUND_TAG.pixels];
+        }
+        return { id, name, background, pixels };
+      }
+      
+      function normalizeGroundTagCollection(candidate) {
+        const source = Array.isArray(candidate) ? candidate : Array.isArray(candidate?.tags) ? candidate.tags : [];
+        const tags = [];
+        const ids = new Set();
+        for (const value of source) {
+          const tag = normalizeGroundTagDefinition(value);
+          if (ids.has(tag.id)) continue;
+          ids.add(tag.id);
+          tags.push(tag);
+          if (tags.length >= MAX_OWNED_GROUND_TAGS) break;
+        }
+        return tags.length ? tags : [normalizeGroundTagDefinition(DEFAULT_GROUND_TAG)];
+      }
       
       // KeyboardEvent.code values are layout-independent and survive keyboard
       // layout changes more reliably than KeyboardEvent.key values.
@@ -6830,7 +7029,7 @@
   __define("input.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("menu.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("pathing.js"); const __dep6 = __require("commandPanel.js"); const __dep7 = __require("rendering.js"); const __dep8 = __require("state.js"); const __dep9 = __require("terrain.js");
-    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] });
+    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => __dep1["MAX_GROUND_TAGS_PER_TEAM"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep9["isBlocked"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "applyGameCommand", { enumerable: true, get: () => applyGameCommand }); Object.defineProperty(__exports, "canAttackTarget", { enumerable: true, get: () => canAttackTarget }); Object.defineProperty(__exports, "clearSelection", { enumerable: true, get: () => clearSelection }); Object.defineProperty(__exports, "commandUnits", { enumerable: true, get: () => commandUnits }); Object.defineProperty(__exports, "selectedUnits", { enumerable: true, get: () => selectedUnits }); Object.defineProperty(__exports, "updateCamera", { enumerable: true, get: () => updateCamera });
@@ -7084,6 +7283,60 @@
         return producer.queue?.[index] || null;
       }
       
+      function normalizedGroundTagPoint(point) {
+        const x = clamp(Math.floor((Number(point?.x) || 0) / TILE) * TILE + TILE / 2, TILE / 2, WORLD_W - TILE / 2);
+        const y = clamp(Math.floor((Number(point?.y) || 0) / TILE) * TILE + TILE / 2, TILE / 2, WORLD_H - TILE / 2);
+        return { x, y };
+      }
+      
+      function groundTagPlacementOpen(point) {
+        const half = GROUND_TAG_SIZE * TILE / 2;
+        if (point.x < half || point.y < half || point.x > WORLD_W - half || point.y > WORLD_H - half) return false;
+        const offset = Math.floor(GROUND_TAG_SIZE / 2);
+        for (let row = 0; row < GROUND_TAG_SIZE; row++) {
+          for (let col = 0; col < GROUND_TAG_SIZE; col++) {
+            const x = point.x + (col - offset) * TILE;
+            const y = point.y + (row - offset) * TILE;
+            if (isBlocked(x, y)) return false;
+          }
+        }
+        return true;
+      }
+      
+      function applyGroundTagCommand(command) {
+        const point = normalizedGroundTagPoint(command.point);
+        if (!groundTagPlacementOpen(point)) return false;
+        const tag = normalizeGroundTagDefinition(command.tag);
+        state.groundTags ||= [];
+        for (let index = state.groundTags.length - 1; index >= 0; index--) {
+          const candidate = state.groundTags[index];
+          if (candidate.team === command.team && candidate.tag?.id === tag.id) state.groundTags.splice(index, 1);
+        }
+        const owned = state.groundTags.filter(candidate => candidate.team === command.team);
+        if (owned.length >= MAX_GROUND_TAGS_PER_TEAM) {
+          const oldest = state.groundTags.findIndex(candidate => candidate.team === command.team);
+          if (oldest >= 0) state.groundTags.splice(oldest, 1);
+        }
+        state.groundTags.push({ team: command.team, x: point.x, y: point.y, tag });
+        return true;
+      }
+      
+      function queueGroundTagPlacement(point) {
+        const snapped = normalizedGroundTagPoint(point);
+        if (!groundTagPlacementOpen(snapped)) {
+          toast('A 3×3 ground tag needs clear walkable ground.', COLORS.warn);
+          return false;
+        }
+        const tag = normalizeGroundTagDefinition(state.groundTagDefinition);
+        queueInputCommand({ type: 'placeGroundTag', point: snapped, tag });
+        state.placingGroundTag = false;
+        state.groundTagMenuOpen = false;
+        state.groundTagMenuRects = [];
+        toast(`${tag.name} placement queued.`, COLORS.good);
+        openBuildMenu();
+        return true;
+      }
+      
       function applyGameCommand(command) {
         if (!command || state.gameOver) return false;
         switch (command.type) {
@@ -7136,6 +7389,8 @@
           }
           case 'spawnFlag':
             return !!applySpawnFlagCommand(command);
+          case 'placeGroundTag':
+            return applyGroundTagCommand(command);
           case 'cancelProduction': {
             const producer = structures.find(candidate => candidate.id === command.producerId && candidate.team === command.team);
             const item = resolveCancelItem(command, producer || {});
@@ -7184,6 +7439,11 @@
       
         if (state.placingSpawnFlag) {
           setSpawnFlag(p);
+          return;
+        }
+      
+        if (state.placingGroundTag) {
+          queueGroundTagPlacement(p);
           return;
         }
       
@@ -7327,6 +7587,9 @@
           clearCommandMenu();
           cancelBuildingPlacement();
           state.placingSpawnFlag = false;
+          state.placingGroundTag = false;
+          state.groundTagMenuOpen = false;
+          state.groundTagMenuRects = [];
           state.spawnFlagMode = null;
           state.spawnFlagStructureIds = [];
           state.lastUnitClick = { time: 0, id: null };
@@ -7391,6 +7654,10 @@
       function handleMinimapCommand(p) {
         const w = minimapToWorld(p);
         if (state.placingBuildingType) {
+          centerCamOn(w.x, w.y);
+          return;
+        }
+        if (state.placingGroundTag) {
           centerCamOn(w.x, w.y);
           return;
         }
@@ -7531,6 +7798,9 @@
           clearCommandMenu();
           cancelBuildingPlacement();
           state.placingSpawnFlag = false;
+          state.placingGroundTag = false;
+          state.groundTagMenuOpen = false;
+          state.groundTagMenuRects = [];
           state.spawnFlagMode = null;
           state.spawnFlagStructureIds = [];
           if (state.pendingClick) { clearTimeout(state.pendingClick); state.pendingClick = null; }
@@ -7897,6 +8167,11 @@
         state.activeCommandTeam = configuredLocalTeams[0] || 'player';
         state.simulationTick = 0;
         state.syncChecksums = [];
+        state.groundTags = [];
+        state.placingGroundTag = false;
+        state.groundTagButtonRect = null;
+        state.groundTagMenuOpen = false;
+        state.groundTagMenuRects = [];
         state.teamResources = Object.create(null);
         state.teamAdrenalineReadyAt = Object.create(null);
         state.teamTurretTechLevels = Object.create(null);
@@ -8027,7 +8302,7 @@
           applyQueuedCommands(tick, applyQueuedGameCommand);
           update(SIMULATION_STEP);
           if (tick % 30 === 0) {
-            const hash = deterministicStateHash(units, structures, resourceNodes);
+            const hash = deterministicStateHash(units, structures, resourceNodes, state.groundTags);
             const pair = { tick, hash: checksumHex(hash) };
             state.syncChecksums.push(pair);
             console.log(`[sync] tick=${pair.tick} hash=${pair.hash}`);
@@ -8088,7 +8363,7 @@
   __define("menu.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js");
-    Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] });
+    Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GROUND_TAG_COLORS", { enumerable: true, get: () => __dep0["GROUND_TAG_COLORS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "MAX_OWNED_GROUND_TAGS", { enumerable: true, get: () => __dep0["MAX_OWNED_GROUND_TAGS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "actionForKeyboardEvent", { enumerable: true, get: () => actionForKeyboardEvent }); Object.defineProperty(__exports, "getKeybinds", { enumerable: true, get: () => getKeybinds }); Object.defineProperty(__exports, "isMenuOpen", { enumerable: true, get: () => isMenuOpen }); Object.defineProperty(__exports, "keybindCodeLabel", { enumerable: true, get: () => keybindCodeLabel }); Object.defineProperty(__exports, "matchesKeybind", { enumerable: true, get: () => matchesKeybind }); Object.defineProperty(__exports, "resetKeybinds", { enumerable: true, get: () => resetKeybinds }); Object.defineProperty(__exports, "showMainMenu", { enumerable: true, get: () => showMainMenu });
@@ -8127,6 +8402,40 @@
       
       function loadMenuUsername() {
         return normalizeMenuUsername(storageGet(STORAGE_KEYS.username));
+      }
+      
+      function loadGroundTagDefinitions() {
+        try {
+          const stored = JSON.parse(storageGet(STORAGE_KEYS.groundTags) || 'null');
+          if (stored) return normalizeGroundTagCollection(stored);
+          const legacy = JSON.parse(storageGet(STORAGE_KEYS.groundTag) || 'null');
+          return normalizeGroundTagCollection(legacy ? [legacy] : [DEFAULT_GROUND_TAG]);
+        } catch {
+          return normalizeGroundTagCollection([DEFAULT_GROUND_TAG]);
+        }
+      }
+      
+      function persistGroundTagDefinitions(values) {
+        const normalized = normalizeGroundTagCollection(values);
+        return storageSet(STORAGE_KEYS.groundTags, JSON.stringify(normalized)) ? normalized : null;
+      }
+      
+      function createGroundTagId() {
+        const bytes = new Uint32Array(2);
+        if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
+        else { bytes[0] = Date.now() >>> 0; bytes[1] = Math.floor(performance.now() * 1000) >>> 0; }
+        return `tag-${bytes[0].toString(36)}-${bytes[1].toString(36)}`;
+      }
+      
+      const TRANSPARENT_GROUND_TAG_COLOR = '#00000000';
+      
+      function blankGroundTag() {
+        return normalizeGroundTagDefinition({
+          id: createGroundTagId(),
+          name: 'NEW TAG',
+          background: '#ffffff',
+          pixels: Array(GROUND_TAG_PIXEL_SIZE * GROUND_TAG_PIXEL_SIZE).fill(TRANSPARENT_GROUND_TAG_COLOR)
+        });
       }
       
       function escapeHTML(value) {
@@ -8211,7 +8520,7 @@
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
         #starlite-menu * { box-sizing: border-box; }
-        #starlite-menu canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        #starlite-menu > canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
         .starlite-menu__shade {
           position: absolute; inset: 0;
           background:
@@ -8317,12 +8626,61 @@
         .starlite-menu__lobby-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
         .starlite-menu__lobby-controls > :only-child { grid-column: 1 / -1; }
         .starlite-menu__pvp-back { margin-top: 14px; width: 100%; }
+        .starlite-menu__panel[data-view="tag-lab"] {
+          width: min(760px, 100%); max-height: calc(100vh - 190px); overflow-y: auto; overscroll-behavior: contain;
+        }
+        .starlite-menu__tag-lab { display: grid; grid-template-columns: minmax(190px, .78fr) minmax(280px, 1.22fr); gap: 16px; align-items: start; }
+        .starlite-menu__tag-library, .starlite-menu__tag-editor { min-width: 0; display: grid; gap: 11px; }
+        .starlite-menu__tag-section-label { color: #b6d9ae; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+        .starlite-menu__tag-list { display: grid; grid-template-columns: 1fr; gap: 7px; max-height: 220px; overflow-y: auto; padding-right: 3px; }
+        .starlite-menu__tag-owned { min-width: 0; padding: 6px; display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 8px; border: 1px solid rgba(204,232,190,.22); border-radius: 8px; color: #dcebd7; background: rgba(255,255,255,.035); cursor: pointer; text-align: left; }
+        .starlite-menu__tag-owned:hover, .starlite-menu__tag-owned:focus-visible { outline: none; border-color: rgba(157,227,111,.72); }
+        .starlite-menu__tag-owned[data-selected="true"] { border-color: #9de36f; background: rgba(157,227,111,.11); }
+        .starlite-menu__tag-owned canvas {
+          width: 42px; height: 42px; image-rendering: pixelated; border: 1px solid rgba(255,255,255,.28);
+          background-color: #fff;
+          background-image: linear-gradient(45deg, #cfd4cf 25%, transparent 25%), linear-gradient(-45deg, #cfd4cf 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #cfd4cf 75%), linear-gradient(-45deg, transparent 75%, #cfd4cf 75%);
+          background-size: 8px 8px; background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+        }
+        .starlite-menu__tag-owned span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 750 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+        .starlite-menu__tag-empty { padding: 12px; border: 1px dashed rgba(204,232,190,.24); border-radius: 8px; color: #8fa68a; font-size: 11px; text-align: center; }
+        .starlite-menu__tag-canvas {
+          display: block; width: min(320px, 100%); aspect-ratio: 1; margin: 0 auto; touch-action: none; image-rendering: pixelated; cursor: crosshair;
+          border: 2px solid rgba(204,232,190,.52); border-radius: 9px; background-color: #fff;
+          background-image: linear-gradient(45deg, #cfd4cf 25%, transparent 25%), linear-gradient(-45deg, #cfd4cf 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #cfd4cf 75%), linear-gradient(-45deg, transparent 75%, #cfd4cf 75%);
+          background-size: 24px 24px; background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+        }
+        .starlite-menu__tag-color-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .starlite-menu__tag-color-group { min-width: 0; display: grid; gap: 7px; padding: 9px; border: 1px solid rgba(204,232,190,.16); border-radius: 9px; background: rgba(255,255,255,.025); }
+        .starlite-menu__tag-palette { display: grid; grid-template-columns: repeat(5, minmax(25px, 1fr)); gap: 6px; }
+        .starlite-menu__tag-swatch { position: relative; min-width: 0; aspect-ratio: 1; border: 2px solid rgba(235,245,230,.28); border-radius: 7px; background: var(--tag-swatch, #fff); cursor: pointer; }
+        .starlite-menu__tag-swatch:hover, .starlite-menu__tag-swatch:focus-visible { outline: 2px solid #f4c679; outline-offset: 1px; }
+        .starlite-menu__tag-swatch[data-active="true"] { border-color: #9de36f; box-shadow: inset 0 0 0 2px #111912; }
+        .starlite-menu__tag-swatch--transparent {
+          background-color: #fff;
+          background-image: linear-gradient(45deg, #cfd4cf 25%, transparent 25%), linear-gradient(-45deg, #cfd4cf 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #cfd4cf 75%), linear-gradient(-45deg, transparent 75%, #cfd4cf 75%);
+          background-size: 10px 10px; background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+        }
+        .starlite-menu__tag-swatch--transparent::after { content: ''; position: absolute; inset: 4px; border-top: 2px solid #d95f5f; transform: rotate(-45deg) translateY(50%); transform-origin: center; }
+        .starlite-menu__tag-color { display: grid; grid-template-columns: 1fr 44px; align-items: center; gap: 8px; color: #b6d9ae; font-size: 10px; font-weight: 800; letter-spacing: .08em; }
+        .starlite-menu__tag-color input { width: 44px; height: 34px; padding: 2px; border: 1px solid rgba(178,221,151,.42); border-radius: 7px; background: rgba(5,12,8,.52); cursor: pointer; }
+        .starlite-menu__tag-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+        .starlite-menu__tag-tool[data-active="true"] { border-color: #f4c679; color: #f4c679; background: rgba(244,198,121,.1); }
+        .starlite-menu__tag-save { border-color: rgba(157,227,111,.7); color: #dfffd0; }
+        .starlite-menu__tag-save[data-active="true"] { border-color: #9de36f; color: #b8f288; background: rgba(157,227,111,.14); }
+        .starlite-menu__tag-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
         @media (max-width: 560px) {
           .starlite-menu__layout { align-content: start; overflow: auto; padding-bottom: 104px; }
           .starlite-menu__title { font-size: 58px; }
           .starlite-menu__panel { padding: 15px; }
           .starlite-menu__button { min-height: 59px; }
           .starlite-menu__branch-actions, .starlite-menu__online-create { grid-template-columns: 1fr; }
+          .starlite-menu__panel[data-view="tag-lab"] { max-height: calc(100vh - 20px); }
+          .starlite-menu__tag-lab { grid-template-columns: 1fr; }
+          .starlite-menu__tag-list { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }
+          .starlite-menu__tag-owned { grid-template-columns: 38px 1fr; }
+          .starlite-menu__tag-owned canvas { width: 38px; height: 38px; }
+          .starlite-menu__tag-color-groups { grid-template-columns: 1fr; }
         }
         @media (prefers-reduced-motion: reduce) {
           .starlite-menu__button, .starlite-menu__key { transition: none; animation: none !important; }
@@ -8486,6 +8844,19 @@
         </div>`).join('');
       }
       
+      function groundTagColorSwatchesMarkup(target, includeTransparent = false) {
+        const colors = includeTransparent
+          ? [TRANSPARENT_GROUND_TAG_COLOR, ...GROUND_TAG_COLORS]
+          : GROUND_TAG_COLORS;
+        return colors.map(color => {
+          const transparent = color === TRANSPARENT_GROUND_TAG_COLOR;
+          const label = transparent ? 'Transparent' : color;
+          return `<button class="starlite-menu__tag-swatch${transparent ? ' starlite-menu__tag-swatch--transparent' : ''}" type="button"
+            data-tag-${target}-color="${color}" aria-label="${label}" title="${label}"
+            ${transparent ? '' : `style="--tag-swatch:${color}"`}></button>`;
+        }).join('');
+      }
+      
       function waitForDocument() {
         if (document.readyState !== 'loading') return Promise.resolve();
         return new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
@@ -8531,7 +8902,7 @@
                 </button>
               </div>
               <p class="starlite-menu__status" role="status" aria-live="polite"></p>
-              <div class="starlite-menu__utility"><button class="starlite-menu__secondary" type="button" data-open-keybinds>CHANGE KEYBINDS</button></div>
+              <div class="starlite-menu__utility"><button class="starlite-menu__secondary" type="button" data-open-tag-lab>TAG LAB</button><button class="starlite-menu__secondary" type="button" data-open-keybinds>CHANGE KEYBINDS</button></div>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="online">
               <h2 class="starlite-menu__heading">PLAY ONLINE</h2>
@@ -8592,6 +8963,46 @@
               <p class="starlite-menu__status" data-pvp-status role="status" aria-live="polite"></p>
               <button class="starlite-menu__secondary starlite-menu__pvp-back" type="button" data-close-pvp>BACK</button>
             </section>
+            <section class="starlite-menu__panel starlite-hidden" data-view="tag-lab">
+              <h2 class="starlite-menu__heading">Ground tag lab</h2>
+              <p class="starlite-menu__pvp-copy">Start on a clean white canvas, choose visible background and pen colors, then save. Select any saved tag to edit it.</p>
+              <div class="starlite-menu__tag-lab">
+                <div class="starlite-menu__tag-library">
+                  <div class="starlite-menu__tag-section-label">SAVED TAGS · SELECT TO EDIT</div>
+                  <div class="starlite-menu__tag-list" data-tag-list aria-label="Saved ground tags"></div>
+                  <label class="starlite-menu__identity" style="width:100%;margin:0">
+                    <span>TAG NAME</span>
+                    <input type="text" maxlength="20" autocomplete="off" spellcheck="false" value="NEW TAG" data-tag-name>
+                  </label>
+                  <div class="starlite-menu__tag-actions">
+                    <button class="starlite-menu__secondary" type="button" data-new-tag>NEW WHITE</button>
+                    <button class="starlite-menu__secondary starlite-menu__tag-save" type="button" data-save-tag>SAVE TAG</button>
+                    <button class="starlite-menu__secondary" type="button" data-delete-tag>DELETE</button>
+                    <button class="starlite-menu__secondary" type="button" data-close-tag-lab>BACK</button>
+                  </div>
+                </div>
+                <div class="starlite-menu__tag-editor">
+                  <canvas class="starlite-menu__tag-canvas" width="24" height="24" tabindex="0" data-tag-canvas aria-label="Ground tag drawing canvas"></canvas>
+                  <div class="starlite-menu__tag-color-groups">
+                    <section class="starlite-menu__tag-color-group" aria-label="Background colors">
+                      <div class="starlite-menu__tag-section-label">BACKGROUND COLOR</div>
+                      <div class="starlite-menu__tag-palette" data-tag-background-palette>${groundTagColorSwatchesMarkup('background', true)}</div>
+                      <label class="starlite-menu__tag-color"><span>CUSTOM</span><input type="color" value="#ffffff" data-tag-background aria-label="Custom background color"></label>
+                    </section>
+                    <section class="starlite-menu__tag-color-group" aria-label="Pen colors">
+                      <div class="starlite-menu__tag-section-label">PEN COLOR</div>
+                      <div class="starlite-menu__tag-palette" data-tag-pen-palette>${groundTagColorSwatchesMarkup('pen')}</div>
+                      <label class="starlite-menu__tag-color"><span>CUSTOM</span><input type="color" value="#000000" data-tag-pen aria-label="Custom pen color"></label>
+                    </section>
+                  </div>
+                  <div class="starlite-menu__tag-tools">
+                    <button class="starlite-menu__secondary starlite-menu__tag-tool" type="button" data-tag-eraser>ERASER</button>
+                    <button class="starlite-menu__secondary" type="button" data-clear-tag>CLEAR PEN MARKS</button>
+                  </div>
+                  <p class="starlite-menu__status" data-tag-status role="status" aria-live="polite">Blank white canvas ready. Draw, name, then select SAVE TAG.</p>
+                </div>
+              </div>
+            </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="keybinds">
               <h2 class="starlite-menu__heading">Keyboard controls</h2>
               <div class="starlite-menu__key-list">${keybindRowsMarkup()}</div>
@@ -8610,6 +9021,7 @@
         const onlineView = root.querySelector('[data-view="online"]');
         const sizeView = root.querySelector('[data-view="sizes"]');
         const pvpView = root.querySelector('[data-view="pvp"]');
+        const tagLabView = root.querySelector('[data-view="tag-lab"]');
         const keybindView = root.querySelector('[data-view="keybinds"]');
         const status = categoryView.querySelector('.starlite-menu__status');
         const sizeHeading = root.querySelector('[data-size-heading]');
@@ -8632,6 +9044,16 @@
         const pvpPlayers = root.querySelector('[data-pvp-players]');
         const pvpReadyButton = root.querySelector('[data-pvp-ready]');
         const pvpStartButton = root.querySelector('[data-pvp-start-host]');
+        const tagNameInput = root.querySelector('[data-tag-name]');
+        const tagCanvas = root.querySelector('[data-tag-canvas]');
+        const tagBackgroundInput = root.querySelector('[data-tag-background]');
+        const tagBackgroundPalette = root.querySelector('[data-tag-background-palette]');
+        const tagPenInput = root.querySelector('[data-tag-pen]');
+        const tagPenPalette = root.querySelector('[data-tag-pen-palette]');
+        const tagList = root.querySelector('[data-tag-list]');
+        const tagEraserButton = root.querySelector('[data-tag-eraser]');
+        const tagSaveButton = root.querySelector('[data-save-tag]');
+        const tagStatus = root.querySelector('[data-tag-status]');
         const keybindStatus = root.querySelector('[data-keybind-status]');
         let capturingAction = null;
         let hostedGameCode = '';
@@ -8642,6 +9064,13 @@
         let lobbyFinishing = false;
         let onlineLobbies = [];
         let pvpReturnView = 'sizes';
+        let tagDefinitions = loadGroundTagDefinitions();
+        let tagDraft = blankGroundTag();
+        let tagSolidBackground = '#ffffff';
+        let tagEraser = false;
+        let tagDirty = false;
+        let tagDrawing = false;
+        let tagLastPixel = null;
       
         function currentUsername() {
           const value = normalizeMenuUsername(usernameInput.value);
@@ -8657,7 +9086,7 @@
         usernameInput.addEventListener('blur', currentUsername);
       
         function showOnly(view) {
-          for (const candidate of [categoryView, onlineView, sizeView, pvpView, keybindView]) {
+          for (const candidate of [categoryView, onlineView, sizeView, pvpView, tagLabView, keybindView]) {
             candidate.classList.toggle('starlite-hidden', candidate !== view);
           }
         }
@@ -8819,6 +9248,129 @@
           sizeModes.querySelector(`[data-mode="${GAME_MODE_ORDER.find(key => GAME_MODES[key] === selectedPvpMode) || 'pvp'}"]`)?.focus();
         }
       
+        function drawGroundTagCanvas(canvas, tag) {
+          const context = canvas.getContext('2d');
+          context.imageSmoothingEnabled = false;
+          context.clearRect(0, 0, GROUND_TAG_PIXEL_SIZE, GROUND_TAG_PIXEL_SIZE);
+          if (tag.background !== TRANSPARENT_GROUND_TAG_COLOR) {
+            context.fillStyle = tag.background;
+            context.fillRect(0, 0, GROUND_TAG_PIXEL_SIZE, GROUND_TAG_PIXEL_SIZE);
+          }
+          for (let index = 0; index < tag.pixels.length; index++) {
+            const color = tag.pixels[index];
+            if (color === TRANSPARENT_GROUND_TAG_COLOR) continue;
+            context.fillStyle = color;
+            context.fillRect(index % GROUND_TAG_PIXEL_SIZE, Math.floor(index / GROUND_TAG_PIXEL_SIZE), 1, 1);
+          }
+        }
+      
+        function setTagDirty(message = 'Unsaved changes. Select SAVE to keep them.') {
+          tagDirty = true;
+          tagSaveButton.dataset.active = 'true';
+          if (message) tagStatus.textContent = message;
+        }
+      
+        function setTagEraser(active) {
+          tagEraser = !!active;
+          tagEraserButton.dataset.active = String(tagEraser);
+          tagEraserButton.textContent = tagEraser ? 'ERASER ON' : 'ERASER';
+        }
+      
+        function syncTagBackgroundControls() {
+          const transparent = tagDraft.background === TRANSPARENT_GROUND_TAG_COLOR;
+          if (!transparent) tagSolidBackground = tagDraft.background;
+          tagBackgroundInput.value = tagSolidBackground;
+          for (const button of tagBackgroundPalette.querySelectorAll('[data-tag-background-color]')) {
+            button.dataset.active = String(button.dataset.tagBackgroundColor === tagDraft.background);
+          }
+        }
+      
+        function syncTagPenControls() {
+          const penColor = tagPenInput.value.toLowerCase();
+          for (const button of tagPenPalette.querySelectorAll('[data-tag-pen-color]')) {
+            button.dataset.active = String(button.dataset.tagPenColor === penColor && !tagEraser);
+          }
+        }
+      
+        function renderGroundTagLab() {
+          tagNameInput.value = tagDraft.name;
+          syncTagBackgroundControls();
+          setTagEraser(tagEraser);
+          syncTagPenControls();
+          tagSaveButton.dataset.active = String(tagDirty);
+          drawGroundTagCanvas(tagCanvas, tagDraft);
+          tagList.replaceChildren();
+          for (const tag of tagDefinitions) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'starlite-menu__tag-owned';
+            button.dataset.ownedTagId = tag.id;
+            button.dataset.selected = String(tag.id === tagDraft.id);
+            const preview = document.createElement('canvas');
+            preview.width = GROUND_TAG_PIXEL_SIZE;
+            preview.height = GROUND_TAG_PIXEL_SIZE;
+            drawGroundTagCanvas(preview, tag);
+            const label = document.createElement('span');
+            label.textContent = tag.name;
+            button.append(preview, label);
+            tagList.appendChild(button);
+          }
+        }
+      
+        function openBlankGroundTag(message = 'Blank white canvas ready. Draw, name, then select SAVE TAG.') {
+          tagDraft = blankGroundTag();
+          tagSolidBackground = '#ffffff';
+          tagPenInput.value = '#000000';
+          tagDirty = false;
+          setTagEraser(false);
+          renderGroundTagLab();
+          tagStatus.textContent = message;
+        }
+      
+        function openTagLab() {
+          status.textContent = '';
+          tagDefinitions = loadGroundTagDefinitions();
+          openBlankGroundTag();
+          showOnly(tagLabView);
+          tagCanvas.focus();
+        }
+      
+        function closeTagLab() {
+          showOnly(categoryView);
+          root.querySelector('[data-open-tag-lab]')?.focus();
+        }
+      
+        function tagPixelFromEvent(event) {
+          const rect = tagCanvas.getBoundingClientRect();
+          return {
+            x: Math.max(0, Math.min(GROUND_TAG_PIXEL_SIZE - 1, Math.floor((event.clientX - rect.left) * GROUND_TAG_PIXEL_SIZE / rect.width))),
+            y: Math.max(0, Math.min(GROUND_TAG_PIXEL_SIZE - 1, Math.floor((event.clientY - rect.top) * GROUND_TAG_PIXEL_SIZE / rect.height)))
+          };
+        }
+      
+        function paintTagPixel(event) {
+          const point = tagPixelFromEvent(event);
+          const color = tagEraser ? '#00000000' : tagPenInput.value.toLowerCase();
+          const from = tagLastPixel || point;
+          const dx = Math.abs(point.x - from.x);
+          const dy = Math.abs(point.y - from.y);
+          const sx = from.x < point.x ? 1 : -1;
+          const sy = from.y < point.y ? 1 : -1;
+          let x = from.x;
+          let y = from.y;
+          let error = dx - dy;
+          while (true) {
+            tagDraft.pixels[y * GROUND_TAG_PIXEL_SIZE + x] = color;
+            if (x === point.x && y === point.y) break;
+            const doubled = error * 2;
+            if (doubled > -dy) { error -= dy; x += sx; }
+            if (doubled < dx) { error += dx; y += sy; }
+          }
+          tagLastPixel = point;
+          drawGroundTagCanvas(tagCanvas, tagDraft);
+          setTagDirty(tagEraser ? 'Pen marks erased. Select SAVE to keep the edit.' : 'Drawing updated. Select SAVE to keep the edit.');
+        }
+      
         function openKeybinds() {
           status.textContent = '';
           showOnly(keybindView);
@@ -8834,6 +9386,135 @@
           root.querySelector('[data-open-keybinds]')?.focus();
         }
       
+        root.querySelector('[data-open-tag-lab]').addEventListener('click', openTagLab);
+        root.querySelector('[data-close-tag-lab]').addEventListener('click', closeTagLab);
+        tagList.addEventListener('click', event => {
+          const button = event.target.closest('[data-owned-tag-id]');
+          if (!button || !tagList.contains(button)) return;
+          const selected = tagDefinitions.find(tag => tag.id === button.dataset.ownedTagId);
+          if (!selected || selected.id === tagDraft.id) return;
+          if (tagDirty) {
+            tagStatus.textContent = 'Save or delete the current edits before opening another saved tag.';
+            return;
+          }
+          tagDraft = normalizeGroundTagDefinition(selected);
+          tagSolidBackground = tagDraft.background === TRANSPARENT_GROUND_TAG_COLOR ? '#ffffff' : tagDraft.background;
+          setTagEraser(false);
+          renderGroundTagLab();
+          tagStatus.textContent = `${tagDraft.name} opened for editing.`;
+        });
+        tagNameInput.addEventListener('input', () => setTagDirty('Name changed. Select SAVE TAG to keep the edit.'));
+        function applyTagBackgroundColor(color) {
+          if (color === TRANSPARENT_GROUND_TAG_COLOR) tagDraft.background = TRANSPARENT_GROUND_TAG_COLOR;
+          else {
+            tagSolidBackground = color;
+            tagDraft.background = color;
+            tagBackgroundInput.value = color;
+          }
+          syncTagBackgroundControls();
+          drawGroundTagCanvas(tagCanvas, tagDraft);
+          setTagDirty(color === TRANSPARENT_GROUND_TAG_COLOR
+            ? 'Transparent background selected. Select SAVE TAG to keep it.'
+            : 'Background color changed. Select SAVE TAG to keep the edit.');
+        }
+        tagBackgroundPalette.addEventListener('click', event => {
+          const button = event.target.closest('[data-tag-background-color]');
+          if (!button || !tagBackgroundPalette.contains(button)) return;
+          applyTagBackgroundColor(button.dataset.tagBackgroundColor);
+        });
+        tagBackgroundInput.addEventListener('input', () => applyTagBackgroundColor(tagBackgroundInput.value.toLowerCase()));
+      
+        function selectTagPen(color = tagPenInput.value.toLowerCase()) {
+          tagPenInput.value = color;
+          setTagEraser(false);
+          syncTagPenControls();
+          tagStatus.textContent = `Pen color ${color.toUpperCase()} selected.`;
+        }
+        tagPenPalette.addEventListener('click', event => {
+          const button = event.target.closest('[data-tag-pen-color]');
+          if (!button || !tagPenPalette.contains(button)) return;
+          selectTagPen(button.dataset.tagPenColor);
+        });
+        tagPenInput.addEventListener('click', () => selectTagPen());
+        tagPenInput.addEventListener('input', () => selectTagPen());
+        tagEraserButton.addEventListener('click', () => {
+          setTagEraser(!tagEraser);
+          syncTagPenControls();
+          tagStatus.textContent = tagEraser ? 'Eraser active. Drag over pen marks to remove them.' : 'Pen active.';
+        });
+        tagCanvas.addEventListener('pointerdown', event => {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          tagDrawing = true;
+          tagLastPixel = null;
+          tagCanvas.setPointerCapture(event.pointerId);
+          paintTagPixel(event);
+        });
+        tagCanvas.addEventListener('pointermove', event => {
+          if (!tagDrawing) return;
+          event.preventDefault();
+          paintTagPixel(event);
+        });
+        const endTagStroke = event => {
+          tagDrawing = false;
+          tagLastPixel = null;
+          if (tagCanvas.hasPointerCapture(event.pointerId)) tagCanvas.releasePointerCapture(event.pointerId);
+        };
+        tagCanvas.addEventListener('pointerup', endTagStroke);
+        tagCanvas.addEventListener('pointercancel', endTagStroke);
+        root.querySelector('[data-clear-tag]').addEventListener('click', () => {
+          tagDraft.pixels.fill(TRANSPARENT_GROUND_TAG_COLOR);
+          drawGroundTagCanvas(tagCanvas, tagDraft);
+          setTagDirty('All pen marks cleared. The background remains; select SAVE to keep the edit.');
+        });
+        root.querySelector('[data-new-tag]').addEventListener('click', () => {
+          if (tagDefinitions.length >= MAX_OWNED_GROUND_TAGS) {
+            tagStatus.textContent = `You can own up to ${MAX_OWNED_GROUND_TAGS} tags.`;
+            return;
+          }
+          openBlankGroundTag('New blank white tag ready. Draw it, then select SAVE TAG.');
+          tagNameInput.select();
+        });
+        root.querySelector('[data-save-tag]').addEventListener('click', () => {
+          tagDraft.name = tagNameInput.value;
+          const normalizedDraft = normalizeGroundTagDefinition(tagDraft);
+          const nextDefinitions = tagDefinitions.map(tag => normalizeGroundTagDefinition(tag));
+          const index = nextDefinitions.findIndex(tag => tag.id === normalizedDraft.id);
+          if (index >= 0) nextDefinitions[index] = normalizedDraft;
+          else if (nextDefinitions.length < MAX_OWNED_GROUND_TAGS) nextDefinitions.push(normalizedDraft);
+          else {
+            tagStatus.textContent = `You can own up to ${MAX_OWNED_GROUND_TAGS} tags.`;
+            return;
+          }
+          const persisted = persistGroundTagDefinitions(nextDefinitions);
+          if (!persisted) {
+            tagStatus.textContent = 'SAVE FAILED · browser storage is unavailable or full.';
+            tagSaveButton.dataset.active = 'true';
+            return;
+          }
+          tagDefinitions = persisted;
+          tagDraft = normalizeGroundTagDefinition(tagDefinitions.find(tag => tag.id === normalizedDraft.id) || normalizedDraft);
+          tagSolidBackground = tagDraft.background === TRANSPARENT_GROUND_TAG_COLOR ? tagSolidBackground : tagDraft.background;
+          tagDirty = false;
+          renderGroundTagLab();
+          tagStatus.textContent = `${tagDraft.name} saved. It now appears in SAVED TAGS and in-game.`;
+        });
+        root.querySelector('[data-delete-tag]').addEventListener('click', () => {
+          const existing = tagDefinitions.some(tag => tag.id === tagDraft.id);
+          if (!existing) {
+            openBlankGroundTag('Unsaved draft cleared. Blank white canvas ready.');
+            return;
+          }
+          let nextDefinitions = tagDefinitions.filter(tag => tag.id !== tagDraft.id);
+          if (!nextDefinitions.length) nextDefinitions = [normalizeGroundTagDefinition(DEFAULT_GROUND_TAG)];
+          const persisted = persistGroundTagDefinitions(nextDefinitions);
+          if (!persisted) {
+            tagStatus.textContent = 'DELETE FAILED · browser storage is unavailable.';
+            return;
+          }
+          tagDefinitions = persisted;
+          openBlankGroundTag('Tag deleted. Blank white canvas ready; saved tags remain listed.');
+        });
         root.querySelector('[data-open-keybinds]').addEventListener('click', openKeybinds);
         root.querySelector('[data-close-online]').addEventListener('click', closeOnline);
         root.querySelector('[data-online-refresh]').addEventListener('click', () => {
@@ -11139,7 +11820,7 @@
   __define("rendering.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("main.js"); const __dep4 = __require("menu.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("state.js"); const __dep7 = __require("terrain.js"); const __dep8 = __require("commandPanel.js");
-    Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep7["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] });
+    Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep7["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep7["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "applySpawnFlagCommand", { enumerable: true, get: () => applySpawnFlagCommand }); Object.defineProperty(__exports, "draw", { enumerable: true, get: () => draw }); Object.defineProperty(__exports, "gasNodeForExtractor", { enumerable: true, get: () => gasNodeForExtractor }); Object.defineProperty(__exports, "handleMenuClick", { enumerable: true, get: () => handleMenuClick }); Object.defineProperty(__exports, "handleSettingsClick", { enumerable: true, get: () => handleSettingsClick }); Object.defineProperty(__exports, "handleQueueStripClick", { enumerable: true, get: () => handleQueueStripClick }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "openBuildMenu", { enumerable: true, get: () => openBuildMenu }); Object.defineProperty(__exports, "placePendingBuilding", { enumerable: true, get: () => placePendingBuilding }); Object.defineProperty(__exports, "openConstructionMenu", { enumerable: true, get: () => openConstructionMenu }); Object.defineProperty(__exports, "openGasExtractorMenu", { enumerable: true, get: () => openGasExtractorMenu }); Object.defineProperty(__exports, "openGasLeakMenu", { enumerable: true, get: () => openGasLeakMenu }); Object.defineProperty(__exports, "openHQMenu", { enumerable: true, get: () => openHQMenu }); Object.defineProperty(__exports, "openHousingMenu", { enumerable: true, get: () => openHousingMenu }); Object.defineProperty(__exports, "openLaboratoryMenu", { enumerable: true, get: () => openLaboratoryMenu }); Object.defineProperty(__exports, "openMinersHutMenu", { enumerable: true, get: () => openMinersHutMenu }); Object.defineProperty(__exports, "openProductionMenu", { enumerable: true, get: () => openProductionMenu }); Object.defineProperty(__exports, "openResearchFacilityMenu", { enumerable: true, get: () => openResearchFacilityMenu }); Object.defineProperty(__exports, "openUpgradeMenu", { enumerable: true, get: () => openUpgradeMenu }); Object.defineProperty(__exports, "resetGame", { enumerable: true, get: () => resetGame }); Object.defineProperty(__exports, "setSpawnFlag", { enumerable: true, get: () => setSpawnFlag });
@@ -11459,6 +12140,7 @@
         const targets = [...new Map(requested.filter(Boolean).map(s => [s.id, s])).values()]
           .filter(s => s.team === activeCommandTeam() && s.hp > 0 && !s.underConstruction && isProductionBuilding(s));
         if (!targets.length) return false;
+        state.placingGroundTag = false;
         state.placingSpawnFlag = true;
         state.spawnFlagMode = targets[0].type;
         state.spawnFlagStructureIds = targets.map(s => s.id);
@@ -11879,6 +12561,7 @@
       function beginBuildingPlacement(type) {
         const data = BUILDING_DATA[type];
         if (!data || state.gameOver) return false;
+        state.placingGroundTag = false;
         state.placingSpawnFlag = false;
         state.spawnFlagMode = null;
         state.spawnFlagStructureIds = [];
@@ -14194,6 +14877,75 @@
         ctx.globalAlpha = 1;
       }
       
+      function groundTagPoint(point) {
+        return {
+          x: clamp(Math.floor((Number(point?.x) || 0) / TILE) * TILE + TILE / 2, TILE / 2, WORLD_W - TILE / 2),
+          y: clamp(Math.floor((Number(point?.y) || 0) / TILE) * TILE + TILE / 2, TILE / 2, WORLD_H - TILE / 2)
+        };
+      }
+      
+      function groundTagPlacementOpen(point) {
+        const half = GROUND_TAG_SIZE * TILE / 2;
+        if (point.x < half || point.y < half || point.x > WORLD_W - half || point.y > WORLD_H - half) return false;
+        const offset = Math.floor(GROUND_TAG_SIZE / 2);
+        for (let row = 0; row < GROUND_TAG_SIZE; row++) {
+          for (let col = 0; col < GROUND_TAG_SIZE; col++) {
+            if (isBlocked(point.x + (col - offset) * TILE, point.y + (row - offset) * TILE)) return false;
+          }
+        }
+        return true;
+      }
+      
+      function paintGroundTag(marker, alpha = .78, preview = false) {
+        const tag = normalizeGroundTagDefinition(marker.tag);
+        const footprint = GROUND_TAG_SIZE * TILE;
+        const left = marker.x - footprint / 2;
+        const top = marker.y - footprint / 2;
+        const pixel = footprint / GROUND_TAG_PIXEL_SIZE;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = tag.background;
+        ctx.fillRect(left, top, footprint, footprint);
+        for (let index = 0; index < tag.pixels.length; index++) {
+          const color = tag.pixels[index];
+          if (color === '#00000000') continue;
+          ctx.fillStyle = color;
+          ctx.fillRect(
+            left + (index % GROUND_TAG_PIXEL_SIZE) * pixel,
+            top + Math.floor(index / GROUND_TAG_PIXEL_SIZE) * pixel,
+            Math.ceil(pixel), Math.ceil(pixel)
+          );
+        }
+        if (preview) {
+          ctx.fillStyle = 'rgba(244,255,233,.08)';
+          ctx.fillRect(left, top, footprint, footprint);
+        }
+        ctx.strokeStyle = preview ? COLORS.warn : colorForTeam(marker.team || activeCommandTeam());
+        ctx.lineWidth = (preview ? 2 : 1) / cam.zoom;
+        if (preview) ctx.setLineDash([5 / cam.zoom, 4 / cam.zoom]);
+        ctx.strokeRect(left, top, footprint, footprint);
+        ctx.setLineDash([]);
+        if (!preview && cam.zoom >= .85) drawText(tag.name, marker.x, top + footprint + 3, 8 / cam.zoom, colorForTeam(marker.team || activeCommandTeam()), 'center');
+        ctx.restore();
+      }
+      
+      function drawGroundTags() {
+        const footprint = GROUND_TAG_SIZE * TILE;
+        for (const marker of state.groundTags || []) {
+          if (!rectInCamera(marker.x, marker.y, footprint / 2, footprint / 2, 8)) continue;
+          paintGroundTag(marker);
+        }
+      }
+      
+      function drawGroundTagPlacementPreview() {
+        if (!state.placingGroundTag || state.mouse.x < 0 || state.mouse.x >= VIEW_W || state.mouse.y < 0 || state.mouse.y >= VIEW_H) return;
+        const point = groundTagPoint(screenToWorld(state.mouse.x, state.mouse.y));
+        const valid = groundTagPlacementOpen(point);
+        paintGroundTag({ ...point, team: activeCommandTeam(), tag: state.groundTagDefinition }, valid ? .62 : .28, true);
+        const footprint = GROUND_TAG_SIZE * TILE;
+        drawText(valid ? 'PLACE GROUND TAG' : 'INVALID TAG SITE', point.x, point.y + footprint / 2 + 16 / cam.zoom, 9 / cam.zoom, valid ? COLORS.good : COLORS.bad, 'center');
+      }
+      
       function drawFog() {
         const { x0, y0, x1, y1 } = visibleTileBounds();
         for (let y = y0; y <= y1; y++) {
@@ -14644,6 +15396,7 @@
         ctx.translate(-cam.x, -cam.y);
       
         drawGround();
+        drawGroundTags();
         drawBattleMarks();
         drawMotionMarks();
         for (const field of resourceFields) {
@@ -14662,6 +15415,7 @@
         drawEffects();
         drawFog();
         drawBuildingPlacementPreview();
+        drawGroundTagPlacementPreview();
         drawSpawnFlag();
         ctx.restore();
       
@@ -14681,7 +15435,7 @@
   __define("state.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("terrain.js"); const __dep4 = __require("uiLayout.js");
-    Object.defineProperty(__imports, "BLOC_AMOUNT", { enumerable: true, get: () => __dep0["BLOC_AMOUNT"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => __dep0["CENTER_STOCK_BONUS"] }); Object.defineProperty(__imports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => __dep0["CENTER_YIELD_BONUS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep0["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep0["LOAD_GAS"] }); Object.defineProperty(__imports, "LOAD_MINERAL", { enumerable: true, get: () => __dep0["LOAD_MINERAL"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => __dep0["RESOURCE_FIELD_BUILD_RADIUS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => __dep0["UNIT_UPGRADE_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => __dep0["ZOOM_OUT_DUEL_FRACTION"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isAirUnitType", { enumerable: true, get: () => __dep0["isAirUnitType"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "isHumanTeam", { enumerable: true, get: () => __dep0["isHumanTeam"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep0["unitUpgradeData"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "applyUnitUpgradeEffect", { enumerable: true, get: () => __dep2["applyUnitUpgradeEffect"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep3["isBlocked"] }); Object.defineProperty(__imports, "commandConsoleHeight", { enumerable: true, get: () => __dep4["commandConsoleHeight"] });
+    Object.defineProperty(__imports, "BLOC_AMOUNT", { enumerable: true, get: () => __dep0["BLOC_AMOUNT"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => __dep0["CENTER_STOCK_BONUS"] }); Object.defineProperty(__imports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => __dep0["CENTER_YIELD_BONUS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep0["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep0["LOAD_GAS"] }); Object.defineProperty(__imports, "LOAD_MINERAL", { enumerable: true, get: () => __dep0["LOAD_MINERAL"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => __dep0["RESOURCE_FIELD_BUILD_RADIUS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => __dep0["UNIT_UPGRADE_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => __dep0["ZOOM_OUT_DUEL_FRACTION"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isAirUnitType", { enumerable: true, get: () => __dep0["isAirUnitType"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "isHumanTeam", { enumerable: true, get: () => __dep0["isHumanTeam"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep0["unitUpgradeData"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "applyUnitUpgradeEffect", { enumerable: true, get: () => __dep2["applyUnitUpgradeEffect"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep3["isBlocked"] }); Object.defineProperty(__imports, "commandConsoleHeight", { enumerable: true, get: () => __dep4["commandConsoleHeight"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "CH", { enumerable: true, get: () => CH }); Object.defineProperty(__exports, "CW", { enumerable: true, get: () => CW }); Object.defineProperty(__exports, "VIEW_H", { enumerable: true, get: () => VIEW_H }); Object.defineProperty(__exports, "VIEW_W", { enumerable: true, get: () => VIEW_W }); Object.defineProperty(__exports, "addResourceField", { enumerable: true, get: () => addResourceField }); Object.defineProperty(__exports, "addStructure", { enumerable: true, get: () => addStructure }); Object.defineProperty(__exports, "addUnit", { enumerable: true, get: () => addUnit }); Object.defineProperty(__exports, "applyRenderInterpolation", { enumerable: true, get: () => applyRenderInterpolation }); Object.defineProperty(__exports, "cam", { enumerable: true, get: () => cam }); Object.defineProperty(__exports, "canvas", { enumerable: true, get: () => canvas }); Object.defineProperty(__exports, "centerCamOn", { enumerable: true, get: () => centerCamOn }); Object.defineProperty(__exports, "clampCam", { enumerable: true, get: () => clampCam }); Object.defineProperty(__exports, "ctx", { enumerable: true, get: () => ctx }); Object.defineProperty(__exports, "maxZoom", { enumerable: true, get: () => maxZoom }); Object.defineProperty(__exports, "minZoom", { enumerable: true, get: () => minZoom }); Object.defineProperty(__exports, "resize", { enumerable: true, get: () => resize }); Object.defineProperty(__exports, "resourceFields", { enumerable: true, get: () => resourceFields }); Object.defineProperty(__exports, "resourceNodes", { enumerable: true, get: () => resourceNodes }); Object.defineProperty(__exports, "resetVisibilityGrids", { enumerable: true, get: () => resetVisibilityGrids }); Object.defineProperty(__exports, "registerUnitPlacementSpatialQuery", { enumerable: true, get: () => registerUnitPlacementSpatialQuery }); Object.defineProperty(__exports, "restoreSimulationPositions", { enumerable: true, get: () => restoreSimulationPositions }); Object.defineProperty(__exports, "screenToWorld", { enumerable: true, get: () => screenToWorld }); Object.defineProperty(__exports, "setZoom", { enumerable: true, get: () => setZoom }); Object.defineProperty(__exports, "snapshotSimulationState", { enumerable: true, get: () => snapshotSimulationState }); Object.defineProperty(__exports, "state", { enumerable: true, get: () => state }); Object.defineProperty(__exports, "structures", { enumerable: true, get: () => structures }); Object.defineProperty(__exports, "units", { enumerable: true, get: () => units });
@@ -14827,6 +15581,13 @@
         motionMarks: [],
         // Persistent, capped battlefield evidence: vehicle wreckage and muted troop stains.
         battleMarks: [],
+        groundTags: [],
+        placingGroundTag: false,
+        groundTagButtonRect: null,
+        groundTagMenuOpen: false,
+        groundTagMenuRects: [],
+        groundTagDefinitions: [normalizeGroundTagDefinition(null)],
+        groundTagDefinition: normalizeGroundTagDefinition(null),
         contextMenu: null,
         settingsOpen: false,
         settingsButtonRect: null,
@@ -15175,11 +15936,12 @@
           .map(value => canonicalValue(value, true, new WeakSet()));
       }
       
-      function deterministicStateHash(units, structures, resourceNodes) {
+      function deterministicStateHash(units, structures, resourceNodes, groundTags = []) {
         const serialized = JSON.stringify({
           units: canonicalEntities(units),
           structures: canonicalEntities(structures),
-          resourceNodes: canonicalEntities(resourceNodes)
+          resourceNodes: canonicalEntities(resourceNodes),
+          groundTags: canonicalValue(groundTags, true, new WeakSet())
         });
         return hashStringToSeed(serialized);
       }
