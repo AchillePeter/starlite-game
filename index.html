@@ -10069,14 +10069,15 @@
 
   __define("multiplayer.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("commandSync.js"); const __dep2 = __require("state.js"); const __dep3 = __require("pathing.js"); const __dep4 = __require("prng.js");
-    Object.defineProperty(__imports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => __dep0["MULTIPLAYER_TEAMS"] }); Object.defineProperty(__imports, "getRegisteredCommandSources", { enumerable: true, get: () => __dep1["getRegisteredCommandSources"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep1["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep1["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeListener"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeRequired", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeRequired"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep2["getNextEntityId"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep2["resourceNodes"] }); Object.defineProperty(__imports, "setNextEntityId", { enumerable: true, get: () => __dep2["setNextEntityId"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep3["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep3["setPathingSyncState"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep4["getRandomState"] }); Object.defineProperty(__imports, "setRandomState", { enumerable: true, get: () => __dep4["setRandomState"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("commandSync.js"); const __dep2 = __require("state.js"); const __dep3 = __require("pathing.js"); const __dep4 = __require("prng.js"); const __dep5 = __require("syncChecksum.js");
+    Object.defineProperty(__imports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => __dep0["MULTIPLAYER_TEAMS"] }); Object.defineProperty(__imports, "getRegisteredCommandSources", { enumerable: true, get: () => __dep1["getRegisteredCommandSources"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep1["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep1["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeListener"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeRequired", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeRequired"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep2["getNextEntityId"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep2["resourceNodes"] }); Object.defineProperty(__imports, "setNextEntityId", { enumerable: true, get: () => __dep2["setNextEntityId"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep3["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep3["setPathingSyncState"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep4["getRandomState"] }); Object.defineProperty(__imports, "setRandomState", { enumerable: true, get: () => __dep4["setRandomState"] }); Object.defineProperty(__imports, "CHECKSUM_SCHEMA_VERSION", { enumerable: true, get: () => __dep5["CHECKSUM_SCHEMA_VERSION"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "closePublicLobbyDirectory", { enumerable: true, get: () => closePublicLobbyDirectory }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "openPublicLobbyDirectory", { enumerable: true, get: () => openPublicLobbyDirectory }); Object.defineProperty(__exports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => refreshPublicLobbyDirectory }); Object.defineProperty(__exports, "sendMultiplayerChat", { enumerable: true, get: () => sendMultiplayerChat }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "setMultiplayerCallbacks", { enumerable: true, get: () => setMultiplayerCallbacks }); Object.defineProperty(__exports, "setMultiplayerReady", { enumerable: true, get: () => setMultiplayerReady }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam }); Object.defineProperty(__exports, "startMultiplayerMatch", { enumerable: true, get: () => startMultiplayerMatch });
+      Object.defineProperty(__exports, "BUILD_VERSION", { enumerable: true, get: () => BUILD_VERSION }); Object.defineProperty(__exports, "CHECKSUM_SCHEMA_VERSION", { enumerable: true, get: () => CHECKSUM_SCHEMA_VERSION }); Object.defineProperty(__exports, "MULTIPLAYER_PROTOCOL_VERSION", { enumerable: true, get: () => MULTIPLAYER_PROTOCOL_VERSION }); Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "closePublicLobbyDirectory", { enumerable: true, get: () => closePublicLobbyDirectory }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "openPublicLobbyDirectory", { enumerable: true, get: () => openPublicLobbyDirectory }); Object.defineProperty(__exports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => refreshPublicLobbyDirectory }); Object.defineProperty(__exports, "sendMultiplayerChat", { enumerable: true, get: () => sendMultiplayerChat }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "setMultiplayerCallbacks", { enumerable: true, get: () => setMultiplayerCallbacks }); Object.defineProperty(__exports, "setMultiplayerReady", { enumerable: true, get: () => setMultiplayerReady }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam }); Object.defineProperty(__exports, "startMultiplayerMatch", { enumerable: true, get: () => startMultiplayerMatch });
       // WebSocket relay transport for deterministic two-to-four-player lockstep.
       // The host owns lobby membership, slot/team assignment, and the shared seed;
       // gameplay itself remains command/tick based on every client.
+      
       
       
       
@@ -10091,8 +10092,11 @@
       const PEER_TIMEOUT_MS = 10000;
       const CHAT_MESSAGE_LIMIT = 60;
       const CHAT_TEXT_LIMIT = 180;
-      const PUBLIC_DIRECTORY_ROOM = '__STARLITE_PUBLIC_LOBBIES_V1__';
-      const PUBLIC_DIRECTORY_PROTOCOL = 1;
+      const BUILD_VERSION = '2026.07.24.1';
+      const MULTIPLAYER_PROTOCOL_VERSION = 2;
+      const VERSION_MISMATCH_CODE = 'STARLITE_VERSION_MISMATCH';
+      const PUBLIC_DIRECTORY_ROOM = '__STARLITE_PUBLIC_LOBBIES_V2__';
+      const PUBLIC_DIRECTORY_PROTOCOL = 2;
       const PUBLIC_DIRECTORY_REFRESH_MS = 3000;
       const PUBLIC_LOBBY_STALE_MS = 10000;
       const RESYNC_PROTOCOL = 1;
@@ -10165,6 +10169,66 @@
       
       function normalizeRoomCode(value) {
         return String(value || '').trim().toUpperCase();
+      }
+      
+      function protocolMetadata() {
+        return {
+          buildVersion: BUILD_VERSION,
+          multiplayerProtocol: MULTIPLAYER_PROTOCOL_VERSION,
+          checksumSchema: CHECKSUM_SCHEMA_VERSION
+        };
+      }
+      
+      function versionedPayload(payload) {
+        if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return payload;
+        if (!payload.type && !payload.command) return payload;
+        return { ...payload, ...protocolMetadata() };
+      }
+      
+      function protocolMismatchReason(message) {
+        const remoteBuild = String(message?.buildVersion || 'unknown');
+        const remoteProtocol = Math.trunc(Number(message?.multiplayerProtocol));
+        const remoteChecksumSchema = Math.trunc(Number(message?.checksumSchema));
+        if (
+          remoteBuild === BUILD_VERSION &&
+          remoteProtocol === MULTIPLAYER_PROTOCOL_VERSION &&
+          remoteChecksumSchema === CHECKSUM_SCHEMA_VERSION
+        ) return '';
+        const remoteProtocolLabel = Number.isFinite(remoteProtocol) ? remoteProtocol : 'unknown';
+        const remoteChecksumLabel = Number.isFinite(remoteChecksumSchema) ? remoteChecksumSchema : 'unknown';
+        return `Game version mismatch. Refresh both browsers and reopen the room. Local ${BUILD_VERSION} (protocol ${MULTIPLAYER_PROTOCOL_VERSION}, checksum ${CHECKSUM_SCHEMA_VERSION}); remote ${remoteBuild} (protocol ${remoteProtocolLabel}, checksum ${remoteChecksumLabel}).`;
+      }
+      
+      function versionMismatchError(message) {
+        const error = new Error(protocolMismatchReason(message) || 'Game version mismatch. Refresh both browsers and reopen the room.');
+        error.code = VERSION_MISMATCH_CODE;
+        return error;
+      }
+      
+      function rejectIncompatiblePeer(message) {
+        const reason = protocolMismatchReason(message);
+        if (!reason) return false;
+        const targetClientId = String(message?.clientId || '');
+        if (targetClientId) {
+          sendPayload({
+            type: 'reject',
+            code: VERSION_MISMATCH_CODE,
+            targetClientId,
+            reason
+          });
+        }
+        return true;
+      }
+      
+      function failIncompatibleHost(message) {
+        const reason = protocolMismatchReason(message);
+        if (!reason) return false;
+        const error = versionMismatchError(message);
+        state.multiplayerStatus = 'GAME VERSION MISMATCH · REFRESH BOTH BROWSERS';
+        if (typeof onDisconnectCallback === 'function') onDisconnectCallback(error.message);
+        rejectConnection(error);
+        closeMultiplayer();
+        return true;
       }
       
       function normalizeSlotCount(value) {
@@ -10343,6 +10407,7 @@
       
       function normalizePublicLobbyAdvertisement(message) {
         if (!message || message.type !== 'publicLobby' || message.protocol !== PUBLIC_DIRECTORY_PROTOCOL) return null;
+        if (protocolMismatchReason(message)) return null;
         const roomCode = normalizeRoomCode(message.roomCode);
         const hostClientId = String(message.hostClientId || '').slice(0, 64);
         const modeId = String(message.modeId || '').slice(0, 24);
@@ -10401,6 +10466,7 @@
         return {
           type: 'publicLobby',
           protocol: PUBLIC_DIRECTORY_PROTOCOL,
+          ...protocolMetadata(),
           roomCode: session.roomCode,
           hostClientId: session.clientId,
           hostUsername: normalizeUsername(host?.username || session.username),
@@ -10428,6 +10494,7 @@
           sendSocketPayload(publisher, {
             type: 'publicLobbyClosed',
             protocol: PUBLIC_DIRECTORY_PROTOCOL,
+            ...protocolMetadata(),
             roomCode: session.roomCode,
             hostClientId: session.clientId
           });
@@ -10549,7 +10616,7 @@
       }
       
       function sendPayload(payload) {
-        return sendSocketPayload(socket, payload);
+        return sendSocketPayload(socket, versionedPayload(payload));
       }
       
       function snapshotNumber(value) {
@@ -11038,6 +11105,7 @@
           localReady: !!session.players?.find(player => player.clientId === session.clientId)?.ready,
           canStart: lobbyCanStart(),
           peerReady: !!session.started,
+          ...protocolMetadata(),
           confirmedTicks,
           localConfirmedTick: confirmedTicks[session.localSourceId] || 0,
           remoteConfirmedTicks: Object.fromEntries(
@@ -11332,6 +11400,8 @@
           return;
         }
         if (message.type === 'hello') {
+          if (session?.role === 'host' && rejectIncompatiblePeer(message)) return;
+          if (session?.role === 'join' && message.role === 'host' && failIncompatibleHost(message)) return;
           handleHostHello(message);
           return;
         }
@@ -11340,20 +11410,24 @@
           return;
         }
         if (message.type === 'seed') {
+          if (session?.role === 'join' && failIncompatibleHost(message)) return;
           if (session?.role === 'join' && Number.isFinite(message.seed)) pendingJoinSeed = message.seed;
           return;
         }
         if (message.type === 'seedRequest' && session?.role === 'host') {
+          if (rejectIncompatiblePeer(message)) return;
           sendPayload({ type: 'seed', seed: session.seed, hostId: session.clientId });
           broadcastLobby();
           return;
         }
         if (message.type === 'lobby' && session?.role === 'join') {
+          if (failIncompatibleHost(message)) return;
           if (Number.isFinite(message.seed)) pendingJoinSeed = message.seed;
           configureRoster({ ...message, seed: Number.isFinite(message.seed) ? message.seed : pendingJoinSeed }, false);
           return;
         }
         if (message.type === 'ready' && session?.role === 'host' && !session.started) {
+          if (rejectIncompatiblePeer(message)) return;
           const clientId = String(message.clientId || '');
           const player = hostRoster.get(clientId);
           if (player) {
@@ -11364,13 +11438,17 @@
           return;
         }
         if (message.type === 'start') {
+          if (session?.role === 'join' && failIncompatibleHost(message)) return;
           const seed = Number.isFinite(message.seed) ? message.seed : pendingJoinSeed;
           if (!Number.isFinite(seed)) return;
           configureRoster({ ...message, seed }, true);
           return;
         }
         if (message.type === 'reject' && message.targetClientId === session?.clientId) {
-          rejectConnection(new Error(message.reason || 'The host rejected this connection.'));
+          const error = new Error(message.reason || 'The host rejected this connection.');
+          if (message.code === VERSION_MISMATCH_CODE) error.code = VERSION_MISMATCH_CODE;
+          if (error.code === VERSION_MISMATCH_CODE) state.multiplayerStatus = 'GAME VERSION MISMATCH · REFRESH BOTH BROWSERS';
+          rejectConnection(error);
           closeMultiplayer();
           return;
         }
@@ -11472,7 +11550,8 @@
           remoteSourceIds: [],
           sourceIds: [],
           started: false,
-          publicLobby: normalizedRole === 'host' && !!publicLobby
+          publicLobby: normalizedRole === 'host' && !!publicLobby,
+          ...protocolMetadata()
         };
       
         if (normalizedRole === 'host') {
@@ -16761,10 +16840,12 @@
     Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep0["hashStringToSeed"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "checksumHex", { enumerable: true, get: () => checksumHex }); Object.defineProperty(__exports, "deterministicStateHash", { enumerable: true, get: () => deterministicStateHash });
+      Object.defineProperty(__exports, "CHECKSUM_SCHEMA_VERSION", { enumerable: true, get: () => CHECKSUM_SCHEMA_VERSION }); Object.defineProperty(__exports, "checksumHex", { enumerable: true, get: () => checksumHex }); Object.defineProperty(__exports, "deterministicStateHash", { enumerable: true, get: () => deterministicStateHash });
       // Stable deterministic-state checksums for future lockstep peer comparison.
       
       
+      
+      const CHECKSUM_SCHEMA_VERSION = 2;
       
       const OMITTED_KEYS = new Set([
         // Render interpolation / local presentation.
