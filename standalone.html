@@ -942,9 +942,11 @@
       const OFFSCREEN_UPDATE_INTERVAL = .1;
       const OFFSCREEN_UPDATE_MARGIN = 168;
       const TARGET_ACQUISITION_INTERVAL = .12;
+      const ATTACK_APPROACH_INTERVAL = .12;
       const STRUCTURE_TARGET_ACQUISITION_INTERVAL = .16;
       const OVERLAP_RESOLUTION_PASSES = 3;
       const UNIT_SPATIAL_GRID_MIN_CELL = 32;
+      const COMBAT_SPATIAL_CELL_SIZE = 128;
       const MAX_PARTICLES = 900;
       const MAX_EFFECTS = 420;
       const MAX_PROJECTILES = 1024;
@@ -957,10 +959,18 @@
       const particlePool = [];
       const effectPool = [];
       const projectilePool = [];
+      const combatSpatialCells = new Map();
+      const combatSpatialBucketPool = [];
+      const combatSpatialCellByEntity = new WeakMap();
+      const combatSpatialRankByEntity = new WeakMap();
+      let combatSpatialColumns = 1;
+      let combatSpatialRows = 1;
+      let combatSpatialMaxEntityRadius = 0;
       const unitSpatialCells = new Map();
       const unitSpatialBucketPool = [];
       const unitUpdateDebt = new WeakMap();
       const structureUpdateDebt = new WeakMap();
+      const attackApproachCache = new WeakMap();
       let visibilityClock = VISIBILITY_INTERVAL;
       let forceFieldClock = 0;
       let updateEntityCache = null;
@@ -1004,6 +1014,140 @@
         }
         updateEntityCache = cache;
         return cache;
+      }
+      
+      function combatSpatialEntityRadius(entity) {
+        return entity?.radius || Math.max(entity?.w || 0, entity?.h || 0) * .5 || 0;
+      }
+      
+      function combatSpatialCellKeyFor(entity) {
+        const cellX = clamp(Math.floor(entity.x / COMBAT_SPATIAL_CELL_SIZE), 0, combatSpatialColumns - 1);
+        const cellY = clamp(Math.floor(entity.y / COMBAT_SPATIAL_CELL_SIZE), 0, combatSpatialRows - 1);
+        return cellY * combatSpatialColumns + cellX;
+      }
+      
+      function addCombatSpatialEntity(entity) {
+        const key = combatSpatialCellKeyFor(entity);
+        let bucket = combatSpatialCells.get(key);
+        if (!bucket) {
+          bucket = combatSpatialBucketPool.pop() || [];
+          combatSpatialCells.set(key, bucket);
+        }
+        bucket.push(entity);
+        combatSpatialCellByEntity.set(entity, key);
+        combatSpatialMaxEntityRadius = Math.max(combatSpatialMaxEntityRadius, combatSpatialEntityRadius(entity));
+      }
+      
+      function rebuildCombatSpatialIndex() {
+        for (const bucket of combatSpatialCells.values()) {
+          bucket.length = 0;
+          combatSpatialBucketPool.push(bucket);
+        }
+        combatSpatialCells.clear();
+        combatSpatialColumns = Math.max(1, Math.ceil(WORLD_W / COMBAT_SPATIAL_CELL_SIZE));
+        combatSpatialRows = Math.max(1, Math.ceil(WORLD_H / COMBAT_SPATIAL_CELL_SIZE));
+        combatSpatialMaxEntityRadius = 0;
+        let rank = 0;
+        for (const unit of units) {
+          combatSpatialRankByEntity.set(unit, rank++);
+          if (unit.hp > 0) addCombatSpatialEntity(unit);
+        }
+        for (const structure of structures) {
+          combatSpatialRankByEntity.set(structure, rank++);
+          if (structure.hp > 0) addCombatSpatialEntity(structure);
+        }
+      }
+      
+      function refreshCombatSpatialEntity(entity) {
+        const previousKey = combatSpatialCellByEntity.get(entity);
+        if (entity.hp <= 0) {
+          if (previousKey !== undefined) {
+            const previousBucket = combatSpatialCells.get(previousKey);
+            const index = previousBucket?.indexOf(entity) ?? -1;
+            if (index >= 0) previousBucket.splice(index, 1);
+            combatSpatialCellByEntity.delete(entity);
+          }
+          return;
+        }
+        const nextKey = combatSpatialCellKeyFor(entity);
+        if (previousKey === nextKey) return;
+        if (previousKey !== undefined) {
+          const previousBucket = combatSpatialCells.get(previousKey);
+          const index = previousBucket?.indexOf(entity) ?? -1;
+          if (index >= 0) previousBucket.splice(index, 1);
+        }
+        let nextBucket = combatSpatialCells.get(nextKey);
+        if (!nextBucket) {
+          nextBucket = combatSpatialBucketPool.pop() || [];
+          combatSpatialCells.set(nextKey, nextBucket);
+        }
+        nextBucket.push(entity);
+        combatSpatialCellByEntity.set(entity, nextKey);
+      }
+      
+      function combatSpatialRank(entity) {
+        return combatSpatialRankByEntity.get(entity) ?? Number.MAX_SAFE_INTEGER;
+      }
+      
+      function forEachCombatSpatialCandidate(point, radius, visitor) {
+        const minCellX = clamp(Math.floor((point.x - radius) / COMBAT_SPATIAL_CELL_SIZE), 0, combatSpatialColumns - 1);
+        const maxCellX = clamp(Math.floor((point.x + radius) / COMBAT_SPATIAL_CELL_SIZE), 0, combatSpatialColumns - 1);
+        const minCellY = clamp(Math.floor((point.y - radius) / COMBAT_SPATIAL_CELL_SIZE), 0, combatSpatialRows - 1);
+        const maxCellY = clamp(Math.floor((point.y + radius) / COMBAT_SPATIAL_CELL_SIZE), 0, combatSpatialRows - 1);
+        for (let cellY = minCellY; cellY <= maxCellY; cellY++) {
+          for (let cellX = minCellX; cellX <= maxCellX; cellX++) {
+            const bucket = combatSpatialCells.get(cellY * combatSpatialColumns + cellX);
+            if (!bucket) continue;
+            for (const entity of bucket) visitor(entity);
+          }
+        }
+      }
+      
+      function orderedCombatSpatialCandidates(point, radius) {
+        const candidates = [];
+        forEachCombatSpatialCandidate(point, radius, entity => candidates.push(entity));
+        candidates.sort((a, b) => combatSpatialRank(a) - combatSpatialRank(b));
+        return candidates;
+      }
+      
+      function forEachCombatSpatialRing(centerCellX, centerCellY, ring, visitor) {
+        if (ring === 0) {
+          const bucket = combatSpatialCells.get(centerCellY * combatSpatialColumns + centerCellX);
+          if (bucket) for (const entity of bucket) visitor(entity);
+          return;
+        }
+        const minCellX = Math.max(0, centerCellX - ring);
+        const maxCellX = Math.min(combatSpatialColumns - 1, centerCellX + ring);
+        const topCellY = centerCellY - ring;
+        const bottomCellY = centerCellY + ring;
+        if (topCellY >= 0) {
+          for (let cellX = minCellX; cellX <= maxCellX; cellX++) {
+            const bucket = combatSpatialCells.get(topCellY * combatSpatialColumns + cellX);
+            if (bucket) for (const entity of bucket) visitor(entity);
+          }
+        }
+        if (bottomCellY < combatSpatialRows) {
+          for (let cellX = minCellX; cellX <= maxCellX; cellX++) {
+            const bucket = combatSpatialCells.get(bottomCellY * combatSpatialColumns + cellX);
+            if (bucket) for (const entity of bucket) visitor(entity);
+          }
+        }
+        const sideMinCellY = Math.max(0, centerCellY - ring + 1);
+        const sideMaxCellY = Math.min(combatSpatialRows - 1, centerCellY + ring - 1);
+        const leftCellX = centerCellX - ring;
+        const rightCellX = centerCellX + ring;
+        if (leftCellX >= 0) {
+          for (let cellY = sideMinCellY; cellY <= sideMaxCellY; cellY++) {
+            const bucket = combatSpatialCells.get(cellY * combatSpatialColumns + leftCellX);
+            if (bucket) for (const entity of bucket) visitor(entity);
+          }
+        }
+        if (rightCellX < combatSpatialColumns) {
+          for (let cellY = sideMinCellY; cellY <= sideMaxCellY; cellY++) {
+            const bucket = combatSpatialCells.get(cellY * combatSpatialColumns + rightCellX);
+            if (bucket) for (const entity of bucket) visitor(entity);
+          }
+        }
       }
       
       function cachedTeamUnits(team) {
@@ -1165,20 +1309,19 @@
         radius *= hostileVisionMultiplier(me.team);
         let best = null;
         let bestD = radius * radius;
-        for (const e of cachedHostileUnits(me.team)) {
-          if (!canAttackTarget(me, e)) continue;
-          if (!isVisibleToTeam(me.team, e.x, e.y)) continue;
-          if (needLOS && !shotClear(me, e)) continue;   // can't see past mountains
-          const d = sqrDist(me, e);
-          if (d < bestD) { bestD = d; best = e; }
-        }
-        for (const s of cachedHostileStructures(me.team)) {
-          if (!canAttackTarget(me, s)) continue;
-          if (!isVisibleToTeam(me.team, s.x, s.y)) continue;
-          if (needLOS && !shotClear(me, s)) continue;
-          const d = sqrDist(me, s);
-          if (d < bestD) { bestD = d; best = s; }
-        }
+        let bestRank = Number.MAX_SAFE_INTEGER;
+        forEachCombatSpatialCandidate(me, radius, candidate => {
+          if (!canAttackTarget(me, candidate)) return;
+          if (!isVisibleToTeam(me.team, candidate.x, candidate.y)) return;
+          if (needLOS && !shotClear(me, candidate)) return;   // can't see past mountains
+          const d = sqrDist(me, candidate);
+          const rank = combatSpatialRank(candidate);
+          if (d < bestD || (best && d === bestD && rank < bestRank)) {
+            bestD = d;
+            bestRank = rank;
+            best = candidate;
+          }
+        });
         return best;
       }
       
@@ -1196,17 +1339,25 @@
       // attack never reposition, so this only relieves blocked rows behind the line.
       function attackApproachPoint(u, target) {
         const closeCombat = isCloseCombatUnit(u);
-        let index = 0;
-        let count = 0;
-        for (const peer of cachedTeamUnits(u.team)) {
-          if (peer.target !== target || peer.damage <= 0) continue;
-          if (isLoopingAircraft(peer) || isCloseCombatUnit(peer) !== closeCombat) continue;
-          if (peer.id < u.id) index++;
-          count++;
+        // Rebuild the expensive roster-derived slot on deterministic simulation-time
+        // buckets. The point itself still follows a moving target every tick.
+        const phase = (u.id % 4) * ATTACK_APPROACH_INTERVAL * .25;
+        const bucket = Math.floor((state.elapsed + phase + 1e-6) / ATTACK_APPROACH_INTERVAL);
+        let slot = attackApproachCache.get(u);
+        if (!slot || slot.target !== target || slot.closeCombat !== closeCombat || slot.bucket !== bucket) {
+          let index = 0;
+          let count = 0;
+          for (const peer of cachedTeamUnits(u.team)) {
+            if (peer.target !== target || peer.damage <= 0) continue;
+            if (isLoopingAircraft(peer) || isCloseCombatUnit(peer) !== closeCombat) continue;
+            if (peer.id < u.id) index++;
+            count++;
+          }
+          slot = { target, closeCombat, bucket, index, count: Math.max(1, count) };
+          attackApproachCache.set(u, slot);
         }
-        count = Math.max(1, count);
         const targetPhase = (target.id * 2.399963229728653) % (Math.PI * 2);
-        const angle = targetPhase + index * Math.PI * 2 / count;
+        const angle = targetPhase + slot.index * Math.PI * 2 / slot.count;
         const edgeDistance = closeCombat
           ? u.radius + 3
           : Math.max(u.radius + 7, unitAttackRange(u) * .72);
@@ -1219,20 +1370,56 @@
       
       function nearestDamagedUnit(me, radius = 240) {
         let best = null, bestD = radius * radius;
-        for (const ally of cachedTeamUnits(me.team)) {
-          if (ally === me || ally.hp >= ally.maxHp) continue;
+        let bestRank = Number.MAX_SAFE_INTEGER;
+        forEachCombatSpatialCandidate(me, radius, ally => {
+          if (ally.kind !== 'unit' || ally.team !== me.team || ally === me || ally.hp >= ally.maxHp) return;
           const d = sqrDist(me, ally);
-          if (d < bestD) { bestD = d; best = ally; }
-        }
+          const rank = combatSpatialRank(ally);
+          if (d < bestD || (best && d === bestD && rank < bestRank)) {
+            bestD = d;
+            bestRank = rank;
+            best = ally;
+          }
+        });
         return best;
       }
       
       function nearestDamagedStructure(me) {
         let best = null, bestD = Infinity;
-        for (const s of cachedTeamStructures(me.team)) {
-          if (s.hp >= repairCapFor(me, s) || s.underConstruction) continue;
-          const d = sqrDist(me, s);
-          if (d < bestD) { bestD = d; best = s; }
+        let bestRank = Number.MAX_SAFE_INTEGER;
+        const centerCellX = clamp(Math.floor(me.x / COMBAT_SPATIAL_CELL_SIZE), 0, combatSpatialColumns - 1);
+        const centerCellY = clamp(Math.floor(me.y / COMBAT_SPATIAL_CELL_SIZE), 0, combatSpatialRows - 1);
+        const maximumRing = Math.max(
+          centerCellX,
+          combatSpatialColumns - 1 - centerCellX,
+          centerCellY,
+          combatSpatialRows - 1 - centerCellY
+        );
+        for (let ring = 0; ring <= maximumRing; ring++) {
+          forEachCombatSpatialRing(centerCellX, centerCellY, ring, structure => {
+            if (structure.kind !== 'structure' || structure.team !== me.team) return;
+            if (structure.hp >= repairCapFor(me, structure) || structure.underConstruction) return;
+            const d = sqrDist(me, structure);
+            const rank = combatSpatialRank(structure);
+            if (d < bestD || (best && d === bestD && rank < bestRank)) {
+              bestD = d;
+              bestRank = rank;
+              best = structure;
+            }
+          });
+          if (!best) continue;
+          const bestRadius = Math.sqrt(bestD);
+          const minCellX = Math.max(0, centerCellX - ring);
+          const maxCellX = Math.min(combatSpatialColumns - 1, centerCellX + ring);
+          const minCellY = Math.max(0, centerCellY - ring);
+          const maxCellY = Math.min(combatSpatialRows - 1, centerCellY + ring);
+          const leftCovered = minCellX === 0 || me.x - bestRadius >= minCellX * COMBAT_SPATIAL_CELL_SIZE;
+          const rightCovered = maxCellX === combatSpatialColumns - 1 ||
+            me.x + bestRadius <= (maxCellX + 1) * COMBAT_SPATIAL_CELL_SIZE;
+          const topCovered = minCellY === 0 || me.y - bestRadius >= minCellY * COMBAT_SPATIAL_CELL_SIZE;
+          const bottomCovered = maxCellY === combatSpatialRows - 1 ||
+            me.y + bestRadius <= (maxCellY + 1) * COMBAT_SPATIAL_CELL_SIZE;
+          if (leftCovered && rightCovered && topCovered && bottomCovered) break;
         }
         return best;
       }
@@ -1299,8 +1486,8 @@
           const radius = source.splashHealRadius || 78;
           const splashAmount = amount * (source.splashHealMultiplier || .6);
           const healedAllies = [];
-          for (const ally of cachedTeamUnits(source.team)) {
-            if (ally === target || ally.hp >= ally.maxHp) continue;
+          for (const ally of orderedCombatSpatialCandidates(target, radius)) {
+            if (ally.kind !== 'unit' || ally.team !== source.team || ally === target || ally.hp >= ally.maxHp) continue;
             if (dist(ally, target) > radius) continue;
             ally.hp = Math.min(ally.maxHp, ally.hp + splashAmount);
             ally.flash = .1;
@@ -1397,8 +1584,10 @@
           const visibleHalfWidth = (7 + progress * 7) * widthScale;
           if (lateral <= visibleHalfWidth + radius * .62) victims.push(candidate);
         };
-        for (const candidate of units) consider(candidate);
-        for (const candidate of structures) consider(candidate);
+        for (const candidate of orderedCombatSpatialCandidates(
+          { x: muzzleX, y: muzzleY },
+          length + combatSpatialMaxEntityRadius
+        )) consider(candidate);
         return victims;
       }
       
@@ -1416,8 +1605,10 @@
             const d = Math.max(0, dist(anchor, candidate) - radius);
             if (d * d < bestD) { bestD = d * d; best = candidate; }
           };
-          for (const candidate of units) consider(candidate);
-          for (const candidate of structures) consider(candidate);
+          for (const candidate of orderedCombatSpatialCandidates(
+            anchor,
+            hopRange + combatSpatialMaxEntityRadius
+          )) consider(candidate);
           if (!best) break;
           chain.push(best);
         }
@@ -1433,8 +1624,7 @@
           const d = sqrDist(source, candidate);
           if (d <= searchRadius * searchRadius && d < bestD) { bestD = d; best = candidate; }
         };
-        for (const candidate of units) consider(candidate);
-        for (const candidate of structures) consider(candidate);
+        for (const candidate of orderedCombatSpatialCandidates(source, searchRadius)) consider(candidate);
         return best;
       }
       
@@ -1450,8 +1640,10 @@
           const d = sqrDist(source, candidate);
           if (d < bestD) { bestD = d; best = candidate; }
         };
-        for (const candidate of units) consider(candidate);
-        for (const candidate of structures) consider(candidate);
+        for (const candidate of orderedCombatSpatialCandidates(
+          source,
+          range + combatSpatialMaxEntityRadius
+        )) consider(candidate);
         return best;
       }
       
@@ -2853,8 +3045,7 @@
                 if (isAirUnit(victim) ? p.canHitAir === false : p.canHitGround === false) return;
                 damage(victim, victim === p.target ? p.damage : p.damage * .55, p.owner);
               };
-              for (const victim of units) hit(victim);
-              for (const victim of structures) hit(victim);
+              for (const victim of orderedCombatSpatialCandidates(impact, p.splash)) hit(victim);
               if (p.style === 'nuke') {
                 addEffect('nuclearBlast', {
                   x: impact.x, y: impact.y, radius: p.splash,
@@ -3014,6 +3205,19 @@
       
         const livingHQs = getLivingHQs();
         const localTeams = new Set(state.localCommandTeams || ['player']);
+        // In multiplayer every peer must continue simulating after an elimination;
+        // stopping only the defeated client's update loop would immediately desync a
+        // three- or four-player room. All peers end together when one HQ remains.
+        if (state.multiplayerActive) {
+          if (livingHQs.length <= 1) {
+            const winnerTeam = livingHQs[0]?.team || attacker?.team || null;
+            endGame(winnerTeam === (state.activeCommandTeam || 'player'), winnerTeam);
+            return;
+          }
+          toast(`${teamLabel(hq.team)} command core destroyed · ${livingHQs.length} commanders remain.`, colorForTeam(hq.team, 'light'));
+          return;
+        }
+      
         const livingLocalHQs = livingHQs.filter(candidate => localTeams.has(candidate.team));
         if (localTeams.has(hq.team) && !livingLocalHQs.length) {
           endGame(false, attacker?.team || livingHQs[0]?.team || null);
@@ -3063,16 +3267,19 @@
           updateProduction(dt);
           updateComputerAIs(dt);
           rebuildUpdateEntityCache();
+          rebuildCombatSpatialIndex();
       
           const updatedTroops = [];
           for (const u of units) {
             const unitDt = throttledEntityDelta(u, dt, unitUpdateDebt);
             if (unitDt <= 0) continue;
             updateUnit(u, unitDt);
+            refreshCombatSpatialEntity(u);
             if (state.multiplayerActive || entityInCameraArea(u, 64)) updateUnitAmbient(u, unitDt);
             if (u.hp > 0 && u.type !== 'forager') updatedTroops.push(u);
           }
           resolveUnitOverlaps(updatedTroops);
+          for (const troop of updatedTroops) refreshCombatSpatialEntity(troop);
           forceFieldClock += dt;
           if (forceFieldClock >= OFFSCREEN_UPDATE_INTERVAL) {
             updateForceFields(forceFieldClock);
