@@ -122,8 +122,8 @@
 
   __define("ai.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("main.js"); const __dep3 = __require("pathing.js"); const __dep4 = __require("state.js"); const __dep5 = __require("terrain.js"); const __dep6 = __require("workerBridge.js"); const __dep7 = __require("prng.js");
-    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep0["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep0["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => __dep0["ENEMY_UPGRADE_PLAN"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep0["rotateOffset"] }); Object.defineProperty(__imports, "teamColor", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep0["teamLabel"] }); Object.defineProperty(__imports, "beginProductionTechJob", { enumerable: true, get: () => __dep1["beginProductionTechJob"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep1["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep1["productionTechLevel"] }); Object.defineProperty(__imports, "teamPopulationCap", { enumerable: true, get: () => __dep1["teamPopulationCap"] }); Object.defineProperty(__imports, "teamPopulationUsed", { enumerable: true, get: () => __dep1["teamPopulationUsed"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep1["unitBuildTimeFor"] }); Object.defineProperty(__imports, "getHQForTeam", { enumerable: true, get: () => __dep2["getHQForTeam"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep2["getLivingHQs"] }); Object.defineProperty(__imports, "getNearestHostileHQ", { enumerable: true, get: () => __dep2["getNearestHostileHQ"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep3["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep3["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep4["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep4["addUnit"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep4["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep4["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep4["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep4["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep4["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep5["isBlocked"] }); Object.defineProperty(__imports, "requestAIAnalysis", { enumerable: true, get: () => __dep6["requestAIAnalysis"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep7["rand"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("main.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("state.js"); const __dep6 = __require("terrain.js"); const __dep7 = __require("workerBridge.js");
+    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep0["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep0["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => __dep0["ENEMY_UPGRADE_PLAN"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep0["rotateOffset"] }); Object.defineProperty(__imports, "teamColor", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep0["teamLabel"] }); Object.defineProperty(__imports, "beginProductionTechJob", { enumerable: true, get: () => __dep1["beginProductionTechJob"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep1["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep1["productionTechLevel"] }); Object.defineProperty(__imports, "teamPopulationCap", { enumerable: true, get: () => __dep1["teamPopulationCap"] }); Object.defineProperty(__imports, "teamPopulationUsed", { enumerable: true, get: () => __dep1["teamPopulationUsed"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep1["unitBuildTimeFor"] }); Object.defineProperty(__imports, "getHQForTeam", { enumerable: true, get: () => __dep2["getHQForTeam"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep2["getLivingHQs"] }); Object.defineProperty(__imports, "getNearestHostileHQ", { enumerable: true, get: () => __dep2["getNearestHostileHQ"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep3["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep4["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep4["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep5["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep5["addUnit"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep5["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep5["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep5["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep5["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep5["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep6["isBlocked"] }); Object.defineProperty(__imports, "requestAIAnalysis", { enumerable: true, get: () => __dep7["requestAIAnalysis"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeComputerTeams", { enumerable: true, get: () => activeComputerTeams }); Object.defineProperty(__exports, "computerAIState", { enumerable: true, get: () => computerAIState }); Object.defineProperty(__exports, "computerBuildPosition", { enumerable: true, get: () => computerBuildPosition }); Object.defineProperty(__exports, "createComputerAIState", { enumerable: true, get: () => createComputerAIState }); Object.defineProperty(__exports, "initializeComputerAIs", { enumerable: true, get: () => initializeComputerAIs }); Object.defineProperty(__exports, "launchComputerWave", { enumerable: true, get: () => launchComputerWave }); Object.defineProperty(__exports, "queueComputerProduction", { enumerable: true, get: () => queueComputerProduction }); Object.defineProperty(__exports, "startComputerBuilding", { enumerable: true, get: () => startComputerBuilding }); Object.defineProperty(__exports, "updateComputerAI", { enumerable: true, get: () => updateComputerAI }); Object.defineProperty(__exports, "updateComputerAIs", { enumerable: true, get: () => updateComputerAIs }); Object.defineProperty(__exports, "updateEnemyAI", { enumerable: true, get: () => updateEnemyAI });
@@ -276,37 +276,83 @@
         return result;
       }
       
-      function createComputerAIState(team, index = 0) {
+      const AI_DIFFICULTY_PROFILES = Object.freeze({
+        easy: Object.freeze({
+          decisionInterval: 1.45,
+          maneuverClock: 1.35,
+          scoutClock: 1.35,
+          interval: 1.35,
+          resources: .75,
+          skipAttackWaveChance: .35
+        }),
+        normal: Object.freeze({
+          decisionInterval: 1,
+          maneuverClock: 1,
+          scoutClock: 1,
+          interval: 1,
+          resources: 1,
+          skipAttackWaveChance: 0
+        }),
+        hard: Object.freeze({
+          decisionInterval: .72,
+          maneuverClock: .78,
+          scoutClock: .8,
+          interval: .78,
+          resources: 1.35,
+          skipAttackWaveChance: 0
+        })
+      });
+      
+      function normalizeAIDifficulty(value) {
+        const key = String(value || '').trim().toLowerCase();
+        return Object.hasOwn(AI_DIFFICULTY_PROFILES, key) ? key : 'normal';
+      }
+      
+      function aiDifficultyProfile(aiOrDifficulty) {
+        const key = normalizeAIDifficulty(typeof aiOrDifficulty === 'string' ? aiOrDifficulty : aiOrDifficulty?.difficulty);
+        return AI_DIFFICULTY_PROFILES[key];
+      }
+      
+      function scaledAIClock(ai, field, value) {
+        return value * aiDifficultyProfile(ai)[field];
+      }
+      
+      function createComputerAIState(team, index = 0, difficulty = 'normal') {
+        const normalizedDifficulty = normalizeAIDifficulty(difficulty);
+        const profile = aiDifficultyProfile(normalizedDifficulty);
+        const interval = 48 * profile.interval;
         return {
           team,
           active: true,
-          clock: 74 + index * 8,
-          interval: 48,
+          difficulty: normalizedDifficulty,
+          clock: (74 + index * 8) * profile.interval,
+          interval,
           wave: 0,
-          minerals: 250,
-          gas: 120,
+          minerals: Math.round(250 * profile.resources),
+          gas: Math.round(120 * profile.resources),
           incomeClock: 0,
           decisionAccumulator: 0,
-          decisionInterval: rand(.25, .5),
+          decisionInterval: rand(.25, .5) * profile.decisionInterval,
           buildIndex: 0,
           upgradeIndex: 0,
           productionClock: 16 + index * 2.5,
           organicBuildClock: 18 + index * 6,
           organicBuildCount: 0,
-          maneuverClock: 4 + index * 1.5,
-          scoutClock: 24 + index * 7,
+          maneuverClock: (4 + index * 1.5) * profile.maneuverClock,
+          scoutClock: (24 + index * 7) * profile.scoutClock,
           patrolStep: index * 2,
           attackTargetCursor: index,
           lastTargetTeam: null
         };
       }
       
-      function initializeComputerAIs(teams) {
+      function initializeComputerAIs(teams, difficulty = 'normal') {
         const registry = Object.create(null);
+        const normalizedDifficulty = normalizeAIDifficulty(difficulty);
         let computerIndex = 0;
         for (const team of teams || []) {
           if (!isComputerTeam(team)) continue;
-          registry[team] = createComputerAIState(team, computerIndex++);
+          registry[team] = createComputerAIState(team, computerIndex++, normalizedDifficulty);
         }
         state.computerAIs = registry;
         // Compatibility for the original combat.js until its deferred extraction is
@@ -532,10 +578,7 @@
         if (!spec || ai.minerals < spec.costM || ai.gas < spec.costG) return;
         ai.minerals -= spec.costM;
         ai.gas -= spec.costG;
-        if (!beginProductionTechJob(team, plan.type, plan.toLevel, spec, researchFacility)) {
-          ai.minerals += spec.costM;
-          ai.gas += spec.costG;
-        }
+        beginProductionTechJob(team, plan.type, plan.toLevel, spec);
       }
       
       function queueComputerProduction(team) {
@@ -666,7 +709,7 @@
         ai.scoutClock -= dt;
         ai.maneuverClock -= dt;
         if (ai.maneuverClock > 0) return;
-        ai.maneuverClock = rand(1.4, 2.3);
+        ai.maneuverClock = scaledAIClock(ai, 'maneuverClock', rand(1.4, 2.3));
       
         let reserves = [];
         let idleReserves = [];
@@ -728,9 +771,9 @@
           if (scout) {
             scout.aiScoutLegs = 2;
             issueComputerMovement(scout, computerExploreDestination(team, scout), 'scout');
-            ai.scoutClock = rand(42, 62);
+            ai.scoutClock = scaledAIClock(ai, 'scoutClock', rand(42, 62));
           } else {
-            ai.scoutClock = 9;
+            ai.scoutClock = scaledAIClock(ai, 'scoutClock', 9);
           }
         }
       
@@ -855,15 +898,20 @@
       
         ai.clock -= dt;
         if (ai.clock <= 0) {
+          const profile = aiDifficultyProfile(ai);
+          if (profile.skipAttackWaveChance > 0 && random() < profile.skipAttackWaveChance) {
+            ai.clock = ai.interval;
+            return;
+          }
           const nextWave = ai.wave + 1;
           const sent = launchComputerWave(team, nextWave);
           if (sent > 0) {
             ai.wave = nextWave;
-            ai.interval = Math.max(32, 48 - ai.wave * 1.35);
+            ai.interval = Math.max(32, 48 - ai.wave * 1.35) * profile.interval;
             ai.clock = ai.interval;
             toast(`${teamLabel(team)} wave ${ai.wave}: ${sent} unit${sent === 1 ? '' : 's'} mobilized.`, teamColor(team));
           } else {
-            ai.clock = 12;
+            ai.clock = scaledAIClock(ai, 'interval', 12);
           }
         }
       }
@@ -890,7 +938,7 @@
       
           const decisionDt = Math.min(.75, ai.decisionAccumulator);
           ai.decisionAccumulator = 0;
-          ai.decisionInterval = rand(.25, .5);
+          ai.decisionInterval = scaledAIClock(ai, 'decisionInterval', rand(.25, .5));
           updateComputerAI(team, decisionDt);
           deactivateWorkerAnalysis();
         }
@@ -911,7 +959,7 @@
         }
         const decisionDt = Math.min(.75, ai.decisionAccumulator);
         ai.decisionAccumulator = 0;
-        ai.decisionInterval = rand(.25, .5);
+        ai.decisionInterval = scaledAIClock(ai, 'decisionInterval', rand(.25, .5));
         updateComputerAI('enemy', decisionDt);
         deactivateWorkerAnalysis();
       }
@@ -7507,7 +7555,7 @@
   __define("main.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("multiplayer.js"); const __dep6 = __require("syncChecksum.js"); const __dep7 = __require("economy.js"); const __dep8 = __require("menu.js"); const __dep9 = __require("rendering.js"); const __dep10 = __require("state.js"); const __dep11 = __require("terrain.js"); const __dep12 = __require("workerBridge.js");
-    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep4["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep4["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep4["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep4["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep5["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep5["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep5["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep5["sendSyncChecksum"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep5["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep6["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep6["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep7["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep7["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep7["teamEconomyState"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep8["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep9["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep9["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep10["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep10["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep10["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep10["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep10["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep10["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep10["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep10["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep10["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep10["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep10["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep10["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep10["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep10["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep10["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep10["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep10["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep11["generateTerrain"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep11["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep11["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep11["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep12["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep12["setDeterministicLockstepMode"] });
+    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep4["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep4["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep4["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep4["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep5["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep5["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep5["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep5["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep5["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep5["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep6["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep6["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep7["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep7["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep7["teamEconomyState"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep8["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep9["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep9["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep10["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep10["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep10["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep10["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep10["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep10["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep10["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep10["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep10["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep10["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep10["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep10["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep10["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep10["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep10["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep10["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep10["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep11["generateTerrain"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep11["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep11["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep11["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep12["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep12["setDeterministicLockstepMode"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeGameMode", { enumerable: true, get: () => activeGameMode }); Object.defineProperty(__exports, "bootstrapWorld", { enumerable: true, get: () => bootstrapWorld }); Object.defineProperty(__exports, "competitiveSpawnLayout", { enumerable: true, get: () => competitiveSpawnLayout }); Object.defineProperty(__exports, "enemyHQ", { enumerable: true, get: () => enemyHQ }); Object.defineProperty(__exports, "enemyHQs", { enumerable: true, get: () => enemyHQs }); Object.defineProperty(__exports, "getActiveTeams", { enumerable: true, get: () => getActiveTeams }); Object.defineProperty(__exports, "getHQForTeam", { enumerable: true, get: () => getHQForTeam }); Object.defineProperty(__exports, "getLivingHQs", { enumerable: true, get: () => getLivingHQs }); Object.defineProperty(__exports, "getNearestHostileHQ", { enumerable: true, get: () => getNearestHostileHQ }); Object.defineProperty(__exports, "matchSeedForMode", { enumerable: true, get: () => matchSeedForMode }); Object.defineProperty(__exports, "normalizedGameCode", { enumerable: true, get: () => normalizedGameCode }); Object.defineProperty(__exports, "playerHQ", { enumerable: true, get: () => playerHQ }); Object.defineProperty(__exports, "setLocalCommandTeam", { enumerable: true, get: () => setLocalCommandTeam }); Object.defineProperty(__exports, "startStarLite", { enumerable: true, get: () => startStarLite });
@@ -7866,7 +7914,7 @@
         }
         for (const team of teams) ensureTeamRuntime(team);
         if (sandbox) maximizeProductionTech('player');
-        initializeComputerAIs(sandbox ? [] : computerTeams);
+        initializeComputerAIs(sandbox ? [] : computerTeams, mode.aiDifficulty);
       
         const participantCount = Math.min(CORNER_SPAWNS.length, teams.length);
         const layoutMode = participantCount === 2
@@ -7915,6 +7963,14 @@
         recomputeVisibility();
         state.gameStarted = true;
         openBuildMenu();
+      }
+      
+      
+      function handleMultiplayerDisconnect(message = '') {
+        if (!state.multiplayerActive || !state.gameStarted) return;
+        const status = String(message || '').trim();
+        state.multiplayerPaused = !!status;
+        state.multiplayerStatus = status;
       }
       
       const SIMULATION_STEP = 1 / 30;
@@ -7983,6 +8039,7 @@
         const mode = selectedMode;
         if (mode.pvp) setDeterministicLockstepMode(true);
         bootstrapWorld(mode);
+        if (mode.pvp) setMultiplayerCallbacks({ onDisconnect: handleMultiplayerDisconnect });
         lastFrame = performance.now();
         simulationAccumulator = 0;
         snapshotSimulationState();
@@ -8007,7 +8064,7 @@
   __define("menu.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js");
-    Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] });
+    Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "actionForKeyboardEvent", { enumerable: true, get: () => actionForKeyboardEvent }); Object.defineProperty(__exports, "getKeybinds", { enumerable: true, get: () => getKeybinds }); Object.defineProperty(__exports, "isMenuOpen", { enumerable: true, get: () => isMenuOpen }); Object.defineProperty(__exports, "keybindCodeLabel", { enumerable: true, get: () => keybindCodeLabel }); Object.defineProperty(__exports, "matchesKeybind", { enumerable: true, get: () => matchesKeybind }); Object.defineProperty(__exports, "resetKeybinds", { enumerable: true, get: () => resetKeybinds }); Object.defineProperty(__exports, "showMainMenu", { enumerable: true, get: () => showMainMenu });
@@ -8199,11 +8256,13 @@
         .starlite-menu__key[data-capturing="true"] { border-color: #b8f288; color: #b8f288; animation: starlite-pulse .8s ease-in-out infinite alternate; }
         .starlite-menu__settings-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 15px; }
         .starlite-menu__identity { display: grid; gap: 6px; margin: 0 0 16px; color: #b6d9ae; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
-        .starlite-menu__identity input {
+        .starlite-menu__identity input, .starlite-menu__identity select {
           width: 100%; min-height: 43px; padding: 9px 12px; border: 1px solid rgba(178,221,151,.32); border-radius: 9px;
           color: #f0f8ed; background: rgba(5,12,8,.52); font: 750 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         }
-        .starlite-menu__identity input:focus { outline: 2px solid #9de36f; outline-offset: 2px; border-color: #9de36f; }
+        .starlite-menu__identity input:focus, .starlite-menu__identity select:focus { outline: 2px solid #9de36f; outline-offset: 2px; border-color: #9de36f; }
+        .starlite-menu__identity select { cursor: pointer; }
+        .starlite-menu__identity select option { color: #edf7e8; background: #172019; }
         .starlite-menu__identity small { color: #8fa68a; font-size: 10px; font-weight: 600; letter-spacing: .03em; }
         .starlite-menu__branch-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
         .starlite-menu__branch-actions > :only-child,
@@ -8211,6 +8270,14 @@
         .starlite-menu__footer { margin-top: 13px; color: rgba(226, 241, 216, .6); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
         .starlite-hidden { display: none !important; }
         @keyframes starlite-pulse { to { box-shadow: 0 0 18px rgba(173, 239, 116, .35); } }
+        .starlite-menu__online-create { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; margin-bottom: 14px; }
+        .starlite-menu__online-create .starlite-menu__identity { margin: 0; }
+        .starlite-menu__online-list { display: grid; gap: 7px; max-height: min(38vh, 330px); overflow-y: auto; padding-right: 3px; }
+        .starlite-menu__online-empty { padding: 20px 12px; border: 1px dashed rgba(190,216,232,.2); border-radius: 9px; color: #8fa6ae; font-size: 12px; text-align: center; }
+        .starlite-menu__online-lobby { min-height: 58px; padding: 9px 10px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; border: 1px solid rgba(125,232,255,.24); border-radius: 9px; background: rgba(18,48,57,.35); }
+        .starlite-menu__online-lobby strong { display: block; color: #edf7f8; font-size: 12px; letter-spacing: .06em; }
+        .starlite-menu__online-lobby small { display: block; margin-top: 3px; color: #8fa6ae; font-size: 10px; letter-spacing: .045em; }
+        .starlite-menu__online-lobby .starlite-menu__secondary { min-height: 36px; padding: 7px 11px; }
         .starlite-menu__pvp-copy { margin: 0 0 16px; color: #adbea9; font-size: 13px; line-height: 1.5; text-align: center; }
         .starlite-menu__pvp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .starlite-menu__room { margin-top: 14px; padding: 16px; border: 1px solid rgba(125,232,255,.35); border-radius: 11px; background: rgba(23,67,78,.42); text-align: center; }
@@ -8231,7 +8298,7 @@
           .starlite-menu__title { font-size: 58px; }
           .starlite-menu__panel { padding: 15px; }
           .starlite-menu__button { min-height: 59px; }
-          .starlite-menu__branch-actions { grid-template-columns: 1fr; }
+          .starlite-menu__branch-actions, .starlite-menu__online-create { grid-template-columns: 1fr; }
         }
         @media (prefers-reduced-motion: reduce) {
           .starlite-menu__button, .starlite-menu__key { transition: none; animation: none !important; }
@@ -8426,6 +8493,10 @@
                 <small>Saved on this device and shown in multiplayer.</small>
               </label>
               <div class="starlite-menu__modes">
+                <button class="starlite-menu__button" type="button" data-category="online">
+                  <span><strong>PLAY ONLINE</strong><small>Browse active public lobbies or create one for others to join.</small></span>
+                  <span class="starlite-menu__chevron" aria-hidden="true">›</span>
+                </button>
                 <button class="starlite-menu__button" type="button" data-category="computer">
                   <span><strong>COMPUTER</strong><small>Play against one to three computer commanders.</small></span>
                   <span class="starlite-menu__chevron" aria-hidden="true">›</span>
@@ -8438,9 +8509,39 @@
               <p class="starlite-menu__status" role="status" aria-live="polite"></p>
               <div class="starlite-menu__utility"><button class="starlite-menu__secondary" type="button" data-open-keybinds>CHANGE KEYBINDS</button></div>
             </section>
+            <section class="starlite-menu__panel starlite-hidden" data-view="online">
+              <h2 class="starlite-menu__heading">PLAY ONLINE</h2>
+              <p class="starlite-menu__pvp-copy">Join an active public lobby, or create one that appears here until the match starts.</p>
+              <div class="starlite-menu__online-create">
+                <label class="starlite-menu__identity">
+                  <span>LOBBY SIZE</span>
+                  <select data-online-mode>
+                    <option value="pvp">2 PLAYERS · 1v1</option>
+                    <option value="pvp3">3 PLAYERS · FREE-FOR-ALL</option>
+                    <option value="pvp4">4 PLAYERS · FREE-FOR-ALL</option>
+                  </select>
+                </label>
+                <button class="starlite-menu__secondary" type="button" data-online-create>CREATE LOBBY</button>
+              </div>
+              <div class="starlite-menu__online-list" data-online-lobbies></div>
+              <p class="starlite-menu__status" data-online-status role="status" aria-live="polite"></p>
+              <div class="starlite-menu__branch-actions">
+                <button class="starlite-menu__secondary" type="button" data-online-refresh>REFRESH</button>
+                <button class="starlite-menu__secondary" type="button" data-close-online>BACK</button>
+              </div>
+            </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="sizes">
               <h2 class="starlite-menu__heading" data-size-heading>Choose game size</h2>
               <p class="starlite-menu__pvp-copy" data-size-copy>Choose the total number of commanders.</p>
+              <label class="starlite-menu__identity" data-ai-difficulty-wrap>
+                <span>AI DIFFICULTY</span>
+                <select data-ai-difficulty>
+                  <option value="easy">EASY</option>
+                  <option value="normal" selected>NORMAL</option>
+                  <option value="hard">HARD</option>
+                </select>
+                <small>Changes computer reaction speed, scouting, attack tempo and starting resources.</small>
+              </label>
               <div class="starlite-menu__modes" data-size-modes></div>
               <p class="starlite-menu__status" data-size-status role="status" aria-live="polite"></p>
               <div class="starlite-menu__branch-actions">
@@ -8482,6 +8583,7 @@
       
         const stopBackdrop = startMenuBackdrop(root.querySelector('canvas'));
         const categoryView = root.querySelector('[data-view="categories"]');
+        const onlineView = root.querySelector('[data-view="online"]');
         const sizeView = root.querySelector('[data-view="sizes"]');
         const pvpView = root.querySelector('[data-view="pvp"]');
         const keybindView = root.querySelector('[data-view="keybinds"]');
@@ -8490,8 +8592,13 @@
         const sizeCopy = root.querySelector('[data-size-copy]');
         const sizeModes = root.querySelector('[data-size-modes]');
         const sizeStatus = root.querySelector('[data-size-status]');
+        const aiDifficultyWrap = root.querySelector('[data-ai-difficulty-wrap]');
+        const aiDifficultySelect = root.querySelector('[data-ai-difficulty]');
         const sandboxButton = root.querySelector('[data-computer-sandbox]');
         const usernameInput = root.querySelector('[data-username]');
+        const onlineModeSelect = root.querySelector('[data-online-mode]');
+        const onlineLobbiesElement = root.querySelector('[data-online-lobbies]');
+        const onlineStatus = root.querySelector('[data-online-status]');
         const pvpStatus = root.querySelector('[data-pvp-status]');
         const pvpHeading = root.querySelector('[data-pvp-heading]');
         const pvpCopy = root.querySelector('[data-pvp-copy]');
@@ -8509,6 +8616,8 @@
         let pvpConnectionPending = null;
         let lobbySnapshot = null;
         let lobbyFinishing = false;
+        let onlineLobbies = [];
+        let pvpReturnView = 'sizes';
       
         function currentUsername() {
           const value = normalizeMenuUsername(usernameInput.value);
@@ -8524,9 +8633,58 @@
         usernameInput.addEventListener('blur', currentUsername);
       
         function showOnly(view) {
-          for (const candidate of [categoryView, sizeView, pvpView, keybindView]) {
+          for (const candidate of [categoryView, onlineView, sizeView, pvpView, keybindView]) {
             candidate.classList.toggle('starlite-hidden', candidate !== view);
           }
+        }
+      
+        function renderOnlineLobbies(lobbies = onlineLobbies) {
+          onlineLobbies = Array.isArray(lobbies)
+            ? lobbies.filter(lobby => {
+              const mode = gameModeById(lobby?.modeId);
+              return !!mode?.pvp && mode.enabled && mode.spawnCount === lobby.slotCount;
+            })
+            : [];
+          if (!onlineLobbies.length) {
+            onlineLobbiesElement.innerHTML = '<div class="starlite-menu__online-empty">No open public lobbies right now.</div>';
+            return;
+          }
+          onlineLobbiesElement.innerHTML = onlineLobbies.map(lobby => {
+            const mode = gameModeById(lobby.modeId);
+            const size = mode?.pvp ? modeSizeLabel(mode) : `${lobby.slotCount} PLAYERS`;
+            return `<div class="starlite-menu__online-lobby">
+              <span><strong>HOSTED BY ${escapeHTML(lobby.hostUsername)}</strong><small>${escapeHTML(size)} · ${lobby.playerCount}/${lobby.slotCount} CONNECTED · ${lobby.readyCount} READY · ${escapeHTML(lobby.roomCode)}</small></span>
+              <button class="starlite-menu__secondary" type="button" data-online-join="${escapeHTML(lobby.roomCode)}" data-online-mode-id="${escapeHTML(lobby.modeId)}">JOIN</button>
+            </div>`;
+          }).join('');
+        }
+      
+        function openOnline() {
+          status.textContent = '';
+          currentUsername();
+          showOnly(onlineView);
+          onlineLobbies = [];
+          renderOnlineLobbies();
+          onlineStatus.textContent = 'Connecting to the public lobby directory…';
+          openPublicLobbyDirectory({
+            onUpdate: lobbies => {
+              renderOnlineLobbies(lobbies);
+              onlineStatus.textContent = `${onlineLobbies.length} open public ${onlineLobbies.length === 1 ? 'lobby' : 'lobbies'}.`;
+            },
+            onStatus: message => {
+              if (message) onlineStatus.textContent = message;
+            }
+          });
+          root.querySelector('[data-online-create]')?.focus();
+        }
+      
+        function closeOnline() {
+          closePublicLobbyDirectory();
+          onlineLobbies = [];
+          renderOnlineLobbies();
+          onlineStatus.textContent = '';
+          showOnly(categoryView);
+          root.querySelector('[data-category="online"]')?.focus();
         }
       
         function renderKeybindButtons() {
@@ -8593,6 +8751,7 @@
             : 'Choose the total number of commanders in the match.';
           sizeModes.innerHTML = modeCardsMarkup(pvp ? PVP_MODE_KEYS : COMPUTER_MODE_KEYS);
           sandboxButton.classList.toggle('starlite-hidden', pvp);
+          aiDifficultyWrap.classList.toggle('starlite-hidden', pvp);
           showOnly(sizeView);
           sizeModes.querySelector('[data-mode]')?.focus();
         }
@@ -8602,8 +8761,9 @@
           root.querySelector(`[data-category="${selectedBranch}"]`)?.focus();
         }
       
-        function openPvp(mode) {
+        function openPvp(mode, returnView = 'sizes') {
           selectedPvpMode = mode || GAME_MODES.pvp;
+          pvpReturnView = returnView === 'online' ? 'online' : 'sizes';
           sizeStatus.textContent = '';
           showOnly(pvpView);
           pvpHeading.textContent = `${selectedPvpMode.spawnCount}-PLAYER PVP LOBBY`;
@@ -8627,6 +8787,10 @@
           pvpRoomCode.textContent = '';
           pvpPlayers.innerHTML = '';
           pvpStatus.textContent = '';
+          if (pvpReturnView === 'online') {
+            openOnline();
+            return;
+          }
           showOnly(sizeView);
           sizeModes.querySelector(`[data-mode="${GAME_MODE_ORDER.find(key => GAME_MODES[key] === selectedPvpMode) || 'pvp'}"]`)?.focus();
         }
@@ -8647,6 +8811,10 @@
         }
       
         root.querySelector('[data-open-keybinds]').addEventListener('click', openKeybinds);
+        root.querySelector('[data-close-online]').addEventListener('click', closeOnline);
+        root.querySelector('[data-online-refresh]').addEventListener('click', () => {
+          onlineStatus.textContent = refreshPublicLobbyDirectory() ? 'Refreshing public lobbies…' : 'Public lobby directory is not connected.';
+        });
         root.querySelector('[data-close-sizes]').addEventListener('click', closeSizes);
         root.querySelector('[data-close-pvp]').addEventListener('click', closePvp);
         root.querySelector('[data-close-keybinds]').addEventListener('click', closeKeybinds);
@@ -8686,6 +8854,7 @@
           function finish(mode) {
             lobbyFinishing = true;
             currentUsername();
+            closePublicLobbyDirectory();
             storageSet(STORAGE_KEYS.lastGameMode, mode.id);
             menuOpen = false;
             delete document.documentElement.dataset.starliteMenuOpen;
@@ -8696,7 +8865,7 @@
             resolve(mode);
           }
       
-          function beginPvpConnection(role, gameCode) {
+          function beginPvpConnection(role, gameCode, { publicLobby = false } = {}) {
             if (pvpConnectionPending) return;
             const commanderName = currentUsername();
             hostedGameCode = gameCode;
@@ -8724,6 +8893,7 @@
               modeId: selectedPvpMode.id,
               seed: role === 'host' ? createRandomSeed() : undefined,
               username: commanderName,
+              publicLobby: role === 'host' && !!publicLobby,
               onLobbyUpdate: renderPvpLobby,
               onDisconnect: message => { if (!lobbyFinishing) pvpStatus.textContent = message; }
             });
@@ -8753,7 +8923,10 @@
           }
       
           for (const button of root.querySelectorAll('[data-category]')) {
-            button.addEventListener('click', () => openSizeSelection(button.dataset.category));
+            button.addEventListener('click', () => {
+              if (button.dataset.category === 'online') openOnline();
+              else openSizeSelection(button.dataset.category);
+            });
           }
           sizeModes.addEventListener('click', event => {
             const button = event.target.closest('[data-mode]');
@@ -8763,10 +8936,39 @@
               sizeStatus.textContent = 'This mode is currently unavailable.';
               return;
             }
-            if (mode.pvp) openPvp(mode);
-            else finish(mode);
+            if (mode.pvp) openPvp(mode, 'sizes');
+            else finish({ ...mode, aiDifficulty: aiDifficultySelect.value || 'normal' });
           });
           sandboxButton.addEventListener('click', () => finish(GAME_MODES.sandbox));
+      
+          root.querySelector('[data-online-create]').addEventListener('click', () => {
+            const mode = GAME_MODES[onlineModeSelect.value] || GAME_MODES.pvp;
+            if (!mode?.pvp || !mode.enabled) {
+              onlineStatus.textContent = 'That public lobby size is unavailable.';
+              return;
+            }
+            const occupiedCodes = new Set(onlineLobbies.map(lobby => lobby.roomCode));
+            let gameCode = generateMenuGameCode();
+            for (let attempt = 0; occupiedCodes.has(gameCode) && attempt < 8; attempt++) gameCode = generateMenuGameCode();
+            closePublicLobbyDirectory();
+            openPvp(mode, 'online');
+            beginPvpConnection('host', gameCode, { publicLobby: true });
+          });
+          onlineLobbiesElement.addEventListener('click', event => {
+            const button = event.target.closest('[data-online-join]');
+            if (!button || !onlineLobbiesElement.contains(button)) return;
+            const roomCode = normalizeMenuGameCode(button.dataset.onlineJoin);
+            const listed = onlineLobbies.find(lobby => lobby.roomCode === roomCode);
+            const mode = gameModeById(listed?.modeId || button.dataset.onlineModeId);
+            if (!listed || !mode?.pvp || listed.playerCount >= listed.slotCount) {
+              onlineStatus.textContent = 'That lobby is no longer available.';
+              refreshPublicLobbyDirectory();
+              return;
+            }
+            closePublicLobbyDirectory();
+            openPvp(mode, 'online');
+            beginPvpConnection('join', roomCode);
+          });
       
           root.querySelector('[data-pvp-host]').addEventListener('click', () => {
             beginPvpConnection('host', generateMenuGameCode());
@@ -8808,7 +9010,7 @@
     Object.defineProperty(__imports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => __dep0["MULTIPLAYER_TEAMS"] }); Object.defineProperty(__imports, "getRegisteredCommandSources", { enumerable: true, get: () => __dep1["getRegisteredCommandSources"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep1["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep1["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeListener"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "setMultiplayerCallbacks", { enumerable: true, get: () => setMultiplayerCallbacks }); Object.defineProperty(__exports, "setMultiplayerReady", { enumerable: true, get: () => setMultiplayerReady }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam }); Object.defineProperty(__exports, "startMultiplayerMatch", { enumerable: true, get: () => startMultiplayerMatch });
+      Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "closePublicLobbyDirectory", { enumerable: true, get: () => closePublicLobbyDirectory }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "openPublicLobbyDirectory", { enumerable: true, get: () => openPublicLobbyDirectory }); Object.defineProperty(__exports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => refreshPublicLobbyDirectory }); Object.defineProperty(__exports, "sendMultiplayerChat", { enumerable: true, get: () => sendMultiplayerChat }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "setMultiplayerCallbacks", { enumerable: true, get: () => setMultiplayerCallbacks }); Object.defineProperty(__exports, "setMultiplayerReady", { enumerable: true, get: () => setMultiplayerReady }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam }); Object.defineProperty(__exports, "startMultiplayerMatch", { enumerable: true, get: () => startMultiplayerMatch });
       // WebSocket relay transport for deterministic two-to-four-player lockstep.
       // The host owns lobby membership, slot/team assignment, and the shared seed;
       // gameplay itself remains command/tick based on every client.
@@ -8821,6 +9023,12 @@
       const MAX_PLAYERS = 4;
       const HEARTBEAT_INTERVAL_MS = 2000;
       const PEER_TIMEOUT_MS = 10000;
+      const CHAT_MESSAGE_LIMIT = 60;
+      const CHAT_TEXT_LIMIT = 180;
+      const PUBLIC_DIRECTORY_ROOM = '__STARLITE_PUBLIC_LOBBIES_V1__';
+      const PUBLIC_DIRECTORY_PROTOCOL = 1;
+      const PUBLIC_DIRECTORY_REFRESH_MS = 3000;
+      const PUBLIC_LOBBY_STALE_MS = 10000;
       
       let socket = null;
       let session = null;
@@ -8828,6 +9036,7 @@
       let connectionResolve = null;
       let connectionReject = null;
       let disconnected = false;
+      let disconnectedPeerId = null;
       let commandQueueActive = false;
       let pendingJoinSeed = null;
       let heartbeatTimer = 0;
@@ -8835,6 +9044,18 @@
       let lobbyRevision = 0;
       let onDisconnectCallback = null;
       let onLobbyUpdateCallback = null;
+      let chatRoot = null;
+      let chatLog = null;
+      let chatInput = null;
+      let chatKeyListener = null;
+      let localChatSequence = 0;
+      let publicDirectorySocket = null;
+      let publicDirectoryTimer = 0;
+      let publicDirectoryUpdateCallback = null;
+      let publicDirectoryStatusCallback = null;
+      let publicLobbyPublisherSocket = null;
+      let publicLobbyPublisherTimer = 0;
+      let publicLobbyReconnectTimer = 0;
       
       const hostRoster = new Map();
       const lastSeenByClient = new Map();
@@ -8844,6 +9065,9 @@
       const receivedEnvelopeKeys = new Set();
       const localChecksums = new Map();
       const remoteChecksums = new Map();
+      const chatMessages = [];
+      const receivedChatIds = new Set();
+      const publicLobbyEntries = new Map();
       
       function createClientId() {
         const bytes = new Uint8Array(8);
@@ -8873,10 +9097,375 @@
         return cleaned.slice(0, 20) || 'Commander';
       }
       
-      function sendPayload(payload) {
-        if (!socket || socket.readyState !== WebSocket.OPEN) return false;
-        socket.send(JSON.stringify(payload));
+      function normalizeChatText(value) {
+        return String(value || '')
+          .replace(/[\u0000-\u001f\u007f]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, CHAT_TEXT_LIMIT);
+      }
+      
+      function chatPlayerForMessage(message) {
+        if (!session) return null;
+        const clientId = String(message?.clientId || '');
+        const sourceId = String(message?.sourceId || '');
+        const player = session.players?.find(candidate => candidate.clientId === clientId) || null;
+        return player && player.sourceId === sourceId ? player : null;
+      }
+      
+      function renderChatMessages() {
+        if (!chatLog) return;
+        chatLog.replaceChildren();
+        for (const message of chatMessages) {
+          const row = document.createElement('div');
+          row.style.cssText = 'margin:0 0 4px;line-height:1.25;overflow-wrap:anywhere;';
+          const name = document.createElement('strong');
+          name.textContent = `${message.username}: `;
+          name.style.color = message.local ? '#7de8ff' : '#ffd166';
+          const text = document.createElement('span');
+          text.textContent = message.text;
+          row.append(name, text);
+          chatLog.appendChild(row);
+        }
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+      
+      function acceptChatMessage(message, local = false) {
+        if (!session?.started || !message || typeof message !== 'object') return false;
+        const player = chatPlayerForMessage(message);
+        const id = String(message.id || '').slice(0, 80);
+        const text = normalizeChatText(message.text);
+        if (!player || !id || !text || receivedChatIds.has(id)) return false;
+        receivedChatIds.add(id);
+        chatMessages.push({
+          id,
+          clientId: player.clientId,
+          sourceId: player.sourceId,
+          team: player.team,
+          username: normalizeUsername(player.username),
+          text,
+          local: local || player.clientId === session.clientId
+        });
+        while (chatMessages.length > CHAT_MESSAGE_LIMIT) chatMessages.shift();
+        while (receivedChatIds.size > CHAT_MESSAGE_LIMIT * 3) {
+          const oldest = receivedChatIds.values().next().value;
+          receivedChatIds.delete(oldest);
+        }
+        renderChatMessages();
         return true;
+      }
+      
+      function sendMultiplayerChat(value) {
+        if (!session?.started || disconnected) return false;
+        const text = normalizeChatText(value);
+        if (!text || !session.localSourceId) return false;
+        const message = {
+          type: 'chat',
+          id: `${session.clientId}:${++localChatSequence}`,
+          clientId: session.clientId,
+          sourceId: session.localSourceId,
+          text
+        };
+        if (!sendPayload(message)) return false;
+        acceptChatMessage(message, true);
+        return true;
+      }
+      
+      function unmountMultiplayerChat() {
+        if (chatKeyListener && typeof window !== 'undefined') window.removeEventListener('keydown', chatKeyListener, true);
+        chatKeyListener = null;
+        chatRoot?.remove();
+        chatRoot = null;
+        chatLog = null;
+        chatInput = null;
+      }
+      
+      function mountMultiplayerChat() {
+        if (!session?.started || typeof document === 'undefined' || chatRoot) return;
+        const root = document.createElement('section');
+        root.setAttribute('aria-label', 'Multiplayer chat');
+        root.style.cssText = [
+          'position:fixed', 'left:12px', 'top:150px', 'z-index:1500',
+          'width:min(320px,calc(100vw - 24px))', 'box-sizing:border-box',
+          'padding:8px', 'background:rgba(10,14,20,.88)', 'border:1px solid #4b5871',
+          'color:#f2f6ff', 'font:12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace',
+          'box-shadow:3px 3px 0 rgba(0,0,0,.45)'
+        ].join(';');
+      
+        const title = document.createElement('div');
+        title.textContent = 'MATCH CHAT';
+        title.style.cssText = 'margin:0 0 6px;color:#9eb4cf;font-weight:700;letter-spacing:.06em;';
+      
+        const log = document.createElement('div');
+        log.setAttribute('aria-live', 'polite');
+        log.style.cssText = 'height:92px;overflow-y:auto;padding:2px 3px 4px;scrollbar-width:thin;';
+      
+        const form = document.createElement('form');
+        form.style.cssText = 'display:flex;gap:6px;margin-top:5px;';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.maxLength = CHAT_TEXT_LIMIT;
+        input.autocomplete = 'off';
+        input.placeholder = 'Enter message…';
+        input.setAttribute('aria-label', 'Chat message');
+        input.style.cssText = 'min-width:0;flex:1;box-sizing:border-box;padding:6px 7px;background:#111923;color:#f2f6ff;border:1px solid #607594;font:inherit;';
+        const send = document.createElement('button');
+        send.type = 'submit';
+        send.textContent = 'SEND';
+        send.style.cssText = 'padding:6px 9px;background:#273246;color:#f2f6ff;border:1px solid #607594;font:inherit;cursor:pointer;';
+        form.append(input, send);
+        root.append(title, log, form);
+        document.body.appendChild(root);
+      
+        chatRoot = root;
+        chatLog = log;
+        chatInput = input;
+        renderChatMessages();
+      
+        for (const type of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'contextmenu', 'wheel']) {
+          root.addEventListener(type, event => event.stopPropagation());
+        }
+        root.addEventListener('keydown', event => {
+          event.stopPropagation();
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            input.blur();
+          }
+        });
+        form.addEventListener('submit', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (sendMultiplayerChat(input.value)) input.value = '';
+          input.focus();
+        });
+      
+        chatKeyListener = event => {
+          if (event.key !== 'Enter' || event.defaultPrevented || event.repeat) return;
+          const target = event.target;
+          if (target === input || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target?.isContentEditable) return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          input.focus();
+        };
+        window.addEventListener('keydown', chatKeyListener, true);
+      }
+      
+      
+      function sendSocketPayload(targetSocket, payload) {
+        if (!targetSocket || targetSocket.readyState !== WebSocket.OPEN) return false;
+        targetSocket.send(JSON.stringify(payload));
+        return true;
+      }
+      
+      function normalizePublicLobbyAdvertisement(message) {
+        if (!message || message.type !== 'publicLobby' || message.protocol !== PUBLIC_DIRECTORY_PROTOCOL) return null;
+        const roomCode = normalizeRoomCode(message.roomCode);
+        const hostClientId = String(message.hostClientId || '').slice(0, 64);
+        const modeId = String(message.modeId || '').slice(0, 24);
+        const slotCount = normalizeSlotCount(message.slotCount);
+        const playerCount = Math.max(1, Math.min(slotCount, Math.trunc(Number(message.playerCount) || 0)));
+        const readyCount = Math.max(0, Math.min(playerCount, Math.trunc(Number(message.readyCount) || 0)));
+        if (!/^[A-Z0-9]{4,12}$/.test(roomCode) || !hostClientId || !modeId || message.started) return null;
+        return {
+          roomCode,
+          hostClientId,
+          hostUsername: normalizeUsername(message.hostUsername),
+          modeId,
+          slotCount,
+          playerCount,
+          readyCount,
+          joinable: playerCount < slotCount,
+          seenAt: Date.now()
+        };
+      }
+      
+      function publicLobbyDirectorySnapshot() {
+        const now = Date.now();
+        const result = [];
+        for (const [roomCode, lobby] of publicLobbyEntries) {
+          if (now - lobby.seenAt > PUBLIC_LOBBY_STALE_MS) {
+            publicLobbyEntries.delete(roomCode);
+            continue;
+          }
+          if (!lobby.joinable) continue;
+          const { seenAt, ...entry } = lobby;
+          result.push(entry);
+        }
+        result.sort((a, b) =>
+          b.playerCount - a.playerCount ||
+          a.slotCount - b.slotCount ||
+          a.hostUsername.localeCompare(b.hostUsername) ||
+          a.roomCode.localeCompare(b.roomCode)
+        );
+        return result;
+      }
+      
+      function emitPublicLobbyDirectory() {
+        if (typeof publicDirectoryUpdateCallback === 'function') {
+          publicDirectoryUpdateCallback(publicLobbyDirectorySnapshot());
+        }
+      }
+      
+      function emitPublicDirectoryStatus(message) {
+        if (typeof publicDirectoryStatusCallback === 'function') publicDirectoryStatusCallback(String(message || ''));
+      }
+      
+      function publicLobbyAdvertisement() {
+        if (!session || session.role !== 'host' || !session.publicLobby || session.started) return null;
+        const players = hostPlayers();
+        const host = players.find(player => player.clientId === session.clientId);
+        return {
+          type: 'publicLobby',
+          protocol: PUBLIC_DIRECTORY_PROTOCOL,
+          roomCode: session.roomCode,
+          hostClientId: session.clientId,
+          hostUsername: normalizeUsername(host?.username || session.username),
+          modeId: session.modeId,
+          slotCount: session.slotCount,
+          playerCount: players.length,
+          readyCount: players.filter(player => player.ready).length,
+          started: false
+        };
+      }
+      
+      function broadcastPublicLobby() {
+        const advertisement = publicLobbyAdvertisement();
+        return advertisement ? sendSocketPayload(publicLobbyPublisherSocket, advertisement) : false;
+      }
+      
+      function closePublicLobbyPublisher(announce = true) {
+        if (publicLobbyReconnectTimer) clearTimeout(publicLobbyReconnectTimer);
+        if (publicLobbyPublisherTimer) clearInterval(publicLobbyPublisherTimer);
+        publicLobbyReconnectTimer = 0;
+        publicLobbyPublisherTimer = 0;
+        const publisher = publicLobbyPublisherSocket;
+        publicLobbyPublisherSocket = null;
+        if (announce && publisher?.readyState === WebSocket.OPEN && session?.clientId && session?.roomCode) {
+          sendSocketPayload(publisher, {
+            type: 'publicLobbyClosed',
+            protocol: PUBLIC_DIRECTORY_PROTOCOL,
+            roomCode: session.roomCode,
+            hostClientId: session.clientId
+          });
+        }
+        if (publisher && publisher.readyState < WebSocket.CLOSING) publisher.close();
+      }
+      
+      function startPublicLobbyPublisher() {
+        if (!session || session.role !== 'host' || !session.publicLobby || session.started) return false;
+        closePublicLobbyPublisher(false);
+        let publisher;
+        try {
+          publisher = new WebSocket(RELAY_URL);
+          publicLobbyPublisherSocket = publisher;
+        } catch {
+          return false;
+        }
+        publisher.addEventListener('open', () => {
+          if (publicLobbyPublisherSocket !== publisher) return;
+          sendSocketPayload(publisher, { roomCode: PUBLIC_DIRECTORY_ROOM });
+          broadcastPublicLobby();
+          publicLobbyPublisherTimer = setInterval(broadcastPublicLobby, PUBLIC_DIRECTORY_REFRESH_MS);
+        });
+        publisher.addEventListener('message', event => {
+          if (publicLobbyPublisherSocket !== publisher) return;
+          let message;
+          try { message = JSON.parse(typeof event.data === 'string' ? event.data : String(event.data)); }
+          catch { return; }
+          if (message?.type === 'publicLobbyRequest' && message.protocol === PUBLIC_DIRECTORY_PROTOCOL) broadcastPublicLobby();
+        });
+        publisher.addEventListener('close', () => {
+          if (publicLobbyPublisherSocket !== publisher) return;
+          publicLobbyPublisherSocket = null;
+          if (publicLobbyPublisherTimer) clearInterval(publicLobbyPublisherTimer);
+          publicLobbyPublisherTimer = 0;
+          if (session?.role === 'host' && session.publicLobby && !session.started) {
+            publicLobbyReconnectTimer = setTimeout(startPublicLobbyPublisher, PUBLIC_DIRECTORY_REFRESH_MS);
+          }
+        });
+        return true;
+      }
+      
+      function handlePublicDirectoryMessage(raw) {
+        let message;
+        try { message = JSON.parse(typeof raw === 'string' ? raw : String(raw)); }
+        catch { return; }
+        if (!message || typeof message !== 'object' || message.protocol !== PUBLIC_DIRECTORY_PROTOCOL) return;
+        if (message.type === 'publicLobbyClosed') {
+          const roomCode = normalizeRoomCode(message.roomCode);
+          const current = publicLobbyEntries.get(roomCode);
+          if (current && current.hostClientId === String(message.hostClientId || '')) {
+            publicLobbyEntries.delete(roomCode);
+            emitPublicLobbyDirectory();
+          }
+          return;
+        }
+        const advertisement = normalizePublicLobbyAdvertisement(message);
+        if (!advertisement) return;
+        publicLobbyEntries.set(advertisement.roomCode, advertisement);
+        emitPublicLobbyDirectory();
+      }
+      
+      function refreshPublicLobbyDirectory() {
+        if (!publicDirectorySocket || publicDirectorySocket.readyState !== WebSocket.OPEN) return false;
+        const sent = sendSocketPayload(publicDirectorySocket, {
+          type: 'publicLobbyRequest',
+          protocol: PUBLIC_DIRECTORY_PROTOCOL
+        });
+        emitPublicLobbyDirectory();
+        return sent;
+      }
+      
+      function closePublicLobbyDirectory() {
+        if (publicDirectoryTimer) clearInterval(publicDirectoryTimer);
+        publicDirectoryTimer = 0;
+        const directory = publicDirectorySocket;
+        publicDirectorySocket = null;
+        publicDirectoryUpdateCallback = null;
+        publicDirectoryStatusCallback = null;
+        publicLobbyEntries.clear();
+        if (directory && directory.readyState < WebSocket.CLOSING) directory.close();
+      }
+      
+      function openPublicLobbyDirectory({ onUpdate, onStatus } = {}) {
+        closePublicLobbyDirectory();
+        publicDirectoryUpdateCallback = typeof onUpdate === 'function' ? onUpdate : null;
+        publicDirectoryStatusCallback = typeof onStatus === 'function' ? onStatus : null;
+        emitPublicDirectoryStatus('Connecting to the public lobby directory…');
+        emitPublicLobbyDirectory();
+        let directory;
+        try {
+          directory = new WebSocket(RELAY_URL);
+          publicDirectorySocket = directory;
+        } catch {
+          emitPublicDirectoryStatus('Could not connect to the public lobby directory.');
+          return false;
+        }
+        directory.addEventListener('open', () => {
+          if (publicDirectorySocket !== directory) return;
+          sendSocketPayload(directory, { roomCode: PUBLIC_DIRECTORY_ROOM });
+          emitPublicDirectoryStatus('Public lobby directory connected.');
+          refreshPublicLobbyDirectory();
+          publicDirectoryTimer = setInterval(refreshPublicLobbyDirectory, PUBLIC_DIRECTORY_REFRESH_MS);
+        });
+        directory.addEventListener('message', event => {
+          if (publicDirectorySocket === directory) handlePublicDirectoryMessage(event.data);
+        });
+        directory.addEventListener('error', () => {
+          if (publicDirectorySocket === directory) emitPublicDirectoryStatus('Public lobby directory unavailable.');
+        });
+        directory.addEventListener('close', () => {
+          if (publicDirectorySocket !== directory) return;
+          publicDirectorySocket = null;
+          if (publicDirectoryTimer) clearInterval(publicDirectoryTimer);
+          publicDirectoryTimer = 0;
+          emitPublicDirectoryStatus('Public lobby directory disconnected.');
+        });
+        return true;
+      }
+      
+      function sendPayload(payload) {
+        return sendSocketPayload(socket, payload);
       }
       
       function publicPlayer(player) {
@@ -8945,6 +9534,7 @@
       function failCommandSync(error, details = null) {
         console.warn('Multiplayer command sync failed.', error, details || '');
         disconnected = true;
+        disconnectedPeerId = null;
         setLocalCommandEnvelopeListener(null);
         if (typeof onDisconnectCallback === 'function') onDisconnectCallback('COMMAND SYNC ERROR · MATCH PAUSED');
         return false;
@@ -9046,16 +9636,44 @@
         };
         configureRoster(payload, false);
         sendPayload(payload);
+        broadcastPublicLobby();
         return true;
       }
       
       function markSeen(message) {
-        if (!session || !message || typeof message !== 'object') return;
+        if (!session || !message || typeof message !== 'object') return '';
         let clientId = typeof message.clientId === 'string' ? message.clientId : '';
         if (!clientId && typeof message.sourceId === 'string') {
           clientId = session.players?.find(player => player.sourceId === message.sourceId)?.clientId || '';
         }
-        if (clientId && clientId !== session.clientId) lastSeenByClient.set(clientId, Date.now());
+        if (clientId && clientId !== session.clientId) {
+          lastSeenByClient.set(clientId, Date.now());
+          return clientId;
+        }
+        return '';
+      }
+      
+      function bindLocalCommandEnvelopeListener() {
+        if (!session?.started || !commandQueueActive || disconnected) return false;
+        setLocalCommandEnvelopeListener(envelope => {
+          outgoingEnvelopeHistory.push(envelope);
+          sendPayload(envelope);
+        });
+        return true;
+      }
+      
+      function resumeMultiplayerAfterHeartbeat(clientId) {
+        if (!disconnected || !disconnectedPeerId || !session?.started || !clientId || clientId === session.clientId) return false;
+        const now = Date.now();
+        const remotePlayers = (session.players || []).filter(player => player.clientId !== session.clientId);
+        if (!remotePlayers.length || remotePlayers.some(player => now - (lastSeenByClient.get(player.clientId) || 0) > PEER_TIMEOUT_MS)) {
+          return false;
+        }
+        disconnected = false;
+        disconnectedPeerId = null;
+        bindLocalCommandEnvelopeListener();
+        if (typeof onDisconnectCallback === 'function') onDisconnectCallback('');
+        return true;
       }
       
       function enqueueReceivedEnvelope(envelope) {
@@ -9171,17 +9789,24 @@
           return;
         }
         if (!message || typeof message !== 'object') return;
-        markSeen(message);
+        const seenClientId = markSeen(message);
       
         if (message.command && message.sourceId && Number.isFinite(message.targetTick)) {
           handleEnvelope(message);
+          return;
+        }
+        if (message.type === 'chat') {
+          acceptChatMessage(message, false);
           return;
         }
         if (message.type === 'hello') {
           handleHostHello(message);
           return;
         }
-        if (message.type === 'presence') return;
+        if (message.type === 'presence') {
+          resumeMultiplayerAfterHeartbeat(seenClientId);
+          return;
+        }
         if (message.type === 'seed') {
           if (session?.role === 'join' && Number.isFinite(message.seed)) pendingJoinSeed = message.seed;
           return;
@@ -9262,6 +9887,7 @@
           if (player.clientId === session.clientId) continue;
           if (now - (lastSeenByClient.get(player.clientId) || 0) <= PEER_TIMEOUT_MS) continue;
           disconnected = true;
+          disconnectedPeerId = player.clientId;
           setLocalCommandEnvelopeListener(null);
           if (typeof onDisconnectCallback === 'function') {
             onDisconnectCallback(`${player.host ? 'HOST' : `PLAYER ${player.slot + 1}`} DISCONNECTED · MATCH PAUSED`);
@@ -9277,7 +9903,7 @@
         watchdogTimer = setInterval(checkPeerTimeouts, HEARTBEAT_INTERVAL_MS);
       }
       
-      function connectMultiplayer({ roomCode, role, slotCount = 2, modeId = 'pvp', seed, username, onDisconnect, onLobbyUpdate } = {}) {
+      function connectMultiplayer({ roomCode, role, slotCount = 2, modeId = 'pvp', seed, username, publicLobby = false, onDisconnect, onLobbyUpdate } = {}) {
         const normalizedRoomCode = normalizeRoomCode(roomCode);
         const normalizedRole = role === 'host' ? 'host' : role === 'join' ? 'join' : '';
         if (!normalizedRoomCode || !normalizedRole) {
@@ -9289,6 +9915,7 @@
       
         closeMultiplayer();
         disconnected = false;
+        disconnectedPeerId = null;
         commandQueueActive = false;
         pendingJoinSeed = null;
         lobbyRevision = 0;
@@ -9311,7 +9938,8 @@
           remoteTeams: [],
           remoteSourceIds: [],
           sourceIds: [],
-          started: false
+          started: false,
+          publicLobby: normalizedRole === 'host' && !!publicLobby
         };
       
         if (normalizedRole === 'host') {
@@ -9358,8 +9986,10 @@
           sendPayload({ type: 'hello', clientId, role: normalizedRole, requestedModeId: session.modeId, username: normalizedUsername });
           if (normalizedRole === 'join') sendPayload({ type: 'seedRequest', clientId });
           startTimers();
-          if (normalizedRole === 'host') broadcastLobby();
-          else emitLobbyUpdate();
+          if (normalizedRole === 'host') {
+            broadcastLobby();
+            if (session.publicLobby) startPublicLobbyPublisher();
+          } else emitLobbyUpdate();
         });
       
         connectionSocket.addEventListener('message', event => {
@@ -9372,8 +10002,10 @@
         connectionSocket.addEventListener('close', () => {
           if (socket !== connectionSocket) return;
           disconnected = true;
+          disconnectedPeerId = null;
           setLocalCommandEnvelopeListener(null);
           if (!session?.started) {
+            closePublicLobbyPublisher();
             rejectConnection(new Error('The StarLite relay closed before the lobby started.'));
             return;
           }
@@ -9401,6 +10033,8 @@
       
       function startMultiplayerMatch() {
         if (!lobbyCanStart()) return false;
+        closePublicLobbyPublisher();
+        session.publicLobby = false;
         const payload = {
           type: 'start',
           hostId: session.clientId,
@@ -9418,10 +10052,8 @@
       function activateMultiplayerCommandQueue() {
         if (!session?.started) return false;
         commandQueueActive = true;
-        setLocalCommandEnvelopeListener(envelope => {
-          outgoingEnvelopeHistory.push(envelope);
-          sendPayload(envelope);
-        });
+        mountMultiplayerChat();
+        bindLocalCommandEnvelopeListener();
         incomingEnvelopeBuffer.sort((a, b) =>
           a.targetTick - b.targetTick ||
           (a.sourceId < b.sourceId ? -1 : a.sourceId > b.sourceId ? 1 : a.sequence - b.sequence)
@@ -9475,6 +10107,7 @@
       }
       
       function closeMultiplayer() {
+        closePublicLobbyPublisher();
         const pendingReject = connectionReject;
         connectionResolve = null;
         connectionReject = null;
@@ -9490,11 +10123,16 @@
         session = null;
         connectionPromise = null;
         disconnected = false;
+        disconnectedPeerId = null;
         commandQueueActive = false;
         pendingJoinSeed = null;
         lobbyRevision = 0;
         onDisconnectCallback = null;
         onLobbyUpdateCallback = null;
+        unmountMultiplayerChat();
+        localChatSequence = 0;
+        chatMessages.length = 0;
+        receivedChatIds.clear();
         hostRoster.clear();
         lastSeenByClient.clear();
         confirmedTicksBySource.clear();
@@ -10477,7 +11115,7 @@
   __define("rendering.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("main.js"); const __dep4 = __require("menu.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("state.js"); const __dep7 = __require("terrain.js"); const __dep8 = __require("commandPanel.js");
-    Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isVisibleToTeam", { enumerable: true, get: () => __dep7["isVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] });
+    Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep7["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "applySpawnFlagCommand", { enumerable: true, get: () => applySpawnFlagCommand }); Object.defineProperty(__exports, "draw", { enumerable: true, get: () => draw }); Object.defineProperty(__exports, "gasNodeForExtractor", { enumerable: true, get: () => gasNodeForExtractor }); Object.defineProperty(__exports, "handleMenuClick", { enumerable: true, get: () => handleMenuClick }); Object.defineProperty(__exports, "handleSettingsClick", { enumerable: true, get: () => handleSettingsClick }); Object.defineProperty(__exports, "handleQueueStripClick", { enumerable: true, get: () => handleQueueStripClick }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "openBuildMenu", { enumerable: true, get: () => openBuildMenu }); Object.defineProperty(__exports, "placePendingBuilding", { enumerable: true, get: () => placePendingBuilding }); Object.defineProperty(__exports, "openConstructionMenu", { enumerable: true, get: () => openConstructionMenu }); Object.defineProperty(__exports, "openGasExtractorMenu", { enumerable: true, get: () => openGasExtractorMenu }); Object.defineProperty(__exports, "openGasLeakMenu", { enumerable: true, get: () => openGasLeakMenu }); Object.defineProperty(__exports, "openHQMenu", { enumerable: true, get: () => openHQMenu }); Object.defineProperty(__exports, "openHousingMenu", { enumerable: true, get: () => openHousingMenu }); Object.defineProperty(__exports, "openLaboratoryMenu", { enumerable: true, get: () => openLaboratoryMenu }); Object.defineProperty(__exports, "openMinersHutMenu", { enumerable: true, get: () => openMinersHutMenu }); Object.defineProperty(__exports, "openProductionMenu", { enumerable: true, get: () => openProductionMenu }); Object.defineProperty(__exports, "openResearchFacilityMenu", { enumerable: true, get: () => openResearchFacilityMenu }); Object.defineProperty(__exports, "openUpgradeMenu", { enumerable: true, get: () => openUpgradeMenu }); Object.defineProperty(__exports, "resetGame", { enumerable: true, get: () => resetGame }); Object.defineProperty(__exports, "setSpawnFlag", { enumerable: true, get: () => setSpawnFlag });
@@ -11775,7 +12413,7 @@
       
       function drawStructure(s) {
         if (s.hp <= 0) return;
-        if (!isVisibleToTeam(activeCommandTeam(), s.x, s.y) && s.team !== activeCommandTeam()) return;
+        if (!isLocallyVisibleToTeam(activeCommandTeam(), s.x, s.y) && s.team !== activeCommandTeam()) return;
         const x = Math.floor(s.x - s.w / 2), y = Math.floor(s.y - s.h / 2);
         const team = colorForTeam(s.team);
         const light = colorForTeam(s.team, 'light');
@@ -12189,7 +12827,7 @@
       
       function drawUnit(u) {
         if (u.hp <= 0) return;
-        if (!isVisibleToTeam(activeCommandTeam(), u.x, u.y) && u.team !== activeCommandTeam()) return;
+        if (!isLocallyVisibleToTeam(activeCommandTeam(), u.x, u.y) && u.team !== activeCommandTeam()) return;
         const team = colorForTeam(u.team);
         const light = colorForTeam(u.team, 'light');
         const airborne = isAirUnit(u);
@@ -13688,7 +14326,7 @@
           }
         }
         const dot = (o, col) => {
-          if (o.team !== activeCommandTeam() && !isVisibleToTeam(activeCommandTeam(), o.x, o.y)) return;
+          if (o.team !== activeCommandTeam() && !isLocallyVisibleToTeam(activeCommandTeam(), o.x, o.y)) return;
           ctx.fillStyle = col;
           ctx.fillRect(mx + o.x * sx - 1, my + o.y * sy - 1, 3, 3);
         };
@@ -13835,7 +14473,7 @@
           if (unit.team === team) {
             if (isResourceHarvester(unit)) foragers++;
             else playerArmy++;
-          } else if (isVisibleToTeam(team, unit.x, unit.y)) {
+          } else if (isLocallyVisibleToTeam(team, unit.x, unit.y)) {
             enemySeen++;
           }
         }
@@ -14490,7 +15128,7 @@
     Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "HUMAN_TEAM", { enumerable: true, get: () => __dep0["HUMAN_TEAM"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep0["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep2["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "syncPathfindingTerrain", { enumerable: true, get: () => __dep4["syncPathfindingTerrain"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "computePath", { enumerable: true, get: () => computePath }); Object.defineProperty(__exports, "dirtTiles", { enumerable: true, get: () => dirtTiles }); Object.defineProperty(__exports, "generateTerrain", { enumerable: true, get: () => generateTerrain }); Object.defineProperty(__exports, "isBlocked", { enumerable: true, get: () => isBlocked }); Object.defineProperty(__exports, "isVisiblePoint", { enumerable: true, get: () => isVisiblePoint }); Object.defineProperty(__exports, "isVisibleToTeam", { enumerable: true, get: () => isVisibleToTeam }); Object.defineProperty(__exports, "nearestOpenTile", { enumerable: true, get: () => nearestOpenTile }); Object.defineProperty(__exports, "recomputeVisibility", { enumerable: true, get: () => recomputeVisibility }); Object.defineProperty(__exports, "resetTerrainGrid", { enumerable: true, get: () => resetTerrainGrid }); Object.defineProperty(__exports, "safeZones", { enumerable: true, get: () => safeZones }); Object.defineProperty(__exports, "sandTiles", { enumerable: true, get: () => sandTiles }); Object.defineProperty(__exports, "shotClear", { enumerable: true, get: () => shotClear }); Object.defineProperty(__exports, "terrain", { enumerable: true, get: () => terrain }); Object.defineProperty(__exports, "terrainRevision", { enumerable: true, get: () => terrainRevision }); Object.defineProperty(__exports, "transitionTiles", { enumerable: true, get: () => transitionTiles }); Object.defineProperty(__exports, "walkClear", { enumerable: true, get: () => walkClear });
+      Object.defineProperty(__exports, "computePath", { enumerable: true, get: () => computePath }); Object.defineProperty(__exports, "dirtTiles", { enumerable: true, get: () => dirtTiles }); Object.defineProperty(__exports, "generateTerrain", { enumerable: true, get: () => generateTerrain }); Object.defineProperty(__exports, "isBlocked", { enumerable: true, get: () => isBlocked }); Object.defineProperty(__exports, "isLocallyVisibleToTeam", { enumerable: true, get: () => isLocallyVisibleToTeam }); Object.defineProperty(__exports, "isVisiblePoint", { enumerable: true, get: () => isVisiblePoint }); Object.defineProperty(__exports, "isVisibleToTeam", { enumerable: true, get: () => isVisibleToTeam }); Object.defineProperty(__exports, "nearestOpenTile", { enumerable: true, get: () => nearestOpenTile }); Object.defineProperty(__exports, "recomputeVisibility", { enumerable: true, get: () => recomputeVisibility }); Object.defineProperty(__exports, "resetTerrainGrid", { enumerable: true, get: () => resetTerrainGrid }); Object.defineProperty(__exports, "safeZones", { enumerable: true, get: () => safeZones }); Object.defineProperty(__exports, "sandTiles", { enumerable: true, get: () => sandTiles }); Object.defineProperty(__exports, "shotClear", { enumerable: true, get: () => shotClear }); Object.defineProperty(__exports, "terrain", { enumerable: true, get: () => terrain }); Object.defineProperty(__exports, "terrainRevision", { enumerable: true, get: () => terrainRevision }); Object.defineProperty(__exports, "transitionTiles", { enumerable: true, get: () => transitionTiles }); Object.defineProperty(__exports, "walkClear", { enumerable: true, get: () => walkClear });
       // Terrain generation, collision tests, pathfinding, visibility, and fog state.
       // Extracted from the original single-file build; grid dimensions follow the active map mode.
       
@@ -14868,6 +15506,15 @@
         // The current fog grid is a local presentation cache. It cannot be used by
         // lockstep simulation because peers view the battlefield from opposite teams.
         if (state.multiplayerActive) return true;
+        const activeTeam = getActiveCommandTeam() || state.activeCommandTeam || HUMAN_TEAM;
+        return team !== activeTeam || isVisiblePoint(x, y);
+      }
+      
+      // Rendering still needs the local commander's real fog in multiplayer. Keeping
+      // this presentation-only check separate prevents local vision from leaking into
+      // deterministic command application while hiding remote positions until they
+      // enter normal sight or radar coverage.
+      function isLocallyVisibleToTeam(team, x, y) {
         const activeTeam = getActiveCommandTeam() || state.activeCommandTeam || HUMAN_TEAM;
         return team !== activeTeam || isVisiblePoint(x, y);
       }
