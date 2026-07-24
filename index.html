@@ -8207,6 +8207,7 @@
         state.multiplayerRemoteTeams = configuredRemoteTeams;
         state.multiplayerPlayers = mode.pvp ? (mode.multiplayerPlayers || []) : [];
         state.multiplayerStatus = '';
+        state.desyncDetected = false;
         resetCommandSync({
           tick: 0,
           localTeams: configuredLocalTeams,
@@ -8319,7 +8320,7 @@
             simulationAccumulator = Math.min(simulationAccumulator, SIMULATION_STEP);
             break;
           }
-          if (state.multiplayerActive) state.multiplayerStatus = '';
+          if (state.multiplayerActive && !state.desyncDetected) state.multiplayerStatus = '';
           snapshotSimulationState();
           state.simulationTick = tick;
           applyQueuedCommands(tick, applyQueuedGameCommand);
@@ -10047,14 +10048,15 @@
 
   __define("multiplayer.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("commandSync.js");
-    Object.defineProperty(__imports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => __dep0["MULTIPLAYER_TEAMS"] }); Object.defineProperty(__imports, "getRegisteredCommandSources", { enumerable: true, get: () => __dep1["getRegisteredCommandSources"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep1["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep1["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeListener"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("commandSync.js"); const __dep2 = __require("state.js");
+    Object.defineProperty(__imports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => __dep0["MULTIPLAYER_TEAMS"] }); Object.defineProperty(__imports, "getRegisteredCommandSources", { enumerable: true, get: () => __dep1["getRegisteredCommandSources"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep1["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep1["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeListener"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep2["getNextEntityId"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep2["resourceNodes"] }); Object.defineProperty(__imports, "setNextEntityId", { enumerable: true, get: () => __dep2["setNextEntityId"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "closePublicLobbyDirectory", { enumerable: true, get: () => closePublicLobbyDirectory }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "openPublicLobbyDirectory", { enumerable: true, get: () => openPublicLobbyDirectory }); Object.defineProperty(__exports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => refreshPublicLobbyDirectory }); Object.defineProperty(__exports, "sendMultiplayerChat", { enumerable: true, get: () => sendMultiplayerChat }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "setMultiplayerCallbacks", { enumerable: true, get: () => setMultiplayerCallbacks }); Object.defineProperty(__exports, "setMultiplayerReady", { enumerable: true, get: () => setMultiplayerReady }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam }); Object.defineProperty(__exports, "startMultiplayerMatch", { enumerable: true, get: () => startMultiplayerMatch });
       // WebSocket relay transport for deterministic two-to-four-player lockstep.
       // The host owns lobby membership, slot/team assignment, and the shared seed;
       // gameplay itself remains command/tick based on every client.
+      
       
       
       
@@ -10070,6 +10072,16 @@
       const PUBLIC_DIRECTORY_PROTOCOL = 1;
       const PUBLIC_DIRECTORY_REFRESH_MS = 3000;
       const PUBLIC_LOBBY_STALE_MS = 10000;
+      const RESYNC_PROTOCOL = 1;
+      const RESYNC_DELAY_TICKS = 30;
+      const MAX_RESYNC_SNAPSHOT_BYTES = 10 * 1024 * 1024;
+      const MAX_RESYNC_ENTITIES = 6000;
+      const SNAPSHOT_LOCAL_KEYS = new Set([
+        'prevX', 'prevY', 'prevHeading', 'prevBarrelAngle',
+        'selected', 'visible', 'flash', 'recoil', 'attackAnim',
+        'pathRequestId', 'pathRequestToken', 'pathPending', 'sharedPathPending',
+        'nextTargetAcquisitionAt'
+      ]);
       
       let socket = null;
       let session = null;
@@ -10097,6 +10109,8 @@
       let publicLobbyPublisherSocket = null;
       let publicLobbyPublisherTimer = 0;
       let publicLobbyReconnectTimer = 0;
+      let activeResync = null;
+      let resyncRequestPending = false;
       
       const hostRoster = new Map();
       const lastSeenByClient = new Map();
@@ -10109,6 +10123,7 @@
       const chatMessages = [];
       const receivedChatIds = new Set();
       const publicLobbyEntries = new Map();
+      const queuedResyncSources = new Set();
       
       function createClientId() {
         const bytes = new Uint8Array(8);
@@ -10509,6 +10524,404 @@
         return sendSocketPayload(socket, payload);
       }
       
+      function snapshotNumber(value) {
+        if (Number.isFinite(value)) return value;
+        if (value === Infinity) return { $snapshotNumber: 'Infinity' };
+        if (value === -Infinity) return { $snapshotNumber: '-Infinity' };
+        return { $snapshotNumber: 'NaN' };
+      }
+      
+      function encodeSnapshotValue(value, entitySet, stack = new Set()) {
+        if (value === null || typeof value === 'string' || typeof value === 'boolean') return value;
+        if (typeof value === 'number') return snapshotNumber(value);
+        if (typeof value === 'bigint') return { $snapshotBigInt: value.toString() };
+        if (typeof value === 'undefined' || typeof value === 'function' || typeof value === 'symbol') return null;
+        if (entitySet.has(value)) return { $entityRef: Math.trunc(Number(value.id) || 0) };
+        if (stack.has(value)) throw new TypeError('Authoritative snapshot contains an unsupported circular value.');
+        stack.add(value);
+        let encoded;
+        if (Array.isArray(value)) {
+          encoded = value.map(item => encodeSnapshotValue(item, entitySet, stack));
+        } else if (value instanceof Set) {
+          encoded = { $snapshotSet: [...value].map(item => encodeSnapshotValue(item, entitySet, stack)) };
+        } else if (value instanceof Map) {
+          encoded = {
+            $snapshotMap: [...value.entries()].map(([key, item]) => [
+              encodeSnapshotValue(key, entitySet, stack),
+              encodeSnapshotValue(item, entitySet, stack)
+            ])
+          };
+        } else {
+          encoded = {};
+          for (const [key, item] of Object.entries(value)) {
+            if (typeof item === 'undefined' || typeof item === 'function' || typeof item === 'symbol') continue;
+            encoded[key] = encodeSnapshotValue(item, entitySet, stack);
+          }
+        }
+        stack.delete(value);
+        return encoded;
+      }
+      
+      function encodeSnapshotEntity(entity, entitySet) {
+        const encoded = {};
+        const stack = new Set([entity]);
+        for (const [key, value] of Object.entries(entity || {})) {
+          if (SNAPSHOT_LOCAL_KEYS.has(key)) continue;
+          if (typeof value === 'undefined' || typeof value === 'function' || typeof value === 'symbol') continue;
+          encoded[key] = encodeSnapshotValue(value, entitySet, stack);
+        }
+        return encoded;
+      }
+      
+      function serializeAuthoritativeSnapshot() {
+        const entitySet = new Set([...units, ...structures, ...resourceNodes]);
+        return JSON.stringify({
+          protocol: RESYNC_PROTOCOL,
+          simulationTick: Math.max(0, Math.trunc(Number(state.simulationTick) || 0)),
+          nextEntityId: getNextEntityId(),
+          units: units.map(entity => encodeSnapshotEntity(entity, entitySet)),
+          structures: structures.map(entity => encodeSnapshotEntity(entity, entitySet)),
+          resourceNodes: resourceNodes.map(entity => encodeSnapshotEntity(entity, entitySet)),
+          groundTags: encodeSnapshotValue(state.groundTags || [], entitySet)
+        });
+      }
+      
+      function decodeSnapshotValue(value, entitiesById) {
+        if (value === null || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') return value;
+        if (Array.isArray(value)) return value.map(item => decodeSnapshotValue(item, entitiesById));
+        if (!value || typeof value !== 'object') return null;
+        if (Object.prototype.hasOwnProperty.call(value, '$entityRef')) {
+          return entitiesById.get(Math.trunc(Number(value.$entityRef) || 0)) || null;
+        }
+        if (Object.prototype.hasOwnProperty.call(value, '$snapshotNumber')) {
+          if (value.$snapshotNumber === 'Infinity') return Infinity;
+          if (value.$snapshotNumber === '-Infinity') return -Infinity;
+          return NaN;
+        }
+        if (Object.prototype.hasOwnProperty.call(value, '$snapshotBigInt')) {
+          try { return BigInt(value.$snapshotBigInt); }
+          catch { return 0n; }
+        }
+        if (Array.isArray(value.$snapshotSet)) {
+          return new Set(value.$snapshotSet.map(item => decodeSnapshotValue(item, entitiesById)));
+        }
+        if (Array.isArray(value.$snapshotMap)) {
+          return new Map(value.$snapshotMap.map(pair => [
+            decodeSnapshotValue(pair?.[0], entitiesById),
+            decodeSnapshotValue(pair?.[1], entitiesById)
+          ]));
+        }
+        const decoded = {};
+        for (const [key, item] of Object.entries(value)) decoded[key] = decodeSnapshotValue(item, entitiesById);
+        return decoded;
+      }
+      
+      function prepareSnapshotCollection(rows, kind, existingById, entitiesById) {
+        if (!Array.isArray(rows) || rows.length > MAX_RESYNC_ENTITIES) throw new TypeError(`Invalid ${kind} snapshot collection.`);
+        return rows.map(row => {
+          if (!row || typeof row !== 'object' || Array.isArray(row)) throw new TypeError(`Invalid ${kind} snapshot entity.`);
+          const id = Math.trunc(Number(row.id) || 0);
+          if (id <= 0 || entitiesById.has(id) || row.kind !== kind) throw new TypeError(`Invalid ${kind} snapshot identity.`);
+          const existing = existingById.get(id);
+          const entity = existing?.kind === kind ? existing : {};
+          entitiesById.set(id, entity);
+          return { row, entity };
+        });
+      }
+      
+      function hydrateSnapshotCollection(prepared, entitiesById) {
+        for (const { row, entity } of prepared) {
+          const localValues = {};
+          for (const key of SNAPSHOT_LOCAL_KEYS) {
+            if (Object.prototype.hasOwnProperty.call(entity, key)) localValues[key] = entity[key];
+          }
+          for (const key of Object.keys(entity)) delete entity[key];
+          for (const [key, value] of Object.entries(row)) entity[key] = decodeSnapshotValue(value, entitiesById);
+          Object.assign(entity, localValues);
+          if (!Number.isFinite(entity.prevX)) entity.prevX = entity.x;
+          if (!Number.isFinite(entity.prevY)) entity.prevY = entity.y;
+        }
+        return prepared.map(item => item.entity);
+      }
+      
+      function applyAuthoritativeSnapshot(serializedSnapshot, expectedTick) {
+        if (typeof serializedSnapshot !== 'string' || serializedSnapshot.length > MAX_RESYNC_SNAPSHOT_BYTES) {
+          throw new TypeError('Invalid authoritative snapshot payload.');
+        }
+        const snapshot = JSON.parse(serializedSnapshot);
+        const snapshotTick = Math.max(0, Math.trunc(Number(snapshot?.simulationTick) || 0));
+        if (!snapshot || snapshot.protocol !== RESYNC_PROTOCOL || snapshotTick !== expectedTick || state.simulationTick !== expectedTick) {
+          throw new Error('Authoritative snapshot tick/protocol mismatch.');
+        }
+        const existingById = new Map();
+        for (const entity of [...units, ...structures, ...resourceNodes]) {
+          if (Number.isFinite(entity?.id)) existingById.set(Math.trunc(entity.id), entity);
+        }
+        const entitiesById = new Map();
+        const preparedUnits = prepareSnapshotCollection(snapshot.units, 'unit', existingById, entitiesById);
+        const preparedStructures = prepareSnapshotCollection(snapshot.structures, 'structure', existingById, entitiesById);
+        const preparedNodes = prepareSnapshotCollection(snapshot.resourceNodes, 'node', existingById, entitiesById);
+        const nextUnits = hydrateSnapshotCollection(preparedUnits, entitiesById);
+        const nextStructures = hydrateSnapshotCollection(preparedStructures, entitiesById);
+        const nextNodes = hydrateSnapshotCollection(preparedNodes, entitiesById);
+        const nextGroundTags = decodeSnapshotValue(snapshot.groundTags, entitiesById);
+        if (!Array.isArray(nextGroundTags)) throw new TypeError('Invalid ground tag snapshot collection.');
+        const maximumEntityId = Math.max(0, ...entitiesById.keys());
+        const nextEntityId = Math.trunc(Number(snapshot.nextEntityId) || 0);
+        if (nextEntityId <= maximumEntityId) throw new TypeError('Invalid next entity id in authoritative snapshot.');
+      
+        units.splice(0, units.length, ...nextUnits);
+        structures.splice(0, structures.length, ...nextStructures);
+        resourceNodes.splice(0, resourceNodes.length, ...nextNodes);
+        state.groundTags = nextGroundTags;
+        setNextEntityId(nextEntityId);
+      
+        const validUnits = new Set(units);
+        const validStructures = new Set(structures);
+        state.selected = new Set([...(state.selected || [])].filter(entity => validUnits.has(entity)));
+        state.selectedStructures = new Set([...(state.selectedStructures || [])].filter(entity => validStructures.has(entity)));
+        for (const unit of units) unit.selected = state.selected.has(unit);
+        state.contextMenu = null;
+        state.syncChecksums = [];
+        return snapshotTick;
+      }
+      
+      function markDesyncDetected(message) {
+        const firstMismatch = !state.desyncDetected;
+        state.desyncDetected = true;
+        if (firstMismatch || !state.multiplayerStatus) state.multiplayerStatus = message;
+        return firstMismatch;
+      }
+      
+      function resyncPlayerForSource(sourceId) {
+        return session?.players?.find(player => player.sourceId === sourceId) || null;
+      }
+      
+      function broadcastResyncPrepare(resync) {
+        return sendPayload({
+          type: 'resyncPrepare',
+          protocol: RESYNC_PROTOCOL,
+          clientId: session.clientId,
+          sourceId: session.localSourceId,
+          hostClientId: session.clientId,
+          targetClientId: resync.targetClientId,
+          targetSourceId: resync.targetSourceId,
+          resyncTick: resync.resyncTick
+        });
+      }
+      
+      function scheduleHostResync(targetSourceId, mismatchTick = state.simulationTick) {
+        if (!session?.started || session.role !== 'host') return false;
+        const targetPlayer = resyncPlayerForSource(targetSourceId);
+        if (!targetPlayer || targetPlayer.clientId === session.clientId) return false;
+        if (activeResync) {
+          if (activeResync.targetSourceId !== targetSourceId) queuedResyncSources.add(targetSourceId);
+          return true;
+        }
+        const resyncTick = Math.max(
+          Math.max(0, Math.trunc(Number(state.simulationTick) || 0)) + RESYNC_DELAY_TICKS,
+          Math.max(0, Math.trunc(Number(mismatchTick) || 0)) + RESYNC_DELAY_TICKS
+        );
+        activeResync = {
+          targetClientId: targetPlayer.clientId,
+          targetSourceId: targetPlayer.sourceId,
+          resyncTick,
+          snapshotSent: false,
+          serializedSnapshot: null,
+          lastSentAt: 0
+        };
+        markDesyncDetected('SYNC MISMATCH DETECTED · PREPARING HOST RESYNC');
+        state.multiplayerStatus = 'SYNC MISMATCH DETECTED · PREPARING HOST RESYNC';
+        return broadcastResyncPrepare(activeResync);
+      }
+      
+      function scheduleQueuedHostResync() {
+        if (activeResync || session?.role !== 'host') return false;
+        const nextSourceId = queuedResyncSources.values().next().value;
+        if (!nextSourceId) return false;
+        queuedResyncSources.delete(nextSourceId);
+        return scheduleHostResync(nextSourceId, state.simulationTick);
+      }
+      
+      function requestHostResync(mismatchSourceId, mismatchTick) {
+        if (!session?.started || session.role === 'host' || resyncRequestPending || activeResync) return false;
+        resyncRequestPending = true;
+        markDesyncDetected('SYNC MISMATCH DETECTED · REQUESTING HOST RESYNC');
+        state.multiplayerStatus = 'SYNC MISMATCH DETECTED · REQUESTING HOST RESYNC';
+        return sendPayload({
+          type: 'resyncRequest',
+          protocol: RESYNC_PROTOCOL,
+          clientId: session.clientId,
+          sourceId: session.localSourceId,
+          targetClientId: session.hostId,
+          mismatchSourceId,
+          mismatchTick: Math.max(0, Math.trunc(Number(mismatchTick) || 0)),
+          currentTick: Math.max(0, Math.trunc(Number(state.simulationTick) || 0))
+        });
+      }
+      
+      function sendActiveResyncSnapshot(force = false) {
+        if (!activeResync || session?.role !== 'host' || state.simulationTick !== activeResync.resyncTick) return false;
+        const now = Date.now();
+        if (!force && activeResync.snapshotSent) return true;
+        if (force && now - activeResync.lastSentAt < HEARTBEAT_INTERVAL_MS) return true;
+        if (!activeResync.serializedSnapshot) activeResync.serializedSnapshot = serializeAuthoritativeSnapshot();
+        const sent = sendPayload({
+          type: 'resyncSnapshot',
+          protocol: RESYNC_PROTOCOL,
+          clientId: session.clientId,
+          sourceId: session.localSourceId,
+          hostClientId: session.clientId,
+          targetClientId: activeResync.targetClientId,
+          targetSourceId: activeResync.targetSourceId,
+          resyncTick: activeResync.resyncTick,
+          serializedSnapshot: activeResync.serializedSnapshot
+        });
+        if (sent) {
+          activeResync.snapshotSent = true;
+          activeResync.lastSentAt = now;
+          state.multiplayerStatus = 'DESYNC DETECTED · AUTHORITATIVE SNAPSHOT SENT';
+        }
+        return sent;
+      }
+      
+      function completeHostResync(message) {
+        if (!activeResync || session?.role !== 'host') return false;
+        if (message.targetClientId !== activeResync.targetClientId || message.targetSourceId !== activeResync.targetSourceId) return false;
+        if (Math.trunc(Number(message.resyncTick) || 0) !== activeResync.resyncTick) return false;
+        const completed = activeResync;
+        state.multiplayerStatus = 'SYNC RECOVERED · MATCH RESUMED';
+        localChecksums.clear();
+        remoteChecksums.clear();
+        sendPayload({
+          type: 'resyncResume',
+          protocol: RESYNC_PROTOCOL,
+          clientId: session.clientId,
+          sourceId: session.localSourceId,
+          hostClientId: session.clientId,
+          targetClientId: completed.targetClientId,
+          targetSourceId: completed.targetSourceId,
+          resyncTick: completed.resyncTick
+        });
+        activeResync = null;
+        queueMicrotask(scheduleQueuedHostResync);
+        return true;
+      }
+      
+      function handleResyncMessage(message) {
+        if (!session?.started || message.protocol !== RESYNC_PROTOCOL) return false;
+        if (message.type === 'resyncRetarget') {
+          if (session.role !== 'host' || message.targetClientId !== session.clientId || !activeResync) return true;
+          const requestingPlayer = session.players?.find(player =>
+            player.clientId === message.clientId && player.sourceId === message.sourceId
+          );
+          if (!requestingPlayer || message.targetSourceId !== activeResync.targetSourceId) return true;
+          activeResync.resyncTick = Math.max(
+            state.simulationTick + RESYNC_DELAY_TICKS,
+            Math.max(0, Math.trunc(Number(message.requestedTick) || 0))
+          );
+          activeResync.snapshotSent = false;
+          activeResync.serializedSnapshot = null;
+          activeResync.lastSentAt = 0;
+          state.multiplayerStatus = 'SYNC MISMATCH DETECTED · RESYNC RETARGETED';
+          broadcastResyncPrepare(activeResync);
+          return true;
+        }
+        if (message.type === 'resyncRequest') {
+          if (session.role !== 'host' || message.targetClientId !== session.clientId) return true;
+          const requestingPlayer = session.players?.find(player =>
+            player.clientId === message.clientId && player.sourceId === message.sourceId
+          );
+          if (!requestingPlayer || requestingPlayer.clientId === session.clientId) return true;
+          markDesyncDetected('SYNC MISMATCH DETECTED · PREPARING HOST RESYNC');
+          scheduleHostResync(requestingPlayer.sourceId, Math.max(message.mismatchTick || 0, message.currentTick || 0));
+          return true;
+        }
+        if (message.type === 'resyncPrepare') {
+          if (message.hostClientId !== session.hostId || message.clientId !== session.hostId) return true;
+          const hostPlayer = session.players?.find(player => player.clientId === session.hostId);
+          if (!hostPlayer || message.sourceId !== hostPlayer.sourceId) return true;
+          const targetPlayer = session.players?.find(player =>
+            player.clientId === message.targetClientId && player.sourceId === message.targetSourceId
+          );
+          const resyncTick = Math.max(0, Math.trunc(Number(message.resyncTick) || 0));
+          if (!targetPlayer) return true;
+          if (resyncTick <= state.simulationTick) {
+            if (session.role !== 'host') {
+              sendPayload({
+                type: 'resyncRetarget',
+                protocol: RESYNC_PROTOCOL,
+                clientId: session.clientId,
+                sourceId: session.localSourceId,
+                targetClientId: session.hostId,
+                targetSourceId: targetPlayer.sourceId,
+                requestedTick: state.simulationTick + RESYNC_DELAY_TICKS
+              });
+              state.multiplayerStatus = 'SYNC MISMATCH DETECTED · RESCHEDULING HOST RESYNC';
+            }
+            return true;
+          }
+          if (!activeResync || session.role !== 'host') {
+            activeResync = {
+              targetClientId: targetPlayer.clientId,
+              targetSourceId: targetPlayer.sourceId,
+              resyncTick,
+              snapshotSent: false,
+              serializedSnapshot: null,
+              lastSentAt: 0
+            };
+          }
+          resyncRequestPending = false;
+          markDesyncDetected('SYNC MISMATCH DETECTED · RESYNC SCHEDULED');
+          state.multiplayerStatus = targetPlayer.clientId === session.clientId
+            ? 'SYNC MISMATCH DETECTED · HOST RESYNC SCHEDULED'
+            : 'MULTIPLAYER SYNC PAUSE SCHEDULED';
+          return true;
+        }
+        if (message.type === 'resyncSnapshot') {
+          if (message.hostClientId !== session.hostId || message.clientId !== session.hostId) return true;
+          if (message.targetClientId !== session.clientId || message.targetSourceId !== session.localSourceId) return true;
+          const resyncTick = Math.max(0, Math.trunc(Number(message.resyncTick) || 0));
+          if (!activeResync || activeResync.resyncTick !== resyncTick || state.simulationTick !== resyncTick) return true;
+          try {
+            applyAuthoritativeSnapshot(message.serializedSnapshot, resyncTick);
+            localChecksums.clear();
+            remoteChecksums.clear();
+            state.multiplayerStatus = 'DESYNC RECOVERED · WAITING FOR HOST RESUME';
+            sendPayload({
+              type: 'resyncApplied',
+              protocol: RESYNC_PROTOCOL,
+              clientId: session.clientId,
+              sourceId: session.localSourceId,
+              targetClientId: session.clientId,
+              targetSourceId: session.localSourceId,
+              hostClientId: session.hostId,
+              resyncTick
+            });
+          } catch (error) {
+            console.error('Authoritative multiplayer resync failed.', error);
+            state.multiplayerPaused = true;
+            state.multiplayerStatus = 'DESYNC RECOVERY FAILED · MATCH PAUSED';
+          }
+          return true;
+        }
+        if (message.type === 'resyncApplied') {
+          if (session.role === 'host' && message.hostClientId === session.clientId) completeHostResync(message);
+          return true;
+        }
+        if (message.type === 'resyncResume') {
+          if (message.hostClientId !== session.hostId || message.clientId !== session.hostId) return true;
+          const resyncTick = Math.max(0, Math.trunc(Number(message.resyncTick) || 0));
+          if (activeResync && activeResync.resyncTick === resyncTick) activeResync = null;
+          resyncRequestPending = false;
+          localChecksums.clear();
+          remoteChecksums.clear();
+          state.multiplayerStatus = 'SYNC RECOVERED · MATCH RESUMED';
+          return true;
+        }
+        return false;
+      }
+      
       function publicPlayer(player) {
         return {
           clientId: player.clientId,
@@ -10769,14 +11182,13 @@
           const remoteHash = remoteBySource.get(sourceId);
           if (!remoteHash) continue;
           if (localHash !== remoteHash) {
-            // Checksums are diagnostic only. They intentionally include enough state
-            // to expose divergence, but a mismatch must not tear down the ordered
-            // command stream: doing so stops confirmations and deadlocks every peer.
             console.warn(
               `[sync] checksum mismatch at tick ${tick} from ${sourceId}: local=${localHash} remote=${remoteHash}`,
               { tick, sourceId, localHash, remoteHash }
             );
-            continue;
+            markDesyncDetected('SYNC MISMATCH DETECTED · RECOVERY STARTED');
+            if (session?.role === 'host') scheduleHostResync(sourceId, tick);
+            else requestHostResync(sourceId, tick);
           }
         }
         if (expectedRemoteSourceIds().every(sourceId => remoteBySource.has(sourceId))) {
@@ -10832,6 +11244,10 @@
         if (!message || typeof message !== 'object') return;
         const seenClientId = markSeen(message);
       
+        if (typeof message.type === 'string' && message.type.startsWith('resync')) {
+          handleResyncMessage(message);
+          return;
+        }
         if (message.command && message.sourceId && Number.isFinite(message.targetTick)) {
           handleEnvelope(message);
           return;
@@ -10901,6 +11317,7 @@
       
       function sendPresence() {
         if (!session) return;
+        if (session.role === 'host' && activeResync?.snapshotSent) sendActiveResyncSnapshot(true);
         sendPayload({
           type: 'presence',
           clientId: session.clientId,
@@ -11121,6 +11538,13 @@
       function multiplayerTickReady(tick) {
         if (!session) return true;
         if (!session.started || disconnected || !socket || socket.readyState !== WebSocket.OPEN) return false;
+        if (activeResync && state.simulationTick >= activeResync.resyncTick) {
+          if (session.role === 'host') sendActiveResyncSnapshot();
+          state.multiplayerStatus = session.clientId === activeResync.targetClientId
+            ? 'DESYNC DETECTED · APPLYING HOST SNAPSHOT'
+            : 'MULTIPLAYER PAUSED · RESYNC IN PROGRESS';
+          return false;
+        }
         const targetTick = Math.max(0, Math.trunc(Number(tick) || 0));
         const registered = new Set(registeredSourceIds());
         if (session.sourceIds.length !== session.slotCount) return false;
@@ -11182,6 +11606,9 @@
         receivedEnvelopeKeys.clear();
         localChecksums.clear();
         remoteChecksums.clear();
+        activeResync = null;
+        resyncRequestPending = false;
+        queuedResyncSources.clear();
       }
     }
   });
@@ -15777,7 +16204,7 @@
     Object.defineProperty(__imports, "BLOC_AMOUNT", { enumerable: true, get: () => __dep0["BLOC_AMOUNT"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => __dep0["CENTER_STOCK_BONUS"] }); Object.defineProperty(__imports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => __dep0["CENTER_YIELD_BONUS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep0["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep0["LOAD_GAS"] }); Object.defineProperty(__imports, "LOAD_MINERAL", { enumerable: true, get: () => __dep0["LOAD_MINERAL"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => __dep0["RESOURCE_FIELD_BUILD_RADIUS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => __dep0["UNIT_UPGRADE_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => __dep0["ZOOM_OUT_DUEL_FRACTION"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isAirUnitType", { enumerable: true, get: () => __dep0["isAirUnitType"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "isHumanTeam", { enumerable: true, get: () => __dep0["isHumanTeam"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep0["unitUpgradeData"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "applyUnitUpgradeEffect", { enumerable: true, get: () => __dep2["applyUnitUpgradeEffect"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep3["isBlocked"] }); Object.defineProperty(__imports, "commandConsoleHeight", { enumerable: true, get: () => __dep4["commandConsoleHeight"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "CH", { enumerable: true, get: () => CH }); Object.defineProperty(__exports, "CW", { enumerable: true, get: () => CW }); Object.defineProperty(__exports, "VIEW_H", { enumerable: true, get: () => VIEW_H }); Object.defineProperty(__exports, "VIEW_W", { enumerable: true, get: () => VIEW_W }); Object.defineProperty(__exports, "addResourceField", { enumerable: true, get: () => addResourceField }); Object.defineProperty(__exports, "addStructure", { enumerable: true, get: () => addStructure }); Object.defineProperty(__exports, "addUnit", { enumerable: true, get: () => addUnit }); Object.defineProperty(__exports, "applyRenderInterpolation", { enumerable: true, get: () => applyRenderInterpolation }); Object.defineProperty(__exports, "cam", { enumerable: true, get: () => cam }); Object.defineProperty(__exports, "canvas", { enumerable: true, get: () => canvas }); Object.defineProperty(__exports, "centerCamOn", { enumerable: true, get: () => centerCamOn }); Object.defineProperty(__exports, "clampCam", { enumerable: true, get: () => clampCam }); Object.defineProperty(__exports, "ctx", { enumerable: true, get: () => ctx }); Object.defineProperty(__exports, "maxZoom", { enumerable: true, get: () => maxZoom }); Object.defineProperty(__exports, "minZoom", { enumerable: true, get: () => minZoom }); Object.defineProperty(__exports, "resize", { enumerable: true, get: () => resize }); Object.defineProperty(__exports, "resourceFields", { enumerable: true, get: () => resourceFields }); Object.defineProperty(__exports, "resourceNodes", { enumerable: true, get: () => resourceNodes }); Object.defineProperty(__exports, "resetVisibilityGrids", { enumerable: true, get: () => resetVisibilityGrids }); Object.defineProperty(__exports, "registerUnitPlacementSpatialQuery", { enumerable: true, get: () => registerUnitPlacementSpatialQuery }); Object.defineProperty(__exports, "restoreSimulationPositions", { enumerable: true, get: () => restoreSimulationPositions }); Object.defineProperty(__exports, "screenToWorld", { enumerable: true, get: () => screenToWorld }); Object.defineProperty(__exports, "setZoom", { enumerable: true, get: () => setZoom }); Object.defineProperty(__exports, "snapshotSimulationState", { enumerable: true, get: () => snapshotSimulationState }); Object.defineProperty(__exports, "state", { enumerable: true, get: () => state }); Object.defineProperty(__exports, "structures", { enumerable: true, get: () => structures }); Object.defineProperty(__exports, "units", { enumerable: true, get: () => units });
+      Object.defineProperty(__exports, "CH", { enumerable: true, get: () => CH }); Object.defineProperty(__exports, "CW", { enumerable: true, get: () => CW }); Object.defineProperty(__exports, "VIEW_H", { enumerable: true, get: () => VIEW_H }); Object.defineProperty(__exports, "VIEW_W", { enumerable: true, get: () => VIEW_W }); Object.defineProperty(__exports, "addResourceField", { enumerable: true, get: () => addResourceField }); Object.defineProperty(__exports, "addStructure", { enumerable: true, get: () => addStructure }); Object.defineProperty(__exports, "addUnit", { enumerable: true, get: () => addUnit }); Object.defineProperty(__exports, "applyRenderInterpolation", { enumerable: true, get: () => applyRenderInterpolation }); Object.defineProperty(__exports, "cam", { enumerable: true, get: () => cam }); Object.defineProperty(__exports, "canvas", { enumerable: true, get: () => canvas }); Object.defineProperty(__exports, "centerCamOn", { enumerable: true, get: () => centerCamOn }); Object.defineProperty(__exports, "getNextEntityId", { enumerable: true, get: () => getNextEntityId }); Object.defineProperty(__exports, "clampCam", { enumerable: true, get: () => clampCam }); Object.defineProperty(__exports, "ctx", { enumerable: true, get: () => ctx }); Object.defineProperty(__exports, "maxZoom", { enumerable: true, get: () => maxZoom }); Object.defineProperty(__exports, "minZoom", { enumerable: true, get: () => minZoom }); Object.defineProperty(__exports, "resize", { enumerable: true, get: () => resize }); Object.defineProperty(__exports, "resourceFields", { enumerable: true, get: () => resourceFields }); Object.defineProperty(__exports, "resourceNodes", { enumerable: true, get: () => resourceNodes }); Object.defineProperty(__exports, "resetVisibilityGrids", { enumerable: true, get: () => resetVisibilityGrids }); Object.defineProperty(__exports, "registerUnitPlacementSpatialQuery", { enumerable: true, get: () => registerUnitPlacementSpatialQuery }); Object.defineProperty(__exports, "restoreSimulationPositions", { enumerable: true, get: () => restoreSimulationPositions }); Object.defineProperty(__exports, "screenToWorld", { enumerable: true, get: () => screenToWorld }); Object.defineProperty(__exports, "setNextEntityId", { enumerable: true, get: () => setNextEntityId }); Object.defineProperty(__exports, "setZoom", { enumerable: true, get: () => setZoom }); Object.defineProperty(__exports, "snapshotSimulationState", { enumerable: true, get: () => snapshotSimulationState }); Object.defineProperty(__exports, "state", { enumerable: true, get: () => state }); Object.defineProperty(__exports, "structures", { enumerable: true, get: () => structures }); Object.defineProperty(__exports, "units", { enumerable: true, get: () => units });
       // Canvas/camera state, runtime state, entity collections, and entity factories.
       // Extracted from the original single-file build; runtime grids follow the active map mode.
       
@@ -15878,6 +16305,7 @@
         multiplayerActive: false,
         multiplayerPaused: false,
         multiplayerStatus: '',
+        desyncDetected: false,
         multiplayerRoomCode: null,
         multiplayerRole: null,
         multiplayerRemoteTeam: null,
@@ -15964,6 +16392,15 @@
       }
       
       let nextId = 1;
+      
+      function getNextEntityId() {
+        return nextId;
+      }
+      
+      function setNextEntityId(value) {
+        nextId = Math.max(1, Math.trunc(Number(value) || 1));
+        return nextId;
+      }
       const units = [];
       const structures = [];
       const resourceNodes = [];
