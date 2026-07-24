@@ -5463,6 +5463,21 @@
       
       function foragerCount(team = 'player') { return units.filter(u => u.team === team && isResourceHarvester(u) && u.hp > 0).length; }
       
+      const FORAGERS_PER_DROPOFF = 24;
+      function foragerCapacity(team = 'player') {
+        const dropoffs = structures.filter(s => s.team === team && s.hp > 0 && !s.underConstruction &&
+          (s.type === 'hq' || s.type === 'minersHut')).length;
+        return dropoffs * FORAGERS_PER_DROPOFF;
+      }
+      function foragerCommitted(team = 'player') {
+        const living = units.filter(u => u.team === team && u.type === 'forager' && u.hp > 0).length;
+        const queued = structures.reduce((sum, s) => {
+          if (s.team !== team || s.hp <= 0) return sum;
+          return sum + s.queue.filter(item => item.type === 'forager').length;
+        }, 0);
+        return living + queued;
+      }
+      
       function roboMinerCapacity(team = 'player') {
         const dropoffs = structures.filter(s => s.team === team && s.hp > 0 && !s.underConstruction &&
           (s.type === 'hq' || s.type === 'minersHut')).length;
@@ -5858,6 +5873,7 @@
       }
       
       function toast(text, color = COLORS.text) {
+        if (state.warningsEnabled === false && (color === COLORS.warn || color === COLORS.bad)) return;
         state.message = text;
         state.messageColor = color;
         state.messageTimer = 3.2;
@@ -6202,6 +6218,14 @@
         }
         if (!d || !producer || producer.hp <= 0 || !productionTypesFor(producer).includes(type)) {
           toast('This unit needs the correct production building.', COLORS.warn); return false;
+        }
+        if (type === 'forager') {
+          const committed = foragerCommitted(producer.team);
+          const capacity = foragerCapacity(producer.team);
+          if (committed >= capacity) {
+            toast(`FORAGER limit reached (${committed}/${capacity}) — each HQ or miners hut supports ${FORAGERS_PER_DROPOFF}.`, COLORS.warn);
+            return false;
+          }
         }
         if (type === 'roboMiner') {
           const committed = roboMinerCommitted(producer.team);
@@ -6564,7 +6588,7 @@
         else { u.command = 'hold'; u.destination = { x: u.x, y: u.y }; }
       }
       
-      function placementError(type, cx, cy, { ignoreExploration = false } = {}) {
+      function placementError(type, cx, cy) {
         const d = BUILDING_DATA[type];
         if (!d) return 'Unknown building.';
         const left = cx - d.w / 2 - 3, right = cx + d.w / 2 + 3;
@@ -6577,7 +6601,7 @@
         const ty1 = clamp(Math.floor(bottom / TILE), 0, ROWS - 1);
         for (let ty = ty0; ty <= ty1; ty++) {
           for (let tx = tx0; tx <= tx1; tx++) {
-            if (!ignoreExploration && !state.explored[ty][tx]) return 'You must explore the whole build site first.';
+            if (!state.explored[ty][tx]) return 'You must explore the whole build site first.';
             if (terrain[ty][tx] !== 0) return 'Cannot build on water or mountains.';
           }
         }
@@ -6612,7 +6636,7 @@
       // When a clicked tile clips a nearby obstacle, search the closest tile
       // centres within a strict three-tile radius. This solves adjacency clicks
       // without allowing the game to relocate a building somewhere surprising.
-      function nearestBuildPlacement(type, requestedTx, requestedTy, initialError, options = {}) {
+      function nearestBuildPlacement(type, requestedTx, requestedTy, initialError) {
         if (!AUTO_PLACEMENT_ERRORS.has(initialError)) return null;
         let best = null;
         for (let oy = -AUTO_PLACEMENT_MAX_TILES; oy <= AUTO_PLACEMENT_MAX_TILES; oy++) {
@@ -6622,7 +6646,7 @@
             const tx = requestedTx + ox, ty = requestedTy + oy;
             if (tx < 0 || ty < 0 || tx >= COLS || ty >= ROWS) continue;
             const cx = tx * TILE + TILE / 2, cy = ty * TILE + TILE / 2;
-            if (placementError(type, cx, cy, options)) continue;
+            if (placementError(type, cx, cy)) continue;
             if (!best || distanceSq < best.distanceSq ||
                 (distanceSq === best.distanceSq && (ty < best.ty || (ty === best.ty && tx < best.tx)))) {
               best = { tx, ty, cx, cy, distanceSq, tileDistance: Math.sqrt(distanceSq) };
@@ -6635,7 +6659,7 @@
       // Resolve the exact tile-centred footprint used by both the live placement
       // ghost and the final construction command. Keeping these paths shared avoids
       // a green preview ever disagreeing with the actual build result.
-      function resolveBuildingPlacement(type, p, options = {}) {
+      function resolveBuildingPlacement(type, p) {
         const d = BUILDING_DATA[type];
         if (!d || !p || !Number.isFinite(p.x) || !Number.isFinite(p.y)) {
           return { valid: false, type, cx: 0, cy: 0, error: d ? 'Choose a build site on the battlefield.' : 'Unknown building.', adjusted: null };
@@ -6644,8 +6668,8 @@
         const ty = clamp(Math.floor(p.y / TILE), 0, ROWS - 1);
         const requestedCx = tx * TILE + TILE / 2;
         const requestedCy = ty * TILE + TILE / 2;
-        const error = placementError(type, requestedCx, requestedCy, options);
-        const adjusted = error ? nearestBuildPlacement(type, tx, ty, error, options) : null;
+        const error = placementError(type, requestedCx, requestedCy);
+        const adjusted = error ? nearestBuildPlacement(type, tx, ty, error) : null;
         if (!error) {
           return { valid: true, type, tx, ty, cx: requestedCx, cy: requestedCy, requestedCx, requestedCy, error: null, adjusted: null };
         }
@@ -6699,7 +6723,7 @@
         return !!adjusted && resourceFieldAt(adjusted.cx, adjusted.cy)?.id === clickedField.id;
       }
       
-      function constructBuilding(type, p, team = 'player', options = {}) {
+      function constructBuilding(type, p, team = 'player') {
         if (state.gameOver) return;
         const d = BUILDING_DATA[type];
         if (!d) return;
@@ -6717,7 +6741,7 @@
           toast('Complete both a BARRACKS and a GARAGE before constructing a SUPPORT CAMP.', COLORS.warn); return;
         }
         if (!canAfford(cost.costM, cost.costG, team)) { toast(`Not enough resources for ${d.label}.`, COLORS.bad); return; }
-        const placement = resolveBuildingPlacement(type, p, options);
+        const placement = resolveBuildingPlacement(type, p);
         if (!placement.valid) {
           const error = placement.error;
           toast(AUTO_PLACEMENT_ERRORS.has(error) ? `No valid build site within ${AUTO_PLACEMENT_MAX_TILES} tiles. ${error}` : error, COLORS.warn);
@@ -6752,7 +6776,7 @@
         return site;
       }
       
-      function constructGasExtractor(node, team = 'player', { ignoreExploration = false } = {}) {
+      function constructGasExtractor(node, team = 'player') {
         if (state.gameOver || !node || node.type !== 'gas') return false;
         if (node.depleted) {
           toast('This gas leak is depleted.', COLORS.warn);
@@ -6760,7 +6784,7 @@
         }
         const tx = clamp(Math.floor(node.x / TILE), 0, COLS - 1);
         const ty = clamp(Math.floor(node.y / TILE), 0, ROWS - 1);
-        if (!ignoreExploration && !state.explored[ty]?.[tx]) {
+        if (!state.explored[ty]?.[tx]) {
           toast('You must explore the gas leak before building an extractor.', COLORS.warn);
           return false;
         }
@@ -14411,14 +14435,14 @@
       
       function drawSettingsOverlay() {
         if (!state.settingsOpen) {
-          state.settingsPanelRect = state.settingsCloseRect = state.settingsMenuRect = null;
+          state.settingsPanelRect = state.settingsCloseRect = state.settingsMenuRect = state.settingsWarningsRect = null;
           return;
         }
         ctx.fillStyle = 'rgba(2,4,7,.72)';
         ctx.fillRect(0, 0, CW, CH);
         const compact = VIEW_W < 520;
         const panelW = Math.min(compact ? VIEW_W - 28 : 430, VIEW_W - 28);
-        const panelH = compact ? 224 : 244;
+        const panelH = compact ? 286 : 306;
         const panel = { x: Math.round((VIEW_W - panelW) / 2), y: Math.max(54, Math.round((VIEW_H - panelH) / 2)), w: panelW, h: panelH };
         state.settingsPanelRect = panel;
         drawPanel(panel.x, panel.y, panel.w, panel.h, 'rgba(17,25,35,.985)');
@@ -14427,10 +14451,19 @@
         drawText('Return to the title screen to choose another mode.', panel.x + 22, panel.y + 78, compact ? 11 : 12, COLORS.muted);
       
         const buttonH = compact ? 48 : 52;
-        const menuRect = { x: panel.x + 22, y: panel.y + 112, w: panel.w - 44, h: buttonH };
-        const closeRect = { x: panel.x + 22, y: panel.y + 112 + buttonH + 14, w: panel.w - 44, h: buttonH };
+        const warningsRect = { x: panel.x + 22, y: panel.y + 108, w: panel.w - 44, h: 44 };
+        const menuRect = { x: panel.x + 22, y: warningsRect.y + warningsRect.h + 12, w: panel.w - 44, h: buttonH };
+        const closeRect = { x: panel.x + 22, y: menuRect.y + buttonH + 14, w: panel.w - 44, h: buttonH };
+        state.settingsWarningsRect = warningsRect;
         state.settingsMenuRect = menuRect;
         state.settingsCloseRect = closeRect;
+      
+        ctx.fillStyle = state.warningsEnabled ? '#254d3b' : '#3b414c';
+        ctx.fillRect(warningsRect.x, warningsRect.y, warningsRect.w, warningsRect.h);
+        ctx.strokeStyle = state.warningsEnabled ? '#69c99b' : '#727d8d';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(warningsRect.x + 1, warningsRect.y + 1, warningsRect.w - 2, warningsRect.h - 2);
+        drawText(`ATTENTION WARNINGS: ${state.warningsEnabled ? 'ON' : 'OFF'}`, warningsRect.x + warningsRect.w / 2, warningsRect.y + 13, compact ? 12 : 14, COLORS.text, 'center');
       
         ctx.fillStyle = '#633442'; ctx.fillRect(menuRect.x, menuRect.y, menuRect.w, menuRect.h);
         ctx.strokeStyle = '#d87083'; ctx.lineWidth = 2; ctx.strokeRect(menuRect.x + 1, menuRect.y + 1, menuRect.w - 2, menuRect.h - 2);
@@ -14443,6 +14476,11 @@
       
       function handleSettingsClick(point) {
         if (state.settingsOpen) {
+          if (state.settingsWarningsRect && pointInRect(point, state.settingsWarningsRect)) {
+            state.warningsEnabled = !state.warningsEnabled;
+            try { window.localStorage.setItem('starlite.warnings.v1', state.warningsEnabled ? 'on' : 'off'); } catch {}
+            return true;
+          }
           if (state.settingsMenuRect && pointInRect(point, state.settingsMenuRect)) {
             location.reload();
             return true;
@@ -14507,21 +14545,45 @@
         // Production queue.
         drawQueueStrip(12, 108, Math.min(488, VIEW_W - 24));
       
-        if (state.messageTimer > 0) {
+        drawTopNotices();
+      }
+      
+      function drawTopNotices() {
+        const hasMessage = state.messageTimer > 0 && !!state.message;
+        const messageIsWarning = hasMessage && (state.messageColor === COLORS.warn || state.messageColor === COLORS.bad);
+        const showMessage = hasMessage && (!messageIsWarning || state.warningsEnabled !== false);
+      
+        if (showMessage) {
           const alpha = clamp(state.messageTimer / .35, 0, 1);
-          const messageW = Math.min(380, VIEW_W - 24);
-          const messageX = VIEW_W - messageW - 12;
+          const margin = 12;
+          const messageW = Math.min(messageIsWarning ? 640 : 430, VIEW_W - margin * 2);
+          const messageH = messageIsWarning ? 42 : 32;
+          const messageX = Math.round((VIEW_W - messageW) / 2);
+          const messageY = 12;
+          ctx.save();
           ctx.globalAlpha = alpha;
-          drawPanel(messageX, 12, messageW, 30, 'rgba(18,24,33,.9)');
-          drawText(state.message, messageX + messageW / 2, 18, 13, state.messageColor || COLORS.text, 'center');
-          ctx.globalAlpha = 1;
+          drawPanel(messageX, messageY, messageW, messageH,
+            messageIsWarning ? 'rgba(66,24,22,.97)' : 'rgba(18,24,33,.94)');
+          ctx.strokeStyle = messageIsWarning ? (state.messageColor || COLORS.warn) : 'rgba(112,136,166,.8)';
+          ctx.lineWidth = messageIsWarning ? 3 : 1;
+          ctx.strokeRect(messageX + 1.5, messageY + 1.5, messageW - 3, messageH - 3);
+          drawText(messageIsWarning ? `WARNING · ${state.message}` : state.message,
+            messageX + messageW / 2,
+            messageY + (messageIsWarning ? 12 : 9),
+            messageIsWarning ? 14 : 13,
+            messageIsWarning ? '#fff1dc' : (state.messageColor || COLORS.text),
+            'center');
+          ctx.restore();
         }
+      
         if (state.multiplayerStatus) {
           const statusW = Math.min(430, VIEW_W - 24);
-          const statusX = VIEW_W - statusW - 12;
-          const statusY = state.messageTimer > 0 ? 48 : 12;
-          drawPanel(statusX, statusY, statusW, 34, state.multiplayerPaused ? 'rgba(65,18,24,.96)' : 'rgba(18,42,52,.94)');
-          drawText(state.multiplayerStatus, statusX + statusW / 2, statusY + 9, 12, state.multiplayerPaused ? COLORS.bad : '#7de8ff', 'center');
+          const statusX = Math.round((VIEW_W - statusW) / 2);
+          const statusY = showMessage ? (messageIsWarning ? 60 : 50) : 12;
+          drawPanel(statusX, statusY, statusW, 34,
+            state.multiplayerPaused ? 'rgba(65,18,24,.96)' : 'rgba(18,42,52,.94)');
+          drawText(state.multiplayerStatus, statusX + statusW / 2, statusY + 9, 12,
+            state.multiplayerPaused ? COLORS.bad : '#7de8ff', 'center');
         }
       }
       
@@ -14606,6 +14668,7 @@
         // Screen-space HUD.
         drawSelectionBox();
         drawResourceHud();
+        drawTopNotices();
         drawCommandPanel();
         drawGameOver();
         drawSettingsOverlay();
@@ -14770,6 +14833,11 @@
         settingsPanelRect: null,
         settingsCloseRect: null,
         settingsMenuRect: null,
+        settingsWarningsRect: null,
+        warningsEnabled: (() => {
+          try { return window.localStorage.getItem('starlite.warnings.v1') !== 'off'; }
+          catch { return true; }
+        })(),
         placingBuildingType: null,
         placingSpawnFlag: false,
         spawnFlagMode: null,
