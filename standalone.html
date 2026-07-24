@@ -8375,6 +8375,39 @@
       
       
       
+      const GAMEANALYTICS_CDN_URL = 'https://unpkg.com/gameanalytics/dist/GameAnalytics.min.js';
+      const GAMEANALYTICS_GAME_KEY = 'a491d8caf2c2ed07509f286521d4d61b';
+      const GAMEANALYTICS_SECRET_KEY = '4579d4475f8f64e7c55eee44def871cc9fa00ae4';
+      let gameAnalyticsInitialized = false;
+      
+      function initializeGameAnalytics() {
+        if (gameAnalyticsInitialized || typeof document === 'undefined') return;
+      
+        const initializeSdk = () => {
+          const sdk = globalThis.gameanalytics?.GameAnalytics;
+          if (gameAnalyticsInitialized || typeof sdk?.initialize !== 'function') return;
+          sdk.initialize(GAMEANALYTICS_GAME_KEY, GAMEANALYTICS_SECRET_KEY);
+          gameAnalyticsInitialized = true;
+        };
+      
+        if (globalThis.gameanalytics?.GameAnalytics) {
+          initializeSdk();
+          return;
+        }
+      
+        let script = document.querySelector('script[data-starlite-gameanalytics]');
+        if (!script) {
+          script = document.createElement('script');
+          script.src = GAMEANALYTICS_CDN_URL;
+          script.async = true;
+          script.dataset.starliteGameanalytics = 'true';
+          document.head.appendChild(script);
+        }
+        script.addEventListener('load', initializeSdk, { once: true });
+      }
+      
+      initializeGameAnalytics();
+      
       let menuOpen = false;
       let activeMenuPromise = null;
       
