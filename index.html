@@ -7888,13 +7888,14 @@
 
   __define("main.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("multiplayer.js"); const __dep6 = __require("syncChecksum.js"); const __dep7 = __require("economy.js"); const __dep8 = __require("menu.js"); const __dep9 = __require("rendering.js"); const __dep10 = __require("state.js"); const __dep11 = __require("terrain.js"); const __dep12 = __require("workerBridge.js");
-    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep4["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep4["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep4["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep4["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep5["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep5["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep5["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep5["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep5["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep5["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep6["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep6["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep7["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep7["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep7["teamEconomyState"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep8["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep9["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep9["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep10["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep10["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep10["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep10["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep10["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep10["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep10["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep10["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep10["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep10["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep10["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep10["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep10["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep10["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep10["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep10["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep10["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep11["generateTerrain"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep11["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep11["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep11["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep12["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep12["setDeterministicLockstepMode"] });
+    const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("multiplayer.js"); const __dep7 = __require("syncChecksum.js"); const __dep8 = __require("economy.js"); const __dep9 = __require("menu.js"); const __dep10 = __require("rendering.js"); const __dep11 = __require("state.js"); const __dep12 = __require("terrain.js"); const __dep13 = __require("workerBridge.js");
+    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep3["getRandomState"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep4["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep4["setPathingSyncState"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep5["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep5["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep5["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep5["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep6["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep6["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep6["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep6["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep6["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep6["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep7["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep7["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep8["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep8["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep8["teamEconomyState"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep9["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep10["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep10["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep11["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep11["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep11["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep11["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep11["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep11["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep11["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep11["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep11["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep11["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep11["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep11["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep11["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep11["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep11["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep11["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep11["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep12["generateTerrain"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep12["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep12["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep12["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep13["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep13["setDeterministicLockstepMode"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeGameMode", { enumerable: true, get: () => activeGameMode }); Object.defineProperty(__exports, "bootstrapWorld", { enumerable: true, get: () => bootstrapWorld }); Object.defineProperty(__exports, "competitiveSpawnLayout", { enumerable: true, get: () => competitiveSpawnLayout }); Object.defineProperty(__exports, "enemyHQ", { enumerable: true, get: () => enemyHQ }); Object.defineProperty(__exports, "enemyHQs", { enumerable: true, get: () => enemyHQs }); Object.defineProperty(__exports, "getActiveTeams", { enumerable: true, get: () => getActiveTeams }); Object.defineProperty(__exports, "getHQForTeam", { enumerable: true, get: () => getHQForTeam }); Object.defineProperty(__exports, "getLivingHQs", { enumerable: true, get: () => getLivingHQs }); Object.defineProperty(__exports, "getNearestHostileHQ", { enumerable: true, get: () => getNearestHostileHQ }); Object.defineProperty(__exports, "matchSeedForMode", { enumerable: true, get: () => matchSeedForMode }); Object.defineProperty(__exports, "normalizedGameCode", { enumerable: true, get: () => normalizedGameCode }); Object.defineProperty(__exports, "playerHQ", { enumerable: true, get: () => playerHQ }); Object.defineProperty(__exports, "setLocalCommandTeam", { enumerable: true, get: () => setLocalCommandTeam }); Object.defineProperty(__exports, "startStarLite", { enumerable: true, get: () => startStarLite });
       // StarLite bootstrap. The title menu resolves a game mode before the world is
       // created, preventing hidden matches from running underneath the menu.
+      
       
       
       
@@ -8184,6 +8185,7 @@
         const gameCode = normalizedGameCode(mode);
         const matchSeed = matchSeedForMode(mode);
         setRandomSeed(matchSeed);
+        setPathingSyncState({ nextGroupRouteId: 1 });
         state.matchSeed = matchSeed;
         state.matchGameCode = gameCode || null;
         activeGameMode = mode;
@@ -8343,10 +8345,12 @@
           applyQueuedCommands(tick, applyQueuedGameCommand);
           update(SIMULATION_STEP);
           if (tick % 30 === 0) {
-            const hash = deterministicStateHash(units, structures, resourceNodes, state.groundTags);
+            const hash = deterministicStateHash(units, structures, resourceNodes, state.groundTags, {
+              randomState: getRandomState(),
+              pathing: getPathingSyncState()
+            });
             const pair = { tick, hash: checksumHex(hash) };
             state.syncChecksums.push(pair);
-            console.log(`[sync] tick=${pair.tick} hash=${pair.hash}`);
             if (state.multiplayerActive) sendSyncChecksum(pair);
           }
           if (state.multiplayerActive) {
@@ -10065,14 +10069,16 @@
 
   __define("multiplayer.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("commandSync.js"); const __dep2 = __require("state.js");
-    Object.defineProperty(__imports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => __dep0["MULTIPLAYER_TEAMS"] }); Object.defineProperty(__imports, "getRegisteredCommandSources", { enumerable: true, get: () => __dep1["getRegisteredCommandSources"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep1["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep1["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeListener"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeRequired", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeRequired"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep2["getNextEntityId"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep2["resourceNodes"] }); Object.defineProperty(__imports, "setNextEntityId", { enumerable: true, get: () => __dep2["setNextEntityId"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("commandSync.js"); const __dep2 = __require("state.js"); const __dep3 = __require("pathing.js"); const __dep4 = __require("prng.js");
+    Object.defineProperty(__imports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => __dep0["MULTIPLAYER_TEAMS"] }); Object.defineProperty(__imports, "getRegisteredCommandSources", { enumerable: true, get: () => __dep1["getRegisteredCommandSources"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep1["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep1["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeListener"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeRequired", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeRequired"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep2["getNextEntityId"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep2["resourceNodes"] }); Object.defineProperty(__imports, "setNextEntityId", { enumerable: true, get: () => __dep2["setNextEntityId"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep3["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep3["setPathingSyncState"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep4["getRandomState"] }); Object.defineProperty(__imports, "setRandomState", { enumerable: true, get: () => __dep4["setRandomState"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "closePublicLobbyDirectory", { enumerable: true, get: () => closePublicLobbyDirectory }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "openPublicLobbyDirectory", { enumerable: true, get: () => openPublicLobbyDirectory }); Object.defineProperty(__exports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => refreshPublicLobbyDirectory }); Object.defineProperty(__exports, "sendMultiplayerChat", { enumerable: true, get: () => sendMultiplayerChat }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "setMultiplayerCallbacks", { enumerable: true, get: () => setMultiplayerCallbacks }); Object.defineProperty(__exports, "setMultiplayerReady", { enumerable: true, get: () => setMultiplayerReady }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam }); Object.defineProperty(__exports, "startMultiplayerMatch", { enumerable: true, get: () => startMultiplayerMatch });
       // WebSocket relay transport for deterministic two-to-four-player lockstep.
       // The host owns lobby membership, slot/team assignment, and the shared seed;
       // gameplay itself remains command/tick based on every client.
+      
+      
       
       
       
@@ -10091,6 +10097,9 @@
       const PUBLIC_LOBBY_STALE_MS = 10000;
       const RESYNC_PROTOCOL = 1;
       const RESYNC_DELAY_TICKS = 30;
+      const CHECKSUM_MISMATCH_CONFIRMATIONS = 3;
+      const CHECKSUM_MISMATCH_MAX_GAP_TICKS = 60;
+      const POST_RESYNC_CHECKSUM_GRACE_TICKS = 90;
       const MAX_RESYNC_SNAPSHOT_BYTES = 10 * 1024 * 1024;
       const MAX_RESYNC_ENTITIES = 6000;
       const SNAPSHOT_LOCAL_KEYS = new Set([
@@ -10128,6 +10137,7 @@
       let publicLobbyReconnectTimer = 0;
       let activeResync = null;
       let resyncRequestPending = false;
+      let checksumRecoveryGraceUntilTick = 0;
       
       const hostRoster = new Map();
       const lastSeenByClient = new Map();
@@ -10141,6 +10151,7 @@
       const receivedChatIds = new Set();
       const publicLobbyEntries = new Map();
       const queuedResyncSources = new Set();
+      const checksumMismatchStreaks = new Map();
       
       function createClientId() {
         const bytes = new Uint8Array(8);
@@ -10596,6 +10607,8 @@
           protocol: RESYNC_PROTOCOL,
           simulationTick: Math.max(0, Math.trunc(Number(state.simulationTick) || 0)),
           nextEntityId: getNextEntityId(),
+          randomState: getRandomState(),
+          pathingSyncState: getPathingSyncState(),
           units: units.map(entity => encodeSnapshotEntity(entity, entitySet)),
           structures: structures.map(entity => encodeSnapshotEntity(entity, entitySet)),
           resourceNodes: resourceNodes.map(entity => encodeSnapshotEntity(entity, entitySet)),
@@ -10686,12 +10699,19 @@
         const maximumEntityId = Math.max(0, ...entitiesById.keys());
         const nextEntityId = Math.trunc(Number(snapshot.nextEntityId) || 0);
         if (nextEntityId <= maximumEntityId) throw new TypeError('Invalid next entity id in authoritative snapshot.');
+        const randomState = Math.trunc(Number(snapshot.randomState));
+        const pathingSyncState = snapshot.pathingSyncState;
+        if (!Number.isFinite(randomState) || !pathingSyncState || typeof pathingSyncState !== 'object' || Array.isArray(pathingSyncState)) {
+          throw new TypeError('Invalid deterministic subsystem state in authoritative snapshot.');
+        }
       
         units.splice(0, units.length, ...nextUnits);
         structures.splice(0, structures.length, ...nextStructures);
         resourceNodes.splice(0, resourceNodes.length, ...nextNodes);
         state.groundTags = nextGroundTags;
         setNextEntityId(nextEntityId);
+        setRandomState(randomState);
+        setPathingSyncState(pathingSyncState);
       
         const validUnits = new Set(units);
         const validStructures = new Set(structures);
@@ -10708,6 +10728,29 @@
         state.desyncDetected = true;
         if (firstMismatch || !state.multiplayerStatus) state.multiplayerStatus = message;
         return firstMismatch;
+      }
+      
+      function clearChecksumMismatchTracking(sourceId = null) {
+        if (sourceId) checksumMismatchStreaks.delete(sourceId);
+        else checksumMismatchStreaks.clear();
+      }
+      
+      function checksumMismatchConfirmed(sourceId, tick) {
+        if (activeResync || resyncRequestPending || tick <= checksumRecoveryGraceUntilTick) return false;
+        const previous = checksumMismatchStreaks.get(sourceId);
+        if (previous?.tick === tick) return false;
+        const consecutive = !!previous && tick > previous.tick && tick - previous.tick <= CHECKSUM_MISMATCH_MAX_GAP_TICKS;
+        const count = consecutive ? previous.count + 1 : 1;
+        checksumMismatchStreaks.set(sourceId, { tick, count });
+        return count >= CHECKSUM_MISMATCH_CONFIRMATIONS;
+      }
+      
+      function beginChecksumRecoveryGrace() {
+        checksumRecoveryGraceUntilTick = Math.max(
+          checksumRecoveryGraceUntilTick,
+          Math.max(0, Math.trunc(Number(state.simulationTick) || 0)) + POST_RESYNC_CHECKSUM_GRACE_TICKS
+        );
+        clearChecksumMismatchTracking();
       }
       
       function resyncPlayerForSource(sourceId) {
@@ -10765,7 +10808,7 @@
         resyncRequestPending = true;
         markDesyncDetected('SYNC MISMATCH DETECTED · REQUESTING HOST RESYNC');
         state.multiplayerStatus = 'SYNC MISMATCH DETECTED · REQUESTING HOST RESYNC';
-        return sendPayload({
+        const sent = sendPayload({
           type: 'resyncRequest',
           protocol: RESYNC_PROTOCOL,
           clientId: session.clientId,
@@ -10775,6 +10818,8 @@
           mismatchTick: Math.max(0, Math.trunc(Number(mismatchTick) || 0)),
           currentTick: Math.max(0, Math.trunc(Number(state.simulationTick) || 0))
         });
+        if (!sent) resyncRequestPending = false;
+        return sent;
       }
       
       function sendActiveResyncSnapshot(force = false) {
@@ -10825,6 +10870,7 @@
         state.multiplayerStatus = 'SYNC RECOVERED · MATCH RESUMED';
         localChecksums.clear();
         remoteChecksums.clear();
+        beginChecksumRecoveryGrace();
         activeResync = null;
         queueMicrotask(scheduleQueuedHostResync);
         return true;
@@ -10909,6 +10955,7 @@
             applyAuthoritativeSnapshot(message.serializedSnapshot, resyncTick);
             localChecksums.clear();
             remoteChecksums.clear();
+            beginChecksumRecoveryGrace();
             state.multiplayerStatus = 'DESYNC RECOVERED · WAITING FOR HOST RESUME';
             sendPayload({
               type: 'resyncApplied',
@@ -10938,6 +10985,7 @@
           resyncRequestPending = false;
           localChecksums.clear();
           remoteChecksums.clear();
+          beginChecksumRecoveryGrace();
           state.desyncDetected = false;
           state.multiplayerStatus = 'SYNC RECOVERED · MATCH RESUMED';
           return true;
@@ -11205,15 +11253,18 @@
         for (const sourceId of expectedRemoteSourceIds()) {
           const remoteHash = remoteBySource.get(sourceId);
           if (!remoteHash) continue;
-          if (localHash !== remoteHash) {
-            console.warn(
-              `[sync] checksum mismatch at tick ${tick} from ${sourceId}: local=${localHash} remote=${remoteHash}`,
-              { tick, sourceId, localHash, remoteHash }
-            );
-            markDesyncDetected('SYNC MISMATCH DETECTED · RECOVERY STARTED');
-            if (session?.role === 'host') scheduleHostResync(sourceId, tick);
-            else requestHostResync(sourceId, tick);
+          if (localHash === remoteHash) {
+            clearChecksumMismatchTracking(sourceId);
+            continue;
           }
+          if (!checksumMismatchConfirmed(sourceId, tick)) continue;
+          console.warn(
+            `[sync] confirmed checksum mismatch at tick ${tick} from ${sourceId}: local=${localHash} remote=${remoteHash}`,
+            { tick, sourceId, localHash, remoteHash }
+          );
+          markDesyncDetected('SYNC MISMATCH DETECTED · RECOVERY STARTED');
+          if (session?.role === 'host') scheduleHostResync(sourceId, tick);
+          else requestHostResync(sourceId, tick);
         }
         if (expectedRemoteSourceIds().every(sourceId => remoteBySource.has(sourceId))) {
           localChecksums.delete(tick);
@@ -11632,6 +11683,8 @@
         receivedEnvelopeKeys.clear();
         localChecksums.clear();
         remoteChecksums.clear();
+        checksumRecoveryGraceUntilTick = 0;
+        clearChecksumMismatchTracking();
         activeResync = null;
         resyncRequestPending = false;
         queuedResyncSources.clear();
@@ -11645,7 +11698,7 @@
     Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "computePath", { enumerable: true, get: () => __dep2["computePath"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep2["isBlocked"] }); Object.defineProperty(__imports, "walkClear", { enumerable: true, get: () => __dep2["walkClear"] }); Object.defineProperty(__imports, "cancelPathfindingRequest", { enumerable: true, get: () => __dep3["cancelPathfindingRequest"] }); Object.defineProperty(__imports, "requestPathfinding", { enumerable: true, get: () => __dep3["requestPathfinding"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "cancelUnitPathRequest", { enumerable: true, get: () => cancelUnitPathRequest }); Object.defineProperty(__exports, "clearUnitRoute", { enumerable: true, get: () => clearUnitRoute }); Object.defineProperty(__exports, "pathKeyFor", { enumerable: true, get: () => pathKeyFor }); Object.defineProperty(__exports, "requestSharedGroupRoute", { enumerable: true, get: () => requestSharedGroupRoute }); Object.defineProperty(__exports, "requestUnitRoute", { enumerable: true, get: () => requestUnitRoute }); Object.defineProperty(__exports, "sharedRouteNeedsIndividualFallback", { enumerable: true, get: () => sharedRouteNeedsIndividualFallback });
+      Object.defineProperty(__exports, "cancelUnitPathRequest", { enumerable: true, get: () => cancelUnitPathRequest }); Object.defineProperty(__exports, "clearUnitRoute", { enumerable: true, get: () => clearUnitRoute }); Object.defineProperty(__exports, "getPathingSyncState", { enumerable: true, get: () => getPathingSyncState }); Object.defineProperty(__exports, "pathKeyFor", { enumerable: true, get: () => pathKeyFor }); Object.defineProperty(__exports, "requestSharedGroupRoute", { enumerable: true, get: () => requestSharedGroupRoute }); Object.defineProperty(__exports, "requestUnitRoute", { enumerable: true, get: () => requestUnitRoute }); Object.defineProperty(__exports, "setPathingSyncState", { enumerable: true, get: () => setPathingSyncState }); Object.defineProperty(__exports, "sharedRouteNeedsIndividualFallback", { enumerable: true, get: () => sharedRouteNeedsIndividualFallback });
       // Shared and asynchronous path routing. Group orders compute one route from
       // the formation centroid and offset it for each member. Individual units only
       // fall back to their own route when the shared corridor is locally obstructed.
@@ -11656,6 +11709,16 @@
       
       
       let nextGroupRouteId = 1;
+      
+      function getPathingSyncState() {
+        return { nextGroupRouteId };
+      }
+      
+      function setPathingSyncState(syncState = {}) {
+        const nextId = Math.trunc(Number(syncState.nextGroupRouteId) || 0);
+        nextGroupRouteId = Math.max(1, nextId);
+        return getPathingSyncState();
+      }
       
       function pathKeyFor(x, y) {
         return `${Math.floor(x / TILE)},${Math.floor(y / TILE)}`;
@@ -12548,7 +12611,7 @@
     
 
     with (__imports) {
-      Object.defineProperty(__exports, "createRandomSeed", { enumerable: true, get: () => createRandomSeed }); Object.defineProperty(__exports, "getRandomSeed", { enumerable: true, get: () => getRandomSeed }); Object.defineProperty(__exports, "hashStringToSeed", { enumerable: true, get: () => hashStringToSeed }); Object.defineProperty(__exports, "normalizeSeed", { enumerable: true, get: () => normalizeSeed }); Object.defineProperty(__exports, "rand", { enumerable: true, get: () => rand }); Object.defineProperty(__exports, "random", { enumerable: true, get: () => random }); Object.defineProperty(__exports, "setRandomSeed", { enumerable: true, get: () => setRandomSeed });
+      Object.defineProperty(__exports, "createRandomSeed", { enumerable: true, get: () => createRandomSeed }); Object.defineProperty(__exports, "getRandomSeed", { enumerable: true, get: () => getRandomSeed }); Object.defineProperty(__exports, "getRandomState", { enumerable: true, get: () => getRandomState }); Object.defineProperty(__exports, "hashStringToSeed", { enumerable: true, get: () => hashStringToSeed }); Object.defineProperty(__exports, "normalizeSeed", { enumerable: true, get: () => normalizeSeed }); Object.defineProperty(__exports, "rand", { enumerable: true, get: () => rand }); Object.defineProperty(__exports, "random", { enumerable: true, get: () => random }); Object.defineProperty(__exports, "setRandomSeed", { enumerable: true, get: () => setRandomSeed }); Object.defineProperty(__exports, "setRandomState", { enumerable: true, get: () => setRandomState });
       // Shared deterministic pseudo-random number generator for gameplay simulation.
       // One module-scoped state is consumed by every simulation subsystem.
       
@@ -12570,6 +12633,15 @@
       
       function getRandomSeed() {
         return initialSeed;
+      }
+      
+      function getRandomState() {
+        return generatorState >>> 0;
+      }
+      
+      function setRandomState(state) {
+        generatorState = normalizeSeed(state);
+        return generatorState;
       }
       
       function random() {
@@ -16743,12 +16815,13 @@
           .map(value => canonicalValue(value, true, new WeakSet()));
       }
       
-      function deterministicStateHash(units, structures, resourceNodes, groundTags = []) {
+      function deterministicStateHash(units, structures, resourceNodes, groundTags = [], syncState = {}) {
         const serialized = JSON.stringify({
           units: canonicalEntities(units),
           structures: canonicalEntities(structures),
           resourceNodes: canonicalEntities(resourceNodes),
-          groundTags: canonicalValue(groundTags, true, new WeakSet())
+          groundTags: canonicalValue(groundTags, true, new WeakSet()),
+          syncState: canonicalValue(syncState, true, new WeakSet())
         });
         return hashStringToSeed(serialized);
       }
