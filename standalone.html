@@ -8391,6 +8391,20 @@
       const DEFAULT_USERNAME = 'Commander';
       const COMPUTER_MODE_KEYS = Object.freeze(['duel', 'threeWay', 'fourWay']);
       const PVP_MODE_KEYS = Object.freeze(['pvp', 'pvp3', 'pvp4']);
+      const MENU_VOLUME_STORAGE_KEY = 'starlite.volume.v1';
+      
+      function loadMenuVolume() {
+        const raw = storageGet(MENU_VOLUME_STORAGE_KEY);
+        if (raw === null || raw === '') return 70;
+        const stored = Number(raw);
+        return Number.isFinite(stored) ? Math.max(0, Math.min(100, Math.round(stored))) : 70;
+      }
+      
+      function persistMenuVolume(value) {
+        const normalized = Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+        storageSet(MENU_VOLUME_STORAGE_KEY, String(normalized));
+        return normalized;
+      }
       
       function sanitizeMenuUsername(value) {
         return String(value || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().replace(/\s+/g, ' ').slice(0, 20);
@@ -8669,13 +8683,90 @@
         .starlite-menu__tag-save { border-color: rgba(157,227,111,.7); color: #dfffd0; }
         .starlite-menu__tag-save[data-active="true"] { border-color: #9de36f; color: #b8f288; background: rgba(157,227,111,.14); }
         .starlite-menu__tag-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+        .starlite-menu__top-actions {
+          position: fixed; top: clamp(14px, 2.5vh, 28px); right: clamp(14px, 3vw, 34px); z-index: 4;
+          display: flex; gap: 9px;
+        }
+        .starlite-menu__icon-button {
+          width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+          border: 1px solid rgba(221,242,211,.34); border-radius: 12px;
+          color: #eef9e9; background: rgba(12,20,15,.76); cursor: pointer;
+          box-shadow: 0 7px 18px rgba(0,0,0,.22); backdrop-filter: blur(8px);
+          transition: transform .14s ease, border-color .14s ease, background .14s ease;
+        }
+        .starlite-menu__icon-button:hover, .starlite-menu__icon-button:focus-visible {
+          outline: none; transform: translateY(-2px); border-color: #a7ef74; background: rgba(35,57,37,.92);
+        }
+        .starlite-menu__icon-button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+        .starlite-menu__mode-gates { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .starlite-menu__gate {
+          min-height: 178px; padding: 24px 22px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
+          border: 1px solid rgba(255,255,255,.28); border-radius: 18px; color: #fff; text-align: left; cursor: pointer;
+          box-shadow: inset 0 1px rgba(255,255,255,.15), 0 15px 28px rgba(0,0,0,.24);
+          transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+        }
+        .starlite-menu__gate:hover, .starlite-menu__gate:focus-visible { outline: none; transform: translateY(-4px); filter: saturate(1.12) brightness(1.06); box-shadow: inset 0 1px rgba(255,255,255,.2), 0 20px 34px rgba(0,0,0,.3); }
+        .starlite-menu__gate--online { background: linear-gradient(145deg, #136b8d, #173f76); }
+        .starlite-menu__gate--computer { background: linear-gradient(145deg, #a96724, #704225); }
+        .starlite-menu__gate-kicker { font-size: 10px; font-weight: 850; letter-spacing: .18em; opacity: .78; }
+        .starlite-menu__gate strong { display: block; margin-top: 6px; font-size: clamp(22px, 3vw, 31px); line-height: 1; letter-spacing: .045em; }
+        .starlite-menu__gate small { max-width: 230px; color: rgba(255,255,255,.78); font-size: 12px; line-height: 1.45; }
+        .starlite-menu__gate-arrow { align-self: flex-end; font-size: 28px; line-height: 1; opacity: .9; }
+        .starlite-menu__online-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .starlite-menu__online-choice {
+          min-height: 132px; padding: 18px; display: grid; align-content: space-between; gap: 16px;
+          border: 1px solid rgba(255,255,255,.24); border-radius: 14px; color: #f5fbff; text-align: left; cursor: pointer;
+          transition: transform .14s ease, border-color .14s ease, filter .14s ease;
+        }
+        .starlite-menu__online-choice:hover, .starlite-menu__online-choice:focus-visible { outline: none; transform: translateY(-2px); border-color: rgba(255,255,255,.65); filter: brightness(1.08); }
+        .starlite-menu__online-choice--public { background: linear-gradient(145deg, rgba(24,113,137,.9), rgba(23,66,100,.92)); }
+        .starlite-menu__online-choice--private { background: linear-gradient(145deg, rgba(100,66,143,.92), rgba(54,44,92,.94)); }
+        .starlite-menu__online-choice strong { font-size: 18px; letter-spacing: .07em; }
+        .starlite-menu__online-choice small { color: rgba(244,250,255,.72); font-size: 12px; line-height: 1.45; }
+        .starlite-menu__tag-teaser {
+          position: absolute; right: 0; top: 58%; z-index: 3; width: 132px; min-height: 112px; padding: 15px 12px;
+          display: grid; place-items: center; align-content: center; gap: 6px;
+          border: 2px solid #18331d; border-radius: 10px; color: #17311a; background: #b9ef78; cursor: pointer;
+          box-shadow: 6px 8px 0 rgba(7,18,9,.4), inset 0 0 0 2px rgba(255,255,255,.32);
+          transform: rotate(-7deg); transform-origin: 72% 88%;
+          animation: starlite-tag-wobble 7.5s ease-in-out infinite;
+        }
+        .starlite-menu__tag-teaser:hover, .starlite-menu__tag-teaser:focus-visible { outline: 3px solid rgba(244,255,233,.75); outline-offset: 3px; animation-play-state: paused; transform: rotate(-2deg) scale(1.04); }
+        .starlite-menu__tag-teaser strong { font-size: 18px; line-height: 1; letter-spacing: .07em; }
+        .starlite-menu__tag-teaser small { font-size: 9px; font-weight: 850; letter-spacing: .13em; opacity: .72; }
+        .starlite-menu__tag-teaser-mark { width: 38px; height: 38px; display: grid; place-items: center; border: 2px solid currentColor; border-radius: 6px; font: 950 22px ui-monospace, monospace; }
+        @keyframes starlite-tag-wobble {
+          0%, 70%, 100% { transform: rotate(-7deg); }
+          74% { transform: rotate(-11deg) translateY(-2px); }
+          78% { transform: rotate(-3deg) translateY(1px); }
+          82% { transform: rotate(-9deg); }
+          86% { transform: rotate(-6deg); }
+        }
+        .starlite-menu__panel[data-view="settings"] { width: min(660px, 100%); max-height: calc(100vh - 190px); overflow-y: auto; overscroll-behavior: contain; }
+        .starlite-menu__panel[data-view="settings"] .starlite-menu__key-list { max-height: min(36vh, 330px); }
+        .starlite-menu__settings-grid { display: grid; gap: 14px; }
+        .starlite-menu__volume-card { padding: 14px; border: 1px solid rgba(204,232,190,.18); border-radius: 11px; background: rgba(255,255,255,.035); }
+        .starlite-menu__volume-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+        .starlite-menu__volume-head strong { font-size: 12px; letter-spacing: .1em; }
+        .starlite-menu__volume-head output { color: #b8f288; font: 800 12px ui-monospace, monospace; }
+        .starlite-menu__volume-card input[type="range"] { width: 100%; accent-color: #9de36f; cursor: pointer; }
+        .starlite-menu__volume-card small { display: block; margin-top: 8px; color: #8fa68a; font-size: 10px; line-height: 1.4; }
+        .starlite-menu__profile-card { display: grid; grid-template-columns: 76px 1fr; gap: 16px; align-items: center; margin-bottom: 14px; }
+        .starlite-menu__profile-avatar { width: 76px; height: 76px; display: grid; place-items: center; border: 1px solid rgba(184,242,136,.45); border-radius: 50%; color: #b8f288; background: rgba(37,73,40,.55); }
+        .starlite-menu__profile-avatar svg { width: 42px; height: 42px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
         @media (max-width: 560px) {
           .starlite-menu__layout { align-content: start; overflow: auto; padding-bottom: 104px; }
           .starlite-menu__title { font-size: 58px; }
           .starlite-menu__panel { padding: 15px; }
           .starlite-menu__button { min-height: 59px; }
-          .starlite-menu__branch-actions, .starlite-menu__online-create { grid-template-columns: 1fr; }
-          .starlite-menu__panel[data-view="tag-lab"] { max-height: calc(100vh - 20px); }
+          .starlite-menu__branch-actions, .starlite-menu__online-create, .starlite-menu__mode-gates, .starlite-menu__online-choices { grid-template-columns: 1fr; }
+          .starlite-menu__gate { min-height: 126px; }
+          .starlite-menu__top-actions { top: 10px; right: 10px; }
+          .starlite-menu__tag-teaser { position: static; width: min(180px, 62vw); min-height: 72px; margin: 15px auto 0; grid-template-columns: auto 1fr; transform: rotate(-4deg); }
+          .starlite-menu__tag-teaser-mark { grid-row: 1 / span 2; }
+          .starlite-menu__profile-card { grid-template-columns: 58px 1fr; }
+          .starlite-menu__profile-avatar { width: 58px; height: 58px; }
+          .starlite-menu__panel[data-view="tag-lab"], .starlite-menu__panel[data-view="settings"] { max-height: calc(100vh - 20px); }
           .starlite-menu__tag-lab { grid-template-columns: 1fr; }
           .starlite-menu__tag-list { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }
           .starlite-menu__tag-owned { grid-template-columns: 38px 1fr; }
@@ -8683,7 +8774,7 @@
           .starlite-menu__tag-color-groups { grid-template-columns: 1fr; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .starlite-menu__button, .starlite-menu__key { transition: none; animation: none !important; }
+          .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__tag-teaser { transition: none; animation: none !important; }
         }
       `;
       
@@ -8720,8 +8811,25 @@
         const grassTile = createGrassPattern();
         const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
         let width = 1, height = 1, dpr = 1, frameId = 0, stopped = false, last = performance.now();
-        const troopColors = ['#c9e7be', '#f08e82', '#f4cf72', '#c89bff'];
-        const troops = [];
+        const teamColors = ['#c9e7be', '#f08e82', '#f4cf72', '#c89bff'];
+        const unitSpecs = Object.freeze([
+          { type: 'forager', family: 'troop', speed: [15, 24], scale: [.72, .92] },
+          { type: 'infantry', family: 'troop', speed: [18, 29], scale: [.78, 1.02] },
+          { type: 'assault', family: 'troop', speed: [14, 23], scale: [.82, 1.05] },
+          { type: 'mortar', family: 'troop', speed: [11, 18], scale: [.9, 1.12] },
+          { type: 'jeep', family: 'vehicle', speed: [24, 38], scale: [.82, 1.08] },
+          { type: 'armoredJeep', family: 'vehicle', speed: [20, 32], scale: [.9, 1.14] },
+          { type: 'forceFieldTruck', family: 'vehicle', speed: [16, 25], scale: [.92, 1.16] },
+          { type: 'titanTank', family: 'tank', speed: [10, 18], scale: [.9, 1.14] },
+          { type: 'mecha', family: 'mecha', speed: [10, 17], scale: [.84, 1.08] },
+          { type: 'helicopter', family: 'rotor', speed: [28, 44], scale: [.82, 1.08] },
+          { type: 'doubleChopper', family: 'rotor', speed: [25, 40], scale: [.92, 1.15] },
+          { type: 'antiAirFighter', family: 'plane', speed: [34, 52], scale: [.82, 1.06] },
+          { type: 'bomber', family: 'plane', speed: [27, 42], scale: [.98, 1.2] }
+        ]);
+        const units = [];
+      
+        function randBetween(a, b) { return a + Math.random() * (b - a); }
       
         function resize() {
           const rect = canvas.getBoundingClientRect();
@@ -8731,44 +8839,98 @@
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
       
-        function spawnTroop(initial = false) {
+        function spawnUnit(initial = false) {
           const side = Math.random() < .5 ? -1 : 1;
-          const kindRoll = Math.random();
-          const kind = kindRoll < .58 ? 'infantry' : kindRoll < .84 ? 'jeep' : 'chopper';
-          const heading = side > 0 ? randBetween(-.34, .34) : Math.PI + randBetween(-.34, .34);
-          const speed = reducedMotion ? 0 : (kind === 'chopper' ? randBetween(25, 42) : randBetween(15, 31));
-          troops.push({
-            x: initial ? Math.random() * width : (side > 0 ? -55 : width + 55),
-            y: 40 + Math.random() * Math.max(80, height - 80),
-            heading, speed, kind, size: kind === 'infantry' ? randBetween(.75, 1.08) : randBetween(.85, 1.18),
-            color: troopColors[(Math.random() * troopColors.length) | 0], phase: Math.random() * Math.PI * 2,
-            alpha: randBetween(.28, .5)
+          const spec = unitSpecs[(Math.random() * unitSpecs.length) | 0];
+          const heading = side > 0 ? randBetween(-.3, .3) : Math.PI + randBetween(-.3, .3);
+          units.push({
+            x: initial ? Math.random() * width : (side > 0 ? -70 : width + 70),
+            y: 36 + Math.random() * Math.max(90, height - 72),
+            heading,
+            speed: reducedMotion ? 0 : randBetween(spec.speed[0], spec.speed[1]),
+            type: spec.type,
+            family: spec.family,
+            size: randBetween(spec.scale[0], spec.scale[1]),
+            color: teamColors[(Math.random() * teamColors.length) | 0],
+            phase: Math.random() * Math.PI * 2,
+            alpha: randBetween(.25, .48)
           });
         }
       
-        function drawTroop(troop, time) {
-          const bob = Math.sin(time * .006 + troop.phase);
-          ctx.save();
-          ctx.translate(troop.x, troop.y + bob * (troop.kind === 'chopper' ? 2 : .7));
-          ctx.rotate(troop.heading); ctx.scale(troop.size, troop.size); ctx.globalAlpha = troop.alpha;
-          ctx.fillStyle = 'rgba(0,0,0,.22)';
-          ctx.beginPath(); ctx.ellipse(-3, 7, troop.kind === 'infantry' ? 7 : 15, 4, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = troop.color; ctx.strokeStyle = '#182319'; ctx.lineWidth = 2;
-          if (troop.kind === 'infantry') {
-            ctx.beginPath(); ctx.arc(3, -5, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(0, -1); ctx.lineTo(-2, 8); ctx.lineTo(-7, 13); ctx.moveTo(-1, 8); ctx.lineTo(4, 13); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(0, 1); ctx.lineTo(10, -1); ctx.stroke();
-          } else if (troop.kind === 'jeep') {
-            ctx.fillRect(-13, -7, 26, 14); ctx.strokeRect(-13, -7, 26, 14);
-            ctx.fillStyle = '#26372a'; ctx.fillRect(-6, -10, 10, 8);
-            ctx.strokeStyle = troop.color; ctx.beginPath(); ctx.moveTo(2, -7); ctx.lineTo(15, -11); ctx.stroke();
-            ctx.fillStyle = '#111713'; ctx.fillRect(-10, 7, 6, 4); ctx.fillRect(5, 7, 6, 4);
+        function drawTroop(unit) {
+          ctx.beginPath(); ctx.arc(3, -5, unit.type === 'forager' ? 3.5 : 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(0, -1); ctx.lineTo(-2, 8); ctx.lineTo(-7, 13); ctx.moveTo(-1, 8); ctx.lineTo(4, 13); ctx.stroke();
+          if (unit.type === 'forager') {
+            ctx.fillStyle = '#384c39'; ctx.fillRect(-6, -1, 5, 8); ctx.strokeRect(-6, -1, 5, 8);
+            ctx.beginPath(); ctx.moveTo(1, 1); ctx.lineTo(8, 5); ctx.stroke();
+          } else if (unit.type === 'mortar') {
+            ctx.beginPath(); ctx.moveTo(0, 2); ctx.lineTo(10, 8); ctx.moveTo(8, 8); ctx.lineTo(14, 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(14, 1, 3, 0, Math.PI * 2); ctx.stroke();
           } else {
-            ctx.beginPath(); ctx.ellipse(0, 0, 15, 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            ctx.fillRect(-13, -3, 5, 13); ctx.strokeRect(-13, -3, 5, 13);
-            ctx.strokeStyle = '#dcebd6'; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.moveTo(-25, -9); ctx.lineTo(25, 9); ctx.moveTo(-25, 9); ctx.lineTo(25, -9); ctx.stroke();
+            const gunLength = unit.type === 'assault' ? 15 : 10;
+            ctx.beginPath(); ctx.moveTo(0, 1); ctx.lineTo(gunLength, -2); ctx.stroke();
+            if (unit.type === 'assault') { ctx.fillStyle = '#26372a'; ctx.fillRect(-5, 0, 5, 7); }
           }
+        }
+      
+        function drawVehicle(unit) {
+          const armored = unit.type !== 'jeep';
+          ctx.fillRect(-14, -7, 28, 14); ctx.strokeRect(-14, -7, 28, 14);
+          ctx.fillStyle = '#26372a'; ctx.fillRect(-7, -10, armored ? 14 : 10, 8);
+          ctx.strokeStyle = unit.color; ctx.strokeRect(-7, -10, armored ? 14 : 10, 8);
+          if (unit.type === 'forceFieldTruck') {
+            ctx.strokeStyle = '#9cf2ff'; ctx.beginPath(); ctx.arc(2, -3, 9, Math.PI, Math.PI * 2); ctx.stroke();
+          } else {
+            ctx.strokeStyle = unit.color; ctx.beginPath(); ctx.moveTo(2, -7); ctx.lineTo(armored ? 18 : 15, -11); ctx.stroke();
+          }
+          ctx.fillStyle = '#111713'; ctx.fillRect(-11, 7, 7, 4); ctx.fillRect(5, 7, 7, 4);
+        }
+      
+        function drawTank(unit) {
+          ctx.fillRect(-17, -8, 34, 16); ctx.strokeRect(-17, -8, 34, 16);
+          ctx.fillStyle = '#28372c'; ctx.fillRect(-10, -11, 20, 12); ctx.strokeRect(-10, -11, 20, 12);
+          ctx.strokeStyle = unit.color; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(3, -6); ctx.lineTo(23, -10); ctx.stroke();
+          ctx.fillStyle = '#101511'; ctx.fillRect(-15, 8, 30, 4);
+        }
+      
+        function drawMecha(unit) {
+          ctx.fillRect(-8, -13, 16, 18); ctx.strokeRect(-8, -13, 16, 18);
+          ctx.beginPath(); ctx.moveTo(-5, 5); ctx.lineTo(-10, 15); ctx.moveTo(5, 5); ctx.lineTo(10, 15); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-8, -8); ctx.lineTo(-17, 0); ctx.moveTo(8, -8); ctx.lineTo(17, -2); ctx.stroke();
+          ctx.fillStyle = '#9cf2ff'; ctx.fillRect(-4, -9, 8, 3);
+        }
+      
+        function drawRotor(unit, time) {
+          ctx.beginPath(); ctx.ellipse(0, 0, unit.type === 'doubleChopper' ? 18 : 15, 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillRect(-14, -3, 5, 13); ctx.strokeRect(-14, -3, 5, 13);
+          ctx.strokeStyle = '#dcebd6'; ctx.lineWidth = 1.4;
+          const sweep = Math.sin(time * .02 + unit.phase) * 4;
+          ctx.beginPath(); ctx.moveTo(-25, -9 + sweep); ctx.lineTo(25, 9 - sweep); ctx.moveTo(-25, 9 - sweep); ctx.lineTo(25, -9 + sweep); ctx.stroke();
+          if (unit.type === 'doubleChopper') { ctx.beginPath(); ctx.moveTo(-18, 0); ctx.lineTo(-31, -8); ctx.moveTo(18, 0); ctx.lineTo(31, 8); ctx.stroke(); }
+        }
+      
+        function drawPlane(unit) {
+          const bomber = unit.type === 'bomber';
+          ctx.beginPath();
+          ctx.moveTo(20, 0); ctx.lineTo(-13, bomber ? -10 : -7); ctx.lineTo(-5, -2); ctx.lineTo(-19, -3); ctx.lineTo(-20, 3); ctx.lineTo(-5, 2); ctx.lineTo(-13, bomber ? 10 : 7); ctx.closePath();
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#9cf2ff'; ctx.fillRect(2, -2, 6, 4);
+        }
+      
+        function drawUnit(unit, time) {
+          const air = unit.family === 'rotor' || unit.family === 'plane';
+          const bob = Math.sin(time * .006 + unit.phase);
+          ctx.save();
+          ctx.translate(unit.x, unit.y + bob * (air ? 2.3 : .7));
+          ctx.rotate(unit.heading); ctx.scale(unit.size, unit.size); ctx.globalAlpha = unit.alpha;
+          ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(-3, air ? 10 : 8, air ? 18 : (unit.family === 'troop' ? 7 : 16), 4, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = unit.color; ctx.strokeStyle = '#182319'; ctx.lineWidth = 2;
+          if (unit.family === 'troop') drawTroop(unit);
+          else if (unit.family === 'vehicle') drawVehicle(unit);
+          else if (unit.family === 'tank') drawTank(unit);
+          else if (unit.family === 'mecha') drawMecha(unit);
+          else if (unit.family === 'rotor') drawRotor(unit, time);
+          else drawPlane(unit);
           ctx.restore();
         }
       
@@ -8781,28 +8943,26 @@
           const glow = ctx.createRadialGradient(width * .5, height * .38, 20, width * .5, height * .38, Math.max(width, height) * .72);
           glow.addColorStop(0, 'rgba(156,195,117,.17)'); glow.addColorStop(1, 'rgba(13,34,19,.18)');
           ctx.fillStyle = glow; ctx.fillRect(0, 0, width, height);
-          for (let i = troops.length - 1; i >= 0; i--) {
-            const troop = troops[i];
-            troop.x += Math.cos(troop.heading) * troop.speed * dt;
-            troop.y += Math.sin(troop.heading) * troop.speed * dt;
-            drawTroop(troop, now);
-            if (troop.x < -90 || troop.x > width + 90 || troop.y < -90 || troop.y > height + 90) troops.splice(i, 1);
+          for (let index = units.length - 1; index >= 0; index--) {
+            const unit = units[index];
+            unit.x += Math.cos(unit.heading) * unit.speed * dt;
+            unit.y += Math.sin(unit.heading) * unit.speed * dt;
+            drawUnit(unit, now);
+            if (unit.x < -100 || unit.x > width + 100 || unit.y < -100 || unit.y > height + 100) units.splice(index, 1);
           }
-          const targetCount = Math.max(6, Math.min(13, Math.round(width / 125)));
-          if (troops.length < targetCount && Math.random() < dt * 1.8) spawnTroop(false);
+          const targetCount = Math.max(8, Math.min(16, Math.round(width / 105)));
+          if (units.length < targetCount && Math.random() < dt * 2.2) spawnUnit(false);
           frameId = requestAnimationFrame(draw);
         }
       
-        function randBetween(a, b) { return a + Math.random() * (b - a); }
         resize();
-        for (let i = 0; i < 9; i++) spawnTroop(true);
+        for (let index = 0; index < 12; index++) spawnUnit(true);
         window.addEventListener('resize', resize);
         frameId = requestAnimationFrame(draw);
         return () => {
           stopped = true; cancelAnimationFrame(frameId); window.removeEventListener('resize', resize);
         };
       }
-      
       
       const GAME_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       
@@ -8871,6 +9031,7 @@
         document.body.style.overflow = 'hidden';
       
         const username = loadMenuUsername();
+        const menuVolume = loadMenuVolume();
         const root = document.createElement('div');
         root.id = 'starlite-menu';
         root.setAttribute('role', 'dialog');
@@ -8880,32 +9041,45 @@
           <canvas aria-hidden="true"></canvas><div class="starlite-menu__shade" aria-hidden="true"></div>
           <main class="starlite-menu__layout">
             <header class="starlite-menu__brand"><p class="starlite-menu__eyebrow">Tactical command</p><h1 class="starlite-menu__title">Star<span>Lite</span></h1></header>
+            <nav class="starlite-menu__top-actions" aria-label="Menu utilities">
+              <button class="starlite-menu__icon-button" type="button" data-open-player aria-label="Player profile" title="Player profile">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 21c.8-4.4 3.3-6.6 7.5-6.6s6.7 2.2 7.5 6.6"></path></svg>
+              </button>
+              <button class="starlite-menu__icon-button" type="button" data-open-settings aria-label="Settings" title="Settings">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"></path></svg>
+              </button>
+            </nav>
             <section class="starlite-menu__panel" data-view="categories">
-              <h2 class="starlite-menu__heading">Choose opponent</h2>
-              <label class="starlite-menu__identity">
-                <span>COMMANDER USERNAME</span>
-                <input type="text" maxlength="20" autocomplete="nickname" spellcheck="false" value="${escapeHTML(username)}" data-username>
-                <small>Saved on this device and shown in multiplayer.</small>
-              </label>
-              <div class="starlite-menu__modes">
-                <button class="starlite-menu__button" type="button" data-category="online">
-                  <span><strong>PLAY ONLINE</strong><small>Browse active public lobbies or create one for others to join.</small></span>
-                  <span class="starlite-menu__chevron" aria-hidden="true">›</span>
+              <h2 class="starlite-menu__heading">Choose how to play</h2>
+              <div class="starlite-menu__mode-gates">
+                <button class="starlite-menu__gate starlite-menu__gate--online" type="button" data-category="online">
+                  <span><span class="starlite-menu__gate-kicker">MULTIPLAYER</span><strong>ONLINE</strong></span>
+                  <small>Browse public games or host and join a private room.</small>
+                  <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
                 </button>
-                <button class="starlite-menu__button" type="button" data-category="computer">
-                  <span><strong>COMPUTER</strong><small>Play against one to three computer commanders.</small></span>
-                  <span class="starlite-menu__chevron" aria-hidden="true">›</span>
-                </button>
-                <button class="starlite-menu__button" type="button" data-category="pvp">
-                  <span><strong>PVP</strong><small>Host or join a two-, three-, or four-player relay match.</small></span>
-                  <span class="starlite-menu__chevron" aria-hidden="true">›</span>
+                <button class="starlite-menu__gate starlite-menu__gate--computer" type="button" data-category="computer">
+                  <span><span class="starlite-menu__gate-kicker">SOLO BATTLE</span><strong>VS. COMPUTER</strong></span>
+                  <small>Fight one to three computer commanders or enter sandbox mode.</small>
+                  <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
                 </button>
               </div>
               <p class="starlite-menu__status" role="status" aria-live="polite"></p>
-              <div class="starlite-menu__utility"><button class="starlite-menu__secondary" type="button" data-open-tag-lab>TAG LAB</button><button class="starlite-menu__secondary" type="button" data-open-keybinds>CHANGE KEYBINDS</button></div>
+            </section>
+            <section class="starlite-menu__panel starlite-hidden" data-view="online-choice">
+              <h2 class="starlite-menu__heading">Online</h2>
+              <p class="starlite-menu__pvp-copy">Choose how you want to find the other commanders.</p>
+              <div class="starlite-menu__online-choices">
+                <button class="starlite-menu__online-choice starlite-menu__online-choice--public" type="button" data-online-choice="public">
+                  <strong>PUBLIC GAMES</strong><small>Browse open lobbies or create a public game that other players can discover.</small>
+                </button>
+                <button class="starlite-menu__online-choice starlite-menu__online-choice--private" type="button" data-online-choice="private">
+                  <strong>PRIVATE ROOM</strong><small>Choose a room size, then host a room code or join a friend's code.</small>
+                </button>
+              </div>
+              <button class="starlite-menu__secondary starlite-menu__pvp-back" type="button" data-close-online-choice>BACK</button>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="online">
-              <h2 class="starlite-menu__heading">PLAY ONLINE</h2>
+              <h2 class="starlite-menu__heading">Public games</h2>
               <p class="starlite-menu__pvp-copy">Join an active public lobby, or create one that appears here until the match starts.</p>
               <div class="starlite-menu__online-create">
                 <label class="starlite-menu__identity">
@@ -9003,26 +9177,58 @@
                 </div>
               </div>
             </section>
-            <section class="starlite-menu__panel starlite-hidden" data-view="keybinds">
-              <h2 class="starlite-menu__heading">Keyboard controls</h2>
-              <div class="starlite-menu__key-list">${keybindRowsMarkup()}</div>
-              <p class="starlite-menu__status" data-keybind-status role="status" aria-live="polite">Select a key, then press its replacement.</p>
-              <div class="starlite-menu__settings-actions">
-                <button class="starlite-menu__secondary" type="button" data-reset-keybinds>RESET DEFAULTS</button>
-                <button class="starlite-menu__secondary" type="button" data-close-keybinds>BACK</button>
+            <section class="starlite-menu__panel starlite-hidden" data-view="player">
+              <h2 class="starlite-menu__heading">Player profile</h2>
+              <div class="starlite-menu__profile-card">
+                <div class="starlite-menu__profile-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 21c.8-4.4 3.3-6.6 7.5-6.6s6.7 2.2 7.5 6.6"></path></svg></div>
+                <label class="starlite-menu__identity" style="margin:0">
+                  <span>COMMANDER NAME</span>
+                  <input type="text" maxlength="20" autocomplete="nickname" spellcheck="false" value="${escapeHTML(username)}" data-username>
+                  <small>Saved on this device and shown in multiplayer.</small>
+                </label>
+              </div>
+              <p class="starlite-menu__status" data-player-status role="status" aria-live="polite"></p>
+              <div class="starlite-menu__branch-actions">
+                <button class="starlite-menu__secondary" type="button" data-save-player>SAVE NAME</button>
+                <button class="starlite-menu__secondary" type="button" data-close-player>BACK</button>
               </div>
             </section>
+            <section class="starlite-menu__panel starlite-hidden" data-view="settings">
+              <h2 class="starlite-menu__heading">Settings</h2>
+              <div class="starlite-menu__settings-grid">
+                <div class="starlite-menu__volume-card">
+                  <div class="starlite-menu__volume-head"><strong>MASTER VOLUME</strong><output data-volume-value>${menuVolume}%</output></div>
+                  <input type="range" min="0" max="100" step="1" value="${menuVolume}" data-volume aria-label="Master volume">
+                  <small>This value is saved now and is ready for future audio; the current build has no sound output.</small>
+                </div>
+                <div>
+                  <h3 class="starlite-menu__heading" style="margin-bottom:10px">Keyboard controls</h3>
+                  <div class="starlite-menu__key-list">${keybindRowsMarkup()}</div>
+                </div>
+              </div>
+              <p class="starlite-menu__status" data-keybind-status role="status" aria-live="polite">Select a key, then press its replacement.</p>
+              <div class="starlite-menu__settings-actions">
+                <button class="starlite-menu__secondary" type="button" data-reset-keybinds>RESET KEYBINDS</button>
+                <button class="starlite-menu__secondary" type="button" data-close-settings>BACK</button>
+              </div>
+            </section>
+            <button class="starlite-menu__tag-teaser" type="button" data-open-tag-lab aria-label="Open Tag Lab">
+              <span class="starlite-menu__tag-teaser-mark" aria-hidden="true">✎</span><strong>TAG LAB</strong><small>MAKE YOUR MARK</small>
+            </button>
             <footer class="starlite-menu__footer">Deterministic lockstep · WebSocket relay ready</footer>
           </main>`;
         document.body.appendChild(root);
       
         const stopBackdrop = startMenuBackdrop(root.querySelector('canvas'));
         const categoryView = root.querySelector('[data-view="categories"]');
+        const onlineChoiceView = root.querySelector('[data-view="online-choice"]');
         const onlineView = root.querySelector('[data-view="online"]');
         const sizeView = root.querySelector('[data-view="sizes"]');
         const pvpView = root.querySelector('[data-view="pvp"]');
         const tagLabView = root.querySelector('[data-view="tag-lab"]');
-        const keybindView = root.querySelector('[data-view="keybinds"]');
+        const playerView = root.querySelector('[data-view="player"]');
+        const settingsView = root.querySelector('[data-view="settings"]');
+        const tagTeaser = root.querySelector('[data-open-tag-lab]');
         const status = categoryView.querySelector('.starlite-menu__status');
         const sizeHeading = root.querySelector('[data-size-heading]');
         const sizeCopy = root.querySelector('[data-size-copy]');
@@ -9055,6 +9261,9 @@
         const tagSaveButton = root.querySelector('[data-save-tag]');
         const tagStatus = root.querySelector('[data-tag-status]');
         const keybindStatus = root.querySelector('[data-keybind-status]');
+        const playerStatus = root.querySelector('[data-player-status]');
+        const volumeInput = root.querySelector('[data-volume]');
+        const volumeValue = root.querySelector('[data-volume-value]');
         let capturingAction = null;
         let hostedGameCode = '';
         let selectedBranch = 'computer';
@@ -9071,6 +9280,8 @@
         let tagDirty = false;
         let tagDrawing = false;
         let tagLastPixel = null;
+        let activeView = categoryView;
+        let utilityReturnView = categoryView;
       
         function currentUsername() {
           const value = normalizeMenuUsername(usernameInput.value);
@@ -9086,9 +9297,27 @@
         usernameInput.addEventListener('blur', currentUsername);
       
         function showOnly(view) {
-          for (const candidate of [categoryView, onlineView, sizeView, pvpView, tagLabView, keybindView]) {
-            candidate.classList.toggle('starlite-hidden', candidate !== view);
+          activeView = view || categoryView;
+          for (const candidate of [categoryView, onlineChoiceView, onlineView, sizeView, pvpView, tagLabView, playerView, settingsView]) {
+            candidate.classList.toggle('starlite-hidden', candidate !== activeView);
           }
+          tagTeaser.classList.toggle('starlite-hidden', activeView !== categoryView);
+        }
+      
+        function utilityReturnTarget() {
+          return activeView === playerView || activeView === settingsView ? utilityReturnView : activeView;
+        }
+      
+        function openOnlineChoice() {
+          status.textContent = '';
+          currentUsername();
+          showOnly(onlineChoiceView);
+          onlineChoiceView.querySelector('[data-online-choice]')?.focus();
+        }
+      
+        function closeOnlineChoice() {
+          showOnly(categoryView);
+          root.querySelector('[data-category="online"]')?.focus();
         }
       
         function renderOnlineLobbies(lobbies = onlineLobbies) {
@@ -9136,8 +9365,8 @@
           onlineLobbies = [];
           renderOnlineLobbies();
           onlineStatus.textContent = '';
-          showOnly(categoryView);
-          root.querySelector('[data-category="online"]')?.focus();
+          showOnly(onlineChoiceView);
+          onlineChoiceView.querySelector('[data-online-choice="public"]')?.focus();
         }
       
         function renderKeybindButtons() {
@@ -9210,8 +9439,13 @@
         }
       
         function closeSizes() {
+          if (selectedBranch === 'pvp') {
+            showOnly(onlineChoiceView);
+            onlineChoiceView.querySelector('[data-online-choice="private"]')?.focus();
+            return;
+          }
           showOnly(categoryView);
-          root.querySelector(`[data-category="${selectedBranch}"]`)?.focus();
+          root.querySelector('[data-category="computer"]')?.focus();
         }
       
         function openPvp(mode, returnView = 'sizes') {
@@ -9371,19 +9605,36 @@
           setTagDirty(tagEraser ? 'Pen marks erased. Select SAVE to keep the edit.' : 'Drawing updated. Select SAVE to keep the edit.');
         }
       
-        function openKeybinds() {
+        function openSettings() {
           status.textContent = '';
-          showOnly(keybindView);
+          utilityReturnView = utilityReturnTarget() || categoryView;
+          showOnly(settingsView);
           capturingAction = null;
           renderKeybindButtons();
-          root.querySelector('[data-keybind]')?.focus();
+          volumeInput.focus();
         }
       
-        function closeKeybinds() {
+        function closeSettings() {
           capturingAction = null;
           renderKeybindButtons();
-          showOnly(categoryView);
-          root.querySelector('[data-open-keybinds]')?.focus();
+          showOnly(utilityReturnView || categoryView);
+          root.querySelector('[data-open-settings]')?.focus();
+        }
+      
+        function openPlayer() {
+          status.textContent = '';
+          utilityReturnView = utilityReturnTarget() || categoryView;
+          usernameInput.value = loadMenuUsername();
+          playerStatus.textContent = '';
+          showOnly(playerView);
+          usernameInput.focus();
+          usernameInput.select();
+        }
+      
+        function closePlayer() {
+          currentUsername();
+          showOnly(utilityReturnView || categoryView);
+          root.querySelector('[data-open-player]')?.focus();
         }
       
         root.querySelector('[data-open-tag-lab]').addEventListener('click', openTagLab);
@@ -9515,14 +9766,29 @@
           tagDefinitions = persisted;
           openBlankGroundTag('Tag deleted. Blank white canvas ready; saved tags remain listed.');
         });
-        root.querySelector('[data-open-keybinds]').addEventListener('click', openKeybinds);
+        root.querySelector('[data-open-settings]').addEventListener('click', openSettings);
+        root.querySelector('[data-open-player]').addEventListener('click', openPlayer);
+        root.querySelector('[data-save-player]').addEventListener('click', () => {
+          const saved = currentUsername();
+          playerStatus.textContent = `${saved} saved as your commander name.`;
+        });
+        root.querySelector('[data-close-player]').addEventListener('click', closePlayer);
+        root.querySelector('[data-close-online-choice]').addEventListener('click', closeOnlineChoice);
+        root.querySelector('[data-online-choice="public"]').addEventListener('click', openOnline);
+        root.querySelector('[data-online-choice="private"]').addEventListener('click', () => openSizeSelection('pvp'));
+        volumeInput.addEventListener('input', () => {
+          const value = persistMenuVolume(volumeInput.value);
+          volumeInput.value = String(value);
+          volumeValue.textContent = `${value}%`;
+          volumeInput.setAttribute('aria-valuetext', `${value} percent`);
+        });
         root.querySelector('[data-close-online]').addEventListener('click', closeOnline);
         root.querySelector('[data-online-refresh]').addEventListener('click', () => {
           onlineStatus.textContent = refreshPublicLobbyDirectory() ? 'Refreshing public lobbies…' : 'Public lobby directory is not connected.';
         });
         root.querySelector('[data-close-sizes]').addEventListener('click', closeSizes);
         root.querySelector('[data-close-pvp]').addEventListener('click', closePvp);
-        root.querySelector('[data-close-keybinds]').addEventListener('click', closeKeybinds);
+        root.querySelector('[data-close-settings]').addEventListener('click', closeSettings);
         root.querySelector('[data-reset-keybinds]').addEventListener('click', () => {
           resetKeybinds(); capturingAction = null; renderKeybindButtons();
           keybindStatus.textContent = 'Default keybinds restored and saved.';
@@ -9629,8 +9895,8 @@
       
           for (const button of root.querySelectorAll('[data-category]')) {
             button.addEventListener('click', () => {
-              if (button.dataset.category === 'online') openOnline();
-              else openSizeSelection(button.dataset.category);
+              if (button.dataset.category === 'online') openOnlineChoice();
+              else openSizeSelection('computer');
             });
           }
           sizeModes.addEventListener('click', event => {
@@ -9696,7 +9962,7 @@
       
           const previousMode = storageGet(STORAGE_KEYS.lastGameMode);
           const previousWasPvp = PVP_MODE_KEYS.some(key => GAME_MODES[key]?.id === previousMode);
-          root.querySelector(`[data-category="${previousWasPvp ? 'pvp' : 'computer'}"]`)?.focus();
+          root.querySelector(`[data-category="${previousWasPvp ? 'online' : 'computer'}"]`)?.focus();
         });
       }
       
