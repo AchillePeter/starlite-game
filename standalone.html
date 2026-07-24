@@ -13979,13 +13979,14 @@
 
   __define("state.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("terrain.js"); const __dep3 = __require("uiLayout.js");
-    Object.defineProperty(__imports, "BLOC_AMOUNT", { enumerable: true, get: () => __dep0["BLOC_AMOUNT"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => __dep0["CENTER_STOCK_BONUS"] }); Object.defineProperty(__imports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => __dep0["CENTER_YIELD_BONUS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep0["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep0["LOAD_GAS"] }); Object.defineProperty(__imports, "LOAD_MINERAL", { enumerable: true, get: () => __dep0["LOAD_MINERAL"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => __dep0["RESOURCE_FIELD_BUILD_RADIUS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => __dep0["UNIT_UPGRADE_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => __dep0["ZOOM_OUT_DUEL_FRACTION"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isAirUnitType", { enumerable: true, get: () => __dep0["isAirUnitType"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep0["rand"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep0["unitUpgradeData"] }); Object.defineProperty(__imports, "applyUnitUpgradeEffect", { enumerable: true, get: () => __dep1["applyUnitUpgradeEffect"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep2["isBlocked"] }); Object.defineProperty(__imports, "commandConsoleHeight", { enumerable: true, get: () => __dep3["commandConsoleHeight"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("terrain.js"); const __dep4 = __require("uiLayout.js");
+    Object.defineProperty(__imports, "BLOC_AMOUNT", { enumerable: true, get: () => __dep0["BLOC_AMOUNT"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => __dep0["CENTER_STOCK_BONUS"] }); Object.defineProperty(__imports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => __dep0["CENTER_YIELD_BONUS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep0["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep0["LOAD_GAS"] }); Object.defineProperty(__imports, "LOAD_MINERAL", { enumerable: true, get: () => __dep0["LOAD_MINERAL"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => __dep0["RESOURCE_FIELD_BUILD_RADIUS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => __dep0["UNIT_UPGRADE_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => __dep0["ZOOM_OUT_DUEL_FRACTION"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isAirUnitType", { enumerable: true, get: () => __dep0["isAirUnitType"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "isHumanTeam", { enumerable: true, get: () => __dep0["isHumanTeam"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep0["unitUpgradeData"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "applyUnitUpgradeEffect", { enumerable: true, get: () => __dep2["applyUnitUpgradeEffect"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep3["isBlocked"] }); Object.defineProperty(__imports, "commandConsoleHeight", { enumerable: true, get: () => __dep4["commandConsoleHeight"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "CH", { enumerable: true, get: () => CH }); Object.defineProperty(__exports, "CW", { enumerable: true, get: () => CW }); Object.defineProperty(__exports, "VIEW_H", { enumerable: true, get: () => VIEW_H }); Object.defineProperty(__exports, "VIEW_W", { enumerable: true, get: () => VIEW_W }); Object.defineProperty(__exports, "addResourceField", { enumerable: true, get: () => addResourceField }); Object.defineProperty(__exports, "addStructure", { enumerable: true, get: () => addStructure }); Object.defineProperty(__exports, "addUnit", { enumerable: true, get: () => addUnit }); Object.defineProperty(__exports, "applyRenderInterpolation", { enumerable: true, get: () => applyRenderInterpolation }); Object.defineProperty(__exports, "cam", { enumerable: true, get: () => cam }); Object.defineProperty(__exports, "canvas", { enumerable: true, get: () => canvas }); Object.defineProperty(__exports, "centerCamOn", { enumerable: true, get: () => centerCamOn }); Object.defineProperty(__exports, "clampCam", { enumerable: true, get: () => clampCam }); Object.defineProperty(__exports, "ctx", { enumerable: true, get: () => ctx }); Object.defineProperty(__exports, "maxZoom", { enumerable: true, get: () => maxZoom }); Object.defineProperty(__exports, "minZoom", { enumerable: true, get: () => minZoom }); Object.defineProperty(__exports, "resize", { enumerable: true, get: () => resize }); Object.defineProperty(__exports, "resourceFields", { enumerable: true, get: () => resourceFields }); Object.defineProperty(__exports, "resourceNodes", { enumerable: true, get: () => resourceNodes }); Object.defineProperty(__exports, "resetVisibilityGrids", { enumerable: true, get: () => resetVisibilityGrids }); Object.defineProperty(__exports, "registerUnitPlacementSpatialQuery", { enumerable: true, get: () => registerUnitPlacementSpatialQuery }); Object.defineProperty(__exports, "restoreSimulationPositions", { enumerable: true, get: () => restoreSimulationPositions }); Object.defineProperty(__exports, "screenToWorld", { enumerable: true, get: () => screenToWorld }); Object.defineProperty(__exports, "setZoom", { enumerable: true, get: () => setZoom }); Object.defineProperty(__exports, "snapshotSimulationState", { enumerable: true, get: () => snapshotSimulationState }); Object.defineProperty(__exports, "state", { enumerable: true, get: () => state }); Object.defineProperty(__exports, "structures", { enumerable: true, get: () => structures }); Object.defineProperty(__exports, "units", { enumerable: true, get: () => units });
       // Canvas/camera state, runtime state, entity collections, and entity factories.
       // Extracted from the original single-file build; runtime grids follow the active map mode.
+      
       
       
       
@@ -14068,12 +14069,26 @@
       const state = {
         minerals: 200,
         gas: 120,
+        teamResources: Object.create(null),
         elapsed: 0,
+        simulationTick: 0,
+        localCommandTeams: ['player'],
+        activeCommandTeam: 'player',
+        syncChecksums: [],
         gameStarted: false,
         gameModeId: null,
         sandboxMode: false,
         sandboxPopulationCap: 0,
         activeTeams: [],
+        humanCommandTeams: ['player'],
+        multiplayerActive: false,
+        multiplayerPaused: false,
+        multiplayerStatus: '',
+        multiplayerRoomCode: null,
+        multiplayerRole: null,
+        multiplayerRemoteTeam: null,
+        multiplayerRemoteTeams: [],
+        multiplayerPlayers: [],
         eliminatedTeams: new Set(),
         winnerTeam: null,
         incomeClock: 0,
@@ -14123,13 +14138,18 @@
         spawnFlagStructureIds: [],
         foragerDispatchCount: 0,
         adrenalineReadyAt: 0,
+        teamAdrenalineReadyAt: Object.create(null),
         turretTechLevel: 1,
+        teamTurretTechLevels: Object.create(null),
+        teamUnitUpgrades: Object.create(null),
         unitUpgrades: Object.fromEntries(Object.keys(UNIT_UPGRADE_DATA).map(type => [type, 0])),
         productionTechLevels: Object.fromEntries(INITIAL_TEAMS.map(team => [team, initialProductionLevels()])),
         productionTechJobs: Object.fromEntries(INITIAL_TEAMS.map(team => [team, Object.create(null)])),
         minimapActive: false,
         computerAIs: Object.create(null),
-        enemyAI: null
+        enemyAI: null,
+        matchSeed: null,
+        matchGameCode: null
       };
       
       function resetVisibilityGrids() {
@@ -14236,23 +14256,24 @@
       
       function addStructure(type, team, x, y, extra = {}) {
         let base;
-        if (type === 'hq') base = { w: 60, h: 52, hp: team === 'player' ? 720 : 820, sight: 170 };
+        if (type === 'hq') base = { w: 60, h: 52, hp: isHumanTeam(team) ? 720 : 820, sight: 170 };
         else if (BUILDING_DATA[type]) {
           const d = BUILDING_DATA[type];
-          base = { w: d.w, h: d.h, hp: d.hp, sight: d.sight, range: d.range, damage: d.damage, cooldown: d.cooldown };
+          base = { w: d.w, h: d.h, hp: d.hp, sight: d.sight, range: d.range, damage: d.damage, cooldown: d.cooldown, radarRange: d.radarRange };
         }
         else base = { w: 42, h: 38, hp: 230, sight: 95 };   // mines
         const inheritedLevel = state.productionTechLevels?.[team]?.[type] || 1;
-        const inheritedUpgradeJob = state.productionTechJobs?.[team]?.[type] || null;
         const s = {
           id: nextId++, kind: 'structure', type, team, x, y, prevX: x, prevY: y,
           maxHp: base.hp, hp: base.hp, w: base.w, h: base.h, sight: base.sight,
-          range: base.range || 0, damage: base.damage || 0, cooldown: base.cooldown || 0,
+          range: base.range || 0, damage: base.damage || 0, cooldown: base.cooldown || 0, radarRange: base.radarRange || 0,
           cooldownLeft: 0, target: null, barrelAngle: -Math.PI / 2, flash: 0, recoil: 0, queue: [], level: inheritedLevel,
           spawnFlag: null,
           adrenalineAuraUntil: 0,
-          upgradeJob: inheritedUpgradeJob,
+          upgradeJob: null,
           turretTechJob: null,
+          researchJob: null,
+          researchQueue: [],
           conversionJob: null,
           labJob: null,
           labQueue: [],
@@ -14366,7 +14387,7 @@
           flightPhase: rand(0, Math.PI * 2),
           idleOrbitPhase: 0, idleOrbitCenter: null, idleOrbitTargetId: null,
           movementOrderActive: false, yieldUntil: 0,
-          markDistance: rand(0, 10), stepSide: Math.random() < .5 ? -1 : 1,
+          markDistance: rand(0, 10), stepSide: random() < .5 ? -1 : 1,
           engineClock: rand(.08, .45),
           shield: 0, maxShield: 0, shieldSourceId: null, lastShieldHit: -Infinity,
           adrenalineUntil: 0,
@@ -14377,11 +14398,10 @@
           buildSite: null, buildResume: null,
           static: isComputerTeam(team), ...extra
         };
-        if (team === 'player') {
-          const completedLevels = Number(state.unitUpgrades[type]) || 0;
-          for (let level = 1; level <= completedLevels; level++) {
-            applyUnitUpgradeEffect(u, unitUpgradeData(type, level));
-          }
+        const upgradeRegistry = team === 'player' ? state.unitUpgrades : state.teamUnitUpgrades?.[team];
+        const completedLevels = Number(upgradeRegistry?.[type]) || 0;
+        for (let level = 1; level <= completedLevels; level++) {
+          applyUnitUpgradeEffect(u, unitUpgradeData(type, level));
         }
         units.push(u);
         return u;
