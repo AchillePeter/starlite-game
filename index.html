@@ -7921,7 +7921,7 @@
           toast('Ground tags require clear walkable ground in your current vision.', COLORS.warn);
           return false;
         }
-        const savedTags = storedGroundTagDefinitions();
+        const savedTags = Array.isArray(state.groundTagDefinitions) ? state.groundTagDefinitions : [];
         const tag = savedTags.find(candidate => candidate.id === state.groundTagDefinition?.id);
         if (!tag) {
           state.placingGroundTag = false;
