@@ -3872,8 +3872,8 @@
 
   __define("commandPanel.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("state.js"); const __dep3 = __require("commandSync.js"); const __dep4 = __require("terrain.js"); const __dep5 = __require("uiLayout.js"); const __dep6 = __require("portraitRenderer.js");
-    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep0["pointInRect"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "buildingSellValue", { enumerable: true, get: () => __dep1["buildingSellValue"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep1["canAfford"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep1["incomeRates"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep1["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep1["populationUsed"] }); Object.defineProperty(__imports, "structureHasCancelableUpgrade", { enumerable: true, get: () => __dep1["structureHasCancelableUpgrade"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep2["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep2["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep2["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep2["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep2["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep2["canvas"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep2["ctx"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep3["queueCommand"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep4["dirtTiles"] }); Object.defineProperty(__imports, "isVisibleToTeam", { enumerable: true, get: () => __dep4["isVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep4["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep4["terrain"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep4["transitionTiles"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep5["commandConsoleLayout"] }); Object.defineProperty(__imports, "hideGLBPortrait", { enumerable: true, get: () => __dep6["hideGLBPortrait"] }); Object.defineProperty(__imports, "portraitRendererStatus", { enumerable: true, get: () => __dep6["portraitRendererStatus"] }); Object.defineProperty(__imports, "syncGLBPortrait", { enumerable: true, get: () => __dep6["syncGLBPortrait"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("state.js"); const __dep3 = __require("commandSync.js"); const __dep4 = __require("terrain.js"); const __dep5 = __require("uiLayout.js"); const __dep6 = __require("portraitRenderer.js"); const __dep7 = __require("multiplayer.js");
+    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep0["pointInRect"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "buildingSellValue", { enumerable: true, get: () => __dep1["buildingSellValue"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep1["canAfford"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep1["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep1["incomeRates"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep1["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep1["populationUsed"] }); Object.defineProperty(__imports, "structureHasCancelableUpgrade", { enumerable: true, get: () => __dep1["structureHasCancelableUpgrade"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep2["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep2["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep2["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep2["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep2["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep2["canvas"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep2["ctx"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep3["queueCommand"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep4["dirtTiles"] }); Object.defineProperty(__imports, "isVisibleToTeam", { enumerable: true, get: () => __dep4["isVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep4["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep4["terrain"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep4["transitionTiles"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep5["commandConsoleLayout"] }); Object.defineProperty(__imports, "hideGLBPortrait", { enumerable: true, get: () => __dep6["hideGLBPortrait"] }); Object.defineProperty(__imports, "portraitRendererStatus", { enumerable: true, get: () => __dep6["portraitRendererStatus"] }); Object.defineProperty(__imports, "syncGLBPortrait", { enumerable: true, get: () => __dep6["syncGLBPortrait"] }); Object.defineProperty(__imports, "multiplayerPingMs", { enumerable: true, get: () => __dep7["multiplayerPingMs"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "clearCommandMenu", { enumerable: true, get: () => clearCommandMenu }); Object.defineProperty(__exports, "drawCommandPanel", { enumerable: true, get: () => drawCommandPanel }); Object.defineProperty(__exports, "drawPixelResourceIcon", { enumerable: true, get: () => drawPixelResourceIcon }); Object.defineProperty(__exports, "handleCommandPanelClick", { enumerable: true, get: () => handleCommandPanelClick }); Object.defineProperty(__exports, "isCommandConsolePoint", { enumerable: true, get: () => isCommandConsolePoint }); Object.defineProperty(__exports, "menuItemEnabled", { enumerable: true, get: () => menuItemEnabled }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "setCommandMenu", { enumerable: true, get: () => setCommandMenu });
@@ -4135,20 +4135,6 @@
       
         const selectedStructures = selectedStructureObjects();
         const selectedStructure = selectedStructures.length === 1 ? selectedStructures[0] : null;
-        for (const hit of state.infoQueueHitRects || []) {
-          if (!pointInRect(p, hit.rect)) continue;
-          const entry = hit.entry;
-          if (!entry?.producer || entry.producer.team !== activeCommandTeam()) return true;
-          if (entry.kind === 'structureUpgrade') {
-            queuePanelCommand({ type: 'cancelStructureUpgrade', team: entry.producer.team, structureId: entry.producer.id });
-          } else {
-            queuePanelCommand({
-              type: 'cancelProduction', team: entry.producer.team, producerId: entry.producer.id,
-              kind: entry.kind, queueIndex: entry.queueIndex || 0
-            });
-          }
-          return true;
-        }
         if (state.infoCancelUpgradeRect && pointInRect(p, state.infoCancelUpgradeRect)) {
           if (selectedStructure) queuePanelCommand({ type: 'cancelStructureUpgrade', team: selectedStructure.team, structureId: selectedStructure.id });
           return true;
@@ -4231,16 +4217,15 @@
         minimapSightingsLastTick = tick;
       }
 
+      function isMinimapEntityVisible(entity, team) {
+        if (entity.team === team) return true;
+        return (state.multiplayerActive
+          ? localMinimapVisibility(entity)
+          : isVisibleToTeam(team, entity.x, entity.y)) || detectedByRadarTurret(entity, team);
+      }
+
       function shouldDrawMinimapStructure(structure, team) {
-        if (structure.team === team) return true;
-        const currentlySeen = (state.multiplayerActive
-          ? localMinimapVisibility(structure)
-          : isVisibleToTeam(team, structure.x, structure.y)) || detectedByRadarTurret(structure, team);
-        if (!state.multiplayerActive) return currentlySeen;
-        let seenIds = minimapSeenEnemyStructures.get(team);
-        if (!seenIds) minimapSeenEnemyStructures.set(team, seenIds = new Set());
-        if (currentlySeen) seenIds.add(structure.id);
-        return seenIds.has(structure.id);
+        return isMinimapEntityVisible(structure, team);
       }
       
       function renderMinimapNow() {
@@ -4285,7 +4270,7 @@
         ctx.restore();
       
         const dot = (entity, color, size) => {
-          if (entity.team !== activeCommandTeam() && !isVisibleToTeam(activeCommandTeam(), entity.x, entity.y) && !detectedByRadarTurret(entity, activeCommandTeam())) return;
+          if (!isMinimapEntityVisible(entity, activeCommandTeam())) return;
           ctx.fillStyle = color;
           ctx.fillRect(map.x + entity.x * map.sx - size / 2, map.y + entity.y * map.sy - size / 2, size, size);
         };
@@ -4353,13 +4338,10 @@
         ctx.fillRect(map.x, map.y + map.h - footerH, map.w, footerH);
         drawConsoleText('TACTICAL MAP', map.x + 4, map.y + (compactMap ? 3 : 4), compactMap ? 8 : 10, COLORS.warn, 'left', map.w - 8);
       
-        const team = activeCommandTeam();
-        const wallet = teamEconomyState(team);
-        const rates = incomeRates(team);
-        const pop = `${populationUsed(team)}/${populationCap(team)}`;
-        const footer = zone.w < 130
-          ? `${Math.floor(wallet.minerals)}M  ${Math.floor(wallet.gas)}G`
-          : `${Math.floor(wallet.minerals)}M +${rates.mineral}/s   ${Math.floor(wallet.gas)}G +${rates.gas}/s   POP ${pop}`;
+        const ping = multiplayerPingMs();
+        const footer = state.multiplayerActive
+          ? `PING ${Number.isFinite(ping) ? `${Math.max(0, Math.round(ping))} MS` : '—'}`
+          : 'PING LOCAL';
         drawConsoleText(footer, map.x + 4, map.y + map.h - footerH + (compactMap ? 2 : 3), compactMap ? 7 : 9, COLORS.muted, 'left', map.w - 8);
       }
       
@@ -4478,7 +4460,6 @@
         drawInsetPanel(zone, '#101721');
         const compact = layout.compact;
         const headerH = compact ? 18 : 23;
-        const footerH = compact ? 22 : 29;
         const commanderName = activeMultiplayerUsername();
         drawConsoleText(
           commanderName || 'GLB PORTRAIT',
@@ -4494,7 +4475,7 @@
           x: zone.x + 6,
           y: zone.y + headerH,
           w: Math.max(1, zone.w - 12),
-          h: Math.max(1, zone.h - headerH - footerH)
+          h: Math.max(1, zone.h - headerH - 6)
         };
         const gradient = ctx.createLinearGradient(modelRect.x, modelRect.y, modelRect.x, modelRect.y + modelRect.h);
         gradient.addColorStop(0, '#141c27');
@@ -4510,14 +4491,7 @@
         if (status.failed) {
           drawConsoleText('GLB UNAVAILABLE', modelRect.x + modelRect.w / 2, modelRect.y + modelRect.h / 2 - 5, compact ? 6 : 8, COLORS.bad, 'center', modelRect.w - 8, 800);
         }
-        if (!subject) {
-          drawConsoleText('NO SELECTION', zone.x + zone.w / 2, zone.y + zone.h - (compact ? 19 : 24), compact ? 6 : 8, COLORS.muted, 'center', zone.w - 10, 800);
-          drawConsoleText('DEFAULT CUBE · 8 SEC', zone.x + zone.w / 2, zone.y + zone.h - (compact ? 10 : 13), compact ? 5 : 7, COLORS.muted, 'center', zone.w - 10, 700);
-        } else {
-          drawConsoleText(subject.label, zone.x + zone.w / 2, zone.y + zone.h - (compact ? 19 : 24), compact ? 6 : 8, COLORS.text, 'center', zone.w - 10, 800);
-          const levelLabel = holder?.level ? ` · L${holder.level}` : '';
-          drawConsoleText(holder ? `GLB MODEL${levelLabel} · 8 SEC` : 'MODEL HOLDER', zone.x + zone.w / 2, zone.y + zone.h - (compact ? 10 : 13), compact ? 5 : 7, COLORS.muted, 'center', zone.w - 10, 700);
-        }
+        void holder;
       }
       
       function drawHealthBar(rect, current, maximum, color) {
@@ -4538,24 +4512,28 @@
         return 'HOLDING POSITION';
       }
       
+      function commandInfoLabel(value) {
+        return String(value || '').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
+      }
+
       function drawSingleUnitInfo(zone, unit, compact) {
         const data = UNIT_DATA[unit.type] || {};
         const pad = compact ? 6 : 10;
         const x = zone.x + pad;
         const maxW = zone.w - pad * 2;
-        drawConsoleText(data.label || unit.type.toUpperCase(), x, zone.y + 27, compact ? 10 : 14, COLORS.text, 'left', maxW, 800);
-        drawConsoleText(`TIER ${data.tier || 0} · ${unitStatus(unit)}`, x, zone.y + (compact ? 42 : 47), compact ? 7 : 9, COLORS.muted, 'left', maxW);
-      
-        const barY = zone.y + (compact ? 55 : 64);
+        const level = Math.max(1, completedUnitUpgradeLevel(unit.type, unit.team) + 1);
+        const title = `${commandInfoLabel(data.label || unit.type)} - LEVEL ${level}`;
+        drawConsoleText(title, x, zone.y + (compact ? 8 : 10), compact ? 9 : 13, COLORS.text, 'left', maxW, 800);
+
+        const barY = zone.y + (compact ? 28 : 35);
         drawHealthBar({ x, y: barY, w: maxW, h: compact ? 6 : 8 }, unit.hp, unit.maxHp, COLORS.good);
         drawConsoleText(`HP ${Math.ceil(unit.hp)} / ${Math.ceil(unit.maxHp)}`, x, barY + (compact ? 9 : 11), compact ? 7 : 9, COLORS.good, 'left', maxW);
-      
+
         const statsY = barY + (compact ? 22 : 29);
         const damage = unit.damage > 0 ? Math.round(unit.damage * 10) / 10 : '—';
-        drawConsoleText(`DMG ${damage}   RNG ${Math.round(unit.range || 0)}`, x, statsY, compact ? 7 : 9, COLORS.player2, 'left', maxW);
-        drawConsoleText(`SPD ${Math.round(unit.speed || 0)}   SIGHT ${Math.round(unit.sight || 0)}`, x, statsY + (compact ? 11 : 15), compact ? 7 : 9, COLORS.muted, 'left', maxW);
+        drawConsoleText(`DAMAGE ${damage}   SPEED ${Math.round(unit.speed || 0)}`, x, statsY, compact ? 7 : 9, COLORS.player2, 'left', maxW);
         if ((unit.maxShield || 0) > 0) {
-          drawConsoleText(`SHIELD ${Math.ceil(unit.shield || 0)} / ${Math.ceil(unit.maxShield)}`, x, statsY + (compact ? 22 : 30), compact ? 7 : 9, '#9cf2ff', 'left', maxW);
+          drawConsoleText(`SHIELD ${Math.ceil(unit.shield || 0)} / ${Math.ceil(unit.maxShield)}`, x, statsY + (compact ? 12 : 16), compact ? 7 : 9, '#9cf2ff', 'left', maxW);
         }
       }
       
@@ -4567,19 +4545,24 @@
         const totalMaxHp = selected.reduce((sum, unit) => sum + Math.max(1, unit.maxHp), 0);
         const groups = new Map();
         for (const unit of selected) groups.set(unit.type, (groups.get(unit.type) || 0) + 1);
-      
-        drawConsoleText(`${selected.length} UNITS SELECTED`, x, zone.y + 27, compact ? 9 : 13, COLORS.text, 'left', maxW, 800);
-        const barY = zone.y + (compact ? 44 : 48);
+        const sameType = groups.size === 1;
+        const first = selected[0];
+        const groupTitle = sameType
+          ? `${selected.length} × ${commandInfoLabel(UNIT_DATA[first.type]?.label || first.type)} - LEVEL ${Math.max(1, completedUnitUpgradeLevel(first.type, first.team) + 1)}`
+          : `${selected.length} UNITS SELECTED`;
+
+        drawConsoleText(groupTitle, x, zone.y + (compact ? 8 : 10), compact ? 8 : 12, COLORS.text, 'left', maxW, 800);
+        const barY = zone.y + (compact ? 28 : 35);
         drawHealthBar({ x, y: barY, w: maxW, h: compact ? 6 : 8 }, totalHp, totalMaxHp, COLORS.good);
         drawConsoleText(`GROUP HP ${Math.ceil(totalHp)} / ${Math.ceil(totalMaxHp)}`, x, barY + (compact ? 9 : 11), compact ? 7 : 9, COLORS.good, 'left', maxW);
-      
+
         let rowY = barY + (compact ? 22 : 28);
         const rowStep = compact ? 11 : 15;
         const maxRows = Math.max(1, Math.floor((zone.y + zone.h - rowY - 5) / rowStep));
         let shown = 0;
         for (const [type, count] of groups) {
           if (shown >= maxRows) break;
-          const label = UNIT_DATA[type]?.label || type.toUpperCase();
+          const label = commandInfoLabel(UNIT_DATA[type]?.label || type);
           drawConsoleText(`${count} × ${label}`, x, rowY, compact ? 7 : 9, colorForTeam(activeCommandTeam(), 'light'), 'left', maxW);
           rowY += rowStep;
           shown++;
@@ -4604,226 +4587,77 @@
         return 'OPERATIONAL';
       }
       
-      const UNIT_QUEUE_ICONS = Object.freeze({
-        forager: ['...2...', '..121..', '...1...', '..1112.', '.1.1...', '.1.1...', '1...1..'],
-        roboMiner: ['.11111.', '1222221', '1233321', '1222221', '.11111.', '11...11', '.11111.'],
-        mechanic: ['2.....2', '.2...2.', '..121..', '...1...', '..111..', '..1.1..', '.1...1.'],
-        infantry: ['...2...', '..121..', '...1...', '..1112.', '.1.12..', '.1.1...', '1...1..'],
-        assault: ['...2...', '..121..', '...1...', '.111122', '..1.1..', '..1.1..', '.1...1.'],
-        mortar: ['..222..', '.21112.', '..111..', '...1...', '..1.1..', '.1...1.', '1.....1'],
-        mecha: ['.2...2.', '.21112.', '..111..', '.12221.', '1.111.1', '..1.1..', '.11.11.'],
-        jeep: ['.......', '.11111.', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
-        armoredJeep: ['..111..', '.12221.', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
-        heavy: ['.....22', '.111122', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
-        titanTank: ['...22..', '..2222.', '.11111.', '1222221', '1233321', '1111111', '.11.11.'],
-        helicopter: ['2222222', '...1...', '.11111.', '1222221', '..111..', '..1.1..', '.1...1.'],
-        doubleChopper: ['222.222', '..111..', '.12221.', '1222221', '..111..', '.1...1.', '1.....1'],
-        antiAirFighter: ['...2...', '..222..', '.22122.', '2221222', '..111..', '..1.1..', '.1...1.'],
-        bomber: ['..222..', '.22222.', '2221222', '.21112.', '..111..', '...1...', '..1.1..'],
-        healer: ['...2...', '..121..', '.22122.', '2211122', '.22122.', '..1.1..', '.1...1.'],
-        radar: ['...2...', '..222..', '.2.1.2.', '..121..', '...1...', '..1.1..', '.1...1.'],
-        forceFieldTruck: ['..222..', '.21112.', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
-        default: ['...2...', '..121..', '...1...', '..111..', '..1.1..', '.1...1.', '1.....1']
-      });
-
-      function queuePixelPattern(entry) {
-        if (entry.iconKind === 'unit') return UNIT_QUEUE_ICONS[entry.iconType] || UNIT_QUEUE_ICONS.default;
-        return BUILDING_BUTTON_ICONS[entry.iconType] || BUILDING_BUTTON_ICONS.default;
-      }
-
-      function drawQueuePixelIcon(entry, rect, compact, active) {
-        const pattern = queuePixelPattern(entry);
-        const pixel = Math.max(1, Math.floor(Math.min(
-          (rect.w - (compact ? 8 : 12)) / pattern[0].length,
-          (rect.h - (compact ? 9 : 14)) / pattern.length
-        )));
-        const artW = pattern[0].length * pixel;
-        const artH = pattern.length * pixel;
-        const artX = Math.floor(rect.x + (rect.w - artW) / 2);
-        const artY = Math.floor(rect.y + Math.max(2, (rect.h - artH) / 2 - (entry.upgradeArrow ? 1 : 0)));
-        const palette = {
-          '1': active ? '#e8f2ff' : '#aebbd0',
-          '2': entry.color || (active ? COLORS.mineral : COLORS.muted),
-          '3': '#172131'
-        };
-        for (let row = 0; row < pattern.length; row++) {
-          for (let col = 0; col < pattern[row].length; col++) {
-            const color = palette[pattern[row][col]];
-            if (!color) continue;
-            ctx.fillStyle = color;
-            ctx.fillRect(artX + col * pixel, artY + row * pixel, pixel, pixel);
-          }
-        }
-        if (!entry.upgradeArrow) return;
-        const arrowPixel = compact ? 1 : Math.max(1, pixel);
-        const arrowX = Math.floor(rect.x + rect.w - (compact ? 7 : 10));
-        const arrowY = Math.floor(rect.y + (compact ? 3 : 4));
-        ctx.fillStyle = COLORS.warn;
-        ctx.fillRect(arrowX, arrowY + arrowPixel * 2, arrowPixel, arrowPixel * 4);
-        ctx.fillRect(arrowX - arrowPixel, arrowY + arrowPixel, arrowPixel * 3, arrowPixel);
-        ctx.fillRect(arrowX - arrowPixel * 2, arrowY, arrowPixel * 5, arrowPixel);
-      }
-
-      function unitProductionEntry(item, producer, queueIndex) {
+      function unitProductionEntry(item) {
         if (!item) return null;
         const unit = UNIT_DATA[item.type];
         return {
           label: unit?.label || String(item.type || 'UNIT').toUpperCase(),
           timeLeft: item.timeLeft,
           total: item.total,
-          color: COLORS.mineral,
-          producer,
-          item,
-          kind: 'unit',
-          queueIndex,
-          iconKind: 'unit',
-          iconType: item.type,
-          upgradeArrow: false
+          color: COLORS.mineral
         };
       }
       
-      function labProductionEntry(item, producer, queueIndex) {
+      function labProductionEntry(item) {
         if (!item) return null;
         const unit = UNIT_DATA[item.unitType];
         return {
-          label: `${unit?.label || String(item.unitType || 'UNIT').toUpperCase()} · UPGRADE T${item.upgradeLevel || 1}`,
+          label: `RESEARCH · ${unit?.label || String(item.unitType || 'UNIT').toUpperCase()} T${item.upgradeLevel || 1}`,
           timeLeft: item.timeLeft,
           total: item.total,
-          color: '#c4a7ff',
-          producer,
-          item,
-          kind: 'lab',
-          queueIndex,
-          iconKind: 'unit',
-          iconType: item.unitType,
-          upgradeArrow: true
+          color: COLORS.mineral
         };
       }
       
-      function facilityResearchEntry(item, producer, queueIndex) {
+      function facilityResearchEntry(item) {
         if (!item) return null;
-        const turretResearch = item.researchKind === 'turretTech';
-        const structureType = turretResearch ? 'turret' : item.structureType;
-        const label = turretResearch
+        const label = item.researchKind === 'turretTech'
           ? `TURRET TECHNOLOGY · L${item.toLevel}`
-          : `${BUILDING_DATA[structureType]?.label || String(structureType || 'BUILDING').toUpperCase()} · UPGRADE L${item.toLevel}`;
-        return {
-          label,
-          timeLeft: item.timeLeft,
-          total: item.total,
-          color: COLORS.warn,
-          producer,
-          item,
-          kind: 'research',
-          queueIndex,
-          iconKind: 'building',
-          iconType: structureType,
-          upgradeArrow: true
-        };
+          : `${BUILDING_DATA[item.structureType]?.label || String(item.structureType || 'BUILDING').toUpperCase()} TECHNOLOGY · L${item.toLevel}`;
+        return { label, timeLeft: item.timeLeft, total: item.total, color: COLORS.warn };
       }
       
-      // The selected structure's production/research queue is presentation-only:
-      // one larger active square followed by smaller queued squares. Each entry
-      // retains its synchronized producer/index metadata so clicking it can reuse
-      // the existing deterministic cancellation command.
+      // Production jobs that pause a building's unit queue are shown as the active
+      // item, with the waiting units kept directly below it like a classic RTS queue.
       function structureProductionDisplay(structure) {
         if (!structure || structure.underConstruction) return { active: null, waiting: [] };
         const queued = Array.isArray(structure.queue) ? structure.queue : [];
         let active = null;
-        let waiting = queued.map((item, index) => unitProductionEntry(item, structure, index)).filter(Boolean);
+        let waiting = queued.map(unitProductionEntry).filter(Boolean);
       
         if (structure.upgradeJob) {
           active = {
-            label: `${BUILDING_DATA[structure.type]?.label || structure.type.toUpperCase()} · UPGRADE L${structure.upgradeJob.toLevel}`,
+            label: `STRUCTURE UPGRADE · L${structure.upgradeJob.toLevel}`,
             timeLeft: structure.upgradeJob.timeLeft,
             total: structure.upgradeJob.total,
-            color: COLORS.warn,
-            producer: structure,
-            item: structure.upgradeJob,
-            kind: 'structureUpgrade',
-            queueIndex: 0,
-            iconKind: 'building',
-            iconType: structure.type,
-            upgradeArrow: true
+            color: COLORS.warn
           };
         } else if (structure.conversionJob) {
-          const targetType = structure.conversionJob.upgradeType || structure.type;
-          const target = String(targetType).replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase();
+          const target = String(structure.conversionJob.upgradeType || 'STRUCTURE').replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase();
           active = {
             label: `CONVERT TO ${target}`,
             timeLeft: structure.conversionJob.timeLeft,
             total: structure.conversionJob.total,
-            color: COLORS.warn,
-            producer: structure,
-            item: structure.conversionJob,
-            kind: 'structureUpgrade',
-            queueIndex: 0,
-            iconKind: 'building',
-            iconType: targetType,
-            upgradeArrow: true
+            color: COLORS.warn
           };
         } else if (structure.labJob) {
-          active = labProductionEntry(structure.labJob, structure, 0);
-          waiting = (Array.isArray(structure.labQueue) ? structure.labQueue : [])
-            .map((item, index) => labProductionEntry(item, structure, index + 1)).filter(Boolean);
+          active = labProductionEntry(structure.labJob);
+          waiting = (Array.isArray(structure.labQueue) ? structure.labQueue : []).map(labProductionEntry).filter(Boolean);
         } else if (structure.researchJob) {
-          active = facilityResearchEntry(structure.researchJob, structure, 0);
-          waiting = (Array.isArray(structure.researchQueue) ? structure.researchQueue : [])
-            .map((item, index) => facilityResearchEntry(item, structure, index + 1)).filter(Boolean);
+          active = facilityResearchEntry(structure.researchJob);
+          waiting = (Array.isArray(structure.researchQueue) ? structure.researchQueue : []).map(facilityResearchEntry).filter(Boolean);
         } else if (structure.turretTechJob) {
           active = {
             label: `TURRET TECHNOLOGY · L${structure.turretTechJob.toLevel}`,
             timeLeft: structure.turretTechJob.timeLeft,
             total: structure.turretTechJob.total,
-            color: COLORS.warn,
-            producer: structure,
-            item: structure.turretTechJob,
-            kind: 'structureUpgrade',
-            queueIndex: 0,
-            iconKind: 'building',
-            iconType: 'turret',
-            upgradeArrow: true
+            color: COLORS.warn
           };
         } else if (queued.length) {
-          active = unitProductionEntry(queued[0], structure, 0);
-          waiting = queued.slice(1).map((item, index) => unitProductionEntry(item, structure, index + 1)).filter(Boolean);
+          active = unitProductionEntry(queued[0]);
+          waiting = queued.slice(1).map(unitProductionEntry).filter(Boolean);
         }
         return { active, waiting };
-      }
-
-      function queueSquareHit(entry, rect) {
-        state.infoQueueHitRects ||= [];
-        state.infoQueueHitRects.push({ entry, rect });
-      }
-
-      function drawQueueSquare(entry, rect, active, compact) {
-        const hovered = pointInRect(state.mouse, rect);
-        const progress = active
-          ? clamp(1 - Number(entry.timeLeft || 0) / Math.max(.001, Number(entry.total || entry.timeLeft || 1)), 0, 1)
-          : 0;
-        ctx.fillStyle = hovered ? 'rgba(83,35,43,.96)' : active ? '#101a27' : '#121a25';
-        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-        if (active) {
-          ctx.fillStyle = 'rgba(100,216,255,.13)';
-          ctx.fillRect(rect.x + 1, rect.y + 1, Math.max(0, rect.w - 2), Math.max(0, (rect.h - 2) * progress));
-        }
-        ctx.strokeStyle = hovered ? COLORS.bad : active ? entry.color : '#56657b';
-        ctx.lineWidth = active ? 2 : 1;
-        ctx.strokeRect(rect.x + .5, rect.y + .5, Math.max(0, rect.w - 1), Math.max(0, rect.h - 1));
-        ctx.lineWidth = 1;
-        drawQueuePixelIcon(entry, rect, compact, active);
-        if (active) {
-          const progressH = compact ? 2 : 3;
-          ctx.fillStyle = '#05080d';
-          ctx.fillRect(rect.x + 2, rect.y + rect.h - progressH - 1, Math.max(0, rect.w - 4), progressH);
-          ctx.fillStyle = entry.color;
-          ctx.fillRect(rect.x + 2, rect.y + rect.h - progressH - 1, Math.max(0, (rect.w - 4) * progress), progressH);
-        }
-        if (hovered) {
-          drawConsoleText('×', rect.x + rect.w - (compact ? 2 : 3), rect.y + 1, compact ? 8 : 11, COLORS.bad, 'right', compact ? 8 : 10, 900);
-        }
-        queueSquareHit(entry, rect);
-        return hovered;
       }
       
       function drawStructureProductionQueue(zone, structure, x, rowY, maxW, compact) {
@@ -4831,50 +4665,46 @@
         if (!display.active) return false;
       
         const bottom = zone.y + zone.h - (compact ? 3 : 5);
-        const availableH = bottom - rowY + 1;
-        const gap = compact ? 3 : 5;
-        let activeSize = Math.min(compact ? 30 : 44, availableH, maxW);
-        let queuedSize = Math.min(compact ? 21 : 30, activeSize - (compact ? 7 : 10));
-        if (display.waiting.length) {
-          const minimumQueuedSize = compact ? 18 : 22;
-          if (maxW < activeSize + gap + queuedSize) {
-            activeSize = Math.min(activeSize, Math.max(compact ? 20 : 28, maxW - gap - minimumQueuedSize));
-            queuedSize = Math.min(queuedSize, Math.max(1, maxW - activeSize - gap));
-          }
-        }
-        if (activeSize < (compact ? 20 : 28)) return false;
-
-        const activeRect = { x, y: rowY, w: activeSize, h: activeSize };
-        let hoveredEntry = drawQueueSquare(display.active, activeRect, true, compact) ? display.active : null;
-        let cursorX = x + activeSize + gap;
-        const availableQueuedWidth = Math.max(0, x + maxW - cursorX);
-        const maxQueued = Math.max(0, Math.floor((availableQueuedWidth + gap) / (queuedSize + gap)));
-        const needsOverflow = display.waiting.length > maxQueued;
-        const visibleSlots = needsOverflow ? Math.max(0, maxQueued - 1) : maxQueued;
-        const visible = display.waiting.slice(0, visibleSlots);
-        const queuedY = rowY + Math.floor((activeSize - queuedSize) / 2);
-
-        for (const entry of visible) {
-          const rect = { x: cursorX, y: queuedY, w: queuedSize, h: queuedSize };
-          if (drawQueueSquare(entry, rect, false, compact)) hoveredEntry = entry;
-          cursorX += queuedSize + gap;
-        }
-        if (needsOverflow && maxQueued > 0) {
-          const hidden = display.waiting.length - visible.length;
-          const rect = { x: cursorX, y: queuedY, w: queuedSize, h: queuedSize };
-          ctx.fillStyle = '#121a25';
-          ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-          ctx.strokeStyle = '#56657b';
-          ctx.strokeRect(rect.x + .5, rect.y + .5, rect.w - 1, rect.h - 1);
-          drawConsoleText(`+${hidden}`, rect.x + rect.w / 2, rect.y + Math.max(1, (rect.h - (compact ? 7 : 10)) / 2), compact ? 7 : 10, COLORS.muted, 'center', rect.w - 4, 900);
-        }
-
-        const detail = hoveredEntry || display.active;
-        const detailY = rowY + activeSize + (compact ? 2 : 4);
-        if (detailY + (compact ? 7 : 10) <= bottom) {
-          const time = detail === display.active ? ` · ${Math.max(0, Math.ceil(detail.timeLeft || 0))}s` : '';
-          const action = hoveredEntry ? ' · CLICK TO CANCEL' : time;
-          drawConsoleText(detail.label + action, x, detailY, compact ? 6 : 8, hoveredEntry ? COLORS.bad : COLORS.muted, 'left', maxW, 800);
+        const activeH = compact ? 15 : 26;
+        if (rowY + activeH > bottom) return false;
+      
+        const active = display.active;
+        const progress = clamp(1 - Number(active.timeLeft || 0) / Math.max(.001, Number(active.total || active.timeLeft || 1)), 0, 1);
+        ctx.fillStyle = '#0a1018';
+        ctx.fillRect(x, rowY, maxW, activeH);
+        ctx.strokeStyle = '#56657b';
+        ctx.strokeRect(x + .5, rowY + .5, Math.max(0, maxW - 1), Math.max(0, activeH - 1));
+      
+        const timeText = `${Math.max(0, Math.ceil(active.timeLeft || 0))}s`;
+        const timeW = compact ? 24 : 34;
+        drawConsoleText(compact ? '▶' : 'NOW', x + (compact ? 3 : 5), rowY + (compact ? 2 : 4), compact ? 7 : 10, active.color, 'left', compact ? 8 : 25, 800);
+        drawConsoleText(active.label, x + (compact ? 12 : 32), rowY + (compact ? 2 : 4), compact ? 7 : 10, COLORS.text, 'left', Math.max(1, maxW - (compact ? 14 : 36) - timeW), 800);
+        drawConsoleText(timeText, x + maxW - 4, rowY + (compact ? 2 : 4), compact ? 7 : 10, active.color, 'right', timeW, 800);
+      
+        const progressH = compact ? 2 : 4;
+        const progressY = rowY + activeH - progressH;
+        ctx.fillStyle = '#070b10';
+        ctx.fillRect(x + 1, progressY, Math.max(0, maxW - 2), progressH - 1);
+        ctx.fillStyle = active.color;
+        ctx.fillRect(x + 1, progressY, Math.max(0, (maxW - 2) * progress), progressH - 1);
+      
+        let nextY = rowY + activeH + (compact ? 1 : 3);
+        const step = compact ? 10 : 16;
+        const availableRows = Math.max(0, Math.floor((bottom - nextY + 1) / step));
+        if (!availableRows || !display.waiting.length) return true;
+      
+        const showCount = Math.min(display.waiting.length, availableRows);
+        const hidden = display.waiting.length - showCount;
+        for (let index = 0; index < showCount; index++) {
+          const item = display.waiting[index];
+          const finalVisibleRow = index === showCount - 1;
+          const label = hidden > 0 && finalVisibleRow && showCount > 1
+            ? `+${hidden + 1} MORE QUEUED`
+            : `${index + 2}. ${item.label}${hidden > 0 && showCount === 1 ? `  +${hidden}` : ''}`;
+          ctx.fillStyle = index % 2 ? 'rgba(20,29,41,.88)' : 'rgba(25,35,49,.88)';
+          ctx.fillRect(x, nextY, maxW, Math.max(1, step - 1));
+          drawConsoleText(label, x + (compact ? 3 : 5), nextY + (compact ? 1 : 2), compact ? 6 : 9, hidden > 0 && finalVisibleRow ? COLORS.muted : '#b9c5d8', 'left', maxW - (compact ? 6 : 10), 700);
+          nextY += step;
         }
         return true;
       }
@@ -4926,36 +4756,37 @@
           const sellW = 50;
           const cancelW = 66;
           if (canSell) {
-            state.infoSellRect = { x: actionRight - sellW, y: zone.y + 25, w: sellW, h: buttonH };
+            state.infoSellRect = { x: actionRight - sellW, y: zone.y + 7, w: sellW, h: buttonH };
             actionRight -= sellW + buttonGap;
             const sale = buildingSellValue(primary);
             drawInfoActionButton(state.infoSellRect, `SELL ${sale.m}M`, 'sell');
           }
           if (canCancel) {
-            state.infoCancelUpgradeRect = { x: actionRight - cancelW, y: zone.y + 25, w: cancelW, h: buttonH };
+            state.infoCancelUpgradeRect = { x: actionRight - cancelW, y: zone.y + 7, w: cancelW, h: buttonH };
             actionRight -= cancelW + buttonGap;
             drawInfoActionButton(state.infoCancelUpgradeRect, 'CANCEL UPGRADE', 'cancel');
           }
           actionWidth = Math.max(0, zone.x + zone.w - pad - actionRight);
         }
-        const title = selected.length > 1
-          ? `${selected.length} × ${sameType ? data.label : 'STRUCTURES'}`
-          : data.label;
-        const titleY = zone.y + (stackedActions ? 43 : 27);
-        const statusY = zone.y + (stackedActions ? 58 : compact ? 44 : 50);
-        drawConsoleText(title, x, titleY, compact ? 10 : 15, COLORS.text, 'left', Math.max(1, maxW - actionWidth), 800);
-        drawConsoleText(`${structureStatus(primary)} · LEVEL ${primary.level || 1}`, x, statusY, compact ? 8 : 11, COLORS.warn, 'left', maxW);
-      
+        const baseTitle = selected.length > 1
+          ? `${selected.length} × ${sameType ? commandInfoLabel(data.label) : 'STRUCTURES'}`
+          : commandInfoLabel(data.label);
+        const levelSuffix = sameType ? ` - LEVEL ${Math.max(1, primary.level || 1)}` : '';
+        const titleY = zone.y + (compact ? 7 : 10);
+        const statusY = zone.y + (stackedActions ? 44 : compact ? 23 : 31);
+        drawConsoleText(`${baseTitle}${levelSuffix}`, x, titleY, compact ? 9 : 13, COLORS.text, 'left', Math.max(1, maxW - actionWidth), 800);
+        drawConsoleText(structureStatus(primary), x, statusY, compact ? 7 : 9, COLORS.muted, 'left', maxW);
+
         const hp = selected.reduce((sum, structure) => sum + Math.max(0, structure.hp), 0);
         const maxHp = selected.reduce((sum, structure) => sum + Math.max(1, structure.maxHp), 0);
-        const barY = zone.y + (stackedActions ? 72 : compact ? 58 : 69);
+        const barY = zone.y + (stackedActions ? 58 : compact ? 37 : 48);
         drawHealthBar({ x, y: barY, w: maxW, h: compact ? 7 : 9 }, hp, maxHp, COLORS.good);
         drawConsoleText(`HP ${Math.ceil(hp)} / ${Math.ceil(maxHp)}`, x, barY + (compact ? 10 : 12), compact ? 8 : 11, COLORS.good, 'left', maxW);
-      
+
         let rowY = barY + (compact ? 24 : 32);
         const productionOwner = selected.find(structure => structureProductionDisplay(structure).active) || primary;
         if (drawStructureProductionQueue(zone, productionOwner, x, rowY, maxW, compact)) return;
-      
+
         const queue = selected.reduce((sum, structure) => sum + (structure.queue?.length || 0) +
           (structure.labJob ? 1 : 0) + (structure.labQueue?.length || 0) +
           (structure.researchJob ? 1 : 0) + (structure.researchQueue?.length || 0), 0);
@@ -4963,7 +4794,6 @@
         rowY += compact ? 13 : 18;
         if (primary.spawnFlag) drawConsoleText('SPAWN FLAG ACTIVE', x, rowY, compact ? 8 : 11, COLORS.good, 'left', maxW);
         else if (primary.type === 'radarTurret') drawConsoleText(`MINIMAP DETECTION ${Math.round(primary.radarRange || BUILDING_DATA.radarTurret?.radarRange || 0)} · FOG UNAFFECTED`, x, rowY, compact ? 8 : 11, '#9cf2ff', 'left', maxW);
-        else if (primary.damage > 0) drawConsoleText(`DMG ${Math.round(primary.damage * 10) / 10}   RNG ${Math.round(primary.range || 0)}`, x, rowY, compact ? 8 : 11, COLORS.warn, 'left', maxW);
       }
       
       function drawInfoPanel() {
@@ -4971,17 +4801,16 @@
         const zone = layout.info;
         state.infoSellRect = null;
         state.infoCancelUpgradeRect = null;
-        state.infoQueueHitRects = [];
         drawInsetPanel(zone, '#121b26');
-        const heading = state.commandMenu?.title || 'SELECTION / STATUS';
-        drawConsoleText(heading, zone.x + (layout.compact ? 6 : 10), zone.y + 6, layout.compact ? 9 : 12, COLORS.warn, 'left', zone.w - (layout.compact ? 12 : 20), 800);
-      
+
         const selectedUnits = selectedUnitObjects();
         const selectedStructures = selectedStructureObjects();
         if (selectedUnits.length === 1) drawSingleUnitInfo(zone, selectedUnits[0], layout.compact);
         else if (selectedUnits.length > 1) drawUnitGroupInfo(zone, selectedUnits, layout.compact);
         else if (selectedStructures.length) drawStructureInfo(zone, selectedStructures, layout.compact);
         else {
+          const heading = state.commandMenu?.title || 'SELECTION / STATUS';
+          drawConsoleText(heading, zone.x + (layout.compact ? 6 : 10), zone.y + 6, layout.compact ? 9 : 12, COLORS.warn, 'left', zone.w - (layout.compact ? 12 : 20), 800);
           const pad = layout.compact ? 6 : 10;
           const x = zone.x + pad;
           const maxW = zone.w - pad * 2;
@@ -5026,9 +4855,6 @@
       }
       
       const BUILDING_BUTTON_ICONS = Object.freeze({
-        hq: [
-          '..222..', '.21112.', '1222221', '1233321', '1232321', '1222221', '1111111'
-        ],
         barracks: [
           '..111..', '.12221.', '1222221', '1233321', '1232321', '1222221', '1111111'
         ],
@@ -5043,12 +4869,6 @@
         ],
         minersHut: [
           '...1...', '..121..', '.12221.', '1222221', '1232321', '1222221', '.11111.'
-        ],
-        factory: [
-          '2.2.2.2', '1111111', '1222221', '1233321', '1232321', '1222221', '1111111'
-        ],
-        outpost: [
-          '...2...', '..222..', '.21112.', '1222221', '1233321', '1222221', '.11111.'
         ],
         housing: [
           '...1...', '..121..', '.12221.', '1222221', '1232321', '1222221', '1111111'
@@ -7265,7 +7085,6 @@
       function cancelProductionItem(producer, item, kind = 'unit') {
         if (!producer || producer.hp <= 0 || !item) return false;
         if (kind === 'research') return cancelFacilityResearchJob(producer, item);
-        if (kind === 'lab') return cancelLaboratoryUpgrade(producer, item);
         if (kind === 'upgrade') {
           if (productionTechJob(item.team, item.structureType) !== item) return false;
           clearProductionTechJob(item);
@@ -7285,16 +7104,11 @@
       }
       
       
-      function cancelLaboratoryUpgrade(lab, job = lab?.labJob) {
-        if (!job || !lab || lab.hp <= 0) return false;
+      function cancelLaboratoryUpgrade(lab) {
+        const job = lab?.labJob;
+        if (!job || lab.hp <= 0) return false;
         if (!Array.isArray(lab.labQueue)) lab.labQueue = [];
-        if (lab.labJob === job) {
-          lab.labJob = lab.labQueue.shift() || null;
-        } else {
-          const index = lab.labQueue.indexOf(job);
-          if (index < 0) return false;
-          lab.labQueue.splice(index, 1);
-        }
+        lab.labJob = lab.labQueue.shift() || null;
         creditTeamResources(lab.team, job.costM || 0, job.costG || 0);
         const unitLabel = UNIT_DATA[job.unitType]?.label || String(job.unitType || 'UNIT').toUpperCase();
         burst(lab.x, lab.y, COLORS.bad, 9, true);
@@ -8126,10 +7940,6 @@
         if (command.kind === 'research') {
           const index = Math.max(0, Math.trunc(command.queueIndex || 0));
           return index === 0 ? producer.researchJob : producer.researchQueue?.[index - 1] || null;
-        }
-        if (command.kind === 'lab') {
-          const index = Math.max(0, Math.trunc(command.queueIndex || 0));
-          return index === 0 ? producer.labJob : producer.labQueue?.[index - 1] || null;
         }
         const index = Math.max(0, Math.trunc(command.queueIndex || 0));
         return producer.queue?.[index] || null;
@@ -11069,7 +10879,7 @@
     Object.defineProperty(__imports, "MULTIPLAYER_TEAMS", { enumerable: true, get: () => __dep0["MULTIPLAYER_TEAMS"] }); Object.defineProperty(__imports, "getRegisteredCommandSources", { enumerable: true, get: () => __dep1["getRegisteredCommandSources"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep1["queueCommand"] }); Object.defineProperty(__imports, "registerCommandSource", { enumerable: true, get: () => __dep1["registerCommandSource"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeListener", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeListener"] }); Object.defineProperty(__imports, "setLocalCommandEnvelopeRequired", { enumerable: true, get: () => __dep1["setLocalCommandEnvelopeRequired"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep2["getNextEntityId"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep2["resourceNodes"] }); Object.defineProperty(__imports, "setNextEntityId", { enumerable: true, get: () => __dep2["setNextEntityId"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep3["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep3["setPathingSyncState"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep4["getRandomState"] }); Object.defineProperty(__imports, "setRandomState", { enumerable: true, get: () => __dep4["setRandomState"] }); Object.defineProperty(__imports, "CHECKSUM_SCHEMA_VERSION", { enumerable: true, get: () => __dep5["CHECKSUM_SCHEMA_VERSION"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "BUILD_VERSION", { enumerable: true, get: () => BUILD_VERSION }); Object.defineProperty(__exports, "CHECKSUM_SCHEMA_VERSION", { enumerable: true, get: () => CHECKSUM_SCHEMA_VERSION }); Object.defineProperty(__exports, "MULTIPLAYER_PROTOCOL_VERSION", { enumerable: true, get: () => MULTIPLAYER_PROTOCOL_VERSION }); Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "closePublicLobbyDirectory", { enumerable: true, get: () => closePublicLobbyDirectory }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "openPublicLobbyDirectory", { enumerable: true, get: () => openPublicLobbyDirectory }); Object.defineProperty(__exports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => refreshPublicLobbyDirectory }); Object.defineProperty(__exports, "sendMultiplayerChat", { enumerable: true, get: () => sendMultiplayerChat }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "setMultiplayerCallbacks", { enumerable: true, get: () => setMultiplayerCallbacks }); Object.defineProperty(__exports, "setMultiplayerReady", { enumerable: true, get: () => setMultiplayerReady }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam }); Object.defineProperty(__exports, "startMultiplayerMatch", { enumerable: true, get: () => startMultiplayerMatch });
+      Object.defineProperty(__exports, "BUILD_VERSION", { enumerable: true, get: () => BUILD_VERSION }); Object.defineProperty(__exports, "CHECKSUM_SCHEMA_VERSION", { enumerable: true, get: () => CHECKSUM_SCHEMA_VERSION }); Object.defineProperty(__exports, "MULTIPLAYER_PROTOCOL_VERSION", { enumerable: true, get: () => MULTIPLAYER_PROTOCOL_VERSION }); Object.defineProperty(__exports, "RELAY_URL", { enumerable: true, get: () => RELAY_URL }); Object.defineProperty(__exports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => activateMultiplayerCommandQueue }); Object.defineProperty(__exports, "closeMultiplayer", { enumerable: true, get: () => closeMultiplayer }); Object.defineProperty(__exports, "closePublicLobbyDirectory", { enumerable: true, get: () => closePublicLobbyDirectory }); Object.defineProperty(__exports, "confirmLocalCommandsThrough", { enumerable: true, get: () => confirmLocalCommandsThrough }); Object.defineProperty(__exports, "connectMultiplayer", { enumerable: true, get: () => connectMultiplayer }); Object.defineProperty(__exports, "multiplayerSession", { enumerable: true, get: () => multiplayerSession }); Object.defineProperty(__exports, "multiplayerPingMs", { enumerable: true, get: () => multiplayerPingMs }); Object.defineProperty(__exports, "multiplayerTickReady", { enumerable: true, get: () => multiplayerTickReady }); Object.defineProperty(__exports, "openPublicLobbyDirectory", { enumerable: true, get: () => openPublicLobbyDirectory }); Object.defineProperty(__exports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => refreshPublicLobbyDirectory }); Object.defineProperty(__exports, "sendMultiplayerChat", { enumerable: true, get: () => sendMultiplayerChat }); Object.defineProperty(__exports, "sendSyncChecksum", { enumerable: true, get: () => sendSyncChecksum }); Object.defineProperty(__exports, "setMultiplayerCallbacks", { enumerable: true, get: () => setMultiplayerCallbacks }); Object.defineProperty(__exports, "setMultiplayerReady", { enumerable: true, get: () => setMultiplayerReady }); Object.defineProperty(__exports, "sourceIdForTeam", { enumerable: true, get: () => sourceIdForTeam }); Object.defineProperty(__exports, "startMultiplayerMatch", { enumerable: true, get: () => startMultiplayerMatch });
       // WebSocket relay transport for deterministic two-to-four-player lockstep.
       // The host owns lobby membership, slot/team assignment, and the shared seed;
       // gameplay itself remains command/tick based on every client.
@@ -11085,10 +10895,12 @@
       const MIN_PLAYERS = 2;
       const MAX_PLAYERS = 4;
       const HEARTBEAT_INTERVAL_MS = 2000;
+      const PING_INTERVAL_MS = 3000;
+      const PING_TIMEOUT_MS = 9000;
       const PEER_TIMEOUT_MS = 10000;
       const CHAT_MESSAGE_LIMIT = 60;
       const CHAT_TEXT_LIMIT = 180;
-      const BUILD_VERSION = '2026.07.25.2';
+      const BUILD_VERSION = '2026.07.25.3';
       const MULTIPLAYER_PROTOCOL_VERSION = 3;
       const VERSION_MISMATCH_CODE = 'STARLITE_VERSION_MISMATCH';
       const PUBLIC_DIRECTORY_ROOM = '__STARLITE_PUBLIC_LOBBIES_V2__';
@@ -11120,6 +10932,9 @@
       let pendingJoinSeed = null;
       let heartbeatTimer = 0;
       let watchdogTimer = 0;
+      let pingTimer = 0;
+      let latestPingMs = null;
+      let pingSequence = 0;
       let lobbyRevision = 0;
       let onDisconnectCallback = null;
       let onLobbyUpdateCallback = null;
@@ -11153,6 +10968,7 @@
       const publicLobbyEntries = new Map();
       const queuedResyncSources = new Set();
       const checksumMismatchStreaks = new Map();
+      const pendingPingProbes = new Map();
       
       function createClientId() {
         const bytes = new Uint8Array(8);
@@ -12409,6 +12225,23 @@
         }
         if (!message || typeof message !== 'object') return;
         const seenClientId = markSeen(message);
+
+        if (message.type === 'pingProbe') {
+          if (message.targetClientId === session?.clientId && message.clientId !== session.clientId) {
+            sendPayload({
+              type: 'pingReply',
+              clientId: session.clientId,
+              sourceId: session.localSourceId || null,
+              targetClientId: message.clientId,
+              nonce: String(message.nonce || '')
+            });
+          }
+          return;
+        }
+        if (message.type === 'pingReply') {
+          acceptPingReply(message);
+          return;
+        }
       
         if (typeof message.type === 'string' && message.type.startsWith('resync')) {
           handleResyncMessage(message);
@@ -12491,6 +12324,40 @@
         }
       }
       
+      function multiplayerPingMs() {
+        return Number.isFinite(latestPingMs) ? latestPingMs : null;
+      }
+
+      function sendPingProbe() {
+        if (!session?.started || disconnected || !socket || socket.readyState !== WebSocket.OPEN) return false;
+        const target = (session.players || []).find(player => player.clientId !== session.clientId && player.connected !== false);
+        if (!target) return false;
+        const now = Date.now();
+        for (const [nonce, sentAt] of pendingPingProbes) {
+          if (now - sentAt > PING_TIMEOUT_MS) pendingPingProbes.delete(nonce);
+        }
+        const nonce = `${session.clientId}:${++pingSequence}:${now}`;
+        pendingPingProbes.set(nonce, now);
+        return sendPayload({
+          type: 'pingProbe',
+          clientId: session.clientId,
+          sourceId: session.localSourceId || null,
+          targetClientId: target.clientId,
+          nonce
+        });
+      }
+
+      function acceptPingReply(message) {
+        if (!session || message.targetClientId !== session.clientId) return false;
+        const nonce = String(message.nonce || '');
+        const sentAt = pendingPingProbes.get(nonce);
+        if (!Number.isFinite(sentAt)) return false;
+        pendingPingProbes.delete(nonce);
+        const sample = Math.max(0, Date.now() - sentAt);
+        latestPingMs = Number.isFinite(latestPingMs) ? latestPingMs * .7 + sample * .3 : sample;
+        return true;
+      }
+
       function sendPresence() {
         if (!session) return;
         if (session.role === 'host' && activeResync?.snapshotSent) sendActiveResyncSnapshot(true);
@@ -12533,8 +12400,11 @@
       function startTimers() {
         if (heartbeatTimer) clearInterval(heartbeatTimer);
         if (watchdogTimer) clearInterval(watchdogTimer);
+        if (pingTimer) clearInterval(pingTimer);
         heartbeatTimer = setInterval(sendPresence, HEARTBEAT_INTERVAL_MS);
         watchdogTimer = setInterval(checkPeerTimeouts, HEARTBEAT_INTERVAL_MS);
+        pingTimer = setInterval(sendPingProbe, PING_INTERVAL_MS);
+        setTimeout(sendPingProbe, 250);
       }
       
       function connectMultiplayer({ roomCode, role, slotCount = 2, modeId = 'pvp', seed, username, publicLobby = false, onDisconnect, onLobbyUpdate } = {}) {
@@ -12761,8 +12631,13 @@
         setLocalCommandEnvelopeRequired(false);
         if (heartbeatTimer) clearInterval(heartbeatTimer);
         if (watchdogTimer) clearInterval(watchdogTimer);
+        if (pingTimer) clearInterval(pingTimer);
         heartbeatTimer = 0;
         watchdogTimer = 0;
+        pingTimer = 0;
+        latestPingMs = null;
+        pingSequence = 0;
+        pendingPingProbes.clear();
         if (closingSocket && closingSocket.readyState < WebSocket.CLOSING) closingSocket.close();
         session = null;
         connectionPromise = null;
