@@ -170,7 +170,7 @@
         const stored = parseStoredJSON(STORAGE_KEYS.groundTags, null);
         if (stored) return normalizeGroundTagCollection(stored);
         const legacy = parseStoredJSON(STORAGE_KEYS.groundTag, null);
-        return normalizeGroundTagCollection(legacy ? [legacy] : [DEFAULT_GROUND_TAG]);
+        return normalizeGroundTagCollection(legacy ? [legacy] : []);
       }
       
       function localAccountPayload(userId) {
@@ -191,7 +191,7 @@
         storageSet(STORAGE_KEYS.username, sanitizeUsername(profile?.username));
         storageSet(
           STORAGE_KEYS.groundTags,
-          JSON.stringify(normalizeGroundTagCollection(profile?.tag_palette || [DEFAULT_GROUND_TAG]))
+          JSON.stringify(normalizeGroundTagCollection(profile?.tag_palette || []))
         );
         if (profile?.settings?.keybinds && typeof profile.settings.keybinds === 'object') {
           storageSet(STORAGE_KEYS.keybinds, JSON.stringify(profile.settings.keybinds));
@@ -1351,8 +1351,14 @@
           const decisionDt = Math.min(.75, ai.decisionAccumulator);
           ai.decisionAccumulator = 0;
           ai.decisionInterval = scaledAIClock(ai, 'decisionInterval', rand(.25, .5));
-          updateComputerAI(team, decisionDt);
-          deactivateWorkerAnalysis();
+          const previousNotificationTeam = state.notificationTeamContext || null;
+          state.notificationTeamContext = team;
+          try {
+            updateComputerAI(team, decisionDt);
+          } finally {
+            state.notificationTeamContext = previousNotificationTeam;
+            deactivateWorkerAnalysis();
+          }
         }
       }
       
@@ -1372,8 +1378,14 @@
         const decisionDt = Math.min(.75, ai.decisionAccumulator);
         ai.decisionAccumulator = 0;
         ai.decisionInterval = scaledAIClock(ai, 'decisionInterval', rand(.25, .5));
-        updateComputerAI('enemy', decisionDt);
-        deactivateWorkerAnalysis();
+        const previousNotificationTeam = state.notificationTeamContext || null;
+        state.notificationTeamContext = 'enemy';
+        try {
+          updateComputerAI('enemy', decisionDt);
+        } finally {
+          state.notificationTeamContext = previousNotificationTeam;
+          deactivateWorkerAnalysis();
+        }
       }
     }
   });
@@ -2623,9 +2635,38 @@
         const strength = destroyed ? base * 1.75 : base;
         state.cameraShake = Math.max(state.cameraShake, strength);
       }
+
+      const MINIMAP_ATTACK_ALERT_ZONE_SIZE = 220;
+      const MINIMAP_ATTACK_ALERT_COOLDOWN = 4.5;
+      const MINIMAP_ATTACK_ALERT_DURATION = 3.2;
+
+      // Local presentation warning only. Repeated hits in the same coarse map zone
+      // share one cooldown, preventing sustained fire from flooding the minimap.
+      function registerMinimapAttackAlert(target, attacker) {
+        if (!target || !attacker || target.team === attacker.team || target.hp <= 0) return;
+        const localTeams = state.localCommandTeams || ['player'];
+        if (!localTeams.includes(target.team)) return;
+        const now = state.elapsed || 0;
+        const zoneX = Math.floor(target.x / MINIMAP_ATTACK_ALERT_ZONE_SIZE);
+        const zoneY = Math.floor(target.y / MINIMAP_ATTACK_ALERT_ZONE_SIZE);
+        const zoneKey = `${target.team}:${zoneX}:${zoneY}`;
+        const cooldowns = state.minimapAttackAlertCooldowns || (state.minimapAttackAlertCooldowns = Object.create(null));
+        if ((cooldowns[zoneKey] || 0) > now) return;
+        cooldowns[zoneKey] = now + MINIMAP_ATTACK_ALERT_COOLDOWN;
+        for (const [key, expiresAt] of Object.entries(cooldowns)) {
+          if (expiresAt <= now) delete cooldowns[key];
+        }
+        const alerts = state.minimapAttackAlerts || (state.minimapAttackAlerts = []);
+        alerts.push({
+          x: target.x, y: target.y, team: target.team, zoneKey,
+          startedAt: now, expiresAt: now + MINIMAP_ATTACK_ALERT_DURATION
+        });
+        if (alerts.length > 12) alerts.splice(0, alerts.length - 12);
+      }
       
       function damage(target, amount, attacker) {
         if (!isAlive(target)) return;
+        if (amount > 0 && attacker) registerMinimapAttackAlert(target, attacker);
         if (target.kind === 'unit' && (target.shield || 0) > 0) {
           const absorbed = Math.min(target.shield, amount);
           target.shield -= absorbed;
@@ -2886,6 +2927,22 @@
           else u.target = nearestEnemy(u, aggro, u.type !== 'mortar' && u.type !== 'bomber');
           if (u.target) u.targetSource = 'auto';
         }
+
+        // Rotorcraft obey a direct move/retreat order all the way to its destination.
+        // They may return fire while an automatic/retaliation target is in range, but
+        // they never turn that remembered target into a cross-map pursuit.
+        if (isHumanTeam(u.team) && isRotorcraft(u) && u.movementOrderActive && u.targetSource !== 'manual') {
+          const destinationDistance = dist(u, u.destination);
+          if (destinationDistance > 4) {
+            if (isAlive(u.target)) {
+              const targetRadius = u.target.radius || Math.max(u.target.w || 0, u.target.h || 0) * .28 || 12;
+              const targetDistance = dist(u, u.target) - targetRadius;
+              if (targetDistance <= unitAttackRange(u) && shotClear(u, u.target) && u.cooldownLeft <= 0) attack(u, u.target);
+            }
+            moveTo(u, u.destination.x, u.destination.y, dt);
+            return;
+          }
+        }
       
         // Fighters and bombers combine movement and combat instead of stopping at
         // weapon range. A bomber releases once on arrival and then once per full
@@ -2973,7 +3030,7 @@
           u.heading = Math.atan2(site.y - u.y, site.x - u.x);
           burst(site.x, site.y, COLORS.warn, 14, true);
           const d = BUILDING_DATA[site.type];
-          toast(`${d.label} started — ready in ${d.buildTime}s.`, COLORS.good);
+          toast(`${d.label} started — ready in ${d.buildTime}s.`, COLORS.good, site.team);
           resumeForaging(u);
         } else {
           moveTo(u, site.x, site.y, dt);
@@ -3432,12 +3489,12 @@
             burst(s.x, s.y, colorForTeam(s.team, 'light'), 22, true);
             if (isHumanTeam(s.team)) {
               toast(s.type === 'housing'
-                ? `HOUSING online — population cap ${populationCap()}.`
+                ? `HOUSING online — population cap ${populationCap(s.team)}.`
                 : s.type === 'gasExtractor'
                   ? 'GAS EXTRACTOR online — this leak can now be harvested.'
                 : s.type === 'minersHut'
                   ? 'MINERS HUT online — foragers will use the closest drop-off.'
-                  : `${BUILDING_DATA[s.type].label} online.`, COLORS.good);
+                  : `${BUILDING_DATA[s.type].label} online.`, COLORS.good, s.team);
             }
           }
           return;
@@ -3975,9 +4032,9 @@
           const stored = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.groundTags) || 'null');
           if (stored) return normalizeGroundTagCollection(stored);
           const legacy = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.groundTag) || 'null');
-          return normalizeGroundTagCollection(legacy ? [legacy] : [DEFAULT_GROUND_TAG]);
+          return normalizeGroundTagCollection(legacy ? [legacy] : []);
         } catch {
-          return normalizeGroundTagCollection([DEFAULT_GROUND_TAG]);
+          return [];
         }
       }
       
@@ -3997,8 +4054,14 @@
       
       function toggleGroundTagMenu() {
         state.groundTagDefinitions = storedGroundTagDefinitions();
-        state.groundTagMenuOpen = !state.groundTagMenuOpen;
         state.groundTagMenuRects = [];
+        if (!state.groundTagDefinitions.length) {
+          state.groundTagMenuOpen = false;
+          state.placingGroundTag = false;
+          toast('Create and save a tag in Tag Lab before placing one.', COLORS.warn);
+          return false;
+        }
+        state.groundTagMenuOpen = !state.groundTagMenuOpen;
         if (state.groundTagMenuOpen) {
           state.placingGroundTag = false;
           clearCommandMenu();
@@ -4127,8 +4190,43 @@
         }
         return false;
       }
+
+      const minimapSeenEnemyStructures = new Map();
+      let minimapSightingsMatchKey = '';
+      let minimapSightingsLastTick = -1;
+
+      function localMinimapVisibility(entity) {
+        const tx = clamp(Math.floor(entity.x / TILE), 0, COLS - 1);
+        const ty = clamp(Math.floor(entity.y / TILE), 0, ROWS - 1);
+        return !!state.visible[ty]?.[tx];
+      }
+
+      function resetMinimapSightingsForNewMatch() {
+        const tick = Math.max(0, Math.trunc(Number(state.simulationTick) || 0));
+        const matchKey = `${state.matchSeed ?? ''}|${state.multiplayerRoomCode ?? ''}|${state.gameModeId ?? ''}`;
+        if (matchKey !== minimapSightingsMatchKey || tick < minimapSightingsLastTick) {
+          minimapSeenEnemyStructures.clear();
+          state.minimapAttackAlerts = [];
+          state.minimapAttackAlertCooldowns = Object.create(null);
+          minimapSightingsMatchKey = matchKey;
+        }
+        minimapSightingsLastTick = tick;
+      }
+
+      function shouldDrawMinimapStructure(structure, team) {
+        if (structure.team === team) return true;
+        const currentlySeen = (state.multiplayerActive
+          ? localMinimapVisibility(structure)
+          : isVisibleToTeam(team, structure.x, structure.y)) || detectedByRadarTurret(structure, team);
+        if (!state.multiplayerActive) return currentlySeen;
+        let seenIds = minimapSeenEnemyStructures.get(team);
+        if (!seenIds) minimapSeenEnemyStructures.set(team, seenIds = new Set());
+        if (currentlySeen) seenIds.add(structure.id);
+        return seenIds.has(structure.id);
+      }
       
       function renderMinimapNow() {
+        resetMinimapSightingsForNewMatch();
         const zone = consoleLayout().map;
         const map = minimapGeom();
         drawInsetPanel(zone, '#0c131b');
@@ -4173,8 +4271,37 @@
           ctx.fillStyle = color;
           ctx.fillRect(map.x + entity.x * map.sx - size / 2, map.y + entity.y * map.sy - size / 2, size, size);
         };
-        for (const structure of structures) if (structure.hp > 0) dot(structure, colorForTeam(structure.team), 4);
+        const structureDot = structure => {
+          const team = activeCommandTeam();
+          if (!shouldDrawMinimapStructure(structure, team)) return;
+          ctx.fillStyle = colorForTeam(structure.team);
+          ctx.fillRect(map.x + structure.x * map.sx - 2, map.y + structure.y * map.sy - 2, 4, 4);
+        };
+        for (const structure of structures) if (structure.hp > 0) structureDot(structure);
         for (const unit of units) if (unit.hp > 0) dot(unit, colorForTeam(unit.team, 'light'), 2.5);
+
+        const now = state.elapsed || 0;
+        const activeTeam = activeCommandTeam();
+        const alerts = (state.minimapAttackAlerts || []).filter(alert => alert.expiresAt > now);
+        state.minimapAttackAlerts = alerts;
+        ctx.save();
+        for (const alert of alerts) {
+          if (alert.team !== activeTeam) continue;
+          const duration = Math.max(.01, alert.expiresAt - alert.startedAt);
+          const age = clamp((now - alert.startedAt) / duration, 0, 1);
+          const pulse = (age * 2.4) % 1;
+          const x = map.x + alert.x * map.sx;
+          const y = map.y + alert.y * map.sy;
+          const radius = 3 + pulse * 13;
+          ctx.strokeStyle = `rgba(255,58,68,${Math.max(.15, 1 - pulse)})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(255,58,68,.95)';
+          ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+        }
+        ctx.restore();
       
         const flags = new Set();
         for (const structure of structures) {
@@ -5054,6 +5181,14 @@
       }
       
       function drawGroundTagButton() {
+        if (!Array.isArray(state.groundTagDefinitions)) state.groundTagDefinitions = storedGroundTagDefinitions();
+        if (!state.groundTagDefinitions.length) {
+          state.groundTagButtonRect = null;
+          state.groundTagMenuOpen = false;
+          state.groundTagMenuRects = [];
+          state.placingGroundTag = false;
+          return;
+        }
         const mapZone = consoleLayout().map;
         const size = mapZone.h < 120 ? 24 : 30;
         const rect = {
@@ -5518,12 +5653,15 @@
         const ids = new Set();
         for (const value of source) {
           const tag = normalizeGroundTagDefinition(value);
-          if (ids.has(tag.id)) continue;
+          const implicitUnsavedDefault = tag.id === DEFAULT_GROUND_TAG.id &&
+            tag.background === DEFAULT_GROUND_TAG.background &&
+            tag.pixels.every((color, index) => color === DEFAULT_GROUND_TAG.pixels[index]);
+          if (implicitUnsavedDefault || ids.has(tag.id)) continue;
           ids.add(tag.id);
           tags.push(tag);
           if (tags.length >= MAX_OWNED_GROUND_TAGS) break;
         }
-        return tags.length ? tags : [normalizeGroundTagDefinition(DEFAULT_GROUND_TAG)];
+        return tags;
       }
       
       // KeyboardEvent.code values are layout-independent and survive keyboard
@@ -6515,11 +6653,14 @@
         burst(s.x, s.y, upgradeType === 'factory' ? COLORS.mineral : COLORS.warn, 24, true);
         toast(upgradeType === 'factory'
           ? 'FACTORY online — minerals and gas deposited here are increased by 10%.'
-          : `OUTPOST online — wide-range turret active (${spec.range} range).`, COLORS.good);
+          : `OUTPOST online — wide-range turret active (${spec.range} range).`, COLORS.good, s.team);
         return true;
       }
       
-      function toast(text, color = COLORS.text) {
+      function toast(text, color = COLORS.text, team = null) {
+        const ownerTeam = team || state.notificationTeamContext || null;
+        const localTeams = state.localCommandTeams || ['player'];
+        if (ownerTeam && !localTeams.includes(ownerTeam)) return;
         if (state.warningsEnabled === false && (color === COLORS.warn || color === COLORS.bad)) return;
         state.message = text;
         state.messageColor = color;
@@ -6765,7 +6906,7 @@
           if (u.team === lab.team && u.type === job.unitType && u.hp > 0) applyUnitUpgradeEffect(u, d);
         }
         burst(lab.x, lab.y, COLORS.good, 22, true);
-        toast(`${d.label} tier ${upgradeLevel} complete — ${UNIT_DATA[job.unitType].label} upgraded.`, COLORS.good);
+        toast(`${d.label} tier ${upgradeLevel} complete — ${UNIT_DATA[job.unitType].label} upgraded.`, COLORS.good, lab.team);
         return true;
       }
       
@@ -7119,14 +7260,14 @@
             u.guardPoint = { ...rally };
             u.movementOrderActive = true;
             u.movePriorityUntil = state.elapsed + 3;
-            toast(`${UNIT_DATA[type].label} ready → ${structureLabel(producer.type)} flag, then ${preferredResource === 'gas' ? 'gas' : 'minerals'}.`, COLORS.good);
+            toast(`${UNIT_DATA[type].label} ready → ${structureLabel(producer.type)} flag, then ${preferredResource === 'gas' ? 'gas' : 'minerals'}.`, COLORS.good, team);
             return;
           }
           // Two of every three new foragers seek minerals; every third seeks gas.
           const resource = nearestResource(u, preferredResource);
           assignHarvest(u, resource);
           const actualResource = resource?.type || preferredResource;
-          toast(`${UNIT_DATA[type].label} ready — seeking ${actualResource === 'gas' ? 'gas' : 'minerals'}.`, COLORS.good);
+          toast(`${UNIT_DATA[type].label} ready — seeking ${actualResource === 'gas' ? 'gas' : 'minerals'}.`, COLORS.good, team);
           return;
         }
         u.command = 'defend';
@@ -7137,7 +7278,7 @@
         u.guardPoint = { ...u.destination };
         u.movementOrderActive = true;
         u.movePriorityUntil = state.elapsed + 3;
-        toast(`${UNIT_DATA[type].label} ready${rally ? ` → ${structureLabel(producer.type)} flag` : ''}.`, COLORS.good);
+        toast(`${UNIT_DATA[type].label} ready${rally ? ` → ${structureLabel(producer.type)} flag` : ''}.`, COLORS.good, team);
       }
       
       function updateProduction(dt) {
@@ -7780,7 +7921,13 @@
           toast('Ground tags require clear walkable ground in your current vision.', COLORS.warn);
           return false;
         }
-        const tag = normalizeGroundTagDefinition(state.groundTagDefinition);
+        const savedTags = storedGroundTagDefinitions();
+        const tag = savedTags.find(candidate => candidate.id === state.groundTagDefinition?.id);
+        if (!tag) {
+          state.placingGroundTag = false;
+          toast('This tag is not saved. Create and save it in Tag Lab first.', COLORS.warn);
+          return false;
+        }
         if (!queueInputCommand({ type: 'placeGroundTag', point: snapped, tag })) return false;
         state.placingGroundTag = false;
         state.groundTagMenuOpen = false;
@@ -7792,7 +7939,10 @@
       
       function applyGameCommand(command) {
         if (!command || state.gameOver) return false;
-        switch (command.type) {
+        const previousNotificationTeam = state.notificationTeamContext || null;
+        state.notificationTeamContext = command.team || null;
+        try {
+          switch (command.type) {
           case 'unitOrder':
             return applyUnitOrderCommand(command);
           case 'harvest':
@@ -7857,9 +8007,12 @@
             const structure = structures.find(candidate => candidate.id === command.structureId && candidate.team === command.team);
             return !!sellBuilding(structure);
           }
-          default:
-            console.warn('Unknown queued command:', command.type, command);
-            return false;
+            default:
+              console.warn('Unknown queued command:', command.type, command);
+              return false;
+          }
+        } finally {
+          state.notificationTeamContext = previousNotificationTeam;
         }
       }
       
@@ -8626,6 +8779,8 @@
         state.groundTagButtonRect = null;
         state.groundTagMenuOpen = false;
         state.groundTagMenuRects = [];
+        state.groundTagDefinitions = null;
+        state.groundTagDefinition = normalizeGroundTagDefinition(null);
         state.teamResources = Object.create(null);
         state.teamAdrenalineReadyAt = Object.create(null);
         state.teamTurretTechLevels = Object.create(null);
@@ -8929,9 +9084,9 @@
           const stored = JSON.parse(storageGet(STORAGE_KEYS.groundTags) || 'null');
           if (stored) return normalizeGroundTagCollection(stored);
           const legacy = JSON.parse(storageGet(STORAGE_KEYS.groundTag) || 'null');
-          return normalizeGroundTagCollection(legacy ? [legacy] : [DEFAULT_GROUND_TAG]);
+          return normalizeGroundTagCollection(legacy ? [legacy] : []);
         } catch {
-          return normalizeGroundTagCollection([DEFAULT_GROUND_TAG]);
+          return [];
         }
       }
       
@@ -9070,6 +9225,14 @@
           box-shadow: 0 24px 65px rgba(0,0,0,.48), inset 0 1px rgba(255,255,255,.06);
           backdrop-filter: blur(12px);
         }
+        .starlite-menu__return {
+          position: fixed; top: max(14px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); z-index: 6;
+          width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
+          border: 1px solid rgba(204,232,190,.32); border-radius: 50%; color: #edf7e8;
+          background: rgba(10,18,13,.78); cursor: pointer; backdrop-filter: blur(10px);
+        }
+        .starlite-menu__return:hover, .starlite-menu__return:focus-visible { outline: none; border-color: #9de36f; color: #b8f288; background: rgba(28,52,31,.92); }
+        .starlite-menu__return svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .starlite-menu__heading { margin: 0 0 15px; font-size: 13px; letter-spacing: .18em; color: #a8c99f; text-transform: uppercase; }
         .starlite-menu__modes { display: grid; gap: 10px; }
         .starlite-menu__button {
@@ -9599,6 +9762,7 @@
               <p class="starlite-menu__status" role="status" aria-live="polite"></p>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="online-choice">
+              <button class="starlite-menu__return" type="button" data-close-online-choice aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading">Online</h2>
               <p class="starlite-menu__pvp-copy">Choose how you want to find the other commanders.</p>
               <div class="starlite-menu__online-choices">
@@ -9609,9 +9773,9 @@
                   <strong>PRIVATE ROOM</strong><small>Choose a room size, then host a room code or join a friend's code.</small>
                 </button>
               </div>
-              <button class="starlite-menu__secondary starlite-menu__pvp-back" type="button" data-close-online-choice>BACK</button>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="online">
+              <button class="starlite-menu__return" type="button" data-close-online aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading">Public games</h2>
               <p class="starlite-menu__pvp-copy">Join an active public lobby, or create one that appears here until the match starts.</p>
               <div class="starlite-menu__online-create">
@@ -9629,10 +9793,10 @@
               <p class="starlite-menu__status" data-online-status role="status" aria-live="polite"></p>
               <div class="starlite-menu__branch-actions">
                 <button class="starlite-menu__secondary" type="button" data-online-refresh>REFRESH</button>
-                <button class="starlite-menu__secondary" type="button" data-close-online>BACK</button>
               </div>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="sizes">
+              <button class="starlite-menu__return" type="button" data-close-sizes aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading" data-size-heading>Choose game size</h2>
               <p class="starlite-menu__pvp-copy" data-size-copy>Choose the total number of commanders.</p>
               <label class="starlite-menu__identity" data-ai-difficulty-wrap>
@@ -9648,10 +9812,10 @@
               <p class="starlite-menu__status" data-size-status role="status" aria-live="polite"></p>
               <div class="starlite-menu__branch-actions">
                 <button class="starlite-menu__secondary" type="button" data-computer-sandbox>SANDBOX MODE</button>
-                <button class="starlite-menu__secondary" type="button" data-close-sizes>BACK</button>
               </div>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="pvp">
+              <button class="starlite-menu__return" type="button" data-close-pvp aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading" data-pvp-heading>PVP relay match</h2>
               <p class="starlite-menu__pvp-copy" data-pvp-copy>The host creates a room code. Every player joins the same deterministic lockstep room.</p>
               <div class="starlite-menu__pvp-actions" data-pvp-actions>
@@ -9668,9 +9832,9 @@
                 </div>
               </div>
               <p class="starlite-menu__status" data-pvp-status role="status" aria-live="polite"></p>
-              <button class="starlite-menu__secondary starlite-menu__pvp-back" type="button" data-close-pvp>BACK</button>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="tag-lab">
+              <button class="starlite-menu__return" type="button" data-close-tag-lab aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading">Ground tag lab</h2>
               <p class="starlite-menu__pvp-copy">Start on a clean white canvas, choose visible background and pen colors, then save. Select any saved tag to edit it.</p>
               <div class="starlite-menu__tag-lab">
@@ -9685,7 +9849,6 @@
                     <button class="starlite-menu__secondary" type="button" data-new-tag>NEW WHITE</button>
                     <button class="starlite-menu__secondary starlite-menu__tag-save" type="button" data-save-tag>SAVE TAG</button>
                     <button class="starlite-menu__secondary" type="button" data-delete-tag>DELETE</button>
-                    <button class="starlite-menu__secondary" type="button" data-close-tag-lab>BACK</button>
                   </div>
                 </div>
                 <div class="starlite-menu__tag-editor">
@@ -9711,6 +9874,7 @@
               </div>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="player">
+              <button class="starlite-menu__return" type="button" data-close-player aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading">Player profile</h2>
               <div class="starlite-menu__profile-card">
                 <div class="starlite-menu__profile-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 21c.8-4.4 3.3-6.6 7.5-6.6s6.7 2.2 7.5 6.6"></path></svg></div>
@@ -9749,10 +9913,10 @@
               </div>
               <div class="starlite-menu__branch-actions" style="margin-top:14px">
                 <button class="starlite-menu__secondary" type="button" data-save-player>SAVE NAME</button>
-                <button class="starlite-menu__secondary" type="button" data-close-player>BACK</button>
               </div>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="settings">
+              <button class="starlite-menu__return" type="button" data-close-settings aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading">Settings</h2>
               <div class="starlite-menu__settings-grid">
                 <div class="starlite-menu__volume-card">
@@ -9768,7 +9932,6 @@
               <p class="starlite-menu__status" data-keybind-status role="status" aria-live="polite">Select a key, then press its replacement.</p>
               <div class="starlite-menu__settings-actions">
                 <button class="starlite-menu__secondary" type="button" data-reset-keybinds>RESET KEYBINDS</button>
-                <button class="starlite-menu__secondary" type="button" data-close-settings>BACK</button>
               </div>
             </section>
             <button class="starlite-menu__tag-teaser" type="button" data-open-tag-lab aria-label="Open Tag Lab">
@@ -10153,6 +10316,12 @@
           tagSaveButton.dataset.active = String(tagDirty);
           drawGroundTagCanvas(tagCanvas, tagDraft);
           tagList.replaceChildren();
+          if (!tagDefinitions.length) {
+            const empty = document.createElement('div');
+            empty.className = 'starlite-menu__tag-empty';
+            empty.textContent = 'No saved tags yet. Draw one and select SAVE TAG to unlock tags in-game.';
+            tagList.appendChild(empty);
+          }
           for (const tag of tagDefinitions) {
             const button = document.createElement('button');
             button.type = 'button';
@@ -10375,8 +10544,7 @@
             openBlankGroundTag('Unsaved draft cleared. Blank white canvas ready.');
             return;
           }
-          let nextDefinitions = tagDefinitions.filter(tag => tag.id !== tagDraft.id);
-          if (!nextDefinitions.length) nextDefinitions = [normalizeGroundTagDefinition(DEFAULT_GROUND_TAG)];
+          const nextDefinitions = tagDefinitions.filter(tag => tag.id !== tagDraft.id);
           const persisted = persistGroundTagDefinitions(nextDefinitions);
           if (!persisted) {
             tagStatus.textContent = 'DELETE FAILED · browser storage is unavailable.';
@@ -10699,6 +10867,7 @@
       let chatLog = null;
       let chatInput = null;
       let chatKeyListener = null;
+      let chatCollapsed = false;
       let localChatSequence = 0;
       let publicDirectorySocket = null;
       let publicDirectoryTimer = 0;
@@ -10901,17 +11070,26 @@
         const root = document.createElement('section');
         root.setAttribute('aria-label', 'Multiplayer chat');
         root.style.cssText = [
-          'position:fixed', 'left:12px', 'top:150px', 'z-index:1500',
-          'width:min(320px,calc(100vw - 24px))', 'box-sizing:border-box',
+          'position:fixed', 'left:max(8px,env(safe-area-inset-left))', 'top:max(8px,env(safe-area-inset-top))', 'z-index:1500',
+          'width:min(320px,calc(100vw - 16px))', 'box-sizing:border-box',
           'padding:8px', 'background:rgba(10,14,20,.88)', 'border:1px solid #4b5871',
           'color:#f2f6ff', 'font:12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace',
           'box-shadow:3px 3px 0 rgba(0,0,0,.45)'
         ].join(';');
-      
+
+        const header = document.createElement('div');
+        header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;';
         const title = document.createElement('div');
         title.textContent = 'MATCH CHAT';
-        title.style.cssText = 'margin:0 0 6px;color:#9eb4cf;font-weight:700;letter-spacing:.06em;';
-      
+        title.style.cssText = 'color:#9eb4cf;font-weight:700;letter-spacing:.06em;';
+        const collapse = document.createElement('button');
+        collapse.type = 'button';
+        collapse.setAttribute('aria-label', 'Collapse match chat');
+        collapse.style.cssText = 'min-width:27px;height:24px;padding:0 6px;background:#273246;color:#f2f6ff;border:1px solid #607594;font:inherit;font-weight:700;cursor:pointer;';
+        header.append(title, collapse);
+
+        const body = document.createElement('div');
+        body.style.cssText = 'margin-top:6px;';
         const log = document.createElement('div');
         log.setAttribute('aria-live', 'polite');
         log.style.cssText = 'height:92px;overflow-y:auto;padding:2px 3px 4px;scrollbar-width:thin;';
@@ -10930,8 +11108,24 @@
         send.textContent = 'SEND';
         send.style.cssText = 'padding:6px 9px;background:#273246;color:#f2f6ff;border:1px solid #607594;font:inherit;cursor:pointer;';
         form.append(input, send);
-        root.append(title, log, form);
+        body.append(log, form);
+        root.append(header, body);
         document.body.appendChild(root);
+
+        const setChatCollapsed = collapsed => {
+          chatCollapsed = !!collapsed;
+          body.hidden = chatCollapsed;
+          collapse.textContent = chatCollapsed ? '▸' : '▾';
+          collapse.setAttribute('aria-expanded', String(!chatCollapsed));
+          collapse.setAttribute('aria-label', chatCollapsed ? 'Expand match chat' : 'Collapse match chat');
+          root.style.width = chatCollapsed ? 'auto' : 'min(320px,calc(100vw - 16px))';
+        };
+        collapse.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          setChatCollapsed(!chatCollapsed);
+        });
+        setChatCollapsed(chatCollapsed);
       
         chatRoot = root;
         chatLog = log;
@@ -10961,6 +11155,7 @@
           if (target === input || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target?.isContentEditable) return;
           event.preventDefault();
           event.stopImmediatePropagation();
+          if (chatCollapsed) setChatCollapsed(false);
           input.focus();
         };
         window.addEventListener('keydown', chatKeyListener, true);
@@ -14007,26 +14202,38 @@
         }
         if (s.type !== 'turret' && s.type !== 'antiAirTurret') return;
         const label = BUILDING_DATA[s.type].label;
-        if ((s.level || 1) >= MAX_LEVEL) {
-          openMenu(screenPt, `${label} · L${s.level}`, [{ label: 'MAX LEVEL', sub: 'fully upgraded', tone: 'defense', enabled: false, action: () => {} }]);
-          return;
-        }
-        const toLevel = (s.level || 1) + 1;
-        if (toLevel > turretTechLevelFor(s.team)) {
-          openMenu(screenPt, `${label} · L${s.level}`, [{
-            label: `UPGRADE TO L${toLevel} · LOCKED`,
-            sub: `research TURRET TECHNOLOGY L${toLevel} first`,
-            tone: 'research',
-            enabled: false,
-            action: () => {}
-          }]);
-          return;
-        }
-        const c = upgradeCost(s);
         const gains = s.type === 'antiAirTurret' ? '+8 dmg · +28 range · +90 hp' : '+5 dmg · +24 range · +90 hp';
-        openMenu(screenPt, `${label} · L${s.level}`, [
-          { label: `UPGRADE TO L${toLevel}`, sub: `${c.m}M ${c.g}G · ${gains}`, tone: 'upgrade', costM: c.m, costG: c.g, command: { type: 'upgradeTurret', team: s.team, structureId: s.id } }
-        ]);
+        const upgradeItem = {
+          get label() {
+            const toLevel = (s.level || 1) + 1;
+            if ((s.level || 1) >= MAX_LEVEL) return 'MAX LEVEL';
+            return toLevel > turretTechLevelFor(s.team) ? `UPGRADE TO L${toLevel} · LOCKED` : `UPGRADE TO L${toLevel}`;
+          },
+          get sub() {
+            const toLevel = (s.level || 1) + 1;
+            if ((s.level || 1) >= MAX_LEVEL) return 'fully upgraded';
+            if (toLevel > turretTechLevelFor(s.team)) return `research TURRET TECHNOLOGY L${toLevel} first`;
+            const cost = upgradeCost(s);
+            return `${cost.m}M ${cost.g}G · ${gains}`;
+          },
+          get tone() {
+            const toLevel = (s.level || 1) + 1;
+            if ((s.level || 1) >= MAX_LEVEL) return 'defense';
+            return toLevel > turretTechLevelFor(s.team) ? 'research' : 'upgrade';
+          },
+          get costM() {
+            const toLevel = (s.level || 1) + 1;
+            return (s.level || 1) < MAX_LEVEL && toLevel <= turretTechLevelFor(s.team) ? upgradeCost(s).m : undefined;
+          },
+          get costG() {
+            const toLevel = (s.level || 1) + 1;
+            return (s.level || 1) < MAX_LEVEL && toLevel <= turretTechLevelFor(s.team) ? upgradeCost(s).g : undefined;
+          },
+          team: s.team,
+          enabled: () => (s.level || 1) < MAX_LEVEL && (s.level || 1) + 1 <= turretTechLevelFor(s.team),
+          command: { type: 'upgradeTurret', team: s.team, structureId: s.id }
+        };
+        openMenu(screenPt, `${label} · FIELD UPGRADES`, [upgradeItem], true);
       }
       function gasNodeForExtractor(extractor) {
         return extractor?.type === 'gasExtractor'
@@ -16435,13 +16642,12 @@
         if (preview) {
           ctx.fillStyle = 'rgba(244,255,233,.08)';
           ctx.fillRect(left, top, footprint, footprint);
+          ctx.strokeStyle = COLORS.warn;
+          ctx.lineWidth = 2 / cam.zoom;
+          ctx.setLineDash([5 / cam.zoom, 4 / cam.zoom]);
+          ctx.strokeRect(left, top, footprint, footprint);
+          ctx.setLineDash([]);
         }
-        ctx.strokeStyle = preview ? COLORS.warn : colorForTeam(marker.team || activeCommandTeam());
-        ctx.lineWidth = (preview ? 2 : 1) / cam.zoom;
-        if (preview) ctx.setLineDash([5 / cam.zoom, 4 / cam.zoom]);
-        ctx.strokeRect(left, top, footprint, footprint);
-        ctx.setLineDash([]);
-        if (!preview && cam.zoom >= .85) drawText(tag.name, marker.x, top + footprint + 3, 8 / cam.zoom, colorForTeam(marker.team || activeCommandTeam()), 'center');
         ctx.restore();
       }
       
@@ -17103,7 +17309,7 @@
         groundTagButtonRect: null,
         groundTagMenuOpen: false,
         groundTagMenuRects: [],
-        groundTagDefinitions: [normalizeGroundTagDefinition(null)],
+        groundTagDefinitions: null,
         groundTagDefinition: normalizeGroundTagDefinition(null),
         contextMenu: null,
         settingsOpen: false,
@@ -17130,6 +17336,9 @@
         productionTechLevels: Object.fromEntries(INITIAL_TEAMS.map(team => [team, initialProductionLevels()])),
         productionTechJobs: Object.fromEntries(INITIAL_TEAMS.map(team => [team, Object.create(null)])),
         minimapActive: false,
+        minimapAttackAlerts: [],
+        minimapAttackAlertCooldowns: Object.create(null),
+        notificationTeamContext: null,
         computerAIs: Object.create(null),
         enemyAI: null,
         matchSeed: null,
