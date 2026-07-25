@@ -51,6 +51,7 @@
     window.__STANDALONE_MANIFEST__ = {
   "entry": "main.js",
   "files": {
+    "account.js": "account.js",
     "ai.js": "ai.js",
     "combat.js": "combat.js",
     "commandPanel.js": "commandPanel.js",
@@ -119,6 +120,413 @@
           throw error;
         }
       }
+
+  __define("account.js", function (__exports, __require) {
+    const __imports = Object.create(null);
+    const __dep0 = __require("data.js");
+    Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] });
+
+    with (__imports) {
+      Object.defineProperty(__exports, "getAccountState", { enumerable: true, get: () => getAccountState }); Object.defineProperty(__exports, "initializeAccountSync", { enumerable: true, get: () => initializeAccountSync }); Object.defineProperty(__exports, "scheduleAccountSync", { enumerable: true, get: () => scheduleAccountSync }); Object.defineProperty(__exports, "signInAccount", { enumerable: true, get: () => signInAccount }); Object.defineProperty(__exports, "signOutAccount", { enumerable: true, get: () => signOutAccount }); Object.defineProperty(__exports, "signUpAccount", { enumerable: true, get: () => signUpAccount }); Object.defineProperty(__exports, "subscribeAccount", { enumerable: true, get: () => subscribeAccount }); Object.defineProperty(__exports, "syncAccountNow", { enumerable: true, get: () => syncAccountNow });
+      const SUPABASE_URL = 'https://cmrfmvbtbsudbempidut.supabase.co';
+      const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LILuMyzZoyxfXDpTsqg7Ng_Xxc3E5uT';
+      const SUPABASE_CDN_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+      const ACCOUNT_TABLE = 'starlite_accounts';
+      const ACCOUNT_SCHEMA_VERSION = 1;
+      const MENU_VOLUME_STORAGE_KEY = 'starlite.volume.v1';
+      const DEFAULT_USERNAME = 'Commander';
+      
+      let clientPromise = null;
+      let initializePromise = null;
+      let authSubscription = null;
+      let hydratedUserId = '';
+      let hydrationPromise = null;
+      let saveTimer = 0;
+      const listeners = new Set();
+      
+      const accountState = {
+        ready: false,
+        busy: false,
+        user: null,
+        status: 'loading',
+        message: 'Checking cloud account…'
+      };
+      
+      function storageGet(key) {
+        try { return globalThis.localStorage?.getItem(key) ?? null; }
+        catch { return null; }
+      }
+      
+      function storageSet(key, value) {
+        try { globalThis.localStorage?.setItem(key, value); return true; }
+        catch { return false; }
+      }
+      
+      function parseStoredJSON(key, fallback) {
+        try {
+          const value = JSON.parse(storageGet(key) || 'null');
+          return value ?? fallback;
+        } catch {
+          return fallback;
+        }
+      }
+      
+      function sanitizeUsername(value) {
+        return String(value || '')
+          .replace(/[\u0000-\u001f\u007f]/g, '')
+          .trim()
+          .replace(/\s+/g, ' ')
+          .slice(0, 20) || DEFAULT_USERNAME;
+      }
+      
+      function normalizedVolume(value) {
+        if (value === null || value === undefined || value === '') return 70;
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.max(0, Math.min(100, Math.round(number))) : 70;
+      }
+      
+      function localTagPalette() {
+        const stored = parseStoredJSON(STORAGE_KEYS.groundTags, null);
+        if (stored) return normalizeGroundTagCollection(stored);
+        const legacy = parseStoredJSON(STORAGE_KEYS.groundTag, null);
+        return normalizeGroundTagCollection(legacy ? [legacy] : [DEFAULT_GROUND_TAG]);
+      }
+      
+      function localAccountPayload(userId) {
+        return {
+          user_id: userId,
+          username: sanitizeUsername(storageGet(STORAGE_KEYS.username)),
+          tag_palette: localTagPalette(),
+          settings: {
+            schemaVersion: ACCOUNT_SCHEMA_VERSION,
+            keybinds: parseStoredJSON(STORAGE_KEYS.keybinds, null),
+            volume: normalizedVolume(storageGet(MENU_VOLUME_STORAGE_KEY))
+          },
+          updated_at: new Date().toISOString()
+        };
+      }
+      
+      function applyCloudAccount(profile) {
+        storageSet(STORAGE_KEYS.username, sanitizeUsername(profile?.username));
+        storageSet(
+          STORAGE_KEYS.groundTags,
+          JSON.stringify(normalizeGroundTagCollection(profile?.tag_palette || [DEFAULT_GROUND_TAG]))
+        );
+        if (profile?.settings?.keybinds && typeof profile.settings.keybinds === 'object') {
+          storageSet(STORAGE_KEYS.keybinds, JSON.stringify(profile.settings.keybinds));
+        }
+        if (profile?.settings && Object.prototype.hasOwnProperty.call(profile.settings, 'volume')) {
+          storageSet(MENU_VOLUME_STORAGE_KEY, String(normalizedVolume(profile.settings.volume)));
+        }
+      }
+      
+      function publicAccountState() {
+        return Object.freeze({
+          ready: accountState.ready,
+          busy: accountState.busy,
+          user: accountState.user ? Object.freeze({
+            id: accountState.user.id,
+            email: accountState.user.email || ''
+          }) : null,
+          status: accountState.status,
+          message: accountState.message
+        });
+      }
+      
+      function emitAccountState(change = 'state') {
+        const snapshot = publicAccountState();
+        for (const listener of listeners) {
+          try { listener(snapshot, change); }
+          catch (error) { console.warn('StarLite account listener failed.', error); }
+        }
+      }
+      
+      function updateAccountState(values, change = 'state') {
+        Object.assign(accountState, values);
+        emitAccountState(change);
+      }
+      
+      function loadSupabaseScript() {
+        if (globalThis.supabase?.createClient) return Promise.resolve(globalThis.supabase);
+        if (typeof document === 'undefined') return Promise.reject(new Error('Cloud accounts require a browser.'));
+      
+        return new Promise((resolve, reject) => {
+          let settled = false;
+          const finish = (callback, value) => {
+            if (settled) return;
+            settled = true;
+            globalThis.clearTimeout(timeoutId);
+            callback(value);
+          };
+          let script = document.querySelector('script[data-starlite-supabase]');
+          if (!script) {
+            script = document.createElement('script');
+            script.src = SUPABASE_CDN_URL;
+            script.async = true;
+            script.dataset.starliteSupabase = 'true';
+            document.head.appendChild(script);
+          }
+          const resolveClient = () => {
+            if (globalThis.supabase?.createClient) finish(resolve, globalThis.supabase);
+            else finish(reject, new Error('Supabase client did not initialize.'));
+          };
+          script.addEventListener('load', resolveClient, { once: true });
+          script.addEventListener('error', () => finish(reject, new Error('Could not load cloud account service.')), { once: true });
+          const timeoutId = globalThis.setTimeout(
+            () => finish(reject, new Error('Cloud account service timed out.')),
+            12000
+          );
+          if (globalThis.supabase?.createClient) resolveClient();
+        });
+      }
+      
+      function getSupabaseClient() {
+        if (!clientPromise) {
+          clientPromise = loadSupabaseScript()
+            .then(supabase => supabase.createClient(
+              SUPABASE_URL,
+              SUPABASE_PUBLISHABLE_KEY,
+              {
+                auth: {
+                  persistSession: true,
+                  autoRefreshToken: true,
+                  detectSessionInUrl: true
+                }
+              }
+            ))
+            .catch(error => {
+              clientPromise = null;
+              throw error;
+            });
+        }
+        return clientPromise;
+      }
+      
+      async function saveAccountToCloud({ announce = true } = {}) {
+        const client = await getSupabaseClient();
+        const user = accountState.user;
+        if (!user?.id) return false;
+        if (announce) updateAccountState({ busy: true, status: 'syncing', message: 'Saving account to cloud…' });
+        const { error } = await client
+          .from(ACCOUNT_TABLE)
+          .upsert(localAccountPayload(user.id), { onConflict: 'user_id' });
+        if (error) {
+          updateAccountState({
+            busy: false,
+            status: 'error',
+            message: `Cloud save failed: ${error.message}. Local saves are still active.`
+          });
+          throw error;
+        }
+        updateAccountState({
+          busy: false,
+          status: 'synced',
+          message: 'Account and tag palette saved across devices.'
+        }, 'profile-saved');
+        return true;
+      }
+      
+      async function hydrateCloudAccount(session, { force = false } = {}) {
+        const user = session?.user;
+        if (!user?.id) return false;
+        if (!force && hydratedUserId === user.id) return true;
+        if (hydrationPromise) return hydrationPromise;
+      
+        hydrationPromise = (async () => {
+          const client = await getSupabaseClient();
+          updateAccountState({
+            ready: true,
+            busy: true,
+            user,
+            status: 'syncing',
+            message: 'Loading account and tag palette…'
+          });
+          const { data, error } = await client
+            .from(ACCOUNT_TABLE)
+            .select('username, tag_palette, settings, updated_at')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          if (error) {
+            updateAccountState({
+              busy: false,
+              status: 'error',
+              message: `Cloud load failed: ${error.message}. Local saves are still active.`
+            });
+            throw error;
+          }
+          hydratedUserId = user.id;
+          if (data) {
+            applyCloudAccount(data);
+            updateAccountState({
+              busy: false,
+              status: 'synced',
+              message: 'Cloud account loaded on this device.'
+            }, 'profile-loaded');
+            return true;
+          }
+          await saveAccountToCloud({ announce: false });
+          updateAccountState({
+            busy: false,
+            status: 'synced',
+            message: 'Cloud account created from this device.'
+          }, 'profile-saved');
+          return true;
+        })().finally(() => {
+          hydrationPromise = null;
+        });
+        return hydrationPromise;
+      }
+      
+      async function initializeAccountSync() {
+        if (initializePromise) return initializePromise;
+        initializePromise = (async () => {
+          try {
+            const client = await getSupabaseClient();
+            if (!authSubscription) {
+              const { data } = client.auth.onAuthStateChange((event, session) => {
+                const user = session?.user || null;
+                if (!user) {
+                  hydratedUserId = '';
+                  updateAccountState({
+                    ready: true,
+                    busy: false,
+                    user: null,
+                    status: 'anonymous',
+                    message: 'Anonymous profile · saved on this device.'
+                  }, event === 'SIGNED_OUT' ? 'signed-out' : 'state');
+                  return;
+                }
+                updateAccountState({ ready: true, user }, 'signed-in');
+                if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || hydratedUserId !== user.id) {
+                  globalThis.setTimeout(() => {
+                    hydrateCloudAccount(session).catch(error => console.warn('StarLite cloud account load failed.', error));
+                  }, 0);
+                }
+              });
+              authSubscription = data?.subscription || null;
+            }
+            const { data, error } = await client.auth.getSession();
+            if (error) throw error;
+            const session = data?.session || null;
+            if (session?.user) await hydrateCloudAccount(session);
+            else updateAccountState({
+              ready: true,
+              busy: false,
+              user: null,
+              status: 'anonymous',
+              message: 'Anonymous profile · saved on this device.'
+            });
+            return publicAccountState();
+          } catch (error) {
+            updateAccountState({
+              ready: true,
+              busy: false,
+              user: null,
+              status: 'unavailable',
+              message: `Cloud accounts unavailable: ${error.message}. Local saves are still active.`
+            });
+            throw error;
+          }
+        })().catch(error => {
+          initializePromise = null;
+          throw error;
+        });
+        return initializePromise;
+      }
+      
+      function normalizedCredentials(email, password) {
+        const normalizedEmail = String(email || '').trim().toLowerCase();
+        const normalizedPassword = String(password || '');
+        if (!normalizedEmail || !normalizedEmail.includes('@')) throw new Error('Enter a valid email address.');
+        if (normalizedPassword.length < 6) throw new Error('Password must contain at least 6 characters.');
+        return { email: normalizedEmail, password: normalizedPassword };
+      }
+      
+      async function signInAccount(email, password) {
+        const client = await getSupabaseClient();
+        const credentials = normalizedCredentials(email, password);
+        updateAccountState({ busy: true, status: 'signing-in', message: 'Signing in…' });
+        const { data, error } = await client.auth.signInWithPassword(credentials);
+        if (error) {
+          updateAccountState({ busy: false, status: 'error', message: error.message });
+          throw error;
+        }
+        if (data?.session) await hydrateCloudAccount(data.session, { force: true });
+        return publicAccountState();
+      }
+      
+      async function signUpAccount(email, password) {
+        const client = await getSupabaseClient();
+        const credentials = normalizedCredentials(email, password);
+        updateAccountState({ busy: true, status: 'signing-up', message: 'Creating account…' });
+        const { data, error } = await client.auth.signUp(credentials);
+        if (error) {
+          updateAccountState({ busy: false, status: 'error', message: error.message });
+          throw error;
+        }
+        if (data?.session) {
+          await hydrateCloudAccount(data.session, { force: true });
+        } else {
+          updateAccountState({
+            busy: false,
+            status: 'confirmation-required',
+            message: 'Account created. Check your email, confirm it, then sign in.'
+          });
+        }
+        return publicAccountState();
+      }
+      
+      async function signOutAccount() {
+        const client = await getSupabaseClient();
+        if (accountState.user) {
+          try { await saveAccountToCloud({ announce: false }); }
+          catch { /* Local data remains available even if the final cloud save fails. */ }
+        }
+        updateAccountState({ busy: true, status: 'signing-out', message: 'Signing out…' });
+        const { error } = await client.auth.signOut();
+        if (error) {
+          updateAccountState({ busy: false, status: 'error', message: error.message });
+          throw error;
+        }
+        hydratedUserId = '';
+        updateAccountState({
+          ready: true,
+          busy: false,
+          user: null,
+          status: 'anonymous',
+          message: 'Signed out · local profile remains on this device.'
+        }, 'signed-out');
+        return publicAccountState();
+      }
+      
+      function scheduleAccountSync(delay = 700) {
+        globalThis.clearTimeout(saveTimer);
+        if (!accountState.user?.id) return false;
+        saveTimer = globalThis.setTimeout(() => {
+          saveTimer = 0;
+          saveAccountToCloud({ announce: false }).catch(error => console.warn('StarLite cloud save failed.', error));
+        }, Math.max(0, Number(delay) || 0));
+        return true;
+      }
+      
+      function syncAccountNow() {
+        globalThis.clearTimeout(saveTimer);
+        saveTimer = 0;
+        return saveAccountToCloud({ announce: true });
+      }
+      
+      function subscribeAccount(listener) {
+        if (typeof listener !== 'function') return () => {};
+        listeners.add(listener);
+        listener(publicAccountState(), 'state');
+        return () => listeners.delete(listener);
+      }
+      
+      function getAccountState() {
+        return publicAccountState();
+      }
+    }
+  });
 
   __define("ai.js", function (__exports, __require) {
     const __imports = Object.create(null);
@@ -8407,14 +8815,15 @@
 
   __define("menu.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js");
-    Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GROUND_TAG_COLORS", { enumerable: true, get: () => __dep0["GROUND_TAG_COLORS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "MAX_OWNED_GROUND_TAGS", { enumerable: true, get: () => __dep0["MAX_OWNED_GROUND_TAGS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js"); const __dep3 = __require("account.js");
+    Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GROUND_TAG_COLORS", { enumerable: true, get: () => __dep0["GROUND_TAG_COLORS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "MAX_OWNED_GROUND_TAGS", { enumerable: true, get: () => __dep0["MAX_OWNED_GROUND_TAGS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] }); Object.defineProperty(__imports, "initializeAccountSync", { enumerable: true, get: () => __dep3["initializeAccountSync"] }); Object.defineProperty(__imports, "scheduleAccountSync", { enumerable: true, get: () => __dep3["scheduleAccountSync"] }); Object.defineProperty(__imports, "signInAccount", { enumerable: true, get: () => __dep3["signInAccount"] }); Object.defineProperty(__imports, "signOutAccount", { enumerable: true, get: () => __dep3["signOutAccount"] }); Object.defineProperty(__imports, "signUpAccount", { enumerable: true, get: () => __dep3["signUpAccount"] }); Object.defineProperty(__imports, "subscribeAccount", { enumerable: true, get: () => __dep3["subscribeAccount"] }); Object.defineProperty(__imports, "syncAccountNow", { enumerable: true, get: () => __dep3["syncAccountNow"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "actionForKeyboardEvent", { enumerable: true, get: () => actionForKeyboardEvent }); Object.defineProperty(__exports, "getKeybinds", { enumerable: true, get: () => getKeybinds }); Object.defineProperty(__exports, "isMenuOpen", { enumerable: true, get: () => isMenuOpen }); Object.defineProperty(__exports, "keybindCodeLabel", { enumerable: true, get: () => keybindCodeLabel }); Object.defineProperty(__exports, "matchesKeybind", { enumerable: true, get: () => matchesKeybind }); Object.defineProperty(__exports, "resetKeybinds", { enumerable: true, get: () => resetKeybinds }); Object.defineProperty(__exports, "showMainMenu", { enumerable: true, get: () => showMainMenu });
       // StarLite title screen, animated grass backdrop, game-mode selection, and
       // persistent keyboard settings. The menu creates its own DOM/CSS, so the
       // existing HTML only needs to keep loading main.js as a module.
+      
       
       
       
@@ -8495,6 +8904,7 @@
       function persistMenuVolume(value) {
         const normalized = Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
         storageSet(MENU_VOLUME_STORAGE_KEY, String(normalized));
+        scheduleAccountSync();
         return normalized;
       }
       
@@ -8523,7 +8933,9 @@
       
       function persistGroundTagDefinitions(values) {
         const normalized = normalizeGroundTagCollection(values);
-        return storageSet(STORAGE_KEYS.groundTags, JSON.stringify(normalized)) ? normalized : null;
+        if (!storageSet(STORAGE_KEYS.groundTags, JSON.stringify(normalized))) return null;
+        scheduleAccountSync();
+        return normalized;
       }
       
       function createGroundTagId() {
@@ -8569,6 +8981,7 @@
       
       function persistKeybinds() {
         storageSet(STORAGE_KEYS.keybinds, JSON.stringify(keybinds));
+        scheduleAccountSync();
       }
       
       function eventCode(evt) {
@@ -8843,9 +9256,22 @@
         .starlite-menu__volume-head output { color: #b8f288; font: 800 12px ui-monospace, monospace; }
         .starlite-menu__volume-card input[type="range"] { width: 100%; accent-color: #9de36f; cursor: pointer; }
         .starlite-menu__volume-card small { display: block; margin-top: 8px; color: #8fa68a; font-size: 10px; line-height: 1.4; }
+        .starlite-menu__panel[data-view="player"] { width: min(620px, 100%); max-height: calc(100vh - 170px); overflow-y: auto; overscroll-behavior: contain; }
         .starlite-menu__profile-card { display: grid; grid-template-columns: 76px 1fr; gap: 16px; align-items: center; margin-bottom: 14px; }
         .starlite-menu__profile-avatar { width: 76px; height: 76px; display: grid; place-items: center; border: 1px solid rgba(184,242,136,.45); border-radius: 50%; color: #b8f288; background: rgba(37,73,40,.55); }
         .starlite-menu__profile-avatar svg { width: 42px; height: 42px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+        .starlite-menu__account-card { display: grid; gap: 10px; margin-top: 14px; padding: 14px; border: 1px solid rgba(204,232,190,.18); border-radius: 11px; background: rgba(255,255,255,.035); }
+        .starlite-menu__account-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+        .starlite-menu__account-head strong { font-size: 12px; letter-spacing: .1em; }
+        .starlite-menu__account-head span { color: #b8f288; font: 800 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: right; }
+        .starlite-menu__account-copy { margin: 0; color: #8fa68a; font-size: 10px; line-height: 1.45; }
+        .starlite-menu__account-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+        .starlite-menu__account-field { display: grid; gap: 5px; color: #b6d9ae; font-size: 9px; font-weight: 850; letter-spacing: .1em; }
+        .starlite-menu__account-field input { min-width: 0; width: 100%; padding: 10px 11px; border: 1px solid rgba(178,221,151,.32); border-radius: 8px; color: #edf7e8; background: rgba(5,12,8,.55); font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+        .starlite-menu__account-field input:focus { outline: 2px solid rgba(157,227,111,.55); outline-offset: 1px; }
+        .starlite-menu__account-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+        .starlite-menu__account-actions--signed { grid-template-columns: 1fr 1fr; }
+        .starlite-menu__account-card[data-busy="true"] button { opacity: .6; pointer-events: none; }
         @media (max-width: 560px) {
           .starlite-menu__layout { align-content: start; overflow: auto; padding-bottom: 104px; }
           .starlite-menu__title { font-size: 58px; }
@@ -8858,7 +9284,8 @@
           .starlite-menu__tag-teaser-mark { grid-row: 1 / span 2; }
           .starlite-menu__profile-card { grid-template-columns: 58px 1fr; }
           .starlite-menu__profile-avatar { width: 58px; height: 58px; }
-          .starlite-menu__panel[data-view="tag-lab"], .starlite-menu__panel[data-view="settings"] { max-height: calc(100vh - 20px); }
+          .starlite-menu__account-fields, .starlite-menu__account-actions { grid-template-columns: 1fr; }
+          .starlite-menu__panel[data-view="tag-lab"], .starlite-menu__panel[data-view="settings"], .starlite-menu__panel[data-view="player"] { max-height: calc(100vh - 20px); }
           .starlite-menu__tag-lab { grid-template-columns: 1fr; }
           .starlite-menu__tag-list { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }
           .starlite-menu__tag-owned { grid-template-columns: 38px 1fr; }
@@ -9276,11 +9703,30 @@
                 <label class="starlite-menu__identity" style="margin:0">
                   <span>COMMANDER NAME</span>
                   <input type="text" maxlength="20" autocomplete="nickname" spellcheck="false" value="${escapeHTML(username)}" data-username>
-                  <small>Saved on this device and shown in multiplayer.</small>
+                  <small>Always saved locally. Signed-in accounts also sync this name and the tag palette across devices.</small>
                 </label>
               </div>
               <p class="starlite-menu__status" data-player-status role="status" aria-live="polite"></p>
-              <div class="starlite-menu__branch-actions">
+              <div class="starlite-menu__account-card" data-account-card data-busy="false">
+                <div class="starlite-menu__account-head"><strong>CLOUD ACCOUNT</strong><span data-account-summary>CHECKING…</span></div>
+                <p class="starlite-menu__account-copy">Anonymous players keep using localStorage. Sign in to load or save your commander name, tag palette, keybinds, and volume on other devices.</p>
+                <div data-account-credentials>
+                  <div class="starlite-menu__account-fields">
+                    <label class="starlite-menu__account-field"><span>EMAIL</span><input type="email" autocomplete="email" inputmode="email" data-account-email></label>
+                    <label class="starlite-menu__account-field"><span>PASSWORD</span><input type="password" minlength="6" autocomplete="current-password" data-account-password></label>
+                  </div>
+                  <div class="starlite-menu__account-actions" style="margin-top:9px">
+                    <button class="starlite-menu__secondary" type="button" data-account-sign-in>SIGN IN</button>
+                    <button class="starlite-menu__secondary" type="button" data-account-sign-up>CREATE ACCOUNT</button>
+                  </div>
+                </div>
+                <div class="starlite-menu__account-actions starlite-menu__account-actions--signed starlite-hidden" data-account-signed-actions>
+                  <button class="starlite-menu__secondary" type="button" data-account-sync>SYNC NOW</button>
+                  <button class="starlite-menu__secondary" type="button" data-account-sign-out>SIGN OUT</button>
+                </div>
+                <p class="starlite-menu__status" data-account-status role="status" aria-live="polite">Checking cloud account…</p>
+              </div>
+              <div class="starlite-menu__branch-actions" style="margin-top:14px">
                 <button class="starlite-menu__secondary" type="button" data-save-player>SAVE NAME</button>
                 <button class="starlite-menu__secondary" type="button" data-close-player>BACK</button>
               </div>
@@ -9354,6 +9800,13 @@
         const tagStatus = root.querySelector('[data-tag-status]');
         const keybindStatus = root.querySelector('[data-keybind-status]');
         const playerStatus = root.querySelector('[data-player-status]');
+        const accountCard = root.querySelector('[data-account-card]');
+        const accountSummary = root.querySelector('[data-account-summary]');
+        const accountCredentials = root.querySelector('[data-account-credentials]');
+        const accountSignedActions = root.querySelector('[data-account-signed-actions]');
+        const accountEmailInput = root.querySelector('[data-account-email]');
+        const accountPasswordInput = root.querySelector('[data-account-password]');
+        const accountStatus = root.querySelector('[data-account-status]');
         const volumeInput = root.querySelector('[data-volume]');
         const volumeValue = root.querySelector('[data-volume-value]');
         let capturingAction = null;
@@ -9374,16 +9827,19 @@
         let tagLastPixel = null;
         let activeView = categoryView;
         let utilityReturnView = categoryView;
+        let accountUnsubscribe = null;
       
         function currentUsername() {
           const value = normalizeMenuUsername(usernameInput.value);
           usernameInput.value = value;
           storageSet(STORAGE_KEYS.username, value);
+          scheduleAccountSync();
           return value;
         }
       
         usernameInput.addEventListener('input', () => {
           storageSet(STORAGE_KEYS.username, sanitizeMenuUsername(usernameInput.value));
+          scheduleAccountSync();
         });
         usernameInput.addEventListener('change', currentUsername);
         usernameInput.addEventListener('blur', currentUsername);
@@ -9399,6 +9855,39 @@
         function utilityReturnTarget() {
           return activeView === playerView || activeView === settingsView ? utilityReturnView : activeView;
         }
+      
+        function refreshMenuFromStoredAccount() {
+          usernameInput.value = loadMenuUsername();
+          keybinds = loadKeybinds();
+          renderKeybindButtons();
+          const storedVolume = loadMenuVolume();
+          volumeInput.value = String(storedVolume);
+          volumeValue.textContent = `${storedVolume}%`;
+          volumeInput.setAttribute('aria-valuetext', `${storedVolume} percent`);
+          tagDefinitions = loadGroundTagDefinitions();
+        }
+      
+        function renderAccountState(account, change = 'state') {
+          const signedIn = !!account?.user;
+          accountCard.dataset.busy = String(!!account?.busy);
+          accountSummary.textContent = signedIn
+            ? `${account.user.email || 'SIGNED IN'} · CLOUD SYNC`
+            : 'ANONYMOUS · LOCAL ONLY';
+          accountCredentials.classList.toggle('starlite-hidden', signedIn);
+          accountSignedActions.classList.toggle('starlite-hidden', !signedIn);
+          accountStatus.textContent = account?.message || (signedIn
+            ? 'Cloud account connected.'
+            : 'Anonymous profile · saved on this device.');
+          if (change === 'profile-loaded') {
+            refreshMenuFromStoredAccount();
+            playerStatus.textContent = 'Cloud profile loaded. Your commander name and saved tags are available on this device.';
+          }
+        }
+      
+        accountUnsubscribe = subscribeAccount(renderAccountState);
+        initializeAccountSync().catch(error => {
+          console.warn('StarLite cloud account initialization failed.', error);
+        });
       
         function openOnlineChoice() {
           status.textContent = '';
@@ -9862,7 +10351,38 @@
         root.querySelector('[data-open-player]').addEventListener('click', openPlayer);
         root.querySelector('[data-save-player]').addEventListener('click', () => {
           const saved = currentUsername();
-          playerStatus.textContent = `${saved} saved as your commander name.`;
+          playerStatus.textContent = `${saved} saved as your commander name${scheduleAccountSync(0) ? ' and queued for cloud sync' : ' on this device'}.`;
+        });
+      
+        async function runAccountAction(action) {
+          try {
+            await action();
+            accountPasswordInput.value = '';
+          } catch (error) {
+            accountStatus.textContent = error?.message || 'Cloud account action failed. Local saves are still active.';
+          }
+        }
+      
+        root.querySelector('[data-account-sign-in]').addEventListener('click', () => {
+          currentUsername();
+          runAccountAction(() => signInAccount(accountEmailInput.value, accountPasswordInput.value));
+        });
+        root.querySelector('[data-account-sign-up]').addEventListener('click', () => {
+          currentUsername();
+          runAccountAction(() => signUpAccount(accountEmailInput.value, accountPasswordInput.value));
+        });
+        root.querySelector('[data-account-sync]').addEventListener('click', () => {
+          currentUsername();
+          runAccountAction(() => syncAccountNow());
+        });
+        root.querySelector('[data-account-sign-out]').addEventListener('click', () => {
+          runAccountAction(() => signOutAccount());
+        });
+        accountPasswordInput.addEventListener('keydown', event => {
+          if (event.key !== 'Enter') return;
+          event.preventDefault();
+          currentUsername();
+          runAccountAction(() => signInAccount(accountEmailInput.value, accountPasswordInput.value));
         });
         root.querySelector('[data-close-player]').addEventListener('click', closePlayer);
         root.querySelector('[data-close-online-choice]').addEventListener('click', closeOnlineChoice);
@@ -9922,6 +10442,8 @@
             menuOpen = false;
             delete document.documentElement.dataset.starliteMenuOpen;
             window.removeEventListener('keydown', captureKey, true);
+            accountUnsubscribe?.();
+            accountUnsubscribe = null;
             stopBackdrop();
             document.body.style.overflow = previousOverflow;
             root.remove();
