@@ -103,7 +103,7 @@
     Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "getAccountState", { enumerable: true, get: () => getAccountState }); Object.defineProperty(__exports, "initializeAccountSync", { enumerable: true, get: () => initializeAccountSync }); Object.defineProperty(__exports, "scheduleAccountSync", { enumerable: true, get: () => scheduleAccountSync }); Object.defineProperty(__exports, "signInAccount", { enumerable: true, get: () => signInAccount }); Object.defineProperty(__exports, "signOutAccount", { enumerable: true, get: () => signOutAccount }); Object.defineProperty(__exports, "signUpAccount", { enumerable: true, get: () => signUpAccount }); Object.defineProperty(__exports, "subscribeAccount", { enumerable: true, get: () => subscribeAccount }); Object.defineProperty(__exports, "syncAccountNow", { enumerable: true, get: () => syncAccountNow });
+      Object.defineProperty(__exports, "getAccountState", { enumerable: true, get: () => getAccountState }); Object.defineProperty(__exports, "initializeAccountSync", { enumerable: true, get: () => initializeAccountSync }); Object.defineProperty(__exports, "scheduleAccountSync", { enumerable: true, get: () => scheduleAccountSync }); Object.defineProperty(__exports, "signInAccount", { enumerable: true, get: () => signInAccount }); Object.defineProperty(__exports, "signInWithGoogleAccount", { enumerable: true, get: () => signInWithGoogleAccount }); Object.defineProperty(__exports, "signOutAccount", { enumerable: true, get: () => signOutAccount }); Object.defineProperty(__exports, "signUpAccount", { enumerable: true, get: () => signUpAccount }); Object.defineProperty(__exports, "subscribeAccount", { enumerable: true, get: () => subscribeAccount }); Object.defineProperty(__exports, "syncAccountNow", { enumerable: true, get: () => syncAccountNow });
       const SUPABASE_URL = 'https://cmrfmvbtbsudbempidut.supabase.co';
       const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LILuMyzZoyxfXDpTsqg7Ng_Xxc3E5uT';
       const SUPABASE_CDN_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -111,6 +111,11 @@
       const ACCOUNT_SCHEMA_VERSION = 1;
       const MENU_VOLUME_STORAGE_KEY = 'starlite.volume.v1';
       const DEFAULT_USERNAME = 'Commander';
+      
+      function authRedirectUrl() {
+        if (typeof location === 'undefined' || !/^https?:$/.test(location.protocol)) return undefined;
+        return `${location.origin}${location.pathname}`;
+      }
       
       let clientPromise = null;
       let initializePromise = null;
@@ -431,11 +436,34 @@
         return publicAccountState();
       }
       
+      async function signInWithGoogleAccount() {
+        if (typeof location === 'undefined' || !/^https?:$/.test(location.protocol)) {
+          const error = new Error('Google sign-in requires the deployed website (http or https).');
+          updateAccountState({ busy: false, status: 'error', message: error.message });
+          throw error;
+        }
+        const client = await getSupabaseClient();
+        updateAccountState({ busy: true, status: 'signing-in', message: 'Opening Google sign-in…' });
+        const { error } = await client.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: authRedirectUrl() }
+        });
+        if (error) {
+          updateAccountState({ busy: false, status: 'error', message: error.message });
+          throw error;
+        }
+        return publicAccountState();
+      }
+      
       async function signUpAccount(email, password) {
         const client = await getSupabaseClient();
         const credentials = normalizedCredentials(email, password);
+        const emailRedirectTo = authRedirectUrl();
         updateAccountState({ busy: true, status: 'signing-up', message: 'Creating account…' });
-        const { data, error } = await client.auth.signUp(credentials);
+        const { data, error } = await client.auth.signUp({
+          ...credentials,
+          options: emailRedirectTo ? { emailRedirectTo } : undefined
+        });
         if (error) {
           updateAccountState({ busy: false, status: 'error', message: error.message });
           throw error;
@@ -8792,7 +8820,7 @@
   __define("menu.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js"); const __dep3 = __require("account.js");
-    Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GROUND_TAG_COLORS", { enumerable: true, get: () => __dep0["GROUND_TAG_COLORS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "MAX_OWNED_GROUND_TAGS", { enumerable: true, get: () => __dep0["MAX_OWNED_GROUND_TAGS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] }); Object.defineProperty(__imports, "initializeAccountSync", { enumerable: true, get: () => __dep3["initializeAccountSync"] }); Object.defineProperty(__imports, "scheduleAccountSync", { enumerable: true, get: () => __dep3["scheduleAccountSync"] }); Object.defineProperty(__imports, "signInAccount", { enumerable: true, get: () => __dep3["signInAccount"] }); Object.defineProperty(__imports, "signOutAccount", { enumerable: true, get: () => __dep3["signOutAccount"] }); Object.defineProperty(__imports, "signUpAccount", { enumerable: true, get: () => __dep3["signUpAccount"] }); Object.defineProperty(__imports, "subscribeAccount", { enumerable: true, get: () => __dep3["subscribeAccount"] }); Object.defineProperty(__imports, "syncAccountNow", { enumerable: true, get: () => __dep3["syncAccountNow"] });
+    Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "GROUND_TAG_COLORS", { enumerable: true, get: () => __dep0["GROUND_TAG_COLORS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "MAX_OWNED_GROUND_TAGS", { enumerable: true, get: () => __dep0["MAX_OWNED_GROUND_TAGS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] }); Object.defineProperty(__imports, "initializeAccountSync", { enumerable: true, get: () => __dep3["initializeAccountSync"] }); Object.defineProperty(__imports, "scheduleAccountSync", { enumerable: true, get: () => __dep3["scheduleAccountSync"] }); Object.defineProperty(__imports, "signInAccount", { enumerable: true, get: () => __dep3["signInAccount"] }); Object.defineProperty(__imports, "signInWithGoogleAccount", { enumerable: true, get: () => __dep3["signInWithGoogleAccount"] }); Object.defineProperty(__imports, "signOutAccount", { enumerable: true, get: () => __dep3["signOutAccount"] }); Object.defineProperty(__imports, "signUpAccount", { enumerable: true, get: () => __dep3["signUpAccount"] }); Object.defineProperty(__imports, "subscribeAccount", { enumerable: true, get: () => __dep3["subscribeAccount"] }); Object.defineProperty(__imports, "syncAccountNow", { enumerable: true, get: () => __dep3["syncAccountNow"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "actionForKeyboardEvent", { enumerable: true, get: () => actionForKeyboardEvent }); Object.defineProperty(__exports, "getKeybinds", { enumerable: true, get: () => getKeybinds }); Object.defineProperty(__exports, "isMenuOpen", { enumerable: true, get: () => isMenuOpen }); Object.defineProperty(__exports, "keybindCodeLabel", { enumerable: true, get: () => keybindCodeLabel }); Object.defineProperty(__exports, "matchesKeybind", { enumerable: true, get: () => matchesKeybind }); Object.defineProperty(__exports, "resetKeybinds", { enumerable: true, get: () => resetKeybinds }); Object.defineProperty(__exports, "showMainMenu", { enumerable: true, get: () => showMainMenu });
@@ -9236,15 +9264,25 @@
         .starlite-menu__profile-card { display: grid; grid-template-columns: 76px 1fr; gap: 16px; align-items: center; margin-bottom: 14px; }
         .starlite-menu__profile-avatar { width: 76px; height: 76px; display: grid; place-items: center; border: 1px solid rgba(184,242,136,.45); border-radius: 50%; color: #b8f288; background: rgba(37,73,40,.55); }
         .starlite-menu__profile-avatar svg { width: 42px; height: 42px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-        .starlite-menu__account-card { display: grid; gap: 10px; margin-top: 14px; padding: 14px; border: 1px solid rgba(204,232,190,.18); border-radius: 11px; background: rgba(255,255,255,.035); }
+        .starlite-menu__account-card { display: grid; gap: 12px; margin-top: 14px; padding: 16px; border: 1px solid rgba(184,242,136,.24); border-radius: 14px; background: linear-gradient(145deg, rgba(22,47,29,.72), rgba(7,17,11,.8)); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); }
         .starlite-menu__account-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
         .starlite-menu__account-head strong { font-size: 12px; letter-spacing: .1em; }
         .starlite-menu__account-head span { color: #b8f288; font: 800 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: right; }
-        .starlite-menu__account-copy { margin: 0; color: #8fa68a; font-size: 10px; line-height: 1.45; }
+        .starlite-menu__account-copy { margin: 0; color: #9db297; font-size: 10px; line-height: 1.5; }
+        .starlite-menu__account-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border: 1px solid rgba(204,232,190,.16); border-radius: 10px; background: rgba(2,8,4,.38); }
+        .starlite-menu__account-tab { min-height: 34px; border: 0; border-radius: 7px; color: #91a58b; background: transparent; font: inherit; font-size: 10px; font-weight: 850; letter-spacing: .09em; cursor: pointer; }
+        .starlite-menu__account-tab[aria-selected="true"] { color: #102214; background: #b8f288; box-shadow: 0 2px 10px rgba(0,0,0,.2); }
+        .starlite-menu__account-google { min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 10px; border-color: rgba(255,255,255,.35); color: #f5f8f3; background: rgba(255,255,255,.075); letter-spacing: .035em; text-transform: none; }
+        .starlite-menu__account-google svg { width: 18px; height: 18px; flex: 0 0 auto; }
+        .starlite-menu__account-divider { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 9px; color: #71816d; font-size: 8px; font-weight: 850; letter-spacing: .13em; }
+        .starlite-menu__account-divider::before, .starlite-menu__account-divider::after { content: ""; height: 1px; background: rgba(204,232,190,.14); }
         .starlite-menu__account-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
         .starlite-menu__account-field { display: grid; gap: 5px; color: #b6d9ae; font-size: 9px; font-weight: 850; letter-spacing: .1em; }
-        .starlite-menu__account-field input { min-width: 0; width: 100%; padding: 10px 11px; border: 1px solid rgba(178,221,151,.32); border-radius: 8px; color: #edf7e8; background: rgba(5,12,8,.55); font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+        .starlite-menu__account-field input { box-sizing: border-box; min-width: 0; width: 100%; padding: 11px 12px; border: 1px solid rgba(178,221,151,.32); border-radius: 9px; color: #edf7e8; background: rgba(3,10,6,.62); font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
         .starlite-menu__account-field input:focus { outline: 2px solid rgba(157,227,111,.55); outline-offset: 1px; }
+        .starlite-menu__account-submit { width: 100%; min-height: 44px; border-color: #a7e87a; color: #102214; background: #b8f288; }
+        .starlite-menu__account-submit:hover, .starlite-menu__account-submit:focus-visible { color: #07140a; background: #caf6a7; }
+        .starlite-menu__account-helper { margin: -2px 0 0; color: #81947c; font-size: 9px; line-height: 1.45; text-align: center; }
         .starlite-menu__account-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
         .starlite-menu__account-actions--signed { grid-template-columns: 1fr 1fr; }
         .starlite-menu__account-card[data-busy="true"] button { opacity: .6; pointer-events: none; }
@@ -9687,14 +9725,21 @@
                 <div class="starlite-menu__account-head"><strong>CLOUD ACCOUNT</strong><span data-account-summary>CHECKING…</span></div>
                 <p class="starlite-menu__account-copy">Anonymous players keep using localStorage. Sign in to load or save your commander name, tag palette, keybinds, and volume on other devices.</p>
                 <div data-account-credentials>
+                  <div class="starlite-menu__account-tabs" role="tablist" aria-label="Account action">
+                    <button class="starlite-menu__account-tab" type="button" role="tab" aria-selected="true" data-account-mode="sign-in">SIGN IN</button>
+                    <button class="starlite-menu__account-tab" type="button" role="tab" aria-selected="false" data-account-mode="sign-up">CREATE ACCOUNT</button>
+                  </div>
+                  <button class="starlite-menu__secondary starlite-menu__account-google" type="button" data-account-google>
+                    <svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.482h4.844a4.14 4.14 0 0 1-1.797 2.715v2.258h2.909c1.702-1.567 2.684-3.875 2.684-6.614Z"/><path fill="#34A853" d="M9 18c2.43 0 4.468-.806 5.956-2.181l-2.91-2.258c-.805.54-1.835.859-3.046.859-2.344 0-4.328-1.585-5.037-3.714H.956v2.332A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.963 10.706A5.41 5.41 0 0 1 3.682 9c0-.592.102-1.168.281-1.706V4.962H.956A9 9 0 0 0 0 9c0 1.452.347 2.827.956 4.038l3.007-2.332Z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.507.454 3.441 1.346l2.581-2.58C13.464.892 11.426 0 9 0A9 9 0 0 0 .956 4.962l3.007 2.332C4.672 5.165 6.656 3.58 9 3.58Z"/></svg>
+                    <span>Continue with Google</span>
+                  </button>
+                  <div class="starlite-menu__account-divider"><span>OR USE EMAIL</span></div>
                   <div class="starlite-menu__account-fields">
                     <label class="starlite-menu__account-field"><span>EMAIL</span><input type="email" autocomplete="email" inputmode="email" data-account-email></label>
                     <label class="starlite-menu__account-field"><span>PASSWORD</span><input type="password" minlength="6" autocomplete="current-password" data-account-password></label>
                   </div>
-                  <div class="starlite-menu__account-actions" style="margin-top:9px">
-                    <button class="starlite-menu__secondary" type="button" data-account-sign-in>SIGN IN</button>
-                    <button class="starlite-menu__secondary" type="button" data-account-sign-up>CREATE ACCOUNT</button>
-                  </div>
+                  <button class="starlite-menu__secondary starlite-menu__account-submit" type="button" data-account-submit>SIGN IN WITH EMAIL</button>
+                  <p class="starlite-menu__account-helper" data-account-helper>Your session stays connected on this device and refreshes automatically.</p>
                 </div>
                 <div class="starlite-menu__account-actions starlite-menu__account-actions--signed starlite-hidden" data-account-signed-actions>
                   <button class="starlite-menu__secondary" type="button" data-account-sync>SYNC NOW</button>
@@ -9782,6 +9827,9 @@
         const accountSignedActions = root.querySelector('[data-account-signed-actions]');
         const accountEmailInput = root.querySelector('[data-account-email]');
         const accountPasswordInput = root.querySelector('[data-account-password]');
+        const accountSubmitButton = root.querySelector('[data-account-submit]');
+        const accountHelper = root.querySelector('[data-account-helper]');
+        const accountModeButtons = [...root.querySelectorAll('[data-account-mode]')];
         const accountStatus = root.querySelector('[data-account-status]');
         const volumeInput = root.querySelector('[data-volume]');
         const volumeValue = root.querySelector('[data-volume-value]');
@@ -9804,6 +9852,20 @@
         let activeView = categoryView;
         let utilityReturnView = categoryView;
         let accountUnsubscribe = null;
+        let accountMode = 'sign-in';
+      
+        function setAccountMode(mode) {
+          accountMode = mode === 'sign-up' ? 'sign-up' : 'sign-in';
+          for (const button of accountModeButtons) {
+            button.setAttribute('aria-selected', String(button.dataset.accountMode === accountMode));
+          }
+          const creating = accountMode === 'sign-up';
+          accountPasswordInput.autocomplete = creating ? 'new-password' : 'current-password';
+          accountSubmitButton.textContent = creating ? 'CREATE ACCOUNT WITH EMAIL' : 'SIGN IN WITH EMAIL';
+          accountHelper.textContent = creating
+            ? 'We will send a verification link back to this website. Your session remains saved after sign-in.'
+            : 'Your session stays connected on this device and refreshes automatically.';
+        }
       
         function currentUsername() {
           const value = normalizeMenuUsername(usernameInput.value);
@@ -10339,13 +10401,19 @@
           }
         }
       
-        root.querySelector('[data-account-sign-in]').addEventListener('click', () => {
+        for (const button of accountModeButtons) {
+          button.addEventListener('click', () => setAccountMode(button.dataset.accountMode));
+        }
+        setAccountMode('sign-in');
+        root.querySelector('[data-account-google]').addEventListener('click', () => {
           currentUsername();
-          runAccountAction(() => signInAccount(accountEmailInput.value, accountPasswordInput.value));
+          runAccountAction(() => signInWithGoogleAccount());
         });
-        root.querySelector('[data-account-sign-up]').addEventListener('click', () => {
+        accountSubmitButton.addEventListener('click', () => {
           currentUsername();
-          runAccountAction(() => signUpAccount(accountEmailInput.value, accountPasswordInput.value));
+          runAccountAction(() => accountMode === 'sign-up'
+            ? signUpAccount(accountEmailInput.value, accountPasswordInput.value)
+            : signInAccount(accountEmailInput.value, accountPasswordInput.value));
         });
         root.querySelector('[data-account-sync]').addEventListener('click', () => {
           currentUsername();
@@ -10358,7 +10426,9 @@
           if (event.key !== 'Enter') return;
           event.preventDefault();
           currentUsername();
-          runAccountAction(() => signInAccount(accountEmailInput.value, accountPasswordInput.value));
+          runAccountAction(() => accountMode === 'sign-up'
+            ? signUpAccount(accountEmailInput.value, accountPasswordInput.value)
+            : signInAccount(accountEmailInput.value, accountPasswordInput.value));
         });
         root.querySelector('[data-close-player]').addEventListener('click', closePlayer);
         root.querySelector('[data-close-online-choice]').addEventListener('click', closeOnlineChoice);
