@@ -4135,6 +4135,20 @@
       
         const selectedStructures = selectedStructureObjects();
         const selectedStructure = selectedStructures.length === 1 ? selectedStructures[0] : null;
+        for (const hit of state.infoQueueHitRects || []) {
+          if (!pointInRect(p, hit.rect)) continue;
+          const entry = hit.entry;
+          if (!entry?.producer || entry.producer.team !== activeCommandTeam()) return true;
+          if (entry.kind === 'structureUpgrade') {
+            queuePanelCommand({ type: 'cancelStructureUpgrade', team: entry.producer.team, structureId: entry.producer.id });
+          } else {
+            queuePanelCommand({
+              type: 'cancelProduction', team: entry.producer.team, producerId: entry.producer.id,
+              kind: entry.kind, queueIndex: entry.queueIndex || 0
+            });
+          }
+          return true;
+        }
         if (state.infoCancelUpgradeRect && pointInRect(p, state.infoCancelUpgradeRect)) {
           if (selectedStructure) queuePanelCommand({ type: 'cancelStructureUpgrade', team: selectedStructure.team, structureId: selectedStructure.id });
           return true;
@@ -4590,77 +4604,226 @@
         return 'OPERATIONAL';
       }
       
-      function unitProductionEntry(item) {
+      const UNIT_QUEUE_ICONS = Object.freeze({
+        forager: ['...2...', '..121..', '...1...', '..1112.', '.1.1...', '.1.1...', '1...1..'],
+        roboMiner: ['.11111.', '1222221', '1233321', '1222221', '.11111.', '11...11', '.11111.'],
+        mechanic: ['2.....2', '.2...2.', '..121..', '...1...', '..111..', '..1.1..', '.1...1.'],
+        infantry: ['...2...', '..121..', '...1...', '..1112.', '.1.12..', '.1.1...', '1...1..'],
+        assault: ['...2...', '..121..', '...1...', '.111122', '..1.1..', '..1.1..', '.1...1.'],
+        mortar: ['..222..', '.21112.', '..111..', '...1...', '..1.1..', '.1...1.', '1.....1'],
+        mecha: ['.2...2.', '.21112.', '..111..', '.12221.', '1.111.1', '..1.1..', '.11.11.'],
+        jeep: ['.......', '.11111.', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
+        armoredJeep: ['..111..', '.12221.', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
+        heavy: ['.....22', '.111122', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
+        titanTank: ['...22..', '..2222.', '.11111.', '1222221', '1233321', '1111111', '.11.11.'],
+        helicopter: ['2222222', '...1...', '.11111.', '1222221', '..111..', '..1.1..', '.1...1.'],
+        doubleChopper: ['222.222', '..111..', '.12221.', '1222221', '..111..', '.1...1.', '1.....1'],
+        antiAirFighter: ['...2...', '..222..', '.22122.', '2221222', '..111..', '..1.1..', '.1...1.'],
+        bomber: ['..222..', '.22222.', '2221222', '.21112.', '..111..', '...1...', '..1.1..'],
+        healer: ['...2...', '..121..', '.22122.', '2211122', '.22122.', '..1.1..', '.1...1.'],
+        radar: ['...2...', '..222..', '.2.1.2.', '..121..', '...1...', '..1.1..', '.1...1.'],
+        forceFieldTruck: ['..222..', '.21112.', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
+        default: ['...2...', '..121..', '...1...', '..111..', '..1.1..', '.1...1.', '1.....1']
+      });
+
+      function queuePixelPattern(entry) {
+        if (entry.iconKind === 'unit') return UNIT_QUEUE_ICONS[entry.iconType] || UNIT_QUEUE_ICONS.default;
+        return BUILDING_BUTTON_ICONS[entry.iconType] || BUILDING_BUTTON_ICONS.default;
+      }
+
+      function drawQueuePixelIcon(entry, rect, compact, active) {
+        const pattern = queuePixelPattern(entry);
+        const pixel = Math.max(1, Math.floor(Math.min(
+          (rect.w - (compact ? 8 : 12)) / pattern[0].length,
+          (rect.h - (compact ? 9 : 14)) / pattern.length
+        )));
+        const artW = pattern[0].length * pixel;
+        const artH = pattern.length * pixel;
+        const artX = Math.floor(rect.x + (rect.w - artW) / 2);
+        const artY = Math.floor(rect.y + Math.max(2, (rect.h - artH) / 2 - (entry.upgradeArrow ? 1 : 0)));
+        const palette = {
+          '1': active ? '#e8f2ff' : '#aebbd0',
+          '2': entry.color || (active ? COLORS.mineral : COLORS.muted),
+          '3': '#172131'
+        };
+        for (let row = 0; row < pattern.length; row++) {
+          for (let col = 0; col < pattern[row].length; col++) {
+            const color = palette[pattern[row][col]];
+            if (!color) continue;
+            ctx.fillStyle = color;
+            ctx.fillRect(artX + col * pixel, artY + row * pixel, pixel, pixel);
+          }
+        }
+        if (!entry.upgradeArrow) return;
+        const arrowPixel = compact ? 1 : Math.max(1, pixel);
+        const arrowX = Math.floor(rect.x + rect.w - (compact ? 7 : 10));
+        const arrowY = Math.floor(rect.y + (compact ? 3 : 4));
+        ctx.fillStyle = COLORS.warn;
+        ctx.fillRect(arrowX, arrowY + arrowPixel * 2, arrowPixel, arrowPixel * 4);
+        ctx.fillRect(arrowX - arrowPixel, arrowY + arrowPixel, arrowPixel * 3, arrowPixel);
+        ctx.fillRect(arrowX - arrowPixel * 2, arrowY, arrowPixel * 5, arrowPixel);
+      }
+
+      function unitProductionEntry(item, producer, queueIndex) {
         if (!item) return null;
         const unit = UNIT_DATA[item.type];
         return {
           label: unit?.label || String(item.type || 'UNIT').toUpperCase(),
           timeLeft: item.timeLeft,
           total: item.total,
-          color: COLORS.mineral
+          color: COLORS.mineral,
+          producer,
+          item,
+          kind: 'unit',
+          queueIndex,
+          iconKind: 'unit',
+          iconType: item.type,
+          upgradeArrow: false
         };
       }
       
-      function labProductionEntry(item) {
+      function labProductionEntry(item, producer, queueIndex) {
         if (!item) return null;
         const unit = UNIT_DATA[item.unitType];
         return {
-          label: `RESEARCH · ${unit?.label || String(item.unitType || 'UNIT').toUpperCase()} T${item.upgradeLevel || 1}`,
+          label: `${unit?.label || String(item.unitType || 'UNIT').toUpperCase()} · UPGRADE T${item.upgradeLevel || 1}`,
           timeLeft: item.timeLeft,
           total: item.total,
-          color: COLORS.mineral
+          color: '#c4a7ff',
+          producer,
+          item,
+          kind: 'lab',
+          queueIndex,
+          iconKind: 'unit',
+          iconType: item.unitType,
+          upgradeArrow: true
         };
       }
       
-      function facilityResearchEntry(item) {
+      function facilityResearchEntry(item, producer, queueIndex) {
         if (!item) return null;
-        const label = item.researchKind === 'turretTech'
+        const turretResearch = item.researchKind === 'turretTech';
+        const structureType = turretResearch ? 'turret' : item.structureType;
+        const label = turretResearch
           ? `TURRET TECHNOLOGY · L${item.toLevel}`
-          : `${BUILDING_DATA[item.structureType]?.label || String(item.structureType || 'BUILDING').toUpperCase()} TECHNOLOGY · L${item.toLevel}`;
-        return { label, timeLeft: item.timeLeft, total: item.total, color: COLORS.warn };
+          : `${BUILDING_DATA[structureType]?.label || String(structureType || 'BUILDING').toUpperCase()} · UPGRADE L${item.toLevel}`;
+        return {
+          label,
+          timeLeft: item.timeLeft,
+          total: item.total,
+          color: COLORS.warn,
+          producer,
+          item,
+          kind: 'research',
+          queueIndex,
+          iconKind: 'building',
+          iconType: structureType,
+          upgradeArrow: true
+        };
       }
       
-      // Production jobs that pause a building's unit queue are shown as the active
-      // item, with the waiting units kept directly below it like a classic RTS queue.
+      // The selected structure's production/research queue is presentation-only:
+      // one larger active square followed by smaller queued squares. Each entry
+      // retains its synchronized producer/index metadata so clicking it can reuse
+      // the existing deterministic cancellation command.
       function structureProductionDisplay(structure) {
         if (!structure || structure.underConstruction) return { active: null, waiting: [] };
         const queued = Array.isArray(structure.queue) ? structure.queue : [];
         let active = null;
-        let waiting = queued.map(unitProductionEntry).filter(Boolean);
+        let waiting = queued.map((item, index) => unitProductionEntry(item, structure, index)).filter(Boolean);
       
         if (structure.upgradeJob) {
           active = {
-            label: `STRUCTURE UPGRADE · L${structure.upgradeJob.toLevel}`,
+            label: `${BUILDING_DATA[structure.type]?.label || structure.type.toUpperCase()} · UPGRADE L${structure.upgradeJob.toLevel}`,
             timeLeft: structure.upgradeJob.timeLeft,
             total: structure.upgradeJob.total,
-            color: COLORS.warn
+            color: COLORS.warn,
+            producer: structure,
+            item: structure.upgradeJob,
+            kind: 'structureUpgrade',
+            queueIndex: 0,
+            iconKind: 'building',
+            iconType: structure.type,
+            upgradeArrow: true
           };
         } else if (structure.conversionJob) {
-          const target = String(structure.conversionJob.upgradeType || 'STRUCTURE').replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase();
+          const targetType = structure.conversionJob.upgradeType || structure.type;
+          const target = String(targetType).replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase();
           active = {
             label: `CONVERT TO ${target}`,
             timeLeft: structure.conversionJob.timeLeft,
             total: structure.conversionJob.total,
-            color: COLORS.warn
+            color: COLORS.warn,
+            producer: structure,
+            item: structure.conversionJob,
+            kind: 'structureUpgrade',
+            queueIndex: 0,
+            iconKind: 'building',
+            iconType: targetType,
+            upgradeArrow: true
           };
         } else if (structure.labJob) {
-          active = labProductionEntry(structure.labJob);
-          waiting = (Array.isArray(structure.labQueue) ? structure.labQueue : []).map(labProductionEntry).filter(Boolean);
+          active = labProductionEntry(structure.labJob, structure, 0);
+          waiting = (Array.isArray(structure.labQueue) ? structure.labQueue : [])
+            .map((item, index) => labProductionEntry(item, structure, index + 1)).filter(Boolean);
         } else if (structure.researchJob) {
-          active = facilityResearchEntry(structure.researchJob);
-          waiting = (Array.isArray(structure.researchQueue) ? structure.researchQueue : []).map(facilityResearchEntry).filter(Boolean);
+          active = facilityResearchEntry(structure.researchJob, structure, 0);
+          waiting = (Array.isArray(structure.researchQueue) ? structure.researchQueue : [])
+            .map((item, index) => facilityResearchEntry(item, structure, index + 1)).filter(Boolean);
         } else if (structure.turretTechJob) {
           active = {
             label: `TURRET TECHNOLOGY · L${structure.turretTechJob.toLevel}`,
             timeLeft: structure.turretTechJob.timeLeft,
             total: structure.turretTechJob.total,
-            color: COLORS.warn
+            color: COLORS.warn,
+            producer: structure,
+            item: structure.turretTechJob,
+            kind: 'structureUpgrade',
+            queueIndex: 0,
+            iconKind: 'building',
+            iconType: 'turret',
+            upgradeArrow: true
           };
         } else if (queued.length) {
-          active = unitProductionEntry(queued[0]);
-          waiting = queued.slice(1).map(unitProductionEntry).filter(Boolean);
+          active = unitProductionEntry(queued[0], structure, 0);
+          waiting = queued.slice(1).map((item, index) => unitProductionEntry(item, structure, index + 1)).filter(Boolean);
         }
         return { active, waiting };
+      }
+
+      function queueSquareHit(entry, rect) {
+        state.infoQueueHitRects ||= [];
+        state.infoQueueHitRects.push({ entry, rect });
+      }
+
+      function drawQueueSquare(entry, rect, active, compact) {
+        const hovered = pointInRect(state.mouse, rect);
+        const progress = active
+          ? clamp(1 - Number(entry.timeLeft || 0) / Math.max(.001, Number(entry.total || entry.timeLeft || 1)), 0, 1)
+          : 0;
+        ctx.fillStyle = hovered ? 'rgba(83,35,43,.96)' : active ? '#101a27' : '#121a25';
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        if (active) {
+          ctx.fillStyle = 'rgba(100,216,255,.13)';
+          ctx.fillRect(rect.x + 1, rect.y + 1, Math.max(0, rect.w - 2), Math.max(0, (rect.h - 2) * progress));
+        }
+        ctx.strokeStyle = hovered ? COLORS.bad : active ? entry.color : '#56657b';
+        ctx.lineWidth = active ? 2 : 1;
+        ctx.strokeRect(rect.x + .5, rect.y + .5, Math.max(0, rect.w - 1), Math.max(0, rect.h - 1));
+        ctx.lineWidth = 1;
+        drawQueuePixelIcon(entry, rect, compact, active);
+        if (active) {
+          const progressH = compact ? 2 : 3;
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(rect.x + 2, rect.y + rect.h - progressH - 1, Math.max(0, rect.w - 4), progressH);
+          ctx.fillStyle = entry.color;
+          ctx.fillRect(rect.x + 2, rect.y + rect.h - progressH - 1, Math.max(0, (rect.w - 4) * progress), progressH);
+        }
+        if (hovered) {
+          drawConsoleText('×', rect.x + rect.w - (compact ? 2 : 3), rect.y + 1, compact ? 8 : 11, COLORS.bad, 'right', compact ? 8 : 10, 900);
+        }
+        queueSquareHit(entry, rect);
+        return hovered;
       }
       
       function drawStructureProductionQueue(zone, structure, x, rowY, maxW, compact) {
@@ -4668,46 +4831,50 @@
         if (!display.active) return false;
       
         const bottom = zone.y + zone.h - (compact ? 3 : 5);
-        const activeH = compact ? 15 : 26;
-        if (rowY + activeH > bottom) return false;
-      
-        const active = display.active;
-        const progress = clamp(1 - Number(active.timeLeft || 0) / Math.max(.001, Number(active.total || active.timeLeft || 1)), 0, 1);
-        ctx.fillStyle = '#0a1018';
-        ctx.fillRect(x, rowY, maxW, activeH);
-        ctx.strokeStyle = '#56657b';
-        ctx.strokeRect(x + .5, rowY + .5, Math.max(0, maxW - 1), Math.max(0, activeH - 1));
-      
-        const timeText = `${Math.max(0, Math.ceil(active.timeLeft || 0))}s`;
-        const timeW = compact ? 24 : 34;
-        drawConsoleText(compact ? '▶' : 'NOW', x + (compact ? 3 : 5), rowY + (compact ? 2 : 4), compact ? 7 : 10, active.color, 'left', compact ? 8 : 25, 800);
-        drawConsoleText(active.label, x + (compact ? 12 : 32), rowY + (compact ? 2 : 4), compact ? 7 : 10, COLORS.text, 'left', Math.max(1, maxW - (compact ? 14 : 36) - timeW), 800);
-        drawConsoleText(timeText, x + maxW - 4, rowY + (compact ? 2 : 4), compact ? 7 : 10, active.color, 'right', timeW, 800);
-      
-        const progressH = compact ? 2 : 4;
-        const progressY = rowY + activeH - progressH;
-        ctx.fillStyle = '#070b10';
-        ctx.fillRect(x + 1, progressY, Math.max(0, maxW - 2), progressH - 1);
-        ctx.fillStyle = active.color;
-        ctx.fillRect(x + 1, progressY, Math.max(0, (maxW - 2) * progress), progressH - 1);
-      
-        let nextY = rowY + activeH + (compact ? 1 : 3);
-        const step = compact ? 10 : 16;
-        const availableRows = Math.max(0, Math.floor((bottom - nextY + 1) / step));
-        if (!availableRows || !display.waiting.length) return true;
-      
-        const showCount = Math.min(display.waiting.length, availableRows);
-        const hidden = display.waiting.length - showCount;
-        for (let index = 0; index < showCount; index++) {
-          const item = display.waiting[index];
-          const finalVisibleRow = index === showCount - 1;
-          const label = hidden > 0 && finalVisibleRow && showCount > 1
-            ? `+${hidden + 1} MORE QUEUED`
-            : `${index + 2}. ${item.label}${hidden > 0 && showCount === 1 ? `  +${hidden}` : ''}`;
-          ctx.fillStyle = index % 2 ? 'rgba(20,29,41,.88)' : 'rgba(25,35,49,.88)';
-          ctx.fillRect(x, nextY, maxW, Math.max(1, step - 1));
-          drawConsoleText(label, x + (compact ? 3 : 5), nextY + (compact ? 1 : 2), compact ? 6 : 9, hidden > 0 && finalVisibleRow ? COLORS.muted : '#b9c5d8', 'left', maxW - (compact ? 6 : 10), 700);
-          nextY += step;
+        const availableH = bottom - rowY + 1;
+        const gap = compact ? 3 : 5;
+        let activeSize = Math.min(compact ? 30 : 44, availableH, maxW);
+        let queuedSize = Math.min(compact ? 21 : 30, activeSize - (compact ? 7 : 10));
+        if (display.waiting.length) {
+          const minimumQueuedSize = compact ? 18 : 22;
+          if (maxW < activeSize + gap + queuedSize) {
+            activeSize = Math.min(activeSize, Math.max(compact ? 20 : 28, maxW - gap - minimumQueuedSize));
+            queuedSize = Math.min(queuedSize, Math.max(1, maxW - activeSize - gap));
+          }
+        }
+        if (activeSize < (compact ? 20 : 28)) return false;
+
+        const activeRect = { x, y: rowY, w: activeSize, h: activeSize };
+        let hoveredEntry = drawQueueSquare(display.active, activeRect, true, compact) ? display.active : null;
+        let cursorX = x + activeSize + gap;
+        const availableQueuedWidth = Math.max(0, x + maxW - cursorX);
+        const maxQueued = Math.max(0, Math.floor((availableQueuedWidth + gap) / (queuedSize + gap)));
+        const needsOverflow = display.waiting.length > maxQueued;
+        const visibleSlots = needsOverflow ? Math.max(0, maxQueued - 1) : maxQueued;
+        const visible = display.waiting.slice(0, visibleSlots);
+        const queuedY = rowY + Math.floor((activeSize - queuedSize) / 2);
+
+        for (const entry of visible) {
+          const rect = { x: cursorX, y: queuedY, w: queuedSize, h: queuedSize };
+          if (drawQueueSquare(entry, rect, false, compact)) hoveredEntry = entry;
+          cursorX += queuedSize + gap;
+        }
+        if (needsOverflow && maxQueued > 0) {
+          const hidden = display.waiting.length - visible.length;
+          const rect = { x: cursorX, y: queuedY, w: queuedSize, h: queuedSize };
+          ctx.fillStyle = '#121a25';
+          ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+          ctx.strokeStyle = '#56657b';
+          ctx.strokeRect(rect.x + .5, rect.y + .5, rect.w - 1, rect.h - 1);
+          drawConsoleText(`+${hidden}`, rect.x + rect.w / 2, rect.y + Math.max(1, (rect.h - (compact ? 7 : 10)) / 2), compact ? 7 : 10, COLORS.muted, 'center', rect.w - 4, 900);
+        }
+
+        const detail = hoveredEntry || display.active;
+        const detailY = rowY + activeSize + (compact ? 2 : 4);
+        if (detailY + (compact ? 7 : 10) <= bottom) {
+          const time = detail === display.active ? ` · ${Math.max(0, Math.ceil(detail.timeLeft || 0))}s` : '';
+          const action = hoveredEntry ? ' · CLICK TO CANCEL' : time;
+          drawConsoleText(detail.label + action, x, detailY, compact ? 6 : 8, hoveredEntry ? COLORS.bad : COLORS.muted, 'left', maxW, 800);
         }
         return true;
       }
@@ -4804,6 +4971,7 @@
         const zone = layout.info;
         state.infoSellRect = null;
         state.infoCancelUpgradeRect = null;
+        state.infoQueueHitRects = [];
         drawInsetPanel(zone, '#121b26');
         const heading = state.commandMenu?.title || 'SELECTION / STATUS';
         drawConsoleText(heading, zone.x + (layout.compact ? 6 : 10), zone.y + 6, layout.compact ? 9 : 12, COLORS.warn, 'left', zone.w - (layout.compact ? 12 : 20), 800);
@@ -4858,6 +5026,9 @@
       }
       
       const BUILDING_BUTTON_ICONS = Object.freeze({
+        hq: [
+          '..222..', '.21112.', '1222221', '1233321', '1232321', '1222221', '1111111'
+        ],
         barracks: [
           '..111..', '.12221.', '1222221', '1233321', '1232321', '1222221', '1111111'
         ],
@@ -4872,6 +5043,12 @@
         ],
         minersHut: [
           '...1...', '..121..', '.12221.', '1222221', '1232321', '1222221', '.11111.'
+        ],
+        factory: [
+          '2.2.2.2', '1111111', '1222221', '1233321', '1232321', '1222221', '1111111'
+        ],
+        outpost: [
+          '...2...', '..222..', '.21112.', '1222221', '1233321', '1222221', '.11111.'
         ],
         housing: [
           '...1...', '..121..', '.12221.', '1222221', '1232321', '1222221', '1111111'
@@ -7088,6 +7265,7 @@
       function cancelProductionItem(producer, item, kind = 'unit') {
         if (!producer || producer.hp <= 0 || !item) return false;
         if (kind === 'research') return cancelFacilityResearchJob(producer, item);
+        if (kind === 'lab') return cancelLaboratoryUpgrade(producer, item);
         if (kind === 'upgrade') {
           if (productionTechJob(item.team, item.structureType) !== item) return false;
           clearProductionTechJob(item);
@@ -7107,11 +7285,16 @@
       }
       
       
-      function cancelLaboratoryUpgrade(lab) {
-        const job = lab?.labJob;
-        if (!job || lab.hp <= 0) return false;
+      function cancelLaboratoryUpgrade(lab, job = lab?.labJob) {
+        if (!job || !lab || lab.hp <= 0) return false;
         if (!Array.isArray(lab.labQueue)) lab.labQueue = [];
-        lab.labJob = lab.labQueue.shift() || null;
+        if (lab.labJob === job) {
+          lab.labJob = lab.labQueue.shift() || null;
+        } else {
+          const index = lab.labQueue.indexOf(job);
+          if (index < 0) return false;
+          lab.labQueue.splice(index, 1);
+        }
         creditTeamResources(lab.team, job.costM || 0, job.costG || 0);
         const unitLabel = UNIT_DATA[job.unitType]?.label || String(job.unitType || 'UNIT').toUpperCase();
         burst(lab.x, lab.y, COLORS.bad, 9, true);
@@ -7943,6 +8126,10 @@
         if (command.kind === 'research') {
           const index = Math.max(0, Math.trunc(command.queueIndex || 0));
           return index === 0 ? producer.researchJob : producer.researchQueue?.[index - 1] || null;
+        }
+        if (command.kind === 'lab') {
+          const index = Math.max(0, Math.trunc(command.queueIndex || 0));
+          return index === 0 ? producer.labJob : producer.labQueue?.[index - 1] || null;
         }
         const index = Math.max(0, Math.trunc(command.queueIndex || 0));
         return producer.queue?.[index] || null;
