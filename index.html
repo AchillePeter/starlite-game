@@ -4,49 +4,37 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <script>
+    (() => {
+      if (location.protocol === 'file:') return;
+      const parameter = '__starlite_latest';
+      const url = new URL(location.href);
+      if (!url.searchParams.has(parameter)) {
+        url.searchParams.set(parameter, `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`);
+        window.__STARLITE_CACHE_REDIRECTING__ = true;
+        location.replace(url.href);
+        return;
+      }
+      url.searchParams.delete(parameter);
+      const query = url.searchParams.toString();
+      history.replaceState(null, '', `${url.pathname}${query ? `?${query}` : ''}${url.hash}`);
+    })();
+  </script>
   <title>StarLite Standalone</title>
   <style>
     :root { color-scheme: dark; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: #080b10;
-    }
-    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
-    #game {
-      display: block;
-      width: 100vw;
-      height: 100vh;
-      background: #111820;
-      touch-action: none;
-      user-select: none;
-    }
-    #standalone-error {
-      display: none;
-      position: fixed;
-      inset: 16px;
-      z-index: 2147483647;
-      box-sizing: border-box;
-      max-width: 960px;
-      max-height: calc(100vh - 32px);
-      margin: auto;
-      padding: 18px;
-      overflow: auto;
-      border: 1px solid #ff7070;
-      border-radius: 8px;
-      background: rgba(45, 12, 18, .97);
-      color: #fff;
-      white-space: pre-wrap;
-      font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
+    html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#080b10; }
+    body { font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+    #game { display:block; width:100vw; height:100vh; background:#111820; touch-action:none; user-select:none; }
+    #standalone-error { display:none; position:fixed; inset:16px; z-index:2147483647; box-sizing:border-box; max-width:960px; max-height:calc(100vh - 32px); margin:auto; padding:18px; overflow:auto; border:1px solid #ff7070; border-radius:8px; background:rgba(45,12,18,.97); color:#fff; white-space:pre-wrap; font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
   </style>
 </head>
 <body>
   <canvas id="game" aria-label="Game canvas"></canvas>
   <pre id="standalone-error" role="alert"></pre>
-
   <script>
     window.__STANDALONE_MANIFEST__ = {
   "entry": "main.js",
@@ -74,45 +62,33 @@
   },
   "format": "pure-python-module-runtime-v1",
   "base64": false,
-  "serverRequired": false
+  "serverRequired": false,
+  "cachePolicy": "reload-with-unique-query-v1"
 };
-
     (() => {
-      const errorBox = document.getElementById("standalone-error");
-
+      if (window.__STARLITE_CACHE_REDIRECTING__) return;
+      const errorBox = document.getElementById('standalone-error');
       function showError(title, value) {
         const detail = value && (value.stack || value.message || String(value));
-        errorBox.textContent = title + "\n\n" + (detail || "Unknown error");
-        errorBox.style.display = "block";
+        errorBox.textContent = title + '\n\n' + (detail || 'Unknown error');
+        errorBox.style.display = 'block';
       }
-
-      window.addEventListener("error", event => {
-        showError("RUNTIME ERROR", event.error || event.message);
-      });
-
-      window.addEventListener("unhandledrejection", event => {
-        showError("UNHANDLED PROMISE REJECTION", event.reason);
-      });
-
+      window.addEventListener('error', event => showError('RUNTIME ERROR', event.error || event.message));
+      window.addEventListener('unhandledrejection', event => showError('UNHANDLED PROMISE REJECTION', event.reason));
       const __factories = Object.create(null);
       const __modules = Object.create(null);
-
       function __define(name, factory) {
-        if (__factories[name]) throw new Error("Duplicate embedded module: " + name);
+        if (__factories[name]) throw new Error('Duplicate embedded module: ' + name);
         __factories[name] = factory;
       }
-
       function __require(name) {
         if (__modules[name]) return __modules[name].exports;
-
-        const factory = __factories[name];
-        if (!factory) throw new Error("Embedded module not found: " + name);
-
+        const moduleFactory = __factories[name];
+        if (!moduleFactory) throw new Error('Embedded module not found: ' + name);
         const module = { exports: Object.create(null), loading: true };
         __modules[name] = module;
-
         try {
-          factory(module.exports, __require);
+          moduleFactory(module.exports, __require);
           module.loading = false;
           return module.exports;
         } catch (error) {
@@ -18349,12 +18325,8 @@
     }
   });
 
-      try {
-        __require("main.js");
-      } catch (error) {
-        showError("STANDALONE BOOT ERROR", error);
-        console.error(error);
-      }
+      try { __require('main.js'); }
+      catch (error) { showError('STANDALONE BOOT ERROR', error); console.error(error); }
     })();
   </script>
 </body>
