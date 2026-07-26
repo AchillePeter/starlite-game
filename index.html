@@ -2208,33 +2208,41 @@
         // guided weapons aim independently. Snapping the whole sprite toward the
         // target for one firing frame made an otherwise smooth loop look like a
         // flicker.
-        if (!isLoopingAircraft(u)) u.heading = aimHeading;
+        if (!isLoopingAircraft(u) && u.type !== 'mecha' && u.type !== 'titanTank') u.heading = aimHeading;
         u.cooldownLeft = u.cooldown;
         if (u.type === 'mecha' && isAirUnit(target) && u.antiAirMissiles) {
           const missileColor = isHumanTeam(u.team) ? '#9cf2ff' : colorForTeam(u.team, 'light');
-          u.attackAnim = .36;
+          u.attackAnim = .3;
           fireProjectile(u, target, u.antiAirMissileDamage || 72, {
             speed: 360, color: missileColor, trailColor: '#e9fcff', radius: 5, length: 25,
-            style: 'rocket', recoil: .22, muzzleScale: 1.45, muzzleOffset: u.radius + 16,
-            muzzleLife: .14, splash: u.antiAirMissileSplash || 26, intensity: 1.75,
-            zigzagAmplitude: 5, zigzagFrequency: 21, canHitGround: false
+            style: 'rocket', recoil: .08, muzzleScale: 1.45, muzzleOffset: u.radius + 15,
+            muzzleSideOffset: -11, muzzleLife: .14, splash: u.antiAirMissileSplash || 26,
+            intensity: 1.75, zigzagAmplitude: 5, zigzagFrequency: 21, canHitGround: false
           });
-        } else if (u.type === 'infantry' || u.type === 'mecha') {
-          const mecha = u.type === 'mecha';
-          const doubleBlades = !mecha && u.doubleBlades;
-          const intensity = mecha ? 2.7 : doubleBlades ? 1.35 : 1;
-          if (mecha) u.attackAnim = .46; // retained for its weapon VFX timing
-          else playUnitAnimation(u, 'attack');
-          const color = isHumanTeam(u.team) ? (mecha ? '#aaf4ff' : COLORS.player2) : colorForTeam(u.team, 'light');
+        } else if (u.type === 'mecha') {
+          // The war mecha is a long-range fire-support walker from its first level.
+          // Both chest-mounted machine guns fire together, but their loose spread
+          // makes sustained positioning more valuable than point-blank brawling.
+          const gunColor = isHumanTeam(u.team) ? '#d9fbff' : colorForTeam(u.team, 'light');
+          u.attackAnim = .18;
+          for (const muzzleSideOffset of [-8, 8]) {
+            fireProjectile(u, target, u.damage * .5, {
+              speed: 610, color: gunColor, trailColor: '#fff1ad', radius: 2.5, length: 23,
+              style: 'tracer', recoil: .035, muzzleScale: 1.08, muzzleOffset: u.radius + 14,
+              muzzleSideOffset, intensity: 1.15, inaccuracy: .27, aimJitter: 14
+            });
+          }
+        } else if (u.type === 'infantry') {
+          const doubleBlades = u.doubleBlades;
+          const intensity = doubleBlades ? 1.35 : 1;
+          playUnitAnimation(u, 'attack');
+          const color = isHumanTeam(u.team) ? COLORS.player2 : colorForTeam(u.team, 'light');
           const bladeX = u.x + Math.cos(u.heading) * (u.radius + 5);
           const bladeY = u.y + Math.sin(u.heading) * (u.radius + 5);
           addEffect('swoosh', {
             x: bladeX, y: bladeY, angle: u.heading,
-            radius: mecha ? 40 : 19,
-            arc: mecha ? 1.12 : .58,
-            width: mecha ? 9 : 4,
-            color, intensity, life: mecha ? .38 : .19,
-            double: mecha || doubleBlades, triple: mecha
+            radius: 19, arc: .58, width: 4,
+            color, intensity, life: .19, double: doubleBlades
           });
           if (doubleBlades) {
             addEffect('swoosh', {
@@ -2244,17 +2252,11 @@
             });
           }
           addEffect('impactFlash', {
-            x: target.x, y: target.y, color, scale: intensity, life: mecha ? .22 : .14, angle: u.heading
+            x: target.x, y: target.y, color, scale: intensity, life: .14, angle: u.heading
           });
-          if (mecha) {
-            addEffect('shockwave', {
-              x: target.x, y: target.y, color, maxRadius: 44,
-              life: .34, width: 6
-            });
-          }
-          burst(target.x, target.y, color, mecha ? 22 : 7, false,
-            { shape: 'spark', lifeMin: .1, lifeMax: mecha ? .62 : .4, sizeMin: 1, sizeMax: mecha ? 7 : 3, speedMin: 30, speedMax: mecha ? 130 : 90 });
-          burst(bladeX, bladeY, '#f7fdff', mecha ? 8 : 2, false,
+          burst(target.x, target.y, color, 7, false,
+            { shape: 'spark', lifeMin: .1, lifeMax: .4, sizeMin: 1, sizeMax: 3, speedMin: 30, speedMax: 90 });
+          burst(bladeX, bladeY, '#f7fdff', 2, false,
             { shape: 'spark', lifeMin: .08, lifeMax: .22, sizeMin: 1, sizeMax: 3, speedMin: 15, speedMax: 70 });
           damage(target, u.damage, u);
         } else if (u.type === 'antiAirFighter') {
@@ -2870,7 +2872,7 @@
           : u.type === 'bomber' ? (u.command === 'attack' ? 220 : 175)
           : u.type === 'mortar' ? (u.command === 'attack' ? 230 : 190)
           : u.type === 'titanTank' ? (u.command === 'attack' ? Math.max(155, unitAttackRange(u) + 40) : Math.max(88, unitAttackRange(u) + 25))
-          : u.type === 'mecha' ? (u.command === 'attack' ? 155 : 88)
+          : u.type === 'mecha' ? (u.command === 'attack' ? Math.max(190, unitAttackRange(u) + 35) : Math.max(125, unitAttackRange(u) + 18))
           : u.type === 'helicopter' && u.doubleGatling ? (u.command === 'attack' ? Math.max(155, unitAttackRange(u) + 30) : Math.max(95, unitAttackRange(u) + 15))
           : (u.command === 'attack' ? 128 : 72);
         const invalidHealerTarget = u.type === 'healer' && (!isAlive(u.target) || u.target.kind !== 'unit' || u.target.team !== u.team || u.target.hp >= u.target.maxHp);
@@ -2926,7 +2928,7 @@
           if (u.type === 'healer') u.target = nearestDamagedUnit(u);
           else if (u.type === 'mechanic') u.target = nearestDamagedStructure(u);
           else if (isResourceHarvester(u) || u.type === 'radar' || u.type === 'forceFieldTruck') u.target = null;
-          else if (isComputerTeam(u.team)) u.target = nearestEnemy(u, u.type === 'antiAirFighter' ? 190 : u.type === 'bomber' ? 175 : u.type === 'assault' ? 150 : u.type === 'mecha' ? 128 : u.type === 'titanTank' ? Math.max(96, unitAttackRange(u) + 25) : 96, u.type !== 'mortar' && u.type !== 'bomber');
+          else if (isComputerTeam(u.team)) u.target = nearestEnemy(u, u.type === 'antiAirFighter' ? 190 : u.type === 'bomber' ? 175 : u.type === 'assault' ? 150 : u.type === 'mecha' ? Math.max(170, unitAttackRange(u) + 25) : u.type === 'titanTank' ? Math.max(96, unitAttackRange(u) + 25) : 96, u.type !== 'mortar' && u.type !== 'bomber');
           else u.target = nearestEnemy(u, aggro, u.type !== 'mortar' && u.type !== 'bomber');
           if (u.target) u.targetSource = 'auto';
         }
@@ -2980,8 +2982,17 @@
           // Mortars arc over terrain, so range alone is enough for them. Every
           // other unit handled by this ground-combat path needs a clear shot.
           if (d <= unitAttackRange(u) && (u.type === 'mortar' || shotClear(u, u.target))) {
+            if (u.type === 'mortar' && !u.javelinMissile) {
+              u.mortarSetup = Math.min(1, (u.mortarSetup || 0) + dt * 2.5);
+              u.path = null;
+              if (u.cooldownLeft <= 0 && u.mortarSetup >= .98) attack(u, u.target);
+              return;
+            }
             if (u.cooldownLeft <= 0) attack(u, u.target);
             return;
+          }
+          if (u.type === 'mortar' && !u.javelinMissile) {
+            u.mortarSetup = Math.max(0, (u.mortarSetup || 0) - dt * 2.8);
           }
           if (isComputerTeam(u.team) && u.static) return;  // static defenders hold and fire only
           const approach = attackApproachPoint(u, u.target);
@@ -3008,6 +3019,15 @@
         }
       
         const dGoal = dist(u, u.destination);
+        if (u.type === 'mortar' && !u.javelinMissile && dGoal <= 4) {
+          u.mortarSetup = Math.min(1, (u.mortarSetup || 0) + dt * 2.1);
+          u.movementOrderActive = false;
+          u.path = null;
+          return;
+        }
+        if (u.type === 'mortar' && !u.javelinMissile) {
+          u.mortarSetup = Math.max(0, (u.mortarSetup || 0) - dt * 2.6);
+        }
         if (dGoal > 4) moveTo(u, u.destination.x, u.destination.y, dt);
         else {
           u.movementOrderActive = false;
@@ -3100,6 +3120,9 @@
       // High-level move: keep a valid A* path to (gx,gy) and walk along it, so units
       // route around lakes & mountains instead of grinding into them.
       function moveTo(u, gx, gy, dt) {
+        if (u.type === 'mortar' && !u.javelinMissile) {
+          u.mortarSetup = Math.max(0, (u.mortarSetup || 0) - dt * 3.4);
+        }
         // Aircraft fly directly over every terrain type; their collision layer is
         // handled separately so ground formations never divert or shove them.
         if (isAirUnit(u)) {
@@ -3459,6 +3482,35 @@
         }
       }
       
+      const TURRET_IDLE_PIVOT_INTERVAL = 2;
+      const TURRET_IDLE_TURN_RATE = 2.6;
+      
+      function deterministicTurretPivotAngle(structureId, pivotStep) {
+        // Local integer hash: visually random without consuming gameplay PRNG state.
+        let value = Math.imul((structureId | 0) + 1, 0x9e3779b1) ^
+          Math.imul((pivotStep | 0) + 1, 0x85ebca6b);
+        value = Math.imul(value ^ (value >>> 16), 0x7feb352d);
+        value = Math.imul(value ^ (value >>> 15), 0x846ca68b);
+        value ^= value >>> 16;
+        return (value >>> 0) / 4294967296 * Math.PI * 2 - Math.PI;
+      }
+      
+      function updateIdleTurretPivot(s, dt) {
+        const phaseOffset = (s.id % 11) * .173;
+        const pivotStep = Math.floor((state.elapsed + phaseOffset) / TURRET_IDLE_PIVOT_INTERVAL);
+        if (s.idlePivotStep !== pivotStep || !Number.isFinite(s.idlePivotTarget)) {
+          s.idlePivotStep = pivotStep;
+          s.idlePivotTarget = deterministicTurretPivotAngle(s.id, pivotStep);
+        }
+        const current = Number.isFinite(s.barrelAngle) ? s.barrelAngle : 0;
+        const delta = Math.atan2(
+          Math.sin(s.idlePivotTarget - current),
+          Math.cos(s.idlePivotTarget - current)
+        );
+        const turn = TURRET_IDLE_TURN_RATE * dt;
+        s.barrelAngle = current + clamp(delta, -turn, turn);
+      }
+      
       function updateStructure(s, dt) {
         s.flash = Math.max(0, s.flash - dt);
         s.recoil = Math.max(0, (s.recoil || 0) - dt);
@@ -3519,6 +3571,7 @@
         if (!isAlive(s.target) || !canAttackTarget(s, s.target) || dist(s, s.target) > s.range + 40 || !shotClear(s, s.target)) s.target = null;
         if (!s.target && targetAcquisitionDue(s, STRUCTURE_TARGET_ACQUISITION_INTERVAL)) s.target = nearestEnemy(s, s.range);
         if (s.target) {
+          s.idlePivotStep = null;
           const tr = s.target.radius || Math.max(s.target.w, s.target.h) * .28;
           const mountOffset = isOutpost ? 24 : 0;
           s.barrelAngle = Math.atan2(s.target.y - (s.y - mountOffset), s.target.x - s.x);
@@ -3542,6 +3595,8 @@
               });
             }
           }
+        } else if (s.type === 'turret') {
+          updateIdleTurretPivot(s, dt);
         }
       }
       
@@ -4602,15 +4657,15 @@
       }
       
       const UNIT_QUEUE_ICONS = Object.freeze({
-        forager: ['...2...', '..121..', '...1...', '..1112.', '.1.1...', '.1.1...', '1...1..'],
-        roboMiner: ['.11111.', '1222221', '1233321', '1222221', '.11111.', '11...11', '.11111.'],
-        mechanic: ['2.....2', '.2...2.', '..121..', '...1...', '..111..', '..1.1..', '.1...1.'],
-        infantry: ['...2...', '..121..', '...1...', '..1112.', '.1.12..', '.1.1...', '1...1..'],
-        assault: ['...2...', '..121..', '...1...', '.111122', '..1.1..', '..1.1..', '.1...1.'],
-        mortar: ['..222..', '.21112.', '..111..', '...1...', '..1.1..', '.1...1.', '1.....1'],
-        mecha: ['.2...2.', '.21112.', '..111..', '.12221.', '1.111.1', '..1.1..', '.11.11.'],
-        jeep: ['.......', '.11111.', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
-        armoredJeep: ['..111..', '.12221.', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
+        forager: ['.......', '..111..', '.12221.', '1233321', '.2...2.', '1.....1', '.......'],
+        roboMiner: ['..111..', '.12221.', '1233321', '1222221', '2133312', '.12221.', '1.....1'],
+        mechanic: ['..111..', '.12222.', '1233212', '.21112.', '.21.12.', '.1...1.', '.......'],
+        infantry: ['..111..', '.12221.', '1233321', '.21112.', '.21.12.', '.1.1.1.', '1.....1'],
+        assault: ['..111..', '.12221.', '1233322', '.211122', '.21.12.', '.1.1.1.', '1.....1'],
+        mortar: ['..111..', '.12221.', '1233321', '.211122', '.21.12.', '.1.1.1.', '1.....1'],
+        mecha: ['.11.11.', '1222222', '1233322', '1222222', '1222222', '.11.11.', '1.1.1.1'],
+        jeep: ['.......', '.11111.', '1222221', '1233321', '1222221', '.11.11.', '.1...1.'],
+        armoredJeep: ['..111..', '1222221', '1233321', '1222221', '1222221', '.11.11.', '.1...1.'],
         heavy: ['.....22', '.111122', '1222221', '1233321', '1111111', '.11.11.', '.11.11.'],
         titanTank: ['...22..', '..2222.', '.11111.', '1222221', '1233321', '1111111', '.11.11.'],
         helicopter: ['2222222', '...1...', '.11111.', '1222221', '..111..', '..1.1..', '.1...1.'],
@@ -5878,7 +5933,7 @@
         infantry: { label: 'CLOSE-COMBAT INFANTRY', costM: 35, costG: 0, hp: 62, speed: 72, damage: 9, range: 18, cooldown: .52, sight: 120, radius: 8, buildTime: 3, pop: 1, tier: 1, animation: 'closeCombatInfantry' },
         assault:  { label: 'LONG-RANGE INFANTRY', costM: 90, costG: 60, hp: 92, speed: 48, damage: 17, range: 112, cooldown: .88, sight: 158, radius: 9, buildTime: 8, pop: 2, tier: 2 },
         mortar:   { label: 'MORTAR TEAM', costM: 165, costG: 170, hp: 105, speed: 35, damage: 62, range: 225, cooldown: 2.7, sight: 240, radius: 10, buildTime: 13, pop: 3, tier: 3, splash: 58 },
-        mecha:    { label: 'WAR MECHA', costM: 420, costG: 360, hp: 820, speed: 27, damage: 125, range: 27, cooldown: 1.15, sight: 175, radius: 18, buildTime: 24, pop: 6, tier: 4 },
+        mecha:    { label: 'WAR MECHA', costM: 420, costG: 360, hp: 820, speed: 27, damage: 22, range: 158, cooldown: .32, sight: 215, radius: 18, buildTime: 24, pop: 6, tier: 4 },
         jeep:     { label: 'MG JEEP', costM: 80, costG: 30, hp: 92, speed: 82, damage: 4.5, range: 78, cooldown: .24, sight: 145, radius: 11, buildTime: 6, pop: 2, tier: 1 },
         armoredJeep: { label: 'ARMORED JEEP', costM: 135, costG: 80, hp: 185, speed: 66, damage: 14, range: 88, cooldown: .48, sight: 155, radius: 12, buildTime: 9, pop: 2, tier: 2 },
         heavy:    { label: 'HEAVY FLAME JEEP', costM: 185, costG: 155, hp: 290, speed: 35, damage: 12, range: 66, cooldown: .28, sight: 145, radius: 13, buildTime: 13, pop: 3, tier: 3 },
@@ -6113,7 +6168,7 @@
         infantry: { label: 'PLASMA-EDGED BLADES', costM: 75, costG: 30, time: 8, effect: '+22% melee damage', stats: { damage: 1.22 } },
         assault: { label: 'LONGER RANGE', costM: 100, costG: 75, time: 10, effect: '+20% attack range', stats: { range: 1.20 } },
         mortar: { label: 'HIGH-EXPLOSIVE SHELLS', costM: 145, costG: 125, time: 14, effect: '+20% blast radius', stats: { splash: 1.20 } },
-        mecha: { label: 'REACTIVE PLATING', costM: 240, costG: 210, time: 18, effect: '+20% maximum HP', stats: { maxHp: 1.20 } },
+        mecha: { label: 'REACTIVE PLATING', costM: 240, costG: 210, time: 18, effect: '+20% maximum HP', stats: { maxHp: 1.20 }, grants: { reactivePlating: true } },
         jeep: { label: 'TURBOCHARGER', costM: 80, costG: 45, time: 8, effect: '+15% movement speed', stats: { speed: 1.15 } },
         armoredJeep: { label: 'HIGH-CALIBER AUTOCANNON', costM: 120, costG: 80, time: 11, effect: '+20% weapon damage', stats: { damage: 1.20 } },
         heavy: { label: 'COMPOSITE ARMOR', costM: 155, costG: 125, time: 14, effect: '+18% maximum HP', stats: { maxHp: 1.18 } },
@@ -6145,9 +6200,10 @@
           grants: { heavyShells: true }
         },
         mecha: {
-          label: 'ANTI-AIR MISSILES', costM: 285, costG: 260, time: 19,
-          effect: 'Can fire guided missiles at air units',
-          grants: { antiAirMissiles: true, antiAirMissileDamage: 72, antiAirMissileSplash: 26 }
+          label: 'EXTENDED RANGE', costM: 285, costG: 260, time: 19,
+          effect: '+20% attack range and a visible targeting array',
+          stats: { range: 1.20 },
+          grants: { extendedRangeOptics: true }
         },
         jeep: {
           label: 'DOUBLE MACHINE GUN', costM: 130, costG: 90, time: 11,
@@ -6231,8 +6287,9 @@
           grants: { javelinMissile: true }
         },
         mecha: {
-          label: 'EXTENDED RANGE', costM: 330, costG: 300, time: 22,
-          effect: '+60% attack range', stats: { range: 1.60 }
+          label: 'ANTI-AIR MISSILES', costM: 330, costG: 300, time: 22,
+          effect: 'Adds a shoulder rocket launcher for guided anti-air missiles',
+          grants: { antiAirMissiles: true, antiAirMissileDamage: 72, antiAirMissileSplash: 26 }
         },
         armoredJeep: {
           label: 'ELECTRO JEEP', costM: 245, costG: 210, time: 18,
@@ -14251,6 +14308,24 @@
           : `${BUILDING_DATA[buildingType].label} · ${levelText}`;
         openMenu(screenPt, title, items, true);
       }
+      function refreshResearchFacilityAfterQueuedCommand(facility, screenPt, committed) {
+        let attempts = 0;
+        const schedule = callback => {
+          if (typeof globalThis.requestAnimationFrame === 'function') globalThis.requestAnimationFrame(callback);
+          else globalThis.setTimeout(callback, 16);
+        };
+        const refreshWhenCommitted = () => {
+          const menu = state.commandMenu;
+          if (!menu || menu.researchFacilityId !== facility.id) return;
+          if (committed() || attempts++ >= 300) {
+            openResearchFacilityMenu(facility, screenPt);
+            return;
+          }
+          schedule(refreshWhenCommitted);
+        };
+        schedule(refreshWhenCommitted);
+      }
+      
       function openResearchFacilityMenu(facility, screenPt) {
         const typeOrder = ['hq', 'barracks', 'supportCamp', 'garage', 'airBay'];
         const createdGroups = typeOrder.map(type => ({
@@ -14284,15 +14359,24 @@
         } else if (turretCreated) {
           const toLevel = turretTechLevelFor(facility.team) + 1;
           const spec = TURRET_TECH.upgrades[toLevel];
-          items.push({
+          const item = {
             label: `TURRET TECHNOLOGY · L${turretTechLevelFor(facility.team)} → L${toLevel}`,
             sub: `${spec.costM}M ${spec.costG}G · ${spec.time}s · queued in this facility`,
             tone: 'research',
             costM: spec.costM,
             costG: spec.costG,
-            command: { type: 'upgradeTurretTech', team: facility.team, facilityId: facility.id },
-            afterQueue: () => openResearchFacilityMenu(facility, screenPt)
-          });
+            command: { type: 'upgradeTurretTech', team: facility.team, facilityId: facility.id }
+          };
+          item.afterQueue = () => {
+            item.enabled = false;
+            item.label = `TURRET TECHNOLOGY · QUEUING L${toLevel}`;
+            item.sub = 'COMMAND QUEUED · UPDATING RESEARCH STATUS';
+            refreshResearchFacilityAfterQueuedCommand(facility, screenPt, () =>
+              [facility.researchJob, ...(Array.isArray(facility.researchQueue) ? facility.researchQueue : [])]
+                .some(job => job?.researchKind === 'turretTech' && job.toLevel === toLevel)
+            );
+          };
+          items.push(item);
         }
         items.push(...createdGroups.map(({ type, peers }) => {
           const tech = PRODUCTION_TECH[type];
@@ -14314,18 +14398,29 @@
           }
           const toLevel = level + 1;
           const spec = tech.upgrades[toLevel];
-          return {
+          const item = {
             label: `${name} · L${level} → L${toLevel}`,
             sub: `${spec.costM}M ${spec.costG}G · ${spec.time}s · queued here · unit production continues`,
             tone: 'research',
             costM: spec.costM,
             costG: spec.costG,
-            command: { type: 'upgradeProduction', team: facility.team, producerId: peers[0].id, facilityId: facility.id },
-            afterQueue: () => openResearchFacilityMenu(facility, screenPt)
+            command: { type: 'upgradeProduction', team: facility.team, producerId: peers[0].id, facilityId: facility.id }
           };
+          item.afterQueue = () => {
+            item.enabled = false;
+            item.label = `${name} · QUEUING L${toLevel}`;
+            item.sub = 'COMMAND QUEUED · UPDATING RESEARCH STATUS';
+            refreshResearchFacilityAfterQueuedCommand(facility, screenPt, () => {
+              const job = productionTechJob(facility.team, type);
+              return !!job && job.facilityId === facility.id && job.toLevel === toLevel;
+            });
+          };
+          return item;
         }));
         const queueSuffix = researchOrders.length ? ` · ${researchOrders.length} ORDER${researchOrders.length === 1 ? '' : 'S'}` : '';
-        openMenu(screenPt, `RESEARCH · STRUCTURES & TURRETS${queueSuffix}`, items, true);
+        openMenu(screenPt, `RESEARCH · STRUCTURES & TURRETS${queueSuffix}`, items, true, {
+          researchFacilityId: facility.id
+        });
       }
       
       function labCategoryTone(categoryId) {
@@ -14352,7 +14447,30 @@
             action: () => openLabCategoryMenu(s, screenPt, category.id)
           });
         }
-        openMenu(screenPt, `LABORATORY · UNIT TYPES${orders.length ? ` · ${orders.length} ORDER${orders.length === 1 ? '' : 'S'}` : ''}`, items, true);
+        openMenu(screenPt, `LABORATORY · UNIT TYPES${orders.length ? ` · ${orders.length} ORDER${orders.length === 1 ? '' : 'S'}` : ''}`, items, true, {
+          labId: s.id,
+          labCategoryId: null
+        });
+      }
+      
+      function refreshLabCategoryAfterQueuedCommand(s, screenPt, categoryId, unitType, upgradeLevel) {
+        let attempts = 0;
+        const schedule = callback => {
+          if (typeof globalThis.requestAnimationFrame === 'function') globalThis.requestAnimationFrame(callback);
+          else globalThis.setTimeout(callback, 16);
+        };
+        const refreshWhenCommitted = () => {
+          const menu = state.commandMenu;
+          // Never pull the player back into a category after TYPES was pressed or
+          // after another selection/menu replaced this laboratory view.
+          if (!menu || menu.labId !== s.id || menu.labCategoryId !== categoryId) return;
+          if (labCommittedUnitUpgradeLevel(unitType, s) >= upgradeLevel || attempts++ >= 300) {
+            openLabCategoryMenu(s, screenPt, categoryId);
+            return;
+          }
+          schedule(refreshWhenCommitted);
+        };
+        schedule(refreshWhenCommitted);
       }
       
       function openLabCategoryMenu(s, screenPt, categoryId) {
@@ -14394,7 +14512,7 @@
             };
           }
       
-          return {
+          const item = {
             label: `${LAB_UNIT_LABELS[type]} · NEXT T${nextLevel}`,
             details: [
               next.label,
@@ -14405,14 +14523,28 @@
             costM: s.team === 'player' && state.sandboxMode ? 0 : next.costM,
             costG: s.team === 'player' && state.sandboxMode ? 0 : next.costG,
             enabled: !queueFull,
-            command: { type: 'upgradeUnit', team: s.team, labId: s.id, unitType: type, upgradeLevel: nextLevel },
-            afterQueue: () => openLabCategoryMenu(s, screenPt, category.id)
+            command: { type: 'upgradeUnit', team: s.team, labId: s.id, unitType: type, upgradeLevel: nextLevel }
           };
+          item.afterQueue = () => {
+            // The command is deterministic and may commit on the next simulation
+            // tick. Disable this button immediately so one press is visibly enough.
+            item.enabled = false;
+            item.label = `${LAB_UNIT_LABELS[type]} · QUEUING T${nextLevel}`;
+            item.details = [
+              next.label,
+              `${next.time}s research · ${next.effect}`,
+              'COMMAND QUEUED · UPDATING LAB STATUS'
+            ];
+            refreshLabCategoryAfterQueuedCommand(s, screenPt, category.id, type, nextLevel);
+          };
+          return item;
         });
       
         openMenu(screenPt, `LABORATORY · ${category.label} · CLICK UNIT TO UPGRADE`, items, true, {
           columns: 2,
           rows: 2,
+          labId: s.id,
+          labCategoryId: category.id,
           backLabel: '‹ TYPES',
           backAction: () => openLaboratoryMenu(s, screenPt)
         });
@@ -16131,6 +16263,11 @@ function drawStructureUpgradeDetails(s, x, y, team) {
             ctx.beginPath(); ctx.arc(x, y, radarRadius, 0, Math.PI * 2); ctx.stroke();
             ctx.setLineDash([]);
           }
+          if (u.type === 'titanTank' && fortressActiveVisual(u)) {
+            ctx.strokeStyle = 'rgba(72,223,242,.18)';
+            ctx.lineWidth = 1.2 / cam.zoom;
+            ctx.beginPath(); ctx.arc(x, y, unitAttackRange(u), 0, Math.PI * 2); ctx.stroke();
+          }
           ctx.strokeStyle = COLORS.warn;
           ctx.lineWidth = 2 / cam.zoom;
           ctx.beginPath(); ctx.arc(x, y, u.radius + 7, 0, Math.PI * 2); ctx.stroke();
@@ -16143,7 +16280,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
         ctx.rotate(u.heading);
         if (u.aceSpin > 0) ctx.rotate((.58 - u.aceSpin) * Math.PI * 8);
         const pose = unitAnimationPose(u);
-        const recoilShift = u.recoil > 0 ? -Math.min(5, u.recoil * 29) : 0;
+        const recoilShift = u.type !== 'mecha' && u.type !== 'titanTank' && u.recoil > 0 ? -Math.min(5, u.recoil * 29) : 0;
         ctx.translate(pose.x + recoilShift, pose.y);
         ctx.rotate(pose.rotation);
       
@@ -16158,10 +16295,8 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           ctx.fillRect(-2 - stride * .45, -u.radius + 1, 5, 3);
           ctx.fillRect(-2 + stride * .45, u.radius - 4, 5, 3);
         }
-        if (!airborne) {
-          ctx.fillStyle = '#111720';
-          ctx.fillRect(-u.radius - 2, -u.radius + 4, u.radius * 2 + 4, u.radius * 2);
-        }
+        // Ground troops no longer receive the old opaque square base. Aircraft
+        // retain their altitude shadow drawn above this transformed sprite block.
         ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
       
         if (u.type === 'antiAirFighter') {
@@ -16364,75 +16499,195 @@ function drawStructureUpgradeDetails(s, x, y, team) {
             ctx.restore();
           }
         } else if (u.type === 'forager') {
-          // Small rounded worker with a satchel; glows with what it's carrying.
-          ctx.fillRect(-6, -5, 11, 10);
-          ctx.fillStyle = light; ctx.fillRect(1, -2, 7, 4);
-          if (u.carrying > 0) {
-            ctx.fillStyle = u.carryType === 'gas' ? COLORS.gas : COLORS.mineral;
-            ctx.fillRect(-7, -7, 5, 5);
+          // Smaller triangular worker: pointed tail at the back, flat face at the
+          // front, and two clamp-tools on the front corners. When returning to a
+          // drop-off, the clamps tighten and visibly carry the harvested resource.
+          const walking = !!u.moving && u.moveSpeed > 1;
+          const gait = walking ? Math.sin(u.motionPhase || 0) : 0;
+          const carryingHome = u.carrying > 0 && u.phase === 'toHQ';
+          const toolSpread = carryingHome ? 5.2 : 7.2;
+          const toolSwing = carryingHome ? 0 : gait * .7;
+          const cargoColor = u.carryType === 'gas' ? COLORS.gas : COLORS.mineral;
+          ctx.fillStyle = '#05080d';
+          ctx.beginPath();
+          ctx.moveTo(-9, 0);
+          ctx.lineTo(9, -8);
+          ctx.lineTo(9, 8);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
+          ctx.beginPath();
+          ctx.moveTo(-6, 0);
+          ctx.lineTo(6, -5.5);
+          ctx.lineTo(6, 5.5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#17232d';
+          ctx.fillRect(0, -3, 7, 6);
+          ctx.fillStyle = '#dff7ff';
+          ctx.fillRect(3, -2, 3, 4);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(6, -toolSpread + toolSwing, 6, 3);
+          ctx.fillRect(6, toolSpread - 3 - toolSwing, 6, 3);
+          ctx.fillRect(10, -toolSpread - 1 + toolSwing, 4, 4);
+          ctx.fillRect(10, toolSpread - 3 - toolSwing, 4, 4);
+          if (carryingHome) {
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(11, -3, 4, 6);
+            ctx.fillStyle = cargoColor;
+            ctx.fillRect(12, -2, 4, 4);
+            ctx.fillStyle = u.carryType === 'gas' ? '#d8fff7' : '#f7fbff';
+            ctx.fillRect(15, -1, 1.5, 2);
           } else {
-            ctx.fillStyle = '#cdd8e8'; ctx.fillRect(-3, -3, 3, 3);
+            ctx.fillStyle = COLORS.warn;
+            ctx.fillRect(11, -toolSpread + 1 + toolSwing, 2, 2);
+            ctx.fillRect(11, toolSpread - 2 - toolSwing, 2, 2);
+          }
+          ctx.fillStyle = '#465564';
+          ctx.fillRect(-7, -2, 3, 4);
+          if (u.carrying > 0 && !carryingHome) {
+            ctx.fillStyle = cargoColor;
+            ctx.fillRect(-7, -2, 3, 4);
           }
           if (u.poweredGatheringTools) {
             ctx.fillStyle = '#ffd166';
-            ctx.fillRect(4, -7, 7, 3);
-            ctx.fillStyle = '#e9fbff';
-            ctx.fillRect(9, -6, 4, 1.5);
+            ctx.fillRect(12, -toolSpread - 1 + toolSwing, 3, 3);
+            ctx.fillRect(12, toolSpread - 2 - toolSwing, 3, 3);
+            ctx.fillStyle = '#fff6bf';
+            ctx.fillRect(14, -toolSpread + toolSwing, 2, 1.8);
+            ctx.fillRect(14, toolSpread - 1 - toolSwing, 2, 1.8);
           }
           if (u.rapidExtraction) {
             ctx.globalCompositeOperation = 'lighter';
-            ctx.globalAlpha = .55 + Math.sin(state.elapsed * 9 + u.motionPhase) * .18;
-            ctx.strokeStyle = '#87e8ff';
-            ctx.lineWidth = 1.3 / cam.zoom;
-            ctx.beginPath(); ctx.arc(2, -5, 7, Math.PI, Math.PI * 2); ctx.stroke();
+            ctx.globalAlpha = .5 + Math.sin(state.elapsed * 9 + u.motionPhase) * .18;
+            ctx.fillStyle = '#89efff';
+            ctx.fillRect(-1, -9, 2, 18);
+            if (carryingHome) ctx.fillRect(8, -1, 7, 2);
+            else ctx.fillRect(8, -1, 4, 2);
             ctx.globalAlpha = 1;
           }
         } else if (u.type === 'roboMiner') {
-          // Tier-three autonomous mining truck with a large illuminated hopper.
-          ctx.fillStyle = '#090d12';
-          ctx.fillRect(-13, -13, 8, 6); ctx.fillRect(5, -13, 8, 6);
-          ctx.fillRect(-13, 7, 8, 6); ctx.fillRect(5, 7, 8, 6);
+          // The MULE remains a larger forager variant. On the return trip its long
+          // clamps close around the load so the mineral or gas visibly rides home.
+          const walking = !!u.moving && u.moveSpeed > 1;
+          const gait = walking ? Math.sin(u.motionPhase || 0) : 0;
+          const carryingHome = u.carrying > 0 && u.phase === 'toHQ';
+          const toolSpread = carryingHome ? 6 : 10;
+          const toolSwing = carryingHome ? 0 : gait * .6;
+          const cargoColor = u.carrying > 0 ? (u.carryType === 'gas' ? COLORS.gas : COLORS.mineral) : '#455463';
+          ctx.fillStyle = '#05080d';
+          ctx.beginPath();
+          ctx.moveTo(-13, 0);
+          ctx.lineTo(12, -11);
+          ctx.lineTo(12, 11);
+          ctx.closePath();
+          ctx.fill();
           ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
-          ctx.fillRect(-12, -9, 24, 18);
-          ctx.fillStyle = '#17212b';
-          ctx.fillRect(-8, -7, 9, 14);
-          ctx.fillStyle = u.carrying > 0 ? (u.carryType === 'gas' ? COLORS.gas : COLORS.mineral) : '#304050';
-          ctx.fillRect(1, -7, 9, 14);
-          ctx.fillStyle = light;
-          ctx.fillRect(5, -4, 11, 8);
+          ctx.beginPath();
+          ctx.moveTo(-9, 0);
+          ctx.lineTo(8.5, -7.5);
+          ctx.lineTo(8.5, 7.5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#ffd166';
+          ctx.fillRect(-2, -6, 8, 3);
+          ctx.fillRect(-2, 3, 8, 3);
+          ctx.fillRect(3, -2, 5, 4);
+          ctx.fillStyle = '#17232d';
+          ctx.fillRect(0, -4, 7, 8);
           ctx.fillStyle = '#e8f8ff';
-          ctx.fillRect(13, -2, 5, 4);
-          ctx.fillStyle = COLORS.warn;
-          ctx.fillRect(-10, -5, 4, 4);
+          ctx.fillRect(3, -3, 3, 6);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(8, -toolSpread - 2 + toolSwing, 11, 4);
+          ctx.fillRect(8, toolSpread - 2 - toolSwing, 11, 4);
+          ctx.fillRect(18, -toolSpread - 3 + toolSwing, 5, 6);
+          ctx.fillRect(18, toolSpread - 2 - toolSwing, 5, 6);
+          ctx.fillStyle = '#ffd166';
+          ctx.fillRect(19, -toolSpread - 2 + toolSwing, 3, 4);
+          ctx.fillRect(19, toolSpread - 1 - toolSwing, 3, 4);
+          if (carryingHome) {
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(20, -4, 5, 8);
+            ctx.fillStyle = cargoColor;
+            ctx.fillRect(21, -3, 6, 6);
+            ctx.fillStyle = u.carryType === 'gas' ? '#ddfff5' : '#f7fbff';
+            ctx.fillRect(26, -1, 2, 2);
+          }
+          ctx.fillStyle = cargoColor;
+          ctx.fillRect(-9, -4, 4, 3);
+          ctx.fillRect(-9, 1, 4, 3);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-11, -4, 2, 3);
+          ctx.fillRect(-11, 1, 2, 3);
           if (u.reinforcedCargoPods) {
             ctx.strokeStyle = '#ffd166';
-            ctx.lineWidth = 1.5 / cam.zoom;
-            ctx.strokeRect(-1, -9, 13, 18);
-            ctx.fillStyle = '#3d4f5f';
-            ctx.fillRect(2, -11, 7, 3); ctx.fillRect(2, 8, 7, 3);
+            ctx.lineWidth = 1.35 / cam.zoom;
+            ctx.strokeRect(-9, -5, 6, 4);
+            ctx.strokeRect(-9, 1, 6, 4);
+            ctx.fillStyle = '#ffd166';
+            ctx.fillRect(-3, -9, 4, 2);
+            ctx.fillRect(-3, 7, 4, 2);
           }
           if (u.industrialCargoSystem) {
             ctx.fillStyle = '#9cf2ff';
-            ctx.fillRect(-5, -10, 3, 20);
-            ctx.globalAlpha = .5 + Math.sin(state.elapsed * 7 + u.motionPhase) * .2;
-            ctx.strokeStyle = '#9cf2ff';
-            ctx.lineWidth = 1.4 / cam.zoom;
-            ctx.beginPath(); ctx.arc(5, 0, 12, -.7, .7); ctx.stroke();
+            ctx.fillRect(-1, -10, 2.5, 20);
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = .52 + Math.sin(state.elapsed * 7 + u.motionPhase) * .2;
+            ctx.fillRect(8, -2, 5, 4);
+            if (carryingHome) {
+              ctx.fillRect(20, -5, 7, 2);
+              ctx.fillRect(20, 3, 7, 2);
+            } else {
+              ctx.fillRect(21, -10 + toolSwing, 3, 2);
+              ctx.fillRect(21, 8 - toolSwing, 3, 2);
+            }
             ctx.globalAlpha = 1;
           }
         } else if (u.type === 'mechanic') {
-          ctx.fillRect(-7, -7, 13, 14);
-          ctx.fillStyle = u.engineer ? '#9cf2ff' : COLORS.warn; ctx.fillRect(-4, -5, 5, 10);
-          ctx.fillStyle = '#d8e2f0'; ctx.fillRect(2, -3, 8, 5);
-          ctx.fillStyle = '#10161f'; ctx.fillRect(6, -6, 3, 12);
+          // Builder in the same outlined style as the buildings: dark shell, clear
+          // cyan viewport, and a front repair arm that spits sparks while fixing.
+          const walking = !!u.moving && u.moveSpeed > 1;
+          const gait = walking ? Math.sin(u.motionPhase || 0) : 0;
+          const lift = walking ? Math.abs(Math.cos(u.motionPhase || 0)) : 0;
+          const repairing = !!(u.target && u.target.kind === 'structure' && u.target.team === u.team && !u.moving);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-10, -9, 14, 18);
+          ctx.fillRect(3, -6, 8, 12);
+          ctx.fillRect(-12, -3, 5, 6);
+          ctx.fillRect(-12, -9 + gait * .8, 5, 5);
+          ctx.fillRect(-12, 4 - gait * .8, 5, 5);
+          ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
+          ctx.fillRect(-7, -6, 9, 12);
+          ctx.fillRect(4, -4, 5, 8);
+          ctx.fillStyle = '#17232d';
+          ctx.fillRect(-2, -5, 5, 10);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(5, -2, 3, 4);
+          ctx.fillStyle = u.engineer ? '#ffd166' : '#7fe7ff';
+          ctx.fillRect(-9, -8, 4, 16);
+          ctx.fillStyle = '#2b3642';
+          ctx.fillRect(8, -8 + gait * .5, 5, 4);
+          ctx.fillRect(8, 4 - gait * .5, 5, 4);
+          ctx.fillRect(11, -7 + gait * .5, 5, 3);
+          ctx.fillRect(11, 4 - gait * .5, 5, 3);
           if (u.engineer) {
-            ctx.fillStyle = COLORS.warn;
-            ctx.fillRect(-7, -9, 9, 3);
-            ctx.fillStyle = '#17232d';
-            ctx.fillRect(-9, 4, 5, 7);
-            ctx.strokeStyle = '#9cf2ff';
-            ctx.lineWidth = 1.5 / cam.zoom;
-            ctx.beginPath(); ctx.arc(3, 0, 8, -1.1, 1.1); ctx.stroke();
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(-2, -10, 6, 2);
+            ctx.fillStyle = '#ffd166';
+            ctx.fillRect(-1, -10, 4, 2);
+            ctx.fillStyle = '#9cf2ff';
+            ctx.fillRect(-1, -9, 2, 18);
+          }
+          if (repairing) {
+            for (let i = 0; i < 4; i++) {
+              const sparkPhase = state.elapsed * 10 + i * 1.57 + (u.motionPhase || 0) * .15;
+              const sx = 13 + Math.cos(sparkPhase) * (4.5 + (i % 2) * 2);
+              const sy = Math.sin(sparkPhase) * (3.8 + (i % 2));
+              ctx.fillStyle = i % 2 ? '#ffd166' : '#9cf2ff';
+              ctx.fillRect(sx - 1.2, sy - 1.2, 2.4, 2.4);
+              ctx.fillStyle = '#fff6bf';
+              ctx.fillRect(sx + 1.1, sy, 1.6, 1.6);
+            }
           }
         } else if (u.type === 'healer') {
           ctx.fillRect(-8, -7, 14, 14);
@@ -16492,131 +16747,422 @@ function drawStructureUpgradeDetails(s, x, y, team) {
             ctx.beginPath(); ctx.arc(4, 0, 12 + Math.sin(state.elapsed * 6) * 1.5, 0, Math.PI * 2); ctx.stroke();
           }
         } else if (u.type === 'infantry') {
-          // Light, fast Tier-1 fighter with a compact shock blade.
-          ctx.fillRect(-6, -6, 11, 12);
-          ctx.fillStyle = '#d8e2f0'; ctx.fillRect(-4, -4, 4, 4);
+          // Top-down space-marine style close-combat trooper with thick black
+          // outlines, shoulder armor, backpack and a side-carried sword that swings
+          // during locomotion and snaps wider during melee attacks.
+          const walking = !!u.moving && u.moveSpeed > 1;
+          const gait = walking ? Math.sin(u.motionPhase || 0) : 0;
+          const swordSwing = (pose.weaponAngle || 0) + (walking ? gait * .18 : 0);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-8, -8, 12, 16);
+          ctx.fillRect(-4, -12, 8, 6);
+          ctx.fillRect(-10, -9, 6, 6);
+          ctx.fillRect(-10, 3, 6, 6);
+          ctx.fillRect(2, -9, 6, 6);
+          ctx.fillRect(2, 3, 6, 6);
+          ctx.fillRect(-2, 7, 4, 6);
+          ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
+          ctx.fillRect(-5, -6, 7, 12);
+          ctx.fillRect(-2, -9, 4, 4);
+          ctx.fillStyle = '#17232d';
+          ctx.fillRect(-1, -4, 3, 8);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(-1, -8, 2, 2);
+          ctx.fillStyle = '#2b3642';
+          ctx.fillRect(-7, -7, 3, 4);
+          ctx.fillRect(-7, 3, 3, 4);
+          ctx.fillRect(2, -7, 3, 4);
+          ctx.fillRect(2, 3, 3, 4);
+          ctx.fillRect(-2, 8, 2, 4);
+          ctx.fillRect(0, 8, 2, 4);
+          ctx.fillStyle = COLORS.warn;
+          ctx.fillRect(-4, -10, 4, 2);
           ctx.save();
-          ctx.translate(1, 0);
-          ctx.rotate(pose.weaponAngle);
-          ctx.fillStyle = light; ctx.fillRect(0, -2, 13, 4);
-          ctx.fillStyle = '#f4fbff'; ctx.fillRect(10, -1, 5, 2);
+          ctx.translate(2, 5);
+          ctx.rotate(.95 + swordSwing);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-2, -2, 5, 15);
+          ctx.fillStyle = '#202c38';
+          ctx.fillRect(-1, 0, 3, 5);
+          ctx.fillStyle = '#dff8ff';
+          ctx.fillRect(0, 4, 2, 9);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 11, 1.5, 2);
           ctx.restore();
           if (u.doubleBlades) {
             ctx.save();
-            ctx.translate(1, 0);
-            ctx.rotate(-pose.weaponAngle * .9);
-            ctx.fillStyle = '#d8fbff'; ctx.fillRect(0, -8, 13, 4);
-            ctx.fillStyle = '#ffffff'; ctx.fillRect(10, -7, 6, 2);
+            ctx.translate(1, -5);
+            ctx.rotate(-1.05 - swordSwing * .85);
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(-2, -2, 5, 14);
+            ctx.fillStyle = '#233242';
+            ctx.fillRect(-1, 0, 3, 4);
+            ctx.fillStyle = '#d8fbff';
+            ctx.fillRect(0, 4, 2, 8);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 10, 1.5, 2);
             ctx.restore();
-            ctx.fillStyle = COLORS.warn;
-            ctx.fillRect(-7, 4, 3, 3);
           }
         } else if (u.type === 'assault') {
-          // Tier-2 long-range infantry swaps its rifle silhouette for a heavier
-          // launcher as soon as the third laboratory tier is complete.
-          ctx.fillRect(-8, -7, 14, 14);
-          ctx.fillStyle = '#10161f'; ctx.fillRect(-5, -4, 7, 8);
-          ctx.fillStyle = light; ctx.fillRect(1, -5, 7, 10);
+          // Same armored marine family as the melee trooper, but carrying a
+          // futuristic rifle on the right. The rocket-upgrade becomes a clear,
+          // shoulder-mounted launcher instead of a subtle silhouette change.
+          const walking = !!u.moving && u.moveSpeed > 1;
+          const gait = walking ? Math.sin(u.motionPhase || 0) : 0;
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-8, -8, 12, 16);
+          ctx.fillRect(-4, -12, 8, 6);
+          ctx.fillRect(-10, -9, 6, 6);
+          ctx.fillRect(-10, 3, 6, 6);
+          ctx.fillRect(2, -9, 6, 6);
+          ctx.fillRect(2, 3, 6, 6);
+          ctx.fillRect(-2, 7, 4, 6);
+          ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
+          ctx.fillRect(-5, -6, 7, 12);
+          ctx.fillRect(-2, -9, 4, 4);
+          ctx.fillStyle = '#17232d';
+          ctx.fillRect(-1, -4, 3, 8);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(-1, -8, 2, 2);
+          ctx.fillStyle = '#2b3642';
+          ctx.fillRect(-7, -7, 3, 4);
+          ctx.fillRect(-7, 3, 3, 4);
+          ctx.fillRect(2, -7, 3, 4);
+          ctx.fillRect(2, 3, 3, 4);
+          ctx.fillRect(-2, 8, 2, 4);
+          ctx.fillRect(0, 8, 2, 4);
+          ctx.save();
+          ctx.translate(3, 1);
+          ctx.rotate(gait * .08 - (u.recoil || 0) * .14);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(0, -3, 18, 6);
+          ctx.fillStyle = '#202c38';
+          ctx.fillRect(2, -2, 11, 4);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(12, -1, 5, 2);
+          ctx.fillStyle = '#dff8ff';
+          ctx.fillRect(15, -2, 4, 4);
+          ctx.restore();
           if (u.rocketLauncher) {
-            ctx.fillStyle = '#202831'; ctx.fillRect(4, -5, 19, 10);
-            ctx.fillStyle = light; ctx.fillRect(5, -3, 17, 6);
-            ctx.fillStyle = COLORS.warn; ctx.fillRect(19, -4, 7, 8);
-            ctx.fillStyle = '#ffdf8a'; ctx.fillRect(23, -2, 5, 4);
-          } else {
-            ctx.fillStyle = light; ctx.fillRect(5, -3, 17, 6);
-            ctx.fillStyle = '#e8f8ff'; ctx.fillRect(18, -1, 7, 2);
-          }
-          ctx.fillStyle = COLORS.mineral; ctx.fillRect(-6, -5, 3, 3);
-        } else if (u.type === 'mecha') {
-          // Tier-four walking war machine with a two-handed energy blade. Its body
-          // is static until a dedicated animation profile is assigned.
-          ctx.fillStyle = '#090e14';
-          ctx.fillRect(-13, -17, 9, 11); ctx.fillRect(-13, 6, 9, 11);
-          ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
-          ctx.fillRect(-11, -14, 22, 28);
-          ctx.fillStyle = '#172230'; ctx.fillRect(-7, -9, 12, 18);
-          ctx.fillStyle = light; ctx.fillRect(-3, -7, 10, 14);
-          ctx.fillStyle = COLORS.warn; ctx.fillRect(-8, -3, 7, 6);
-          ctx.fillStyle = '#c8f8ff'; ctx.fillRect(7, -4, 22, 8);
-          ctx.fillStyle = '#ffffff'; ctx.fillRect(22, -2, 10, 4);
-          if (u.antiAirMissiles) {
-            ctx.fillStyle = '#202831';
-            ctx.fillRect(-1, -19, 17, 5);
-            ctx.fillRect(-1, 14, 17, 5);
-            ctx.fillStyle = '#9cf2ff';
-            ctx.fillRect(13, -18, 5, 3);
-            ctx.fillRect(13, 15, 5, 3);
-          }
-          if (u.range > UNIT_DATA.mecha.range * 1.3) {
-            ctx.strokeStyle = '#c8f8ff';
-            ctx.lineWidth = 2 / cam.zoom;
-            ctx.beginPath();
-            ctx.moveTo(3, -11); ctx.lineTo(15, -22);
-            ctx.moveTo(3, 11); ctx.lineTo(15, 22);
-            ctx.stroke();
-          }
-          ctx.fillStyle = team; ctx.fillRect(-16, -14, 5, 10); ctx.fillRect(-16, 4, 5, 10);
-        } else if (u.type === 'mortar') {
-          // Two-person crew with a raised indirect-fire tube.
-          ctx.fillRect(-10, -9, 7, 8); ctx.fillRect(-10, 3, 7, 8);
-          ctx.fillStyle = '#d8e2f0'; ctx.fillRect(-8, -7, 3, 3); ctx.fillRect(-8, 5, 3, 3);
-          ctx.fillStyle = '#10161f'; ctx.fillRect(-2, -5, 10, 10);
-          ctx.fillStyle = light; ctx.fillRect(3, -3, u.javelinMissile ? 19 : 15, 6);
-          if (u.javelinMissile) {
-            ctx.fillStyle = '#202831';
-            ctx.fillRect(5, -8, 15, 4);
-            ctx.fillRect(5, 4, 15, 4);
-            ctx.fillStyle = '#9cf2ff';
-            ctx.fillRect(17, -7, 5, 2);
-            ctx.fillRect(17, 5, 5, 2);
-          } else if (u.heavyShells) {
-            ctx.fillStyle = '#2c3038';
-            ctx.fillRect(8, -5, 8, 10);
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(-2, -14, 13, 5);
+            ctx.fillStyle = '#243242';
+            ctx.fillRect(0, -13, 10, 3);
             ctx.fillStyle = COLORS.warn;
-            ctx.fillRect(15, -3, 4, 6);
+            ctx.fillRect(8, -13, 5, 3);
+            ctx.fillStyle = '#fff0a6';
+            ctx.fillRect(11, -12, 2, 1.8);
           }
-          ctx.fillStyle = team; ctx.fillRect(-1, 7, 13, 3);
-        } else if (u.type === 'jeep') {
-          // Fast light chassis with one gun at base level and visibly separated
-          // barrels after the DOUBLE MACHINE GUN research.
-          ctx.fillStyle = '#0d1219';
-          ctx.fillRect(-11, -12, 7, 5); ctx.fillRect(5, -12, 7, 5);
-          ctx.fillRect(-11, 7, 7, 5); ctx.fillRect(5, 7, 7, 5);
-          ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
-          ctx.fillRect(-10, -8, 20, 16);
-          ctx.fillStyle = '#10161f'; ctx.fillRect(-5, -6, 8, 12);
+          ctx.fillStyle = COLORS.warn;
+          ctx.fillRect(-4, -10, 4, 2);
+        } else if (u.type === 'mecha') {
+          // Top-down realistic pixel-art walker. The stomping lower chassis keeps
+          // its travel heading while the armored cockpit and paired guns pivot
+          // independently toward the current target.
+          const walking = !!u.moving && u.moveSpeed > 1;
+          const gait = walking ? Math.sin(u.motionPhase || 0) : 0;
+          const footTravel = gait * 4.2;
+          const stomp = walking ? Math.abs(Math.cos(u.motionPhase || 0)) : 0;
+          const chestHeading = u.target?.hp > 0
+            ? Math.atan2(u.target.y - u.y, u.target.x - u.x)
+            : u.heading;
+          const chestTurn = chestHeading - u.heading;
+          const flashArmor = u.flash > 0 ? '#ffffff' : team;
+
+          // Alternating robotic feet and hip block: all hard-edged rectangles keep
+          // the same crisp, outlined construction language as the buildings.
+          ctx.save();
+          ctx.translate(0, stomp * .7);
+          ctx.fillStyle = '#050a10';
+          ctx.fillRect(-15 + footTravel, -21, 22, 12);
+          ctx.fillRect(-15 - footTravel, 9, 22, 12);
+          ctx.fillStyle = '#222d39';
+          ctx.fillRect(-12 + footTravel, -19, 16, 8);
+          ctx.fillRect(-12 - footTravel, 11, 16, 8);
+          ctx.fillStyle = flashArmor;
+          ctx.fillRect(1 + footTravel, -18, 8, 6);
+          ctx.fillRect(1 - footTravel, 12, 8, 6);
           ctx.fillStyle = light;
-          if (u.doubleMachineGun) {
-            ctx.fillRect(1, -6, 15, 4);
-            ctx.fillRect(1, 2, 15, 4);
-            ctx.fillStyle = '#e8f8ff';
-            ctx.fillRect(14, -5, 4, 2); ctx.fillRect(14, 3, 4, 2);
-          } else {
-            ctx.fillRect(1, -3, 15, 6);
+          ctx.fillRect(5 + footTravel, -17, 5, 4);
+          ctx.fillRect(5 - footTravel, 13, 5, 4);
+          ctx.fillStyle = '#070c13';
+          ctx.fillRect(-10, -14, 18, 28);
+          ctx.fillStyle = flashArmor;
+          ctx.fillRect(-8, -12, 16, 24);
+          ctx.fillStyle = '#172330';
+          ctx.fillRect(-5, -9, 10, 18);
+          if (u.reactivePlating) {
+            // L2: extra armor cheeks, toe caps and visible fastening pixels.
+            ctx.fillStyle = '#303c49';
+            ctx.fillRect(-12, -13, 5, 10); ctx.fillRect(-12, 3, 5, 10);
+            ctx.fillRect(7, -13, 5, 10); ctx.fillRect(7, 3, 5, 10);
+            ctx.fillStyle = light;
+            ctx.fillRect(-10, -10, 2, 2); ctx.fillRect(-10, 8, 2, 2);
+            ctx.fillRect(8, -10, 2, 2); ctx.fillRect(8, 8, 2, 2);
           }
-          ctx.fillStyle = COLORS.warn; ctx.fillRect(-8, -5, 3, 3);
-        } else if (u.type === 'armoredJeep') {
-          // Tier-two armored chassis: wider hull, enclosed cabin, autocannon.
-          ctx.fillStyle = '#090e14';
-          ctx.fillRect(-13, -13, 8, 6); ctx.fillRect(5, -13, 8, 6);
-          ctx.fillRect(-13, 7, 8, 6); ctx.fillRect(5, 7, 8, 6);
+          ctx.restore();
+
+          // Pivoting chest/cockpit and its two deliberately separated machine guns.
+          ctx.save();
+          ctx.rotate(chestTurn);
+          const gunKick = u.attackAnim > 0 ? Math.min(3.5, u.attackAnim * 20) : 0;
+          ctx.fillStyle = '#050a10';
+          ctx.fillRect(-12, -14, 25, 28);
+          ctx.fillRect(4, -17, 17, 9); ctx.fillRect(4, 8, 17, 9);
+          ctx.fillStyle = flashArmor;
+          ctx.fillRect(-10, -12, 21, 24);
+          ctx.fillStyle = '#263442';
+          ctx.fillRect(-7, -9, 13, 18);
+          ctx.fillStyle = light;
+          ctx.fillRect(-3, -7, 10, 14);
+          ctx.fillStyle = '#07141d';
+          ctx.fillRect(-1, -5, 8, 10);
+          ctx.fillStyle = '#8feeff';
+          ctx.fillRect(1, -3, 7, 6);
+          ctx.fillStyle = '#d9fbff';
+          ctx.fillRect(5, -2, 4, 4);
+
+          // Arm housings and twin long-range machine guns.
+          ctx.fillStyle = '#111923';
+          ctx.fillRect(5, -16, 15, 8); ctx.fillRect(5, 8, 15, 8);
+          ctx.fillStyle = flashArmor;
+          ctx.fillRect(7, -14, 11, 5); ctx.fillRect(7, 9, 11, 5);
+          ctx.fillStyle = '#c7d4df';
+          ctx.fillRect(15 - gunKick, -13, u.extendedRangeOptics ? 22 : 18, 4);
+          ctx.fillRect(15 - gunKick, 9, u.extendedRangeOptics ? 22 : 18, 4);
+          ctx.fillStyle = '#effaff';
+          ctx.fillRect((u.extendedRangeOptics ? 34 : 30) - gunKick, -12, 6, 2);
+          ctx.fillRect((u.extendedRangeOptics ? 34 : 30) - gunKick, 10, 6, 2);
+          ctx.fillStyle = COLORS.warn;
+          ctx.fillRect(10, -13, 3, 3); ctx.fillRect(10, 10, 3, 3);
+
+          if (u.extendedRangeOptics) {
+            // L3: longer barrel shrouds plus a raised cyan targeting rail.
+            ctx.fillStyle = '#172632';
+            ctx.fillRect(-2, -17, 17, 4);
+            ctx.fillStyle = '#9cf2ff';
+            ctx.fillRect(7, -16, 9, 2);
+            ctx.fillRect(12, -20, 3, 5);
+            ctx.globalAlpha = .62 + Math.sin(state.elapsed * 7 + u.id) * .18;
+            ctx.fillStyle = '#d9fbff';
+            ctx.fillRect(13, -21, 2, 2);
+            ctx.globalAlpha = 1;
+          }
+
+          if (u.antiAirMissiles) {
+            // L4: the final missile research adds one unmistakable shoulder pod.
+            ctx.fillStyle = '#050a10';
+            ctx.fillRect(-5, -26, 24, 11);
+            ctx.fillStyle = '#293542';
+            ctx.fillRect(-3, -24, 20, 8);
+            ctx.fillStyle = flashArmor;
+            ctx.fillRect(-1, -23, 15, 6);
+            ctx.fillStyle = '#9cf2ff';
+            ctx.fillRect(12, -22, 6, 2); ctx.fillRect(12, -19, 6, 2);
+            ctx.fillStyle = '#ffb347';
+            ctx.fillRect(16, -23, 4, 3); ctx.fillRect(16, -19, 4, 3);
+          }
+
+          // Small rear team tabs make ownership readable without obscuring the pod.
+          ctx.fillStyle = team;
+          ctx.fillRect(-14, -10, 4, 7); ctx.fillRect(-14, 3, 4, 7);
+          ctx.restore();
+        } else if (u.type === 'mortar') {
+          // Same marine family as the close / long-range infantry, but with a rear
+          // backpack. Standard mortar mode deploys a visible tube and tripod while
+          // idle or in firing position; the Javelin upgrade replaces that with a
+          // mobile, rifle-like launcher that can shoot on the move.
+          const walking = !!u.moving && u.moveSpeed > 1;
+          const gait = walking ? Math.sin(u.motionPhase || 0) : 0;
+          const setup = u.javelinMissile ? 0 : clamp(Number.isFinite(u.mortarSetup) ? u.mortarSetup : (!u.moving ? 1 : 0), 0, 1);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-8, -8, 12, 16);
+          ctx.fillRect(-4, -12, 8, 6);
+          ctx.fillRect(-10, -9, 6, 6);
+          ctx.fillRect(-10, 3, 6, 6);
+          ctx.fillRect(2, -9, 6, 6);
+          ctx.fillRect(2, 3, 6, 6);
+          ctx.fillRect(-2, 7, 4, 6);
+          ctx.fillRect(-11, -6, 5, 12);
           ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
-          ctx.fillRect(-12, -9, 24, 18);
-          ctx.fillStyle = '#18212c'; ctx.fillRect(-6, -7, 11, 14);
-          ctx.fillStyle = light; ctx.fillRect(-1, -5, 9, 10);
-          if (u.electroJeep) {
-            ctx.fillStyle = '#122b36'; ctx.fillRect(2, -5, 18, 10);
-            ctx.strokeStyle = '#9cf2ff';
-            ctx.lineWidth = 2 / cam.zoom;
-            ctx.beginPath();
-            ctx.moveTo(6, -5); ctx.lineTo(10, 5); ctx.lineTo(14, -5); ctx.lineTo(18, 5);
-            ctx.stroke();
-            ctx.fillStyle = '#d9fbff'; ctx.fillRect(18, -3, 7, 6);
+          ctx.fillRect(-5, -6, 7, 12);
+          ctx.fillRect(-2, -9, 4, 4);
+          ctx.fillStyle = '#17232d';
+          ctx.fillRect(-1, -4, 3, 8);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(-1, -8, 2, 2);
+          ctx.fillStyle = '#2b3642';
+          ctx.fillRect(-7, -7, 3, 4);
+          ctx.fillRect(-7, 3, 3, 4);
+          ctx.fillRect(2, -7, 3, 4);
+          ctx.fillRect(2, 3, 3, 4);
+          ctx.fillRect(-2, 8, 2, 4);
+          ctx.fillRect(0, 8, 2, 4);
+          ctx.fillStyle = '#202c38';
+          ctx.fillRect(-10, -5, 3, 10);
+          ctx.fillStyle = '#9cf2ff';
+          ctx.fillRect(-9, -3, 1.6, 6);
+          if (u.javelinMissile) {
+            ctx.save();
+            ctx.translate(3, 1);
+            ctx.rotate(gait * .08 - (u.recoil || 0) * .12);
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(0, -3.5, 21, 7);
+            ctx.fillStyle = '#273648';
+            ctx.fillRect(2, -2, 13, 4);
+            ctx.fillStyle = '#9cf2ff';
+            ctx.fillRect(13, -1, 6, 2);
+            ctx.fillStyle = COLORS.warn;
+            ctx.fillRect(17, -2, 5, 4);
+            ctx.fillStyle = '#fff0a6';
+            ctx.fillRect(21, -1, 2, 2);
+            ctx.restore();
           } else {
-            ctx.fillStyle = COLORS.mineral; ctx.fillRect(3, -3, 17, 6);
-            ctx.fillStyle = '#d8f8ff'; ctx.fillRect(16, -1, 5, 2);
+            const settle = 1 - setup;
+            const frontX = 5 + setup * 7;
+            const tubeY = -1 - setup * 10;
+            ctx.save();
+            ctx.translate(frontX, 0);
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(-1, -1, 10 + setup * 3, 3);
+            ctx.fillRect(2 + setup * 4, tubeY, 4, 12 + setup * 2);
+            ctx.fillRect(-2, 2 + settle * 2, 2, 7 * setup + 1);
+            ctx.fillRect(8 + setup * 2, 2 + settle * 2, 2, 7 * setup + 1);
+            ctx.fillStyle = '#273648';
+            ctx.fillRect(3 + setup * 4, tubeY + 2, 2, 8 + setup);
+            ctx.fillStyle = '#9cf2ff';
+            ctx.fillRect(4 + setup * 4, tubeY + 1, 1.4, 2.2);
+            if (u.heavyShells) {
+              ctx.fillStyle = COLORS.warn;
+              ctx.fillRect(6 + setup * 4, tubeY + 8, 3, 3.5);
+            }
+            ctx.restore();
           }
-          ctx.fillStyle = COLORS.warn; ctx.fillRect(-10, -6, 4, 4);
+          ctx.fillStyle = team;
+          ctx.fillRect(-3, -10, 3, 2);
+        } else if (u.type === 'jeep') {
+          // Top-down MG jeep with black outlines, chunky wheels and a small roof
+          // turret that pivots independently toward targets or scans while idle.
+          const rolling = !!u.moving && u.moveSpeed > 1;
+          const bounce = rolling ? Math.sin(u.motionPhase || 0) * .7 : 0;
+          const wheelLift = rolling ? Math.abs(Math.cos(u.motionPhase || 0)) * .8 : 0;
+          const turretHeading = u.target?.hp > 0
+            ? Math.atan2(u.target.y - u.y, u.target.x - u.x)
+            : u.heading + Math.sin(state.elapsed * .85 + u.id) * .45;
+          const turretTurn = turretHeading - u.heading;
+          const flashHull = u.flash > 0 ? '#ffffff' : team;
+          ctx.save();
+          ctx.translate(0, bounce * .35);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-14, -13 + wheelLift, 8, 5); ctx.fillRect(6, -13 - wheelLift, 8, 5);
+          ctx.fillRect(-14, 8 - wheelLift, 8, 5); ctx.fillRect(6, 8 + wheelLift, 8, 5);
+          ctx.fillRect(-6, -13, 4, 3); ctx.fillRect(-6, 10, 4, 3);
+          ctx.fillStyle = '#1f2833';
+          ctx.fillRect(-12, -11 + wheelLift, 5, 3); ctx.fillRect(-12, 8 - wheelLift, 5, 3);
+          ctx.fillRect(8, -11 - wheelLift, 5, 3); ctx.fillRect(8, 8 + wheelLift, 5, 3);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-12, -9, 24, 18);
+          ctx.fillStyle = flashHull;
+          ctx.fillRect(-10, -7, 20, 14);
+          ctx.fillStyle = '#17232d';
+          ctx.fillRect(-4, -5, 8, 10);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(-1, -4, 4, 8);
+          ctx.fillStyle = '#2a3440';
+          ctx.fillRect(-9, -6, 4, 12); ctx.fillRect(5, -6, 4, 12);
+          ctx.fillStyle = COLORS.warn;
+          ctx.fillRect(-7, -8, 3, 2);
+          ctx.fillRect(-7, 6, 3, 2);
+          ctx.restore();
+          ctx.save();
+          ctx.rotate(turretTurn);
+          const gunKick = (u.recoil || 0) * 22;
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-3, -6, 15, 12);
+          ctx.fillStyle = '#2a3542';
+          ctx.fillRect(-1, -4, 11, 8);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(1, -1, 4, 2);
+          if (u.doubleMachineGun) {
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(8 - gunKick, -5, 14, 3);
+            ctx.fillRect(8 - gunKick, 2, 14, 3);
+            ctx.fillStyle = '#dff8ff';
+            ctx.fillRect(19 - gunKick, -4, 4, 1.5);
+            ctx.fillRect(19 - gunKick, 3, 4, 1.5);
+          } else {
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(8 - gunKick, -2, 15, 4);
+            ctx.fillStyle = '#dff8ff';
+            ctx.fillRect(20 - gunKick, -1, 4, 2);
+          }
+          ctx.fillStyle = COLORS.warn;
+          ctx.fillRect(3, -5, 3, 3);
+          ctx.restore();
+        } else if (u.type === 'armoredJeep') {
+          // Same top-down jeep language, but heavier: larger hull, visible shield
+          // paddings around the body, and a compact pivoting turret on the roof.
+          const rolling = !!u.moving && u.moveSpeed > 1;
+          const bounce = rolling ? Math.sin(u.motionPhase || 0) * .55 : 0;
+          const wheelLift = rolling ? Math.abs(Math.cos(u.motionPhase || 0)) * .75 : 0;
+          const turretHeading = u.target?.hp > 0
+            ? Math.atan2(u.target.y - u.y, u.target.x - u.x)
+            : u.heading + Math.sin(state.elapsed * .72 + u.id * .7) * .38;
+          const turretTurn = turretHeading - u.heading;
+          const flashHull = u.flash > 0 ? '#ffffff' : team;
+          ctx.save();
+          ctx.translate(0, bounce * .35);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-15, -14 + wheelLift, 8, 5); ctx.fillRect(7, -14 - wheelLift, 8, 5);
+          ctx.fillRect(-15, 9 - wheelLift, 8, 5); ctx.fillRect(7, 9 + wheelLift, 8, 5);
+          ctx.fillRect(-14, -10, 28, 20);
+          ctx.fillStyle = '#2d3946';
+          ctx.fillRect(-14, -11, 4, 22); ctx.fillRect(10, -11, 4, 22);
+          ctx.fillRect(-10, -13, 20, 4); ctx.fillRect(-10, 9, 20, 4);
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-12, -9, 24, 18);
+          ctx.fillStyle = flashHull;
+          ctx.fillRect(-9, -6, 18, 12);
+          ctx.fillStyle = '#17232d';
+          ctx.fillRect(-3, -5, 8, 10);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(0, -4, 4, 8);
+          ctx.fillStyle = '#374453';
+          ctx.fillRect(-8, -6, 3, 12); ctx.fillRect(5, -6, 3, 12);
+          ctx.fillStyle = COLORS.warn;
+          ctx.fillRect(-6, -8, 3, 2); ctx.fillRect(-6, 6, 3, 2);
+          ctx.restore();
+          ctx.save();
+          ctx.rotate(turretTurn);
+          const gunKick = (u.recoil || 0) * 20;
+          ctx.fillStyle = '#05080d';
+          ctx.fillRect(-4, -6, 16, 12);
+          ctx.fillStyle = '#303d4d';
+          ctx.fillRect(-2, -4, 12, 8);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(0, -1, 4, 2);
+          if (u.electroJeep) {
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(7 - gunKick, -4, 16, 8);
+            ctx.strokeStyle = '#9cf2ff';
+            ctx.lineWidth = 1.9 / cam.zoom;
+            ctx.beginPath();
+            ctx.moveTo(10 - gunKick, -3); ctx.lineTo(13 - gunKick, 3);
+            ctx.lineTo(16 - gunKick, -3); ctx.lineTo(19 - gunKick, 3);
+            ctx.stroke();
+            ctx.fillStyle = '#d9fbff';
+            ctx.fillRect(19 - gunKick, -2, 5, 4);
+          } else {
+            ctx.fillStyle = '#05080d';
+            ctx.fillRect(8 - gunKick, -2.5, 16, 5);
+            ctx.fillStyle = COLORS.mineral;
+            ctx.fillRect(10 - gunKick, -1.5, 11, 3);
+            ctx.fillStyle = '#d8f8ff';
+            ctx.fillRect(21 - gunKick, -1, 4, 2);
+          }
+          ctx.fillStyle = COLORS.warn;
+          ctx.fillRect(3, -5, 3, 3);
+          ctx.restore();
         } else if (u.type === 'heavy') {
           // Tier-three heavy jeep: reinforced chassis, twin fuel tanks and a broad
           // flamethrower nozzle instead of the old cannon.
@@ -16642,47 +17188,127 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           }
           ctx.fillStyle = COLORS.warn; ctx.fillRect(-4, -7, 4, 3);
         } else if (u.type === 'titanTank') {
-          // Tier-four siege tank: enormous tracks, layered armor and heavy cannon.
+          // Heavy siege tank in the same visual family as the buildings: thinner
+          // dark outlines, animated treads aligned with the hull heading, a
+          // futuristic cannon, and a mechanical lock-down deployment.
           const lock = clamp(u.fortressLock || 0, 0, 1);
-          if (lock > 0) {
+          const walking = !!u.moving && u.moveSpeed > 1;
+          const treadCycle = ((u.motionPhase || 0) * 7) % 6;
+          const supportSpread = lock * 12;
+          const supportDrop = lock * 6;
+          const hullLift = Math.sin(lock * Math.PI) * 4.2 + lock * 1.2;
+          const turretHeading = u.target?.hp > 0
+            ? Math.atan2(u.target.y - u.y, u.target.x - u.x)
+            : u.heading;
+          const turretTurn = turretHeading - u.heading;
+          const gunKick = u.recoil > 0 ? Math.min(7, u.recoil * 23) : 0;
+          const armor = u.flash > 0 ? '#ffffff' : team;
+
+          if (lock > 0.02) {
             ctx.save();
-            ctx.globalAlpha = .25 + lock * .45;
-            ctx.strokeStyle = '#ffcf75';
-            ctx.lineWidth = (2 + lock * 2) / cam.zoom;
+            ctx.translate(0, -hullLift * .18);
+            ctx.strokeStyle = '#0a0f15';
+            ctx.lineWidth = (1.15 + lock * .25) / cam.zoom;
             ctx.beginPath();
-            ctx.moveTo(-20, -18); ctx.lineTo(-28 - lock * 8, -27 - lock * 7);
-            ctx.moveTo(-20, 18); ctx.lineTo(-28 - lock * 8, 27 + lock * 7);
-            ctx.moveTo(20, -18); ctx.lineTo(28 + lock * 8, -27 - lock * 7);
-            ctx.moveTo(20, 18); ctx.lineTo(28 + lock * 8, 27 + lock * 7);
+            ctx.moveTo(-15, -13); ctx.lineTo(-24 - supportSpread, -19 - supportDrop);
+            ctx.moveTo(-15, 13); ctx.lineTo(-24 - supportSpread, 19 + supportDrop);
+            ctx.moveTo(15, -13); ctx.lineTo(24 + supportSpread, -19 - supportDrop);
+            ctx.moveTo(15, 13); ctx.lineTo(24 + supportSpread, 19 + supportDrop);
             ctx.stroke();
-            ctx.fillStyle = '#2a2115';
-            ctx.fillRect(-33 - lock * 6, -30 - lock * 7, 12, 5);
-            ctx.fillRect(-33 - lock * 6, 25 + lock * 7, 12, 5);
-            ctx.fillRect(21 + lock * 6, -30 - lock * 7, 12, 5);
-            ctx.fillRect(21 + lock * 6, 25 + lock * 7, 12, 5);
+            ctx.fillStyle = '#0a0f15';
+            ctx.fillRect(-28 - supportSpread, -22 - supportDrop, 11, 5);
+            ctx.fillRect(-28 - supportSpread, 17 + supportDrop, 11, 5);
+            ctx.fillRect(17 + supportSpread, -22 - supportDrop, 11, 5);
+            ctx.fillRect(17 + supportSpread, 17 + supportDrop, 11, 5);
+            ctx.fillStyle = '#33404d';
+            ctx.fillRect(-26 - supportSpread, -21 - supportDrop, 7, 3);
+            ctx.fillRect(-26 - supportSpread, 18 + supportDrop, 7, 3);
+            ctx.fillRect(19 + supportSpread, -21 - supportDrop, 7, 3);
+            ctx.fillRect(19 + supportSpread, 18 + supportDrop, 7, 3);
             ctx.restore();
           }
-          ctx.fillStyle = '#070b10';
-          ctx.fillRect(-21, -20, 9, 40); ctx.fillRect(12, -20, 9, 40);
-          ctx.fillStyle = '#242d39';
-          for (let yy = -17; yy <= 13; yy += 10) {
-            ctx.fillRect(-20, yy, 7, 6); ctx.fillRect(13, yy, 7, 6);
+
+          ctx.save();
+          ctx.translate(0, -hullLift);
+
+          // Caterpillar tracks sit on the tank's left and right sides. Their
+          // long axis is parallel to +X, which is the tank's movement heading.
+          ctx.fillStyle = '#0a0f15';
+          ctx.fillRect(-22, -22, 44, 8);
+          ctx.fillRect(-22, 14, 44, 8);
+          ctx.fillStyle = '#273340';
+          ctx.fillRect(-21, -21, 42, 6);
+          ctx.fillRect(-21, 15, 42, 6);
+          for (let xx = -19; xx <= 17; xx += 6) {
+            const treadOffset = walking ? (((treadCycle + xx + 36) % 6) - 3) * .3 : 0;
+            ctx.fillStyle = '#475361';
+            ctx.fillRect(xx + treadOffset, -20, 4, 4);
+            ctx.fillRect(xx - treadOffset, 16, 4, 4);
+            ctx.fillStyle = '#0f151c';
+            ctx.fillRect(xx + treadOffset - .5, -21, 5, 1);
+            ctx.fillRect(xx - treadOffset - .5, 20, 5, 1);
           }
-          ctx.fillStyle = u.flash > 0 ? '#ffffff' : team;
-          ctx.fillRect(-15, -16, 30, 32);
-          ctx.fillStyle = '#131b27'; ctx.fillRect(-10, -11, 20, 22);
-          ctx.fillStyle = light; ctx.fillRect(-5, -8, 15, 16);
-          ctx.fillStyle = fortressActiveVisual(u) ? '#ffd166' : '#ff9f43';
-          ctx.fillRect(3, fortressActiveVisual(u) ? -6 : -5, fortressActiveVisual(u) ? 39 : 32, fortressActiveVisual(u) ? 12 : 10);
-          ctx.fillStyle = '#ffe2ba'; ctx.fillRect(fortressActiveVisual(u) ? 35 : 29, -2, fortressActiveVisual(u) ? 11 : 9, 4);
-          if (lock > .02) {
-            ctx.globalAlpha = .35 + lock * .45;
+
+          // Hull with a one-pixel dark edge instead of the former thick frame.
+          ctx.fillStyle = '#0a0f15';
+          ctx.fillRect(-18, -16, 36, 32);
+          ctx.fillStyle = armor;
+          ctx.fillRect(-17, -15, 34, 30);
+          ctx.fillStyle = '#1b2530';
+          ctx.fillRect(-11, -10, 22, 20);
+          ctx.fillStyle = '#2f3b48';
+          ctx.fillRect(-9, 3, 18, 6);
+          ctx.fillRect(-17, -9, 3, 5); ctx.fillRect(-17, 4, 3, 5);
+          ctx.fillRect(14, -9, 3, 5); ctx.fillRect(14, 4, 3, 5);
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(-4, -7, 8, 5);
+          ctx.fillStyle = COLORS.warn;
+          ctx.fillRect(-11, -10, 3, 3); ctx.fillRect(-11, 7, 3, 3);
+          ctx.restore();
+
+          // Turret and futuristic cannon.
+          ctx.save();
+          ctx.translate(0, -hullLift);
+          ctx.rotate(turretTurn);
+          ctx.fillStyle = '#0a0f15';
+          ctx.fillRect(-7, -9, 20, 18);
+          ctx.fillRect(7, -6, 9, 12);
+          ctx.fillStyle = armor;
+          ctx.fillRect(-6, -8, 18, 16);
+          ctx.fillStyle = '#253240';
+          ctx.fillRect(-3, -5, 10, 10);
+          ctx.fillStyle = '#a1eeff';
+          ctx.fillRect(1, -2, 5, 3);
+          const barrelLength = fortressActiveVisual(u) ? 38 : 31;
+          const barrelHeight = fortressActiveVisual(u) ? 7 : 6;
+          ctx.fillStyle = '#0a0f15';
+          ctx.fillRect(8 - gunKick, -barrelHeight / 2 - 1, barrelLength + 5, barrelHeight + 2);
+          ctx.fillStyle = '#7f96ab';
+          ctx.fillRect(9 - gunKick, -barrelHeight / 2, barrelLength + 3, barrelHeight);
+          ctx.fillStyle = '#5b7288';
+          ctx.fillRect(14 - gunKick, -barrelHeight / 2 + 1, barrelLength - 9, Math.max(2, barrelHeight - 2));
+          ctx.fillStyle = '#9feeff';
+          ctx.fillRect(11 - gunKick, -barrelHeight / 2 - 1, 9, 1.5);
+          ctx.fillRect(12 + barrelLength - 8 - gunKick, -1.2, 6, 2.4);
+          ctx.fillStyle = '#dfe8f2';
+          ctx.fillRect(10 + barrelLength - 5 - gunKick, -1, 6, 2);
+          if (fortressActiveVisual(u)) {
+            ctx.fillStyle = '#2c3b49';
+            ctx.fillRect(2, -9, 6, 3);
+            ctx.fillRect(2, 6, 6, 3);
+            ctx.fillStyle = '#9feeff';
+            ctx.fillRect(6, -8, 2, 1.5);
+            ctx.fillRect(6, 7, 2, 1.5);
+          }
+          ctx.restore();
+
+          if (lock > 0.02) {
+            ctx.globalAlpha = .22 + lock * .34;
             ctx.strokeStyle = '#ffd166';
-            ctx.lineWidth = 1.5 / cam.zoom;
-            ctx.beginPath(); ctx.arc(0, 0, 28 + lock * 8, 0, Math.PI * 2); ctx.stroke();
+            ctx.lineWidth = 1.2 / cam.zoom;
+            ctx.beginPath(); ctx.arc(0, 0, 29 + lock * 9, 0, Math.PI * 2); ctx.stroke();
             ctx.globalAlpha = 1;
           }
-          ctx.fillStyle = COLORS.warn; ctx.fillRect(-12, -12, 5, 5); ctx.fillRect(-12, 7, 5, 5);
         } else {
           ctx.fillRect(-11, -9, 18, 18);
           ctx.fillStyle = light; ctx.fillRect(1, -4, 15, 8);
@@ -18382,6 +19008,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           command: 'hold', destination: { x, y }, guardPoint: { x, y },
           target: null, targetSource: null, retaliationTarget: null, movePriorityUntil: 0, retaliationOverrideUntil: 0,
           heading: 0, selected: false, flash: 0, recoil: 0, attackAnim: 0,
+          mortarSetup: 0,
           animation: d.animation || null,
           moving: false, moveSpeed: 0, motionPhase: rand(0, Math.PI * 2),
           flightPhase: rand(0, Math.PI * 2),
