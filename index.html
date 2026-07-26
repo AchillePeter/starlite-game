@@ -14948,176 +14948,981 @@
       
       // Cumulative silhouettes make every researched level readable directly on
       // the battlefield instead of relying only on the small level pips.
-      function drawStructureUpgradeDetails(s, x, y, team) {
-        const level = s.level || 1;
-        if (s.underConstruction || level <= 1) return;
-        const bright = colorForTeam(s.team, 'light');
-        const pulse = .72 + Math.sin(state.elapsed * 4 + s.id) * .18;
-        ctx.save();
-      
-        if (s.type === 'hq') {
-          // L2 mechanic command: reinforced shell, workshop lights and wrench bay.
-          ctx.strokeStyle = COLORS.warn; ctx.lineWidth = 2 / cam.zoom;
-          ctx.strokeRect(x - 2, y - 2, s.w + 4, s.h + 4);
-          ctx.fillStyle = '#1a2634';
-          ctx.fillRect(x - 5, y + 12, 7, 20); ctx.fillRect(x + s.w - 2, y + 12, 7, 20);
-          ctx.fillStyle = COLORS.warn;
-          ctx.fillRect(x + 5, y + s.h - 10, 5, 5); ctx.fillRect(x + s.w - 10, y + s.h - 10, 5, 5);
-          ctx.save();
-          ctx.translate(s.x, y + 31); ctx.rotate(-.65);
-          ctx.fillStyle = '#dce6f3'; ctx.fillRect(-2, -9, 4, 18); ctx.fillRect(-6, -10, 12, 4);
-          ctx.restore();
-          if (level >= 3) {
-            // L3 adrenaline command: green accelerator coils and pulsing beacons.
-            ctx.globalAlpha = pulse;
-            ctx.strokeStyle = COLORS.good; ctx.lineWidth = 2 / cam.zoom;
-            ctx.beginPath(); ctx.arc(s.x, y + 13, 13 + Math.sin(state.elapsed * 5) * 1.5, 0, Math.PI * 2); ctx.stroke();
-            ctx.fillStyle = '#c9f0bf';
-            ctx.fillRect(x + 3, y - 8, 6, 13); ctx.fillRect(x + s.w - 9, y - 8, 6, 13);
-            ctx.fillStyle = COLORS.good;
-            ctx.fillRect(x + 4, y - 11, 4, 4); ctx.fillRect(x + s.w - 8, y - 11, 4, 4);
-          }
-        } else if (s.type === 'turret' || s.type === 'antiAirTurret') {
-          // L2 braces; L3 rotating capacitor ring.
-          ctx.fillStyle = team;
-          ctx.fillRect(x - 5, y + 2, 5, 8); ctx.fillRect(x + s.w, y + 2, 5, 8);
-          ctx.fillRect(x - 5, y + s.h - 10, 5, 8); ctx.fillRect(x + s.w, y + s.h - 10, 5, 8);
-          if (level >= 3) {
-            ctx.strokeStyle = COLORS.warn; ctx.lineWidth = 2 / cam.zoom;
-            ctx.beginPath(); ctx.arc(s.x, s.y, 12 + Math.sin(state.elapsed * 5) * 1.5, 0, Math.PI * 2); ctx.stroke();
-            ctx.fillStyle = COLORS.warn; ctx.fillRect(s.x - 2, s.y - 2, 4, 4);
-          }
-        } else if (s.type === 'radarTurret') {
-          ctx.fillStyle = '#0c141d';
-          ctx.fillRect(x - 2, y + 5, s.w + 4, s.h - 1);
-          ctx.fillStyle = flash ? '#ffffff' : '#263746';
-          ctx.fillRect(x, y, s.w, s.h);
-          ctx.strokeStyle = team; ctx.lineWidth = 2 / cam.zoom;
-          ctx.strokeRect(x + 1, y + 1, s.w - 2, s.h - 2);
-          ctx.fillStyle = '#14212c';
-          ctx.fillRect(s.x - 3, y - 12, 6, 18);
-          ctx.save();
-          ctx.translate(s.x, y - 9);
-          ctx.rotate(state.elapsed * .55 + s.id * .13);
-          ctx.strokeStyle = '#9cf2ff';
-          ctx.lineWidth = 2 / cam.zoom;
-          ctx.beginPath(); ctx.arc(0, 0, 10, -.7, .7); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(-8, -6); ctx.lineTo(8, 6); ctx.stroke();
-          ctx.restore();
-          ctx.fillStyle = '#d9fbff';
-          ctx.fillRect(s.x - 2, y - 11, 4, 4);
-          if (!s.underConstruction) drawText('RADAR', s.x, y + s.h + 5, 8, '#9cf2ff', 'center');
-        } else if (s.type === 'barracks') {
-          // L2 side armour.
-          ctx.fillStyle = '#1a2735';
-          ctx.fillRect(x - 6, y + 8, 7, s.h - 11); ctx.fillRect(x + s.w - 1, y + 8, 7, s.h - 11);
-          ctx.fillStyle = team;
-          ctx.fillRect(x - 5, y + 11, 4, 7); ctx.fillRect(x + s.w + 1, y + 11, 4, 7);
-          if (level >= 3) {
-            // L3 mortar command towers.
-            ctx.fillStyle = '#cbd9ec';
-            ctx.fillRect(x + 8, y - 10, 4, 13); ctx.fillRect(x + s.w - 12, y - 10, 4, 13);
-            ctx.fillStyle = COLORS.warn;
-            ctx.fillRect(x + 5, y - 11, 10, 4); ctx.fillRect(x + s.w - 15, y - 11, 10, 4);
-          }
-          if (level >= 4) {
-            // L4 mecha gantry and cyan power spine.
-            ctx.globalAlpha = pulse;
-            ctx.strokeStyle = '#9cf2ff'; ctx.lineWidth = 2 / cam.zoom;
-            ctx.strokeRect(x + 14, y - 5, s.w - 28, s.h + 5);
-            ctx.fillStyle = '#c8f8ff';
-            ctx.fillRect(s.x - 2, y - 7, 4, 16);
-            ctx.beginPath(); ctx.arc(s.x, y - 8, 5, 0, Math.PI * 2); ctx.fill();
-          }
-        } else if (s.type === 'garage') {
-          // L2 reinforced vehicle bay.
-          ctx.strokeStyle = bright; ctx.lineWidth = 2 / cam.zoom;
-          ctx.strokeRect(x + 5, y + 15, s.w - 10, s.h - 14);
-          ctx.fillStyle = team;
-          ctx.fillRect(x - 4, y + 12, 5, s.h - 15); ctx.fillRect(x + s.w - 1, y + 12, 5, s.h - 15);
-          if (level >= 3) {
-            // L3 heavy-vehicle exhaust stacks.
-            ctx.fillStyle = '#cbd2dc';
-            ctx.fillRect(x + 7, y - 11, 5, 16); ctx.fillRect(x + s.w - 12, y - 11, 5, 16);
-            ctx.fillStyle = '#737c88';
-            ctx.fillRect(x + 5, y - 12, 9, 4); ctx.fillRect(x + s.w - 14, y - 12, 9, 4);
-          }
-          if (level >= 4) {
-            // L4 titan assembly crane and track silhouette.
-            ctx.globalAlpha = pulse;
-            ctx.strokeStyle = '#ffb45f'; ctx.lineWidth = 2 / cam.zoom;
-            ctx.beginPath();
-            ctx.moveTo(x + 4, y - 15); ctx.lineTo(x + 4, y - 4); ctx.lineTo(x + s.w - 4, y - 4); ctx.lineTo(x + s.w - 4, y - 15);
-            ctx.stroke();
-            ctx.fillStyle = '#ffb45f'; ctx.fillRect(s.x - 2, y - 5, 4, 12);
-            ctx.fillStyle = '#111820';
-            ctx.fillRect(s.x - 16, y + 25, 5, 12); ctx.fillRect(s.x + 11, y + 25, 5, 12);
-          }
-        } else if (s.type === 'airBay') {
-          // L2 flight-control gantries and runway beacons.
-          ctx.strokeStyle = '#9cf2ff'; ctx.lineWidth = 2 / cam.zoom;
-          ctx.strokeRect(x + 4, y + 4, s.w - 8, s.h - 8);
-          ctx.fillStyle = bright;
-          for (let i = 0; i < 4; i++) {
-            ctx.fillRect(x + 8 + i * 14, y + s.h - 4, 5, 5);
-          }
-          if (level >= 3) {
-            // L3 expanded deck: animated guidance ring and twin control masts.
-            ctx.globalAlpha = pulse;
-            ctx.strokeStyle = COLORS.warn; ctx.lineWidth = 2 / cam.zoom;
-            ctx.beginPath(); ctx.arc(s.x, s.y + 5, 15 + Math.sin(state.elapsed * 5) * 1.2, 0, Math.PI * 2); ctx.stroke();
-            ctx.fillStyle = '#d9fbff';
-            ctx.fillRect(x + 6, y - 11, 4, 16); ctx.fillRect(x + s.w - 10, y - 11, 4, 16);
-            ctx.fillStyle = COLORS.warn;
-            ctx.fillRect(x + 4, y - 13, 8, 4); ctx.fillRect(x + s.w - 12, y - 13, 8, 4);
-          }
-          if (level >= 4) {
-            // L4 bomber deck: enlarged blast doors and amber bomb-bay guides.
-            ctx.globalAlpha = pulse;
-            ctx.strokeStyle = '#ffb347'; ctx.lineWidth = 2 / cam.zoom;
-            ctx.strokeRect(x - 5, y + 10, 8, s.h - 13);
-            ctx.strokeRect(x + s.w - 3, y + 10, 8, s.h - 13);
-            ctx.fillStyle = '#ffd18a';
-            ctx.fillRect(s.x - 15, y + s.h - 7, 9, 3);
-            ctx.fillRect(s.x + 6, y + s.h - 7, 9, 3);
-          }
-        } else if (s.type === 'supportCamp') {
-          // L2 active radar sweep.
-          const dishX = x + s.w - 14, dishY = y + 21;
-          ctx.strokeStyle = COLORS.mineral; ctx.lineWidth = 2 / cam.zoom;
-          ctx.beginPath(); ctx.arc(dishX, dishY, 12, 0, Math.PI * 2); ctx.stroke();
-          const sweep = state.elapsed * 2.4;
-          ctx.beginPath(); ctx.moveTo(dishX, dishY); ctx.lineTo(dishX + Math.cos(sweep) * 12, dishY + Math.sin(sweep) * 12); ctx.stroke();
-          ctx.fillStyle = '#d9fbff'; ctx.fillRect(dishX - 2, dishY - 2, 4, 4);
-          if (level >= 3) {
-            // L3 force-field dome and emitter beacons.
-            ctx.globalAlpha = .22 + pulse * .16;
-            ctx.fillStyle = '#64ddff';
-            ctx.beginPath(); ctx.arc(s.x, y + s.h - 2, s.w * .62, Math.PI, Math.PI * 2); ctx.fill();
-            ctx.globalAlpha = pulse;
-            ctx.strokeStyle = '#9cf2ff'; ctx.lineWidth = 2 / cam.zoom;
-            ctx.beginPath(); ctx.arc(s.x, y + s.h - 2, s.w * .62, Math.PI, Math.PI * 2); ctx.stroke();
-            ctx.fillStyle = '#c8f8ff';
-            ctx.fillRect(x + 3, y - 5, 5, 12); ctx.fillRect(x + s.w - 8, y - 5, 5, 12);
-          }
-        } else if (s.type === 'housing') {
-          // L2 house: reinforced frame and a compact upper habitation module.
-          ctx.strokeStyle = COLORS.good; ctx.lineWidth = 2 / cam.zoom;
-          ctx.strokeRect(x + 1, y + 8, s.w - 2, s.h - 8);
-          ctx.fillStyle = '#2d4149';
-          ctx.fillRect(x + 8, y - 7, s.w - 16, 12);
-          ctx.fillStyle = '#c9f0bf';
-          ctx.fillRect(x + 13, y - 4, 6, 5); ctx.fillRect(x + s.w - 19, y - 4, 6, 5);
-          ctx.fillStyle = COLORS.good;
-          ctx.fillRect(x - 4, y + 17, 5, 14); ctx.fillRect(x + s.w - 1, y + 17, 5, 14);
-        }
-      
-        // Compact badge remains readable even when silhouettes overlap in a base.
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = '#0b1018'; ctx.fillRect(x + s.w - 17, y + 2, 15, 10);
-        drawText(`L${level}`, x + s.w - 15, y + 3, 7, bright);
-        ctx.restore();
-      }
+      // Futuristic faction building kit. All silhouettes remain Canvas 2D primitives,
+// stay centred on the simulation footprint, and allocate no per-frame assets.
+const STRUCTURE_INK = '#070b11';
+const STRUCTURE_SHADOW = '#0b1119';
+const STRUCTURE_DEEP = '#111a24';
+const STRUCTURE_BODY = '#263441';
+const STRUCTURE_BODY_LIGHT = '#344655';
+const STRUCTURE_PANEL = '#18232e';
+const STRUCTURE_PANEL_LIGHT = '#415566';
+const STRUCTURE_METAL = '#8796a6';
+const STRUCTURE_HIGHLIGHT = '#b9c8d5';
+const STRUCTURE_CYAN = '#48dff2';
+const STRUCTURE_CYAN_LIGHT = '#c7fbff';
+const GARAGE_GAS = '#9b6cff';
+const GARAGE_GAS_LIGHT = '#e1d2ff';
+const GARAGE_GAS_DARK = '#2b2140';
+
+function structureLineWidth(thick = false) {
+  return (thick ? 2 : 1) / cam.zoom;
+}
+
+function drawBuildingShadow(x, y, w, h) {
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(x - 3, y + 4, w + 6, h + 2);
+  ctx.fillStyle = STRUCTURE_SHADOW;
+  ctx.fillRect(x - 1, y + 2, w + 2, h + 1);
+}
+
+function drawArmoredPanel(x, y, w, h, fill = STRUCTURE_BODY, inset = STRUCTURE_PANEL) {
+  x = Math.round(x); y = Math.round(y); w = Math.max(2, Math.round(w)); h = Math.max(2, Math.round(h));
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
+  ctx.fillStyle = fill;
+  ctx.fillRect(x, y, w, h);
+  if (w > 8 && h > 7) {
+    ctx.fillStyle = STRUCTURE_PANEL_LIGHT;
+    ctx.fillRect(x + 2, y + 2, Math.max(2, w - 4), 2);
+    ctx.fillStyle = inset;
+    ctx.fillRect(x + 3, y + 5, Math.max(2, w - 6), Math.max(2, h - 8));
+  }
+  ctx.strokeStyle = STRUCTURE_INK;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.strokeRect(x + .5, y + .5, Math.max(1, w - 1), Math.max(1, h - 1));
+}
+
+function drawSteppedArmor(x, y, w, h, fill = STRUCTURE_BODY) {
+  x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.beginPath();
+  ctx.moveTo(x + 5, y - 1);
+  ctx.lineTo(x + w - 5, y - 1);
+  ctx.lineTo(x + w + 1, y + 5);
+  ctx.lineTo(x + w + 1, y + h - 4);
+  ctx.lineTo(x + w - 4, y + h + 1);
+  ctx.lineTo(x + 4, y + h + 1);
+  ctx.lineTo(x - 1, y + h - 4);
+  ctx.lineTo(x - 1, y + 5);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.moveTo(x + 6, y + 1);
+  ctx.lineTo(x + w - 6, y + 1);
+  ctx.lineTo(x + w - 1, y + 6);
+  ctx.lineTo(x + w - 1, y + h - 5);
+  ctx.lineTo(x + w - 5, y + h - 1);
+  ctx.lineTo(x + 5, y + h - 1);
+  ctx.lineTo(x + 1, y + h - 5);
+  ctx.lineTo(x + 1, y + 6);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = STRUCTURE_PANEL_LIGHT;
+  ctx.fillRect(x + 7, y + 3, Math.max(3, w - 14), 2);
+}
+
+function drawTeamPanel(x, y, w, h, team, light) {
+  x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
+  ctx.fillStyle = team;
+  ctx.fillRect(x, y, w, h);
+  if (w >= 7 && h >= 4) {
+    ctx.fillStyle = light;
+    ctx.fillRect(x + 2, y + 1, Math.max(2, w - 4), 1);
+  }
+}
+
+function drawGlowStrip(x, y, w, h, phase = 0, color = STRUCTURE_CYAN, bright = STRUCTURE_CYAN_LIGHT) {
+  x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+  const oldAlpha = ctx.globalAlpha;
+  const pulse = .7 + Math.sin(state.elapsed * 4 + phase) * .18;
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
+  ctx.globalAlpha = oldAlpha * pulse;
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, w, h);
+  if (h >= 3) {
+    ctx.fillStyle = bright;
+    ctx.fillRect(x + 1, y, Math.max(1, w - 2), 1);
+  }
+  ctx.globalAlpha = oldAlpha;
+}
+
+function drawVent(x, y, w, h, vertical = false) {
+  x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
+  ctx.fillStyle = '#0c131c';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = STRUCTURE_METAL;
+  if (vertical) {
+    for (let px = x + 2; px < x + w - 1; px += 4) ctx.fillRect(px, y + 2, 1, Math.max(1, h - 4));
+  } else {
+    for (let py = y + 2; py < y + h - 1; py += 4) ctx.fillRect(x + 2, py, Math.max(1, w - 4), 1);
+  }
+}
+
+function drawIndustrialDoor(x, y, w, h, team, light, phase = 0) {
+  x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(x - 2, y - 2, w + 4, h + 2);
+  ctx.fillStyle = '#0d151e';
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#354555';
+  for (let py = y + 2; py < y + h - 1; py += 5) ctx.fillRect(x + 2, py, Math.max(2, w - 4), 2);
+  ctx.fillStyle = STRUCTURE_METAL;
+  ctx.fillRect(x + Math.floor(w / 2), y + 1, 1, Math.max(2, h - 2));
+  drawGlowStrip(x + 2, y + 2, 2, Math.max(2, h - 5), phase, team, light);
+  drawGlowStrip(x + w - 4, y + 2, 2, Math.max(2, h - 5), phase + 1.4, team, light);
+}
+
+function drawAntenna(x, y, height, phase = 0, color = STRUCTURE_CYAN) {
+  x = Math.round(x); y = Math.round(y); height = Math.round(height);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(x - 2, y - height - 1, 5, height + 2);
+  ctx.fillStyle = STRUCTURE_METAL;
+  ctx.fillRect(x - 1, y - height, 3, height);
+  const oldAlpha = ctx.globalAlpha;
+  ctx.globalAlpha = oldAlpha * (.66 + Math.sin(state.elapsed * 5 + phase) * .25);
+  ctx.fillStyle = color;
+  ctx.fillRect(x - 2, y - height - 3, 5, 4);
+  ctx.fillStyle = STRUCTURE_CYAN_LIGHT;
+  ctx.fillRect(x - 1, y - height - 3, 2, 1);
+  ctx.globalAlpha = oldAlpha;
+}
+
+function drawReactorCore(cx, cy, radius, phase = 0, color = STRUCTURE_CYAN) {
+  cx = Math.round(cx); cy = Math.round(cy); radius = Math.round(radius);
+  const oldAlpha = ctx.globalAlpha;
+  const pulse = .72 + Math.sin(state.elapsed * 4.6 + phase) * .19;
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.beginPath(); ctx.arc(cx, cy, radius + 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = STRUCTURE_DEEP;
+  ctx.beginPath(); ctx.arc(cx, cy, radius + 1, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = STRUCTURE_METAL;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = oldAlpha * pulse;
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(cx, cy, Math.max(2, radius - 3), 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = STRUCTURE_CYAN_LIGHT;
+  ctx.fillRect(cx - 1, cy - Math.max(1, radius - 4), 2, Math.max(2, radius - 3));
+  ctx.globalAlpha = oldAlpha;
+}
+
+function drawCornerBolts(x, y, w, h, color = STRUCTURE_METAL) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x + 2, y + 2, 2, 2);
+  ctx.fillRect(x + w - 4, y + 2, 2, 2);
+  ctx.fillRect(x + 2, y + h - 4, 2, 2);
+  ctx.fillRect(x + w - 4, y + h - 4, 2, 2);
+}
+
+
+// Clipped plates create non-rectangular silhouettes while preserving the actual
+// simulation footprint. The one-pixel inner bevel keeps them crisp when zoomed.
+function drawClippedPlate(x, y, w, h, cut = 5, fill = STRUCTURE_BODY, inset = STRUCTURE_PANEL) {
+  x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
+  cut = Math.max(1, Math.min(Math.round(cut), Math.floor(Math.min(w, h) / 3)));
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.beginPath();
+  ctx.moveTo(x + cut, y - 1); ctx.lineTo(x + w - cut, y - 1);
+  ctx.lineTo(x + w + 1, y + cut); ctx.lineTo(x + w + 1, y + h - cut);
+  ctx.lineTo(x + w - cut, y + h + 1); ctx.lineTo(x + cut, y + h + 1);
+  ctx.lineTo(x - 1, y + h - cut); ctx.lineTo(x - 1, y + cut);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.moveTo(x + cut, y); ctx.lineTo(x + w - cut, y);
+  ctx.lineTo(x + w, y + cut); ctx.lineTo(x + w, y + h - cut);
+  ctx.lineTo(x + w - cut, y + h); ctx.lineTo(x + cut, y + h);
+  ctx.lineTo(x, y + h - cut); ctx.lineTo(x, y + cut);
+  ctx.closePath(); ctx.fill();
+  if (w > 12 && h > 10) {
+    ctx.strokeStyle = inset;
+    ctx.lineWidth = structureLineWidth();
+    ctx.beginPath();
+    ctx.moveTo(x + cut + 2, y + 3); ctx.lineTo(x + w - cut - 2, y + 3);
+    ctx.stroke();
+  }
+}
+
+function drawIndustrialPipe(x1, y1, x2, y2, width = 3, color = STRUCTURE_METAL) {
+  ctx.strokeStyle = STRUCTURE_INK;
+  ctx.lineWidth = (width + 2) / cam.zoom;
+  ctx.beginPath(); ctx.moveTo(Math.round(x1), Math.round(y1)); ctx.lineTo(Math.round(x2), Math.round(y2)); ctx.stroke();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width / cam.zoom;
+  ctx.beginPath(); ctx.moveTo(Math.round(x1), Math.round(y1)); ctx.lineTo(Math.round(x2), Math.round(y2)); ctx.stroke();
+}
+
+function drawCargoPod(x, y, w, h, team, light) {
+  drawClippedPlate(x, y, w, h, 3, '#33434e', '#17222c');
+  ctx.fillStyle = '#111922';
+  ctx.fillRect(Math.round(x + 3), Math.round(y + 5), Math.max(2, Math.round(w - 6)), Math.max(2, Math.round(h - 8)));
+  drawTeamPanel(x + 3, y + 2, Math.max(4, w - 6), 3, team, light);
+  ctx.fillStyle = STRUCTURE_METAL;
+  ctx.fillRect(Math.round(x + 4), Math.round(y + h - 4), Math.max(2, Math.round(w - 8)), 1);
+}
+
+function drawStructureLabel(text, s, y, color, size = 9) {
+  if (!s.underConstruction) drawText(text, s.x, y + s.h + 5, size, color, 'center');
+}
+
+function drawHQStructure(s, x, y, team, light, flash) {
+  // Command citadel: broad side wings, a raised central keep and a command spire.
+  drawBuildingShadow(x - 3, y + 7, s.w + 6, s.h - 5);
+  drawClippedPlate(x - 2, y + 13, s.w + 4, s.h - 13, 8, flash ? '#ffffff' : '#273846', '#101922');
+
+  // Lateral command wings make the HQ wider than every production structure.
+  drawClippedPlate(x - 6, y + 19, 17, 23, 4, flash ? '#ffffff' : '#344957', '#17232d');
+  drawClippedPlate(x + s.w - 11, y + 19, 17, 23, 4, flash ? '#ffffff' : '#344957', '#17232d');
+  drawVent(x - 2, y + 25, 8, 11, true);
+  drawVent(x + s.w - 6, y + 25, 8, 11, true);
+  drawTeamPanel(x - 3, y + 20, 9, 5, team, light);
+  drawTeamPanel(x + s.w - 6, y + 20, 9, 5, team, light);
+
+  // Raised keep and crown distinguish the command structure at normal zoom.
+  drawClippedPlate(x + 15, y + 4, s.w - 30, 35, 6, flash ? '#ffffff' : '#314858', '#15222c');
+  drawClippedPlate(x + 21, y - 3, s.w - 42, 13, 4, flash ? '#ffffff' : '#415968', '#1b2b36');
+  drawTeamPanel(s.x - 8, y + 7, 16, 5, team, light);
+  drawReactorCore(s.x, y + 22, 8, s.id * .19);
+
+  // Front command gate and power rails.
+  drawIndustrialDoor(s.x - 10, y + s.h - 16, 20, 16, team, light, s.id * .23);
+  drawGlowStrip(s.x - 17, y + s.h - 20, 10, 3, s.id * .27);
+  drawGlowStrip(s.x + 7, y + s.h - 20, 10, 3, s.id * .27 + 1.1);
+  drawIndustrialPipe(x + 10, y + 15, x + 18, y + 24, 2, STRUCTURE_METAL);
+  drawIndustrialPipe(x + s.w - 10, y + 15, x + s.w - 18, y + 24, 2, STRUCTURE_METAL);
+
+  // Command spire with a restrained scanning halo.
+  drawAntenna(s.x, y + 1, 16, s.id * .31, team);
+  ctx.save();
+  ctx.translate(s.x, y - 10);
+  ctx.rotate(state.elapsed * .22 + s.id * .07);
+  ctx.strokeStyle = STRUCTURE_CYAN;
+  ctx.lineWidth = structureLineWidth();
+  ctx.beginPath(); ctx.ellipse(0, 0, 13, 5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+  drawStructureLabel(hqLabel(s.team), s, y, team, 12);
+}
+
+function drawGroundTurretStructure(s, x, y, team, light, flash) {
+  if (!s.underConstruction) {
+    ctx.strokeStyle = 'rgba(72,223,242,.14)';
+    ctx.lineWidth = structureLineWidth();
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.range, 0, Math.PI * 2); ctx.stroke();
+  }
+  drawBuildingShadow(x, y, s.w, s.h);
+  drawSteppedArmor(x, y + 3, s.w, s.h - 3, flash ? '#ffffff' : '#2c3a47');
+  drawTeamPanel(x + 4, y + s.h - 8, s.w - 8, 4, team, light);
+  drawVent(x + 4, y + 6, 7, 10, true);
+  drawVent(x + s.w - 11, y + 6, 7, 10, true);
+  ctx.strokeStyle = STRUCTURE_CYAN;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.arc(s.x, s.y, 10, 0, Math.PI * 2); ctx.stroke();
+  ctx.save();
+  ctx.translate(s.x, s.y - 1);
+  ctx.rotate(s.barrelAngle || 0);
+  const kick = s.recoil > 0 ? Math.min(4, s.recoil * 30) : 0;
+  drawArmoredPanel(-8, -7, 16, 14, flash ? '#ffffff' : '#1c2935');
+  ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(5, -4, 17 - kick, 8);
+  ctx.fillStyle = team; ctx.fillRect(6, -2, 18 - kick, 4);
+  ctx.fillStyle = light; ctx.fillRect(17 - kick, -1, 6, 2);
+  ctx.restore();
+  drawReactorCore(s.x, s.y, 5, s.id * .25, team);
+}
+
+function drawAntiAirTurretStructure(s, x, y, team, light, flash) {
+  if (!s.underConstruction) {
+    ctx.strokeStyle = 'rgba(72,223,242,.2)';
+    ctx.lineWidth = structureLineWidth();
+    ctx.setLineDash([7 / cam.zoom, 5 / cam.zoom]);
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.range, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Four outriggers and a compact rotating pedestal read as a weapon platform,
+  // not a small production building.
+  drawBuildingShadow(x - 3, y + 5, s.w + 6, s.h - 3);
+  drawClippedPlate(s.x - 8, y + 8, 16, s.h - 10, 4, flash ? '#ffffff' : '#293b47', '#101922');
+  drawClippedPlate(x - 4, s.y - 5, 13, 10, 3, flash ? '#ffffff' : '#354a56', '#17232d');
+  drawClippedPlate(x + s.w - 9, s.y - 5, 13, 10, 3, flash ? '#ffffff' : '#354a56', '#17232d');
+  drawClippedPlate(s.x - 6, y + s.h - 5, 12, 8, 3, flash ? '#ffffff' : '#354a56', '#17232d');
+  drawTeamPanel(x - 1, s.y - 2, 7, 4, team, light);
+  drawTeamPanel(x + s.w - 6, s.y - 2, 7, 4, team, light);
+  drawReactorCore(s.x, s.y + 3, 5, s.id * .29);
+
+  const scanAngle = s.target ? s.barrelAngle : state.elapsed * .55 + s.id * .17;
+  ctx.save();
+  ctx.translate(s.x, s.y - 4);
+  ctx.rotate(scanAngle || 0);
+  const kick = s.recoil > 0 ? Math.min(4, s.recoil * 28) : 0;
+  drawClippedPlate(-8, -9, 16, 18, 4, flash ? '#ffffff' : '#182631', '#0f1820');
+
+  // Twin missile rails form the unmistakable top feature.
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(2 - kick, -12, 24, 7); ctx.fillRect(2 - kick, 5, 24, 7);
+  ctx.fillStyle = '#465967';
+  ctx.fillRect(4 - kick, -10, 17, 3); ctx.fillRect(4 - kick, 7, 17, 3);
+  ctx.fillStyle = team;
+  ctx.fillRect(7 - kick, -9, 9, 2); ctx.fillRect(7 - kick, 8, 9, 2);
+  ctx.fillStyle = STRUCTURE_CYAN_LIGHT;
+  ctx.fillRect(21 - kick, -10, 5, 3); ctx.fillRect(21 - kick, 7, 5, 3);
+
+  // Small scanning sensor between the launcher banks.
+  ctx.strokeStyle = STRUCTURE_CYAN;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.arc(-2, 0, 7, -.8, .8); ctx.stroke();
+  ctx.fillStyle = STRUCTURE_CYAN_LIGHT; ctx.fillRect(-3, -1, 3, 3);
+  ctx.restore();
+  drawStructureLabel('ANTI-AIR', s, y, STRUCTURE_CYAN, 8);
+}
+
+function drawRadarTurretStructure(s, x, y, team, light, flash) {
+  drawBuildingShadow(x, y, s.w, s.h);
+  drawSteppedArmor(x, y + 3, s.w, s.h - 3, flash ? '#ffffff' : '#263846');
+  drawTeamPanel(x + 5, y + s.h - 8, s.w - 10, 4, team, light);
+  drawGlowStrip(x + 5, y + 5, 9, 3, s.id * .2);
+  drawGlowStrip(x + s.w - 14, y + 5, 9, 3, s.id * .2 + 1.2);
+  const dishY = y - 3;
+  ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(s.x - 3, y + 5, 6, 17);
+  ctx.fillStyle = STRUCTURE_METAL; ctx.fillRect(s.x - 1, y + 3, 2, 19);
+  ctx.save();
+  ctx.translate(s.x, dishY);
+  ctx.rotate(state.elapsed * .62 + s.id * .13);
+  ctx.strokeStyle = STRUCTURE_CYAN;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.arc(0, 0, 12, -.8, .8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-9, -7); ctx.lineTo(9, 7); ctx.stroke();
+  ctx.fillStyle = STRUCTURE_CYAN_LIGHT; ctx.fillRect(-2, -2, 4, 4);
+  ctx.restore();
+  drawVent(x + 5, y + 13, 8, 10, true);
+  drawVent(x + s.w - 13, y + 13, 8, 10, true);
+  drawStructureLabel('RADAR', s, y, STRUCTURE_CYAN, 8);
+}
+
+function drawBarracksStructure(s, x, y, team, light, flash) {
+  // Low wedge bunker with flanking troop shelters and a central deployment ramp.
+  drawBuildingShadow(x - 2, y + 10, s.w + 4, s.h - 8);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.beginPath();
+  ctx.moveTo(x + 9, y + 6); ctx.lineTo(x + s.w - 9, y + 6);
+  ctx.lineTo(x + s.w + 1, y + 16); ctx.lineTo(x + s.w - 4, y + s.h);
+  ctx.lineTo(x + 4, y + s.h); ctx.lineTo(x - 1, y + 16);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = flash ? '#ffffff' : '#2d404d';
+  ctx.beginPath();
+  ctx.moveTo(x + 10, y + 8); ctx.lineTo(x + s.w - 10, y + 8);
+  ctx.lineTo(x + s.w - 1, y + 17); ctx.lineTo(x + s.w - 5, y + s.h - 1);
+  ctx.lineTo(x + 5, y + s.h - 1); ctx.lineTo(x + 1, y + 17);
+  ctx.closePath(); ctx.fill();
+
+  // Side bunkers create a squat defensive silhouette.
+  drawClippedPlate(x - 4, y + 18, 17, 18, 4, flash ? '#ffffff' : '#3a4e5b', '#16222c');
+  drawClippedPlate(x + s.w - 13, y + 18, 17, 18, 4, flash ? '#ffffff' : '#3a4e5b', '#16222c');
+  drawVent(x, y + 22, 8, 8, true);
+  drawVent(x + s.w - 8, y + 22, 8, 8, true);
+  drawTeamPanel(x + 3, y + 14, 10, 4, team, light);
+  drawTeamPanel(x + s.w - 13, y + 14, 10, 4, team, light);
+
+  // Infantry deployment door, ramp and roof observation cupola.
+  drawIndustrialDoor(s.x - 9, y + s.h - 18, 18, 18, team, light, s.id * .23);
+  ctx.fillStyle = '#111922';
+  ctx.beginPath();
+  ctx.moveTo(s.x - 13, y + s.h - 2); ctx.lineTo(s.x + 13, y + s.h - 2);
+  ctx.lineTo(s.x + 9, y + s.h); ctx.lineTo(s.x - 9, y + s.h);
+  ctx.closePath(); ctx.fill();
+  drawGlowStrip(s.x - 8, y + s.h - 3, 16, 2, s.id * .31, team, light);
+  drawClippedPlate(s.x - 7, y + 1, 14, 12, 4, flash ? '#ffffff' : '#263743', '#101922');
+  ctx.strokeStyle = STRUCTURE_CYAN;
+  ctx.lineWidth = structureLineWidth();
+  ctx.beginPath(); ctx.arc(s.x, y + 7, 4, 0, Math.PI * 2); ctx.stroke();
+  drawAntenna(s.x + 4, y + 3, 7, s.id * .3, team);
+  drawStructureLabel('BARRACKS', s, y, team);
+}
+
+function drawGarageStructure(s, x, y, team, light, flash) {
+  // Wide vehicle factory with an oversized hangar mouth, exhaust stacks and a
+  // moving overhead gantry. Purple service energy identifies its gas dependency;
+  // compact team plates remain separate so ownership stays immediately readable.
+  drawBuildingShadow(x - 3, y + 10, s.w + 6, s.h - 8);
+  drawClippedPlate(x - 2, y + 10, s.w + 4, s.h - 10, 6, flash ? '#ffffff' : '#303f4b', GARAGE_GAS_DARK);
+
+  // Industrial side towers and exhaust stacks.
+  drawClippedPlate(x - 5, y + 14, 14, s.h - 14, 3, flash ? '#ffffff' : '#455560', '#211a31');
+  drawClippedPlate(x + s.w - 9, y + 14, 14, s.h - 14, 3, flash ? '#ffffff' : '#455560', '#211a31');
+  drawVent(x - 1, y + 20, 7, 13, true);
+  drawVent(x + s.w - 6, y + 20, 7, 13, true);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(x - 2, y - 2, 7, 17); ctx.fillRect(x + s.w - 5, y - 5, 7, 20);
+  ctx.fillStyle = '#675782';
+  ctx.fillRect(x, y, 3, 14); ctx.fillRect(x + s.w - 3, y - 3, 3, 17);
+  ctx.fillStyle = GARAGE_GAS;
+  ctx.fillRect(x - 3, y - 4, 9, 4); ctx.fillRect(x + s.w - 6, y - 7, 9, 4);
+
+  // Massive vehicle shutter and purple gas-fed guide rails.
+  drawIndustrialDoor(x + 9, y + 18, s.w - 18, s.h - 18, GARAGE_GAS, GARAGE_GAS_LIGHT, s.id * .19);
+  drawIndustrialPipe(x + 13, y + s.h - 4, x + 22, y + s.h - 1, 2, GARAGE_GAS);
+  drawIndustrialPipe(x + s.w - 13, y + s.h - 4, x + s.w - 22, y + s.h - 1, 2, GARAGE_GAS);
+
+  // Roof gantry and animated crane trolley.
+  ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(x + 7, y + 3, s.w - 14, 8);
+  ctx.fillStyle = '#66557f'; ctx.fillRect(x + 8, y + 5, s.w - 16, 3);
+  drawGlowStrip(x + 16, y + 4, s.w - 32, 4, s.id * .13, GARAGE_GAS, GARAGE_GAS_LIGHT);
+  const trolleySpan = Math.max(1, s.w - 32);
+  const trolleyX = x + 15 + Math.floor((Math.sin(state.elapsed * .65 + s.id) * .5 + .5) * trolleySpan);
+  ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(trolleyX - 3, y + 1, 7, 10);
+  ctx.fillStyle = GARAGE_GAS_LIGHT; ctx.fillRect(trolleyX - 1, y + 3, 3, 5);
+
+  // Deliberate player-colour ownership plates, independent of the purple systems.
+  drawTeamPanel(x + 2, y + 15, 7, 4, team, light);
+  drawTeamPanel(x + s.w - 9, y + 15, 7, 4, team, light);
+  drawStructureLabel('GARAGE', s, y, GARAGE_GAS_LIGHT);
+}
+
+function drawAirBayStructure(s, x, y, team, light, flash) {
+  // A low octagonal landing deck with exposed approach arms and a small control
+  // tower. Most of the footprint is intentionally open pad rather than building.
+  drawBuildingShadow(x - 4, y + 13, s.w + 8, s.h - 14);
+  drawClippedPlate(x - 3, y + 12, s.w + 6, s.h - 14, 9, flash ? '#ffffff' : '#2b3c46', '#101820');
+
+  // Side approach arms broaden the flight-deck silhouette.
+  drawClippedPlate(x - 8, y + 22, 13, 15, 4, flash ? '#ffffff' : '#40515c', '#18242d');
+  drawClippedPlate(x + s.w - 5, y + 22, 13, 15, 4, flash ? '#ffffff' : '#40515c', '#18242d');
+  drawTeamPanel(x - 5, y + 27, 8, 4, team, light);
+  drawTeamPanel(x + s.w - 3, y + 27, 8, 4, team, light);
+
+  // Recessed landing pad, touchdown ring and runway centreline.
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.beginPath(); ctx.ellipse(s.x, y + 31, 22, 14, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#111b23';
+  ctx.beginPath(); ctx.ellipse(s.x, y + 31, 20, 12, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = STRUCTURE_CYAN;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.ellipse(s.x, y + 31, 12, 8, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = STRUCTURE_CYAN_LIGHT;
+  ctx.fillRect(s.x - 2, y + 21, 4, 20);
+  ctx.fillRect(s.x - 9, y + 29, 18, 4);
+
+  // Sequential runway lights visibly animate toward the launch edge.
+  const active = Math.floor((state.elapsed * 8 + s.id) % 6);
+  for (let i = 0; i < 6; i++) {
+    const yy = y + 18 + i * 5;
+    ctx.fillStyle = STRUCTURE_INK;
+    ctx.fillRect(x + 4, yy, 4, 4); ctx.fillRect(x + s.w - 8, yy, 4, 4);
+    ctx.fillStyle = i === active ? STRUCTURE_CYAN_LIGHT : STRUCTURE_CYAN;
+    ctx.fillRect(x + 5, yy + 1, 2, 2); ctx.fillRect(x + s.w - 7, yy + 1, 2, 2);
+  }
+
+  // Compact asymmetrical flight-control tower.
+  drawClippedPlate(x + s.w - 18, y + 1, 15, 17, 4, flash ? '#ffffff' : '#394c58', '#14212a');
+  drawTeamPanel(x + s.w - 15, y + 5, 9, 4, team, light);
+  drawGlowStrip(x + s.w - 14, y + 11, 7, 3, s.id * .25);
+  drawAntenna(x + s.w - 8, y + 2, 12, s.id * .25);
+  drawStructureLabel('AIR BAY', s, y, STRUCTURE_CYAN);
+}
+
+function drawSupportStructure(s, x, y, team, light, flash) {
+  // Modular logistics/medical hub: central treatment module, two detachable cargo
+  // pods and a service boom. Green function lights dominate instead of cyan.
+  drawBuildingShadow(x - 5, y + 11, s.w + 10, s.h - 9);
+  drawClippedPlate(x + 12, y + 7, s.w - 24, s.h - 7, 6, flash ? '#ffffff' : '#2d4449', '#142329');
+  drawCargoPod(x - 5, y + 17, 18, 18, team, light);
+  drawCargoPod(x + s.w - 13, y + 17, 18, 18, team, light);
+  drawCargoPod(x + 4, y + 31, 15, 12, team, light);
+  drawCargoPod(x + s.w - 19, y + 31, 15, 12, team, light);
+
+  // Pulsing medical/logistics cross on the central roof.
+  const oldAlpha = ctx.globalAlpha;
+  const pulse = .68 + Math.sin(state.elapsed * 5.5 + s.id) * .24;
+  ctx.globalAlpha = oldAlpha * pulse;
+  ctx.fillStyle = '#e2ffdc';
+  ctx.fillRect(s.x - 3, y + 13, 6, 19);
+  ctx.fillRect(s.x - 9, y + 19, 18, 7);
+  ctx.globalAlpha = oldAlpha;
+  ctx.strokeStyle = COLORS.good;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.strokeRect(s.x - 10, y + 12, 20, 21);
+  drawGlowStrip(s.x - 8, y + s.h - 8, 16, 3, s.id * .2, COLORS.good, '#e2ffdc');
+
+  // Loading/service boom rotates slowly over the cargo pods.
+  ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(s.x - 2, y + 2, 5, 12);
+  ctx.fillStyle = STRUCTURE_METAL; ctx.fillRect(s.x, y + 3, 2, 11);
+  ctx.save();
+  ctx.translate(s.x + 1, y + 4);
+  ctx.rotate(Math.sin(state.elapsed * .38 + s.id) * .45);
+  drawIndustrialPipe(0, 0, 15, -6, 3, COLORS.good);
+  ctx.fillStyle = COLORS.good; ctx.fillRect(13, -8, 5, 5);
+  ctx.restore();
+  drawAntenna(x + s.w - 8, y + 10, 10, s.id * .4, COLORS.good);
+  drawStructureLabel('SUPPORT', s, y, COLORS.good);
+}
+
+function drawGasExtractorStructure(s, x, y, team, light, flash) {
+  drawBuildingShadow(x, y, s.w, s.h);
+  drawSteppedArmor(x, y + 5, s.w, s.h - 5, flash ? '#ffffff' : '#2c3945');
+  drawTeamPanel(x + 5, y + 6, s.w - 10, 4, team, light);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.beginPath(); ctx.arc(s.x, s.y + 2, 15, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = STRUCTURE_METAL;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.arc(s.x, s.y + 2, 13, 0, Math.PI * 2); ctx.stroke();
+  ctx.save();
+  ctx.translate(s.x, s.y + 2);
+  ctx.rotate(state.elapsed * 1.2 + s.id * .11);
+  ctx.strokeStyle = COLORS.gas;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.arc(0, 0, 9, .2, 2.5); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, 9, 3.35, 5.75); ctx.stroke();
+  ctx.restore();
+  drawReactorCore(s.x, s.y + 2, 6, s.id * .3, COLORS.gas);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(x - 5, y + 22, 12, 7); ctx.fillRect(x + s.w - 7, y + 22, 12, 7);
+  ctx.fillStyle = COLORS.gas;
+  ctx.fillRect(x - 4, y + 24, 10, 3); ctx.fillRect(x + s.w - 6, y + 24, 10, 3);
+  drawAntenna(x + s.w - 9, y + 6, 11, s.id * .17, COLORS.gas);
+  if (!s.underConstruction) {
+    const node = gasNodeForExtractor(s);
+    const gasLeft = node ? Math.ceil(node.amount) : 0;
+    const gasCap = node?.capacity || 0;
+    drawText('GAS EXTRACTOR', s.x, y + s.h + 5, 8, COLORS.gas, 'center');
+    drawText(`GAS ${gasLeft}/${gasCap}`, s.x, y + s.h + 15, 8, gasLeft > 0 ? '#d8bdff' : COLORS.bad, 'center');
+  }
+}
+
+function drawMinersHutStructure(s, x, y, team, light, flash) {
+  if (s.hutUpgrade === 'outpost' && !s.underConstruction) {
+    ctx.strokeStyle = 'rgba(255,209,102,.18)';
+    ctx.lineWidth = structureLineWidth();
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.range, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  // Utility depot with a central service cabin, mineral hopper and gas tank.
+  drawBuildingShadow(x - 3, y + 10, s.w + 6, s.h - 8);
+  drawClippedPlate(x + 9, y + 8, s.w - 18, s.h - 8, 5, flash ? '#ffffff' : '#30434b', '#132129');
+  drawClippedPlate(x - 4, y + 19, 15, 17, 4, flash ? '#ffffff' : '#43545b', '#19272e');
+  ctx.fillStyle = COLORS.mineral;
+  ctx.beginPath();
+  ctx.moveTo(x - 1, y + 31); ctx.lineTo(x + 4, y + 19); ctx.lineTo(x + 9, y + 31);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.beginPath(); ctx.arc(x + s.w + 1, y + 27, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#302645';
+  ctx.beginPath(); ctx.arc(x + s.w + 1, y + 27, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = COLORS.gas; ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.arc(x + s.w + 1, y + 27, 6, 0, Math.PI * 2); ctx.stroke();
+  drawIndustrialDoor(s.x - 7, y + s.h - 16, 14, 16, team, light, s.id * .2);
+  drawTeamPanel(s.x - 7, y + 10, 14, 5, team, light);
+  drawIndustrialPipe(x + 10, y + 25, s.x - 9, y + 25, 2, COLORS.mineral);
+  drawIndustrialPipe(x + s.w - 10, y + 23, x + s.w - 1, y + 23, 2, COLORS.gas);
+
+  if (s.hutUpgrade === 'factory') {
+    ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(x + 5, y - 5, s.w - 10, 9);
+    ctx.fillStyle = STRUCTURE_METAL; ctx.fillRect(x + 7, y - 3, s.w - 14, 3);
+    drawGlowStrip(x + 12, y + 1, s.w - 24, 3, s.id * .2, COLORS.mineral, '#d7fbff');
+    drawAntenna(x + s.w - 9, y + 6, 15, s.id * .2, COLORS.mineral);
+  } else if (s.hutUpgrade === 'outpost') {
+    const mountY = s.y - 23;
+    ctx.save();
+    ctx.translate(s.x, mountY);
+    ctx.rotate(s.barrelAngle || 0);
+    drawClippedPlate(-7, -6, 14, 12, 3, '#1b2833', '#0e171f');
+    const kick = s.recoil > 0 ? Math.min(3, s.recoil * 24) : 0;
+    ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(4, -3, 18 - kick, 6);
+    ctx.fillStyle = COLORS.warn; ctx.fillRect(5, -1, 17 - kick, 2);
+    ctx.restore();
+    drawReactorCore(s.x, mountY, 4, s.id * .2, COLORS.warn);
+  }
+  if (!s.underConstruction) {
+    const label = s.hutUpgrade === 'factory' ? 'FACTORY' : s.hutUpgrade === 'outpost' ? 'OUTPOST' : 'MINERS HUT';
+    const color = s.hutUpgrade === 'factory' ? COLORS.mineral : COLORS.warn;
+    drawText(label, s.x, y + s.h + 5, 9, color, 'center');
+  }
+}
+
+function drawHousingStructure(s, x, y, team, light, flash) {
+  // Twin hab towers linked by a narrow bridge; clearly vertical and residential.
+  drawBuildingShadow(x + 1, y + 11, s.w - 2, s.h - 9);
+  drawClippedPlate(x + 2, y + 5, 15, s.h - 5, 4, flash ? '#ffffff' : '#3b515d', '#18252e');
+  drawClippedPlate(x + s.w - 17, y + 1, 15, s.h - 1, 4, flash ? '#ffffff' : '#3b515d', '#18252e');
+  drawClippedPlate(x + 14, y + 17, s.w - 28, 13, 3, flash ? '#ffffff' : '#283944', '#121c24');
+  drawTeamPanel(x + 5, y + 7, 9, 4, team, light);
+  drawTeamPanel(x + s.w - 14, y + 4, 9, 4, team, light);
+
+  // Warm habitation windows are grouped vertically rather than used as generic strips.
+  for (let i = 0; i < 3; i++) {
+    drawGlowStrip(x + 6, y + 14 + i * 7, 7, 3, s.id * .18 + i, COLORS.good, '#e3ffdd');
+    drawGlowStrip(x + s.w - 13, y + 11 + i * 7, 7, 3, s.id * .18 + i + .7, COLORS.good, '#e3ffdd');
+  }
+  drawIndustrialDoor(s.x - 5, y + s.h - 14, 10, 14, team, light, s.id * .25);
+  drawIndustrialPipe(x + 17, y + 20, x + s.w - 17, y + 20, 2, STRUCTURE_METAL);
+  drawAntenna(x + s.w - 10, y + 2, 9, s.id * .15, COLORS.good);
+  drawStructureLabel('HOUSING', s, y, COLORS.good);
+}
+
+function drawResearchStructure(s, x, y, team, light, flash) {
+  // Tri-lobed science reactor: a circular core with three instrument pylons.
+  drawBuildingShadow(x - 2, y + 11, s.w + 4, s.h - 9);
+  drawClippedPlate(x + 7, y + 10, s.w - 14, s.h - 10, 9, flash ? '#ffffff' : '#2d4050', '#111c27');
+
+  // Instrument pylons form a three-point silhouette around the reactor.
+  drawClippedPlate(s.x - 7, y - 2, 14, 16, 4, flash ? '#ffffff' : '#425269', '#182431');
+  drawClippedPlate(x - 3, y + 23, 17, 17, 5, flash ? '#ffffff' : '#425269', '#182431');
+  drawClippedPlate(x + s.w - 14, y + 23, 17, 17, 5, flash ? '#ffffff' : '#425269', '#182431');
+  drawTeamPanel(s.x - 5, y + 1, 10, 4, team, light);
+  drawTeamPanel(x, y + 28, 9, 4, team, light);
+  drawTeamPanel(x + s.w - 9, y + 28, 9, 4, team, light);
+
+  // Large central reactor with rotating segmented science ring.
+  drawReactorCore(s.x, y + 27, 10, s.id * .21);
+  ctx.save();
+  ctx.translate(s.x, y + 27);
+  ctx.rotate(state.elapsed * .38 + s.id * .13);
+  ctx.strokeStyle = STRUCTURE_CYAN;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.arc(0, 0, 16, .05, 1.15); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, 16, 1.62, 2.72); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, 16, 3.19, 4.29); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, 16, 4.76, 5.86); ctx.stroke();
+  ctx.restore();
+  drawIndustrialPipe(s.x - 13, y + 27, x + 11, y + 31, 2, STRUCTURE_CYAN);
+  drawIndustrialPipe(s.x + 13, y + 27, x + s.w - 11, y + 31, 2, STRUCTURE_CYAN);
+  drawAntenna(s.x, y - 1, 11, s.id * .23, STRUCTURE_CYAN);
+  drawStructureLabel('RESEARCH', s, y, STRUCTURE_CYAN);
+}
+
+function drawLaboratoryStructure(s, x, y, team, light, flash) {
+  // Containment lab: tall central chamber, two reagent tanks and exposed pipework.
+  drawBuildingShadow(x - 2, y + 10, s.w + 4, s.h - 8);
+  drawClippedPlate(x + 11, y + 8, s.w - 22, s.h - 8, 6, flash ? '#ffffff' : '#2a4048', '#122229');
+  drawClippedPlate(x - 2, y + 20, 15, 20, 4, flash ? '#ffffff' : '#40525a', '#18272e');
+  drawClippedPlate(x + s.w - 13, y + 15, 15, 25, 4, flash ? '#ffffff' : '#40525a', '#18272e');
+  drawTeamPanel(x, y + 24, 9, 4, team, light);
+  drawTeamPanel(x + s.w - 9, y + 19, 9, 4, team, light);
+
+  const chamberY = y + 23;
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.beginPath(); ctx.ellipse(s.x, chamberY, 10, 17, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#10242c';
+  ctx.beginPath(); ctx.ellipse(s.x, chamberY, 8, 15, 0, 0, Math.PI * 2); ctx.fill();
+  const oldAlpha = ctx.globalAlpha;
+  const pulse = .64 + Math.sin(state.elapsed * 4.2 + s.id) * .24;
+  ctx.globalAlpha = oldAlpha * pulse;
+  ctx.fillStyle = STRUCTURE_CYAN;
+  ctx.beginPath(); ctx.ellipse(s.x, chamberY, 6, 12, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = STRUCTURE_CYAN_LIGHT; ctx.fillRect(s.x - 2, chamberY - 9, 3, 13);
+  ctx.globalAlpha = oldAlpha;
+  ctx.strokeStyle = STRUCTURE_METAL;
+  ctx.lineWidth = structureLineWidth(true);
+  ctx.beginPath(); ctx.ellipse(s.x, chamberY, 9, 16, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = STRUCTURE_METAL;
+  ctx.fillRect(s.x - 11, chamberY - 11, 22, 3); ctx.fillRect(s.x - 11, chamberY + 8, 22, 3);
+
+  drawIndustrialPipe(x + 10, y + 27, s.x - 8, chamberY - 4, 2, COLORS.good);
+  drawIndustrialPipe(x + s.w - 10, y + 22, s.x + 8, chamberY + 3, 2, COLORS.good);
+  drawGlowStrip(x + 4, y + s.h - 7, 10, 3, s.id * .27, COLORS.good, '#e2ffdc');
+  drawGlowStrip(x + s.w - 14, y + s.h - 7, 10, 3, s.id * .27 + 1, COLORS.good, '#e2ffdc');
+  drawAntenna(x + s.w - 7, y + 14, 13, s.id * .21, COLORS.good);
+  drawStructureLabel('LAB', s, y, STRUCTURE_CYAN);
+}
+
+function drawResourceMineStructure(s, x, y, team, light, flash) {
+  const mineral = s.type === 'mineralMine';
+  const resourceColor = mineral ? COLORS.mineral : COLORS.gas;
+  drawBuildingShadow(x - 3, y + 10, s.w + 6, s.h - 8);
+
+  if (mineral) {
+    // Mineral mine: angular crusher/hopper with a visible discharge conveyor.
+    drawClippedPlate(x + 5, y + 7, s.w - 10, s.h - 9, 7, flash ? '#ffffff' : '#2e3c49', '#121d26');
+    ctx.fillStyle = STRUCTURE_INK;
+    ctx.beginPath();
+    ctx.moveTo(s.x - 11, y + 11); ctx.lineTo(s.x + 11, y + 11);
+    ctx.lineTo(s.x + 7, y + 28); ctx.lineTo(s.x - 7, y + 28);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#183141';
+    ctx.beginPath();
+    ctx.moveTo(s.x - 8, y + 13); ctx.lineTo(s.x + 8, y + 13);
+    ctx.lineTo(s.x + 5, y + 25); ctx.lineTo(s.x - 5, y + 25);
+    ctx.closePath(); ctx.fill();
+    drawGlowStrip(s.x - 6, y + 16, 12, 4, s.id * .22, resourceColor, '#d9fbff');
+    drawIndustrialPipe(s.x + 7, y + 28, x + s.w + 5, y + s.h - 6, 4, STRUCTURE_METAL);
+    ctx.fillStyle = resourceColor; ctx.fillRect(x + s.w, y + s.h - 9, 8, 5);
+  } else {
+    // Gas mine: paired pressure vessels around a central pumping manifold.
+    drawClippedPlate(x + 12, y + 10, s.w - 24, s.h - 10, 5, flash ? '#ffffff' : '#2f3947', '#151c27');
+    for (let side = -1; side <= 1; side += 2) {
+      const cx = s.x + side * 13;
+      ctx.fillStyle = STRUCTURE_INK;
+      ctx.beginPath(); ctx.ellipse(cx, y + 24, 8, 14, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#33294a';
+      ctx.beginPath(); ctx.ellipse(cx, y + 24, 6, 12, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = resourceColor; ctx.lineWidth = structureLineWidth();
+      ctx.beginPath(); ctx.ellipse(cx, y + 24, 5, 10, 0, 0, Math.PI * 2); ctx.stroke();
+    }
+    drawReactorCore(s.x, y + 25, 5, s.id * .22, resourceColor);
+    drawIndustrialPipe(s.x - 7, y + 25, s.x + 7, y + 25, 2, resourceColor);
+  }
+  drawTeamPanel(s.x - 7, y + 5, 14, 4, team, light);
+  drawAntenna(x + s.w - 7, y + 9, 10, s.id * .2, resourceColor);
+}
+
+// Upgrade silhouettes stay cumulative and deliberately lightweight. They add
+// battlefield readability without changing any footprint or gameplay property.
+function drawUpgradeArmorTab(x, y, w, h, fill, highlight = STRUCTURE_METAL) {
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.fillRect(Math.round(x) - 1, Math.round(y) - 1, Math.round(w) + 2, Math.round(h) + 2);
+  ctx.fillStyle = fill;
+  ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  ctx.fillStyle = highlight;
+  ctx.fillRect(Math.round(x) + 1, Math.round(y) + 1, Math.max(1, Math.round(w) - 2), 1);
+}
+
+function drawFactoryFlame(cx, baseY, phase = 0) {
+  // Three low-cost polygon tongues create a stable, readable exhaust flame.
+  const flicker = Math.sin(state.elapsed * 12 + phase);
+  ctx.fillStyle = STRUCTURE_INK;
+  ctx.beginPath();
+  ctx.moveTo(cx - 5, baseY + 1); ctx.lineTo(cx - 4, baseY - 9 - flicker * 2);
+  ctx.lineTo(cx, baseY - 15 + flicker); ctx.lineTo(cx + 3, baseY - 8 + flicker * 2);
+  ctx.lineTo(cx + 5, baseY + 1); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ff6b32';
+  ctx.beginPath();
+  ctx.moveTo(cx - 3, baseY); ctx.lineTo(cx - 2, baseY - 7 - flicker);
+  ctx.lineTo(cx, baseY - 12 + flicker); ctx.lineTo(cx + 2, baseY - 6 + flicker);
+  ctx.lineTo(cx + 3, baseY); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ffd166';
+  ctx.beginPath();
+  ctx.moveTo(cx - 1, baseY); ctx.lineTo(cx, baseY - 7 - flicker * .5);
+  ctx.lineTo(cx + 1, baseY); ctx.closePath(); ctx.fill();
+}
+
+function drawRotorServiceMark(cx, cy, radius, phase) {
+  ctx.save();
+  ctx.translate(Math.round(cx), Math.round(cy));
+  ctx.rotate(state.elapsed * .42 + phase);
+  ctx.strokeStyle = STRUCTURE_CYAN;
+  ctx.lineWidth = structureLineWidth();
+  ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = STRUCTURE_CYAN_LIGHT;
+  ctx.fillRect(-radius - 2, -1, radius * 2 + 4, 2);
+  ctx.fillRect(-1, -radius - 2, 2, radius * 2 + 4);
+  ctx.restore();
+}
+
+function drawHQUpgradeDetails(s, x, y, team, light, level) {
+  if (level >= 2) {
+    // Mechanic unlock: paired articulated repair booms and amber tool heads.
+    drawUpgradeArmorTab(x - 5, y + 12, 8, 18, '#3b4c58');
+    drawUpgradeArmorTab(x + s.w - 3, y + 12, 8, 18, '#3b4c58');
+    drawIndustrialPipe(x + 1, y + 14, x - 7, y + 5, 3, COLORS.warn);
+    drawIndustrialPipe(x + s.w - 1, y + 14, x + s.w + 7, y + 5, 3, COLORS.warn);
+    ctx.fillStyle = COLORS.warn;
+    ctx.fillRect(x - 10, y + 2, 6, 5); ctx.fillRect(x + s.w + 4, y + 2, 6, 5);
+  }
+  if (level >= 3) {
+    // Robo-miner and Adrenaline Rush: resource intake drums plus a green command beacon.
+    for (let side = -1; side <= 1; side += 2) {
+      const px = s.x + side * 22;
+      ctx.fillStyle = STRUCTURE_INK;
+      ctx.beginPath(); ctx.arc(px, y + 27, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = side < 0 ? COLORS.mineral : COLORS.gas;
+      ctx.lineWidth = structureLineWidth(true);
+      ctx.beginPath(); ctx.arc(px, y + 27, 4, 0, Math.PI * 2); ctx.stroke();
+    }
+    const pulse = .62 + Math.sin(state.elapsed * 5 + s.id) * .25;
+    ctx.save(); ctx.globalAlpha *= pulse;
+    ctx.strokeStyle = COLORS.good; ctx.lineWidth = structureLineWidth(true);
+    ctx.beginPath(); ctx.arc(s.x, y - 9, 9, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawBarracksUpgradeDetails(s, x, y, team, light, level) {
+  if (level >= 2) {
+    // Long-range infantry: roof rifle rail and compact rangefinder optic.
+    ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(s.x - 16, y + 1, 32, 5);
+    ctx.fillStyle = '#61717e'; ctx.fillRect(s.x - 14, y + 2, 27, 2);
+    ctx.fillStyle = team; ctx.fillRect(s.x + 9, y + 2, 7, 2);
+    drawGlowStrip(s.x - 4, y - 1, 8, 3, s.id * .2, STRUCTURE_CYAN, STRUCTURE_CYAN_LIGHT);
+  }
+  if (level >= 3) {
+    // Mortar team: two angled launch tubes with warning collars.
+    ctx.save();
+    ctx.translate(x + 8, y + 8); ctx.rotate(-.72);
+    ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(-3, -12, 7, 19);
+    ctx.fillStyle = '#6f7e89'; ctx.fillRect(-1, -11, 3, 16);
+    ctx.fillStyle = COLORS.warn; ctx.fillRect(-2, -7, 5, 3);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(x + s.w - 8, y + 8); ctx.rotate(.72);
+    ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(-3, -12, 7, 19);
+    ctx.fillStyle = '#6f7e89'; ctx.fillRect(-1, -11, 3, 16);
+    ctx.fillStyle = COLORS.warn; ctx.fillRect(-2, -7, 5, 3);
+    ctx.restore();
+  }
+  if (level >= 4) {
+    // War mecha: exposed assembly gantry and heavy mechanical foot clamps.
+    drawUpgradeArmorTab(x - 5, y + 5, 7, 29, '#4b5c67', team);
+    drawUpgradeArmorTab(x + s.w - 2, y + 5, 7, 29, '#4b5c67', team);
+    ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(x - 3, y - 2, s.w + 6, 7);
+    ctx.fillStyle = '#71818c'; ctx.fillRect(x, y, s.w, 3);
+    drawReactorCore(s.x, y + 5, 4, s.id * .17, team);
+    ctx.fillStyle = STRUCTURE_INK;
+    ctx.fillRect(s.x - 16, y + s.h - 4, 11, 6); ctx.fillRect(s.x + 5, y + s.h - 4, 11, 6);
+    ctx.fillStyle = team;
+    ctx.fillRect(s.x - 14, y + s.h - 3, 7, 3); ctx.fillRect(s.x + 7, y + s.h - 3, 7, 3);
+  }
+}
+
+function drawGarageUpgradeDetails(s, x, y, team, light, level) {
+  if (level >= 2) {
+    // Armored Jeep: visibly thicken the factory's side armor and blast shutters.
+    drawClippedPlate(x - 7, y + 16, 10, 23, 3, '#52616d', GARAGE_GAS_DARK);
+    drawClippedPlate(x + s.w - 3, y + 16, 10, 23, 3, '#52616d', GARAGE_GAS_DARK);
+    drawUpgradeArmorTab(x + 7, y + 15, 10, 6, '#4d5d68', GARAGE_GAS);
+    drawUpgradeArmorTab(x + s.w - 17, y + 15, 10, 6, '#4d5d68', GARAGE_GAS);
+  }
+  if (level >= 3) {
+    // Heavy flame jeep: gas chimney, ignition chamber and live exhaust flame.
+    drawClippedPlate(x + s.w - 10, y - 13, 11, 18, 3, '#4c465c', GARAGE_GAS_DARK);
+    drawGlowStrip(x + s.w - 7, y - 9, 5, 3, s.id * .29, GARAGE_GAS, GARAGE_GAS_LIGHT);
+    drawFactoryFlame(x + s.w - 5, y - 13, s.id * .41);
+    drawIndustrialPipe(x + s.w - 10, y + 1, x + s.w - 18, y + 12, 3, GARAGE_GAS);
+  }
+  if (level >= 4) {
+    // Titan Tank: twin track production lanes with rollers and an unfinished hull.
+    const trackY = y + s.h - 8;
+    for (let lane = -1; lane <= 1; lane += 2) {
+      const laneY = trackY + lane * 4;
+      ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(x + 5, laneY - 3, s.w - 10, 7);
+      ctx.fillStyle = '#4b5660'; ctx.fillRect(x + 7, laneY - 1, s.w - 14, 3);
+      ctx.fillStyle = GARAGE_GAS;
+      for (let px = x + 9; px < x + s.w - 9; px += 7) ctx.fillRect(px, laneY - 2, 3, 5);
+    }
+    drawClippedPlate(s.x - 13, y + 11, 26, 12, 4, '#596773', '#1b2430');
+    ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(s.x - 6, y + 7, 12, 8);
+    ctx.fillStyle = GARAGE_GAS_LIGHT; ctx.fillRect(s.x - 2, y + 9, 4, 3);
+  }
+}
+
+function drawAirBayUpgradeDetails(s, x, y, team, light, level) {
+  if (level >= 2) {
+    // Double-propeller chopper: paired rotor-service turntables.
+    drawRotorServiceMark(x + 12, y + 17, 6, s.id * .11);
+    drawRotorServiceMark(x + s.w - 12, y + 17, 6, s.id * .11 + Math.PI * .5);
+  }
+  if (level >= 3) {
+    // Fighter: launch catapult rails and directional wing chevrons.
+    ctx.fillStyle = STRUCTURE_INK;
+    ctx.fillRect(s.x - 18, y + 27, 36, 3); ctx.fillRect(s.x - 18, y + 34, 36, 3);
+    ctx.fillStyle = STRUCTURE_CYAN_LIGHT;
+    ctx.fillRect(s.x - 16, y + 28, 32, 1); ctx.fillRect(s.x - 16, y + 35, 32, 1);
+    ctx.strokeStyle = team; ctx.lineWidth = structureLineWidth(true);
+    ctx.beginPath();
+    ctx.moveTo(s.x - 17, y + 20); ctx.lineTo(s.x - 8, y + 25); ctx.lineTo(s.x - 14, y + 27);
+    ctx.moveTo(s.x + 17, y + 20); ctx.lineTo(s.x + 8, y + 25); ctx.lineTo(s.x + 14, y + 27);
+    ctx.stroke();
+  }
+  if (level >= 4) {
+    // Bomber: heavy ordnance racks and a long central bomb-loader spine.
+    drawClippedPlate(x - 6, y + 8, 11, 24, 3, '#46545f', '#19232b');
+    drawClippedPlate(x + s.w - 5, y + 8, 11, 24, 3, '#46545f', '#19232b');
+    for (let side = -1; side <= 1; side += 2) {
+      const bx = s.x + side * 25;
+      ctx.fillStyle = STRUCTURE_INK;
+      ctx.beginPath(); ctx.ellipse(bx, y + 22, 3, 7, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = COLORS.warn;
+      ctx.beginPath(); ctx.ellipse(bx, y + 22, 1.5, 5, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(s.x - 3, y + 13, 6, 27);
+    ctx.fillStyle = STRUCTURE_CYAN; ctx.fillRect(s.x - 1, y + 15, 2, 23);
+  }
+}
+
+function drawSupportUpgradeDetails(s, x, y, team, light, level) {
+  if (level >= 2) {
+    // Radar operator: elevated rotating dish and scan mast.
+    ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(s.x - 2, y - 5, 5, 13);
+    ctx.fillStyle = STRUCTURE_METAL; ctx.fillRect(s.x, y - 4, 2, 11);
+    ctx.save();
+    ctx.translate(s.x + 1, y - 7);
+    ctx.rotate(state.elapsed * .56 + s.id * .13);
+    ctx.strokeStyle = COLORS.good; ctx.lineWidth = structureLineWidth(true);
+    ctx.beginPath(); ctx.arc(0, 0, 9, -.8, .8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-6, -5); ctx.lineTo(6, 5); ctx.stroke();
+    ctx.restore();
+  }
+  if (level >= 3) {
+    // Force-field truck: four projector nodes and a pulsing shield arc.
+    const pulse = .62 + Math.sin(state.elapsed * 4.5 + s.id) * .22;
+    for (let side = -1; side <= 1; side += 2) {
+      drawReactorCore(s.x + side * 19, y + 12, 4, s.id * .2 + side, '#7de8ff');
+    }
+    ctx.save(); ctx.globalAlpha *= pulse;
+    ctx.strokeStyle = '#7de8ff'; ctx.lineWidth = structureLineWidth(true);
+    ctx.beginPath(); ctx.arc(s.x, y + 18, 25, Math.PI * 1.12, Math.PI * 1.88); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawTurretUpgradeDetails(s, x, y, team, light, level) {
+  if (level >= 2) {
+    // Field reinforcement: compact braces, not a building-wide power frame.
+    drawUpgradeArmorTab(x - 3, y + 8, 6, 11, '#4b5c68', team);
+    drawUpgradeArmorTab(x + s.w - 3, y + 8, 6, 11, '#4b5c68', team);
+  }
+  if (level >= 3) {
+    if (s.type === 'antiAirTurret') {
+      drawAntenna(s.x - 8, y + 1, 9, s.id * .2, STRUCTURE_CYAN);
+      drawAntenna(s.x + 8, y + 1, 9, s.id * .31, STRUCTURE_CYAN);
+    } else {
+      drawGlowStrip(s.x - 9, y - 4, 18, 3, s.id * .3, team, light);
+    }
+  }
+}
+
+function drawFallbackUpgradeDetails(s, x, y, team, light, level) {
+  if (level >= 2) {
+    drawUpgradeArmorTab(x - 3, y + 9, 5, 10, STRUCTURE_BODY_LIGHT, team);
+    drawUpgradeArmorTab(x + s.w - 2, y + 9, 5, 10, STRUCTURE_BODY_LIGHT, team);
+  }
+  // A restrained frame remains an L3-only cue. It is deliberately omitted at L4.
+  if (level === 3) {
+    ctx.save();
+    ctx.globalAlpha *= .62 + Math.sin(state.elapsed * 4 + s.id) * .14;
+    ctx.strokeStyle = s.type === 'housing' ? COLORS.good : STRUCTURE_CYAN;
+    ctx.lineWidth = structureLineWidth();
+    ctx.strokeRect(x - 2, y - 2, s.w + 4, s.h + 4);
+    ctx.restore();
+  }
+}
+
+// Upgrades are cumulative, but every production tier now advertises the newly
+// unlocked troop through machinery rather than a generic glowing box.
+function drawStructureUpgradeDetails(s, x, y, team) {
+  const level = s.level || 1;
+  if (s.underConstruction || level <= 1) return;
+  const light = colorForTeam(s.team, 'light');
+  ctx.save();
+
+  if (s.type === 'hq') drawHQUpgradeDetails(s, x, y, team, light, level);
+  else if (s.type === 'barracks') drawBarracksUpgradeDetails(s, x, y, team, light, level);
+  else if (s.type === 'garage') drawGarageUpgradeDetails(s, x, y, team, light, level);
+  else if (s.type === 'airBay') drawAirBayUpgradeDetails(s, x, y, team, light, level);
+  else if (s.type === 'supportCamp') drawSupportUpgradeDetails(s, x, y, team, light, level);
+  else if (s.type === 'turret' || s.type === 'antiAirTurret' || s.type === 'radarTurret') {
+    drawTurretUpgradeDetails(s, x, y, team, light, level);
+  } else {
+    drawFallbackUpgradeDetails(s, x, y, team, light, level);
+  }
+
+  // Small level badge only; L4 never receives a surrounding power box.
+  ctx.fillStyle = STRUCTURE_INK; ctx.fillRect(x + s.w - 17, y + 2, 15, 10);
+  drawText(`L${level}`, x + s.w - 15, y + 3, 7, s.type === 'garage' ? GARAGE_GAS_LIGHT : light);
+  ctx.restore();
+}
       
       function activeStructureWork(s) {
         if (!s || s.underConstruction) return null;
@@ -15148,414 +15953,98 @@
       }
       
       function drawStructure(s) {
-        if (s.hp <= 0) return;
-        if (!isLocallyVisibleToTeam(activeCommandTeam(), s.x, s.y) && s.team !== activeCommandTeam()) return;
-        const x = Math.floor(s.x - s.w / 2), y = Math.floor(s.y - s.h / 2);
-        const team = colorForTeam(s.team);
-        const light = colorForTeam(s.team, 'light');
-        const flash = s.flash > 0;
-        ctx.save();
-        if ((s.adrenalineAuraUntil || 0) > state.elapsed) {
-          const remaining = s.adrenalineAuraUntil - state.elapsed;
-          const pulse = .55 + Math.sin(state.elapsed * 9) * .18;
-          ctx.save();
-          ctx.globalAlpha = .07 + pulse * .07;
-          ctx.fillStyle = COLORS.good;
-          ctx.beginPath(); ctx.arc(s.x, s.y, ADRENALINE_RADIUS, 0, Math.PI * 2); ctx.fill();
-          ctx.globalAlpha = .55 + pulse * .3;
-          ctx.strokeStyle = COLORS.good;
-          ctx.lineWidth = 2 / cam.zoom;
-          ctx.setLineDash([9 / cam.zoom, 6 / cam.zoom]);
-          ctx.beginPath(); ctx.arc(s.x, s.y, ADRENALINE_RADIUS, 0, Math.PI * 2); ctx.stroke();
-          ctx.setLineDash([]);
-          drawText(`ADRENALINE · ${Math.ceil(remaining)}s`, s.x, y - 28, 9, COLORS.good, 'center');
-          ctx.restore();
-        }
-        if (s.underConstruction) ctx.globalAlpha = s.constructionStarted ? .7 : .46;
-      
-        if (s.type === 'hq') {
-          ctx.fillStyle = '#0d1118';
-          ctx.fillRect(x - 4, y + 6, s.w + 8, s.h - 2);
-          ctx.fillStyle = flash ? '#ffffff' : colorForTeam(s.team, 'dark');
-          ctx.fillRect(x, y, s.w, s.h);
-          ctx.fillStyle = team;
-          ctx.fillRect(x + 6, y + 7, s.w - 12, 9);
-          ctx.fillStyle = '#101620';
-          ctx.fillRect(x + 10, y + 21, s.w - 20, 22);
-          ctx.fillStyle = team;
-          ctx.fillRect(x + s.w / 2 - 7, y + 25, 14, 18);
-          ctx.fillStyle = '#cbd9ec';
-          ctx.fillRect(x + 8, y - 9, 5, 14);
-          ctx.fillRect(x + s.w - 13, y - 14, 5, 19);
-          drawText(hqLabel(s.team), s.x, y + s.h + 5, 12, team, 'center');
-        } else if (s.type === 'turret') {
-          // Faint range ring.
-          if (!s.underConstruction) {
-            ctx.strokeStyle = 'rgba(158,208,255,.18)';
-            ctx.lineWidth = 1 / cam.zoom;
-            ctx.beginPath(); ctx.arc(s.x, s.y, s.range, 0, Math.PI * 2); ctx.stroke();
-          }
-          // Base.
-          ctx.fillStyle = '#0f1620';
-          ctx.fillRect(x - 2, y + 4, s.w + 4, s.h);
-          ctx.fillStyle = flash ? '#fff' : '#2c3a52';
-          ctx.fillRect(x, y, s.w, s.h);
-          ctx.strokeStyle = team; ctx.lineWidth = 2 / cam.zoom;
-          ctx.strokeRect(x + 1, y + 1, s.w - 2, s.h - 2);
-          // Rotating head + barrel.
-          ctx.save();
-          ctx.translate(s.x, s.y);
-          ctx.rotate(s.barrelAngle);
-          ctx.fillStyle = team;
-          const turretKick = s.recoil > 0 ? Math.min(4, s.recoil * 30) : 0;
-          ctx.fillRect(0, -3, s.w / 2 + 6 - turretKick, 6);
-          ctx.fillStyle = flash ? '#fff' : '#1a2432';
-          ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = light;
-          ctx.fillRect(-3, -3, 6, 6);
-          ctx.restore();
-        } else if (s.type === 'antiAirTurret') {
-          // Wide radar base with a rotating twin-missile rack. Its cyan range ring
-          // distinguishes the air-only coverage from the standard ground turret.
-          if (!s.underConstruction) {
-            ctx.strokeStyle = 'rgba(156,242,255,.2)';
-            ctx.lineWidth = 1 / cam.zoom;
-            ctx.setLineDash([7 / cam.zoom, 5 / cam.zoom]);
-            ctx.beginPath(); ctx.arc(s.x, s.y, s.range, 0, Math.PI * 2); ctx.stroke();
-            ctx.setLineDash([]);
-          }
-          ctx.fillStyle = '#0c141d';
-          ctx.fillRect(x - 2, y + 5, s.w + 4, s.h - 1);
-          ctx.fillStyle = flash ? '#ffffff' : '#263b4b';
-          ctx.fillRect(x, y, s.w, s.h);
-          ctx.strokeStyle = team; ctx.lineWidth = 2 / cam.zoom;
-          ctx.strokeRect(x + 1, y + 1, s.w - 2, s.h - 2);
-          ctx.strokeStyle = '#9cf2ff';
-          ctx.beginPath(); ctx.arc(s.x, s.y, 11, 0, Math.PI * 2); ctx.stroke();
-          ctx.save();
-          ctx.translate(s.x, s.y - 4);
-          ctx.rotate(s.barrelAngle);
-          const missileKick = s.recoil > 0 ? Math.min(4, s.recoil * 28) : 0;
-          ctx.fillStyle = '#182530';
-          ctx.fillRect(-5, -10, 16, 7); ctx.fillRect(-5, 3, 16, 7);
-          ctx.fillStyle = light;
-          ctx.fillRect(4 - missileKick, -9, 15, 5); ctx.fillRect(4 - missileKick, 4, 15, 5);
-          ctx.fillStyle = '#f3fbff';
-          ctx.fillRect(15 - missileKick, -8, 6, 3); ctx.fillRect(15 - missileKick, 5, 6, 3);
-          ctx.restore();
-          ctx.fillStyle = '#d9fbff';
-          ctx.fillRect(s.x - 3, s.y - 3, 6, 6);
-          if (!s.underConstruction) drawText('ANTI-AIR', s.x, y + s.h + 5, 8, '#9cf2ff', 'center');
-        } else if (s.type === 'barracks') {
-          ctx.fillStyle = '#101720';
-          ctx.fillRect(x - 3, y + 6, s.w + 6, s.h - 2);
-          ctx.fillStyle = flash ? '#fff' : '#30445e';
-          ctx.fillRect(x, y, s.w, s.h);
-          ctx.fillStyle = team;
-          ctx.fillRect(x + 4, y + 5, s.w - 8, 7);
-          ctx.fillStyle = '#172231';
-          ctx.fillRect(x + 7, y + 16, s.w - 14, s.h - 21);
-          ctx.fillStyle = light;
-          ctx.fillRect(x + 10, y + 20, 7, 7);
-          ctx.fillRect(x + s.w - 17, y + 20, 7, 7);
-          ctx.fillStyle = '#0a1018';
-          ctx.fillRect(x + s.w / 2 - 7, y + s.h - 17, 14, 17);
-          ctx.fillStyle = team;
-          ctx.fillRect(x + s.w / 2 - 2, y + s.h - 13, 4, 13);
-          if (!s.underConstruction) drawText('BARRACKS', s.x, y + s.h + 5, 9, team, 'center');
-        } else if (s.type === 'garage') {
-          ctx.fillStyle = '#101720';
-          ctx.fillRect(x - 4, y + 7, s.w + 8, s.h - 3);
-          ctx.fillStyle = flash ? '#fff' : '#384054';
-          ctx.fillRect(x, y, s.w, s.h);
-          ctx.fillStyle = COLORS.gas;
-          ctx.fillRect(x + 5, y + 5, s.w - 10, 7);
-          ctx.fillStyle = '#141b27';
-          ctx.fillRect(x + 7, y + 17, s.w - 14, s.h - 17);
-          ctx.fillStyle = '#68758c';
-          ctx.fillRect(x + 11, y + 20, s.w - 22, 4);
-          ctx.fillRect(x + 11, y + 29, s.w - 22, 4);
-          ctx.fillStyle = COLORS.gas;
-          ctx.fillRect(x + s.w - 11, y - 8, 5, 15);
-          ctx.fillStyle = '#cbb7ee';
-          ctx.fillRect(x + 13, y + 18, 5, 5);
-          if (!s.underConstruction) drawText('GARAGE', s.x, y + s.h + 5, 9, COLORS.gas, 'center');
-        } else if (s.type === 'airBay') {
-          // Open flight deck with a rear hangar and illuminated landing marker.
-          ctx.fillStyle = '#0c1219';
-          ctx.fillRect(x - 4, y + 7, s.w + 8, s.h - 3);
-          ctx.fillStyle = flash ? '#ffffff' : '#354650';
-          ctx.fillRect(x, y + 4, s.w, s.h - 4);
-          ctx.fillStyle = '#18242d';
-          ctx.fillRect(x + 5, y + 9, s.w - 10, s.h - 14);
-          ctx.strokeStyle = '#9cf2ff'; ctx.lineWidth = 2 / cam.zoom;
-          ctx.beginPath(); ctx.arc(s.x, y + 29, 14, 0, Math.PI * 2); ctx.stroke();
-          ctx.fillStyle = '#d9fbff';
-          ctx.fillRect(s.x - 2, y + 18, 4, 22);
-          ctx.fillRect(s.x - 10, y + 27, 20, 4);
-          ctx.fillStyle = team;
-          ctx.fillRect(x + 5, y + 5, s.w - 10, 6);
-          ctx.fillStyle = '#253440';
-          ctx.fillRect(x + 8, y - 5, s.w - 16, 13);
-          ctx.fillStyle = COLORS.warn;
-          ctx.fillRect(x + 10, y - 2, 5, 5); ctx.fillRect(x + s.w - 15, y - 2, 5, 5);
-          ctx.fillStyle = '#cbd9ec';
-          ctx.fillRect(x + s.w - 10, y - 13, 4, 18);
-          ctx.fillStyle = COLORS.warn;
-          ctx.fillRect(x + s.w - 12, y - 15, 8, 4);
-          if (!s.underConstruction) drawText('AIR BAY', s.x, y + s.h + 5, 9, '#9cf2ff', 'center');
-        } else if (s.type === 'supportCamp') {
-          ctx.fillStyle = '#101720';
-          ctx.fillRect(x - 4, y + 7, s.w + 8, s.h - 3);
-          ctx.fillStyle = flash ? '#fff' : '#40505c';
-          ctx.fillRect(x, y + 5, s.w, s.h - 5);
-          ctx.fillStyle = COLORS.good;
-          ctx.fillRect(x + 5, y + 9, s.w - 10, 6);
-          ctx.fillStyle = '#17232c';
-          ctx.fillRect(x + 7, y + 19, s.w - 14, s.h - 23);
-          // Medical cross.
-          ctx.fillStyle = '#d9f7d2';
-          ctx.fillRect(x + 12, y + 22, 5, 15);
-          ctx.fillRect(x + 7, y + 27, 15, 5);
-          // Radar mast and dish.
-          ctx.fillStyle = COLORS.mineral;
-          ctx.fillRect(x + s.w - 15, y + 23, 3, 14);
-          ctx.beginPath(); ctx.arc(x + s.w - 14, y + 22, 8, Math.PI, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#cbd9ec';
-          ctx.fillRect(x + s.w - 10, y - 8, 4, 15);
-          ctx.fillStyle = COLORS.good;
-          ctx.fillRect(x + s.w - 13, y - 10, 10, 4);
-          if (!s.underConstruction) drawText('SUPPORT', s.x, y + s.h + 5, 9, COLORS.good, 'center');
-        } else if (s.type === 'gasExtractor') {
-          // A compact sealed pump built directly over the gas vent.
-          ctx.fillStyle = '#10131b';
-          ctx.fillRect(x - 4, y + 7, s.w + 8, s.h - 3);
-          ctx.fillStyle = flash ? '#ffffff' : '#43375c';
-          ctx.fillRect(x, y + 5, s.w, s.h - 5);
-          ctx.strokeStyle = COLORS.gas;
-          ctx.lineWidth = 2 / cam.zoom;
-          ctx.strokeRect(x + 2, y + 7, s.w - 4, s.h - 9);
-          ctx.fillStyle = '#171421';
-          ctx.beginPath(); ctx.arc(s.x, s.y + 2, 12, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = '#d8bdff';
-          ctx.beginPath(); ctx.arc(s.x, s.y + 2, 9, 0, Math.PI * 2); ctx.stroke();
-          ctx.save();
-          ctx.translate(s.x, s.y + 2);
-          ctx.rotate(state.elapsed * 2.8);
-          ctx.fillStyle = COLORS.gas;
-          ctx.fillRect(-2, -9, 4, 18);
-          ctx.fillRect(-9, -2, 18, 4);
-          ctx.restore();
-          ctx.fillStyle = '#cbd9ec';
-          ctx.fillRect(x + s.w - 11, y - 10, 5, 17);
-          ctx.fillStyle = COLORS.gas;
-          ctx.fillRect(x + s.w - 14, y - 12, 11, 4);
-          ctx.fillRect(x - 6, y + s.h - 10, 10, 5);
-          ctx.fillRect(x + s.w - 4, y + s.h - 10, 10, 5);
-          if (!s.underConstruction) {
-            const node = gasNodeForExtractor(s);
-            const gasLeft = node ? Math.ceil(node.amount) : 0;
-            const gasCap = node?.capacity || 0;
-            drawText('GAS EXTRACTOR', s.x, y + s.h + 5, 8, COLORS.gas, 'center');
-            drawText(`GAS ${gasLeft}/${gasCap}`, s.x, y + s.h + 15, 8, gasLeft > 0 ? '#d8bdff' : COLORS.bad, 'center');
-          }
-        } else if (s.type === 'minersHut') {
-          if (s.hutUpgrade === 'outpost' && !s.underConstruction) {
-            ctx.strokeStyle = 'rgba(255,209,102,.2)';
-            ctx.lineWidth = 1 / cam.zoom;
-            ctx.beginPath(); ctx.arc(s.x, s.y, s.range, 0, Math.PI * 2); ctx.stroke();
-          }
-          ctx.fillStyle = '#101720';
-          ctx.fillRect(x - 3, y + 8, s.w + 6, s.h - 4);
-          ctx.fillStyle = flash ? '#fff' : '#3c4b52';
-          ctx.fillRect(x + 3, y + 10, s.w - 6, s.h - 10);
-          ctx.fillStyle = '#24333b';
-          ctx.beginPath();
-          ctx.moveTo(x - 2, y + 12);
-          ctx.lineTo(s.x, y - 5);
-          ctx.lineTo(x + s.w + 2, y + 12);
-          ctx.closePath(); ctx.fill();
-          ctx.fillStyle = COLORS.warn;
-          ctx.fillRect(x + 3, y + 10, s.w - 6, 5);
-          ctx.fillStyle = '#111923';
-          ctx.fillRect(s.x - 7, y + s.h - 17, 14, 17);
-          ctx.fillStyle = COLORS.mineral;
-          ctx.beginPath();
-          ctx.moveTo(x + 7, y + s.h - 5); ctx.lineTo(x + 11, y + s.h - 17); ctx.lineTo(x + 16, y + s.h - 5);
-          ctx.closePath(); ctx.fill();
-          ctx.fillStyle = COLORS.gas;
-          ctx.beginPath(); ctx.arc(x + s.w - 11, y + s.h - 10, 6, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = COLORS.warn;
-          ctx.fillRect(s.x - 2, y + 18, 4, 4);
-          if (s.hutUpgrade === 'factory') {
-            // Processing tanks, exhaust stack and cyan transfer conduits.
-            ctx.fillStyle = '#263b46';
-            ctx.fillRect(x - 7, y + 15, 9, 21); ctx.fillRect(x + s.w - 2, y + 15, 9, 21);
-            ctx.fillStyle = COLORS.mineral;
-            ctx.fillRect(x - 5, y + 19, 5, 3); ctx.fillRect(x + s.w, y + 19, 5, 3);
-            ctx.fillRect(x + 7, y + s.h - 4, s.w - 14, 3);
-            ctx.fillStyle = '#cbd9ec';
-            ctx.fillRect(x + s.w - 12, y - 13, 6, 19);
-            ctx.fillStyle = '#697686';
-            ctx.fillRect(x + s.w - 14, y - 14, 10, 4);
-          } else if (s.hutUpgrade === 'outpost') {
-            // Elevated rotating weapon mount.
-            const mountY = s.y - 24;
-            ctx.fillStyle = '#182230';
-            ctx.beginPath(); ctx.arc(s.x, mountY, 8, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = COLORS.warn; ctx.lineWidth = 2 / cam.zoom; ctx.stroke();
-            ctx.save();
-            ctx.translate(s.x, mountY);
-            ctx.rotate(s.barrelAngle);
-            const kick = s.recoil > 0 ? Math.min(3, s.recoil * 24) : 0;
-            ctx.fillStyle = COLORS.warn;
-            ctx.fillRect(0, -2, 20 - kick, 4);
-            ctx.fillStyle = '#f6f0d7';
-            ctx.fillRect(-3, -3, 6, 6);
-            ctx.restore();
-            ctx.fillStyle = COLORS.warn;
-            ctx.fillRect(x + 5, y + 14, 4, 8); ctx.fillRect(x + s.w - 9, y + 14, 4, 8);
-          }
-          if (!s.underConstruction) {
-            const label = s.hutUpgrade === 'factory' ? 'FACTORY' : s.hutUpgrade === 'outpost' ? 'OUTPOST' : 'MINERS HUT';
-            const color = s.hutUpgrade === 'factory' ? COLORS.mineral : COLORS.warn;
-            drawText(label, s.x, y + s.h + 5, 9, color, 'center');
-          }
-        } else if (s.type === 'housing') {
-          ctx.fillStyle = '#101720';
-          ctx.fillRect(x - 3, y + 9, s.w + 6, s.h - 5);
-          ctx.fillStyle = flash ? '#fff' : '#3d5260';
-          ctx.fillRect(x + 3, y + 10, s.w - 6, s.h - 10);
-          ctx.fillStyle = '#243341';
-          ctx.beginPath();
-          ctx.moveTo(x - 2, y + 13);
-          ctx.lineTo(s.x, y - 5);
-          ctx.lineTo(x + s.w + 2, y + 13);
-          ctx.closePath(); ctx.fill();
-          ctx.fillStyle = COLORS.good;
-          ctx.fillRect(x + 8, y + 16, 8, 8);
-          ctx.fillRect(x + s.w - 16, y + 16, 8, 8);
-          ctx.fillStyle = '#c9f0bf';
-          ctx.fillRect(x + 10, y + 18, 4, 4);
-          ctx.fillRect(x + s.w - 14, y + 18, 4, 4);
-          ctx.fillStyle = '#111923';
-          ctx.fillRect(s.x - 5, y + s.h - 15, 10, 15);
-          ctx.fillStyle = COLORS.good;
-          ctx.fillRect(s.x + 1, y + s.h - 8, 2, 2);
-          ctx.fillStyle = '#718096';
-          ctx.fillRect(x + s.w - 10, y - 3, 5, 12);
-          if (!s.underConstruction) drawText('HOUSING', s.x, y + s.h + 5, 9, COLORS.good, 'center');
-        } else if (s.type === 'researchFacility') {
-          ctx.fillStyle = '#101720';
-          ctx.fillRect(x - 4, y + 7, s.w + 8, s.h - 3);
-          ctx.fillStyle = flash ? '#fff' : '#3c4058';
-          ctx.fillRect(x, y + 4, s.w, s.h - 4);
-          ctx.fillStyle = COLORS.warn;
-          ctx.fillRect(x + 5, y + 8, s.w - 10, 6);
-          ctx.fillStyle = '#171b2a';
-          ctx.fillRect(x + 7, y + 18, s.w - 14, s.h - 22);
-          // Five illuminated consoles represent HQ plus the production branches.
-          ctx.fillStyle = light;
-          ctx.fillRect(x + 7, y + 22, 6, 8);
-          ctx.fillStyle = COLORS.good;
-          ctx.fillRect(x + 16, y + 22, 6, 8);
-          ctx.fillStyle = COLORS.gas;
-          ctx.fillRect(x + 25, y + 22, 6, 8);
-          ctx.fillStyle = COLORS.warn;
-          ctx.fillRect(x + 34, y + 22, 6, 8);
-          ctx.fillStyle = '#9cf2ff';
-          ctx.fillRect(x + 43, y + 22, 6, 8);
-          ctx.fillStyle = '#d8e2f0';
-          ctx.fillRect(s.x - 2, y - 8, 4, 17);
-          ctx.fillStyle = COLORS.warn;
-          ctx.beginPath(); ctx.arc(s.x, y - 9, 6, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = COLORS.warn;
-          ctx.lineWidth = 1 / cam.zoom;
-          ctx.beginPath(); ctx.arc(s.x, y - 9, 11 + Math.sin(state.elapsed * 3) * 2, 0, Math.PI * 2); ctx.stroke();
-          if (!s.underConstruction) drawText('RESEARCH', s.x, y + s.h + 5, 9, COLORS.warn, 'center');
-        } else if (s.type === 'laboratory') {
-          ctx.fillStyle = '#101720';
-          ctx.fillRect(x - 4, y + 7, s.w + 8, s.h - 3);
-          ctx.fillStyle = flash ? '#fff' : '#314955';
-          ctx.fillRect(x, y + 5, s.w, s.h - 5);
-          ctx.fillStyle = COLORS.good;
-          ctx.fillRect(x + 5, y + 9, s.w - 10, 6);
-          ctx.fillStyle = '#14222b';
-          ctx.fillRect(x + 7, y + 19, s.w - 14, s.h - 23);
-          ctx.fillStyle = COLORS.mineral;
-          ctx.beginPath(); ctx.arc(s.x, y + 25, 9, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#d9fbff';
-          ctx.fillRect(s.x - 2, y + 18, 4, 7);
-          ctx.fillStyle = '#17242e';
-          ctx.fillRect(s.x - 4, y + 27, 8, 7);
-          ctx.fillStyle = COLORS.good;
-          ctx.fillRect(x + 10, y + 22, 5, 11);
-          ctx.fillRect(x + s.w - 15, y + 22, 5, 11);
-          ctx.fillStyle = '#c9f0bf';
-          ctx.fillRect(x + 11, y + 20, 3, 3);
-          ctx.fillRect(x + s.w - 14, y + 20, 3, 3);
-          ctx.fillStyle = '#cbd9ec';
-          ctx.fillRect(x + s.w - 10, y - 9, 4, 15);
-          ctx.fillStyle = COLORS.mineral;
-          ctx.fillRect(x + s.w - 12, y - 11, 8, 4);
-          if (!s.underConstruction) drawText('LAB', s.x, y + s.h + 5, 9, COLORS.mineral, 'center');
-        } else {
-          const isM = s.type === 'mineralMine';
-          const c = isM ? COLORS.mineral : COLORS.gas;
-          ctx.fillStyle = '#121821';
-          ctx.fillRect(x - 3, y + 5, s.w + 6, s.h - 2);
-          ctx.fillStyle = flash ? '#fff' : '#334052';
-          ctx.fillRect(x, y, s.w, s.h);
-          ctx.fillStyle = c;
-          ctx.fillRect(x + 5, y + 5, s.w - 10, 7);
-          ctx.fillRect(x + 10, y + 17, s.w - 20, 15);
-          ctx.fillStyle = '#0f151d';
-          ctx.fillRect(x + 15, y + 20, s.w - 30, 9);
-          ctx.fillStyle = c;
-          ctx.fillRect(x + s.w - 9, y - 8, 4, 14);
-        }
-        drawStructureUpgradeDetails(s, x, y, team);
-        ctx.restore();
-      
-        if (s.underConstruction) {
-          const d = BUILDING_DATA[s.type];
-          const progress = s.constructionStarted ? clamp(1 - s.buildTimeLeft / s.buildTime, 0, 1) : 0;
-          ctx.strokeStyle = COLORS.warn;
-          ctx.lineWidth = 2 / cam.zoom;
-          ctx.strokeRect(x - 3, y - 3, s.w + 6, s.h + 6);
-          ctx.lineWidth = 1 / cam.zoom;
-          ctx.beginPath();
-          ctx.moveTo(x - 3, y - 3); ctx.lineTo(x + s.w + 3, y + s.h + 3);
-          ctx.moveTo(x + s.w + 3, y - 3); ctx.lineTo(x - 3, y + s.h + 3);
-          ctx.stroke();
-          ctx.fillStyle = '#0e141c';
-          ctx.fillRect(x, y + s.h + 6, s.w, 5);
-          ctx.fillStyle = COLORS.warn;
-          ctx.fillRect(x + 1, y + s.h + 7, Math.floor((s.w - 2) * progress), 3);
-          drawText(s.constructionStarted ? `${d.label} · ${Math.ceil(s.buildTimeLeft)}s` : `${d.label} · FORAGER`, s.x, y - 16, 9, COLORS.warn, 'center');
-        }
-      
-        // Upgrade level pips for player structures with meaningful levels.
-        if (s.team === activeCommandTeam() && (s.type === 'hq' || s.type === 'turret' || s.type === 'antiAirTurret' || s.type === 'barracks' || s.type === 'garage' || s.type === 'airBay' || s.type === 'supportCamp' || s.type === 'minersHut' || s.type === 'housing' || s.type.endsWith('Mine')) && (s.level || 1) > 1) {
-          for (let i = 0; i < s.level; i++) {
-            ctx.fillStyle = COLORS.warn;
-            ctx.fillRect(s.x - (s.level * 4) + i * 8, y - 6, 5, 4);
-          }
-        }
-        if (s.team === activeCommandTeam() && state.selectedStructures.has(s.id)) {
-          const pulse = .72 + Math.sin(state.elapsed * 6 + s.id) * .18;
-          ctx.save();
-          ctx.globalAlpha = pulse;
-          ctx.strokeStyle = COLORS.player2;
-          ctx.lineWidth = 2 / cam.zoom;
-          ctx.setLineDash([6 / cam.zoom, 4 / cam.zoom]);
-          ctx.strokeRect(x - 6, y - 6, s.w + 12, s.h + 12);
-          ctx.setLineDash([]);
-          ctx.restore();
-        }
-        drawStructureWorkBar(s, y);
-        if (!s.underConstruction) hpBar(s, s.type === 'hq' ? 58 : Math.max(34, s.w), -s.h / 2 - 10);
-      }
+  if (s.hp <= 0) return;
+  if (!isLocallyVisibleToTeam(activeCommandTeam(), s.x, s.y) && s.team !== activeCommandTeam()) return;
+  const x = Math.floor(s.x - s.w / 2);
+  const y = Math.floor(s.y - s.h / 2);
+  const team = colorForTeam(s.team);
+  const light = colorForTeam(s.team, 'light');
+  const flash = s.flash > 0;
+
+  ctx.save();
+  if ((s.adrenalineAuraUntil || 0) > state.elapsed) {
+    const remaining = s.adrenalineAuraUntil - state.elapsed;
+    const pulse = .55 + Math.sin(state.elapsed * 9) * .18;
+    ctx.save();
+    ctx.globalAlpha = .07 + pulse * .07;
+    ctx.fillStyle = COLORS.good;
+    ctx.beginPath(); ctx.arc(s.x, s.y, ADRENALINE_RADIUS, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = .55 + pulse * .3;
+    ctx.strokeStyle = COLORS.good;
+    ctx.lineWidth = 2 / cam.zoom;
+    ctx.setLineDash([9 / cam.zoom, 6 / cam.zoom]);
+    ctx.beginPath(); ctx.arc(s.x, s.y, ADRENALINE_RADIUS, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    drawText(`ADRENALINE · ${Math.ceil(remaining)}s`, s.x, y - 28, 9, COLORS.good, 'center');
+    ctx.restore();
+  }
+
+  if (s.underConstruction) ctx.globalAlpha = s.constructionStarted ? .7 : .46;
+
+  if (s.type === 'hq') drawHQStructure(s, x, y, team, light, flash);
+  else if (s.type === 'turret') drawGroundTurretStructure(s, x, y, team, light, flash);
+  else if (s.type === 'antiAirTurret') drawAntiAirTurretStructure(s, x, y, team, light, flash);
+  else if (s.type === 'radarTurret') drawRadarTurretStructure(s, x, y, team, light, flash);
+  else if (s.type === 'barracks') drawBarracksStructure(s, x, y, team, light, flash);
+  else if (s.type === 'garage') drawGarageStructure(s, x, y, team, light, flash);
+  else if (s.type === 'airBay') drawAirBayStructure(s, x, y, team, light, flash);
+  else if (s.type === 'supportCamp') drawSupportStructure(s, x, y, team, light, flash);
+  else if (s.type === 'gasExtractor') drawGasExtractorStructure(s, x, y, team, light, flash);
+  else if (s.type === 'minersHut') drawMinersHutStructure(s, x, y, team, light, flash);
+  else if (s.type === 'housing') drawHousingStructure(s, x, y, team, light, flash);
+  else if (s.type === 'researchFacility') drawResearchStructure(s, x, y, team, light, flash);
+  else if (s.type === 'laboratory') drawLaboratoryStructure(s, x, y, team, light, flash);
+  else drawResourceMineStructure(s, x, y, team, light, flash);
+
+  drawStructureUpgradeDetails(s, x, y, team);
+  ctx.restore();
+
+  // Construction, ownership, selection, work and health overlays are intentionally
+  // unchanged so the visual redesign cannot alter interaction or simulation state.
+  if (s.underConstruction) {
+    const d = BUILDING_DATA[s.type];
+    const progress = s.constructionStarted ? clamp(1 - s.buildTimeLeft / s.buildTime, 0, 1) : 0;
+    ctx.strokeStyle = COLORS.warn;
+    ctx.lineWidth = 2 / cam.zoom;
+    ctx.strokeRect(x - 3, y - 3, s.w + 6, s.h + 6);
+    ctx.lineWidth = 1 / cam.zoom;
+    ctx.beginPath();
+    ctx.moveTo(x - 3, y - 3); ctx.lineTo(x + s.w + 3, y + s.h + 3);
+    ctx.moveTo(x + s.w + 3, y - 3); ctx.lineTo(x - 3, y + s.h + 3);
+    ctx.stroke();
+    ctx.fillStyle = '#0e141c';
+    ctx.fillRect(x, y + s.h + 6, s.w, 5);
+    ctx.fillStyle = COLORS.warn;
+    ctx.fillRect(x + 1, y + s.h + 7, Math.floor((s.w - 2) * progress), 3);
+    drawText(s.constructionStarted ? `${d.label} · ${Math.ceil(s.buildTimeLeft)}s` : `${d.label} · FORAGER`, s.x, y - 16, 9, COLORS.warn, 'center');
+  }
+
+  if (s.team === activeCommandTeam() &&
+      (s.type === 'hq' || s.type === 'turret' || s.type === 'antiAirTurret' ||
+       s.type === 'barracks' || s.type === 'garage' || s.type === 'airBay' ||
+       s.type === 'supportCamp' || s.type === 'minersHut' || s.type === 'housing' ||
+       s.type.endsWith('Mine')) && (s.level || 1) > 1) {
+    for (let i = 0; i < s.level; i++) {
+      ctx.fillStyle = COLORS.warn;
+      ctx.fillRect(s.x - (s.level * 4) + i * 8, y - 6, 5, 4);
+    }
+  }
+
+  if (s.team === activeCommandTeam() && state.selectedStructures.has(s.id)) {
+    const pulse = .72 + Math.sin(state.elapsed * 6 + s.id) * .18;
+    ctx.save();
+    ctx.globalAlpha = pulse;
+    ctx.strokeStyle = COLORS.player2;
+    ctx.lineWidth = 2 / cam.zoom;
+    ctx.setLineDash([6 / cam.zoom, 4 / cam.zoom]);
+    ctx.strokeRect(x - 6, y - 6, s.w + 12, s.h + 12);
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  drawStructureWorkBar(s, y);
+  if (!s.underConstruction) hpBar(s, s.type === 'hq' ? 58 : Math.max(34, s.w), -s.h / 2 - 10);
+}
       
       function fortressActiveVisual(u) {
         return u.type === 'titanTank' && u.fortressMode && (u.fortressLock || 0) >= 1;
