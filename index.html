@@ -4311,30 +4311,101 @@
       function shouldDrawMinimapStructure(structure, team) {
         return isMinimapEntityVisible(structure, team);
       }
+
+      const COMMAND_MINIMAP_SKINS = new Set(['normal', 'lava', 'toxic', 'frozen', 'mars']);
+
+      function commandMinimapSkin() {
+        return COMMAND_MINIMAP_SKINS.has(state.mapSkin) ? state.mapSkin : 'normal';
+      }
+
+      function commandMinimapPanelColor(mapSkin) {
+        if (mapSkin === 'lava') return '#160907';
+        if (mapSkin === 'toxic') return '#0d1507';
+        if (mapSkin === 'frozen') return '#071924';
+        if (mapSkin === 'mars') return '#1e0c09';
+        return '#07140d';
+      }
+
+      function commandMinimapInsetColor(mapSkin) {
+        if (mapSkin === 'lava') return '#24100c';
+        if (mapSkin === 'toxic') return '#17220c';
+        if (mapSkin === 'frozen') return '#0c2634';
+        if (mapSkin === 'mars') return '#2c130e';
+        return '#0d2116';
+      }
+
+      function commandMinimapAccentColor(mapSkin) {
+        if (mapSkin === 'lava') return '#ff7a1f';
+        if (mapSkin === 'toxic') return '#b0dc2b';
+        if (mapSkin === 'frozen') return '#97e4f2';
+        if (mapSkin === 'mars') return '#e18749';
+        return '#71ae70';
+      }
+
+      function commandMinimapTerrainColor(mapSkin, tile, x, y) {
+        if (mapSkin === 'lava') {
+          return tile === 1 ? 'rgba(205,54,13,.96)'
+            : tile === 2 ? 'rgba(38,34,36,.98)'
+            : sandTiles[y]?.[x] ? 'rgba(85,42,27,.9)'
+            : transitionTiles[y]?.[x] ? 'rgba(64,45,37,.88)'
+            : dirtTiles[y]?.[x] ? 'rgba(72,48,38,.88)'
+            : 'rgba(45,43,44,.86)';
+        }
+        if (mapSkin === 'toxic') {
+          return tile === 1 ? 'rgba(118,159,14,.96)'
+            : tile === 2 ? 'rgba(48,61,29,.98)'
+            : sandTiles[y]?.[x] ? 'rgba(93,91,40,.9)'
+            : transitionTiles[y]?.[x] ? 'rgba(70,83,42,.88)'
+            : dirtTiles[y]?.[x] ? 'rgba(84,67,39,.88)'
+            : 'rgba(56,70,38,.86)';
+        }
+        if (mapSkin === 'frozen') {
+          return tile === 1 ? 'rgba(25,71,96,.97)'
+            : tile === 2 ? 'rgba(137,185,198,.98)'
+            : sandTiles[y]?.[x] ? 'rgba(196,220,226,.91)'
+            : transitionTiles[y]?.[x] ? 'rgba(153,184,195,.89)'
+            : dirtTiles[y]?.[x] ? 'rgba(130,163,176,.89)'
+            : 'rgba(169,198,207,.87)';
+        }
+        if (mapSkin === 'mars') {
+          const liquidBand = (x + y * 2) % 3;
+          return tile === 1 ? (liquidBand === 0 ? 'rgba(22,79,145,.97)'
+            : liquidBand === 1 ? 'rgba(22,143,145,.97)'
+            : 'rgba(213,200,61,.97)')
+            : tile === 2 ? 'rgba(113,53,41,.98)'
+            : sandTiles[y]?.[x] ? 'rgba(184,88,52,.91)'
+            : transitionTiles[y]?.[x] ? 'rgba(154,71,47,.89)'
+            : dirtTiles[y]?.[x] ? 'rgba(132,59,42,.89)'
+            : 'rgba(147,67,44,.87)';
+        }
+        return tile === 1 ? 'rgba(39,75,99,.94)'
+          : tile === 2 ? 'rgba(31,78,45,.96)'
+          : sandTiles[y]?.[x] ? 'rgba(155,134,88,.82)'
+          : transitionTiles[y]?.[x] ? 'rgba(118,113,72,.78)'
+          : dirtTiles[y]?.[x] ? 'rgba(153,119,77,.78)'
+          : 'rgba(64,82,60,.76)';
+      }
       
       function renderMinimapNow() {
         resetMinimapSightingsForNewMatch();
         const zone = consoleLayout().map;
         const map = minimapGeom();
-        drawInsetPanel(zone, '#0c131b');
+        const mapSkin = commandMinimapSkin();
+        const mapAccent = commandMinimapAccentColor(mapSkin);
+        drawInsetPanel(zone, commandMinimapInsetColor(mapSkin));
       
         ctx.save();
         ctx.beginPath();
         ctx.rect(map.x, map.y, map.w, map.h);
         ctx.clip();
-        ctx.fillStyle = '#030609';
+        ctx.fillStyle = commandMinimapPanelColor(mapSkin);
         ctx.fillRect(map.x, map.y, map.w, map.h);
       
         for (let y = 0; y < ROWS; y += 2) {
           for (let x = 0; x < COLS; x += 2) {
             if (!state.explored[y]?.[x]) continue;
             const tile = terrain[y]?.[x];
-            ctx.fillStyle = tile === 1 ? 'rgba(39,75,99,.94)'
-              : tile === 2 ? 'rgba(90,95,107,.94)'
-              : sandTiles[y]?.[x] ? 'rgba(155,134,88,.82)'
-              : transitionTiles[y]?.[x] ? 'rgba(118,113,72,.78)'
-              : dirtTiles[y]?.[x] ? 'rgba(153,119,77,.78)'
-              : 'rgba(64,82,60,.76)';
+            ctx.fillStyle = commandMinimapTerrainColor(mapSkin, tile, x, y);
             ctx.fillRect(map.x + x * TILE * map.sx, map.y + y * TILE * map.sy, TILE * map.sx * 2 + .5, TILE * map.sy * 2 + .5);
           }
         }
@@ -4410,17 +4481,21 @@
         );
         ctx.restore();
       
-        ctx.strokeStyle = pointInRect(state.mouse, map) ? COLORS.good : '#596a82';
+        ctx.strokeStyle = pointInRect(state.mouse, map) ? COLORS.good : mapAccent;
         ctx.lineWidth = pointInRect(state.mouse, map) ? 2 : 1;
         ctx.strokeRect(map.x + .5, map.y + .5, Math.max(0, map.w - 1), Math.max(0, map.h - 1));
       
         const compactMap = zone.h < 120;
         const headerH = compactMap ? 15 : 19;
         const footerH = compactMap ? 13 : 17;
-        ctx.fillStyle = 'rgba(3,6,9,.72)';
+        ctx.fillStyle = mapSkin === 'frozen' ? 'rgba(3,14,20,.8)'
+          : mapSkin === 'toxic' ? 'rgba(5,10,3,.8)'
+          : mapSkin === 'lava' ? 'rgba(12,4,2,.8)'
+          : mapSkin === 'mars' ? 'rgba(13,5,3,.8)'
+          : 'rgba(3,9,5,.78)';
         ctx.fillRect(map.x, map.y, map.w, headerH);
         ctx.fillRect(map.x, map.y + map.h - footerH, map.w, footerH);
-        drawConsoleText('TACTICAL MAP', map.x + 4, map.y + (compactMap ? 3 : 4), compactMap ? 8 : 10, COLORS.warn, 'left', map.w - 8);
+        drawConsoleText('TACTICAL MAP', map.x + 4, map.y + (compactMap ? 3 : 4), compactMap ? 8 : 10, mapAccent, 'left', map.w - 8);
       
         const ping = multiplayerPingMs();
         const footer = state.multiplayerActive
@@ -9141,6 +9216,13 @@
         setPathingSyncState({ nextGroupRouteId: 1 });
         state.matchSeed = matchSeed;
         state.matchGameCode = gameCode || null;
+        // Map art is derived from the authoritative match seed without consuming
+        // gameplay PRNG state, so every lockstep peer gets the same skin while all
+        // pre-existing spawn, resource, AI and terrain rolls remain unchanged.
+        const availableMapSkins = ['normal', 'lava', 'toxic', 'frozen', 'mars'];
+        state.mapSkin = availableMapSkins[
+          hashStringToSeed(`map-skin:${matchSeed}`) % availableMapSkins.length
+        ];
         activeGameMode = mode;
         configureWorldScale(mode.mapScale || 1);
         resetVisibilityGrids();
@@ -15140,7 +15222,7 @@
       let terrainCacheCanvas = null;
       let terrainCacheContext = null;
       let terrainCacheKey = '';
-      
+
       function createTerrainCacheCanvas(width, height) {
         if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(width, height);
         const cache = document.createElement('canvas');
@@ -15148,19 +15230,1022 @@
         cache.height = height;
         return cache;
       }
-      
+
+      function terrainVisualHash(x, y, salt = 0) {
+        let value = Math.imul((x | 0) + 1 + salt * 17, 0x9e3779b1) ^
+          Math.imul((y | 0) + 1 + salt * 31, 0x85ebca6b);
+        value = Math.imul(value ^ (value >>> 16), 0x7feb352d);
+        value = Math.imul(value ^ (value >>> 15), 0x846ca68b);
+        return (value ^ (value >>> 16)) >>> 0;
+      }
+
+      function drawPixelTriangle(target, ax, ay, bx, by, cx, cy, color) {
+        target.fillStyle = color;
+        target.beginPath();
+        target.moveTo(Math.round(ax), Math.round(ay));
+        target.lineTo(Math.round(bx), Math.round(by));
+        target.lineTo(Math.round(cx), Math.round(cy));
+        target.closePath();
+        target.fill();
+      }
+
+      function drawNormalTreeTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 3);
+        const variant = hash % 3;
+        const offsetX = ((hash >>> 5) % 5) - 2;
+        const offsetY = ((hash >>> 9) % 3) - 1;
+        const cx = px + TILE / 2 + offsetX;
+        const baseY = py + TILE - 3 + offsetY;
+
+        target.fillStyle = (hash & 1) ? '#294332' : '#2e4935';
+        target.fillRect(px, py, TILE, TILE);
+        target.fillStyle = 'rgba(13,26,18,.34)';
+        target.fillRect(px + 2 + ((hash >>> 12) % 7), py + 18, 8, 3);
+        target.fillStyle = 'rgba(92,119,76,.24)';
+        target.fillRect(px + 16, py + 5 + ((hash >>> 16) % 8), 2, 2);
+
+        if (variant === 0) {
+          // Tall layered fir.
+          target.fillStyle = '#513a27';
+          target.fillRect(Math.round(cx - 1.5), Math.round(baseY - 9), 3, 9);
+          drawPixelTriangle(target, cx, baseY - 22, cx - 7, baseY - 10, cx + 7, baseY - 10, '#183827');
+          drawPixelTriangle(target, cx, baseY - 18, cx - 9, baseY - 5, cx + 9, baseY - 5, '#205034');
+          drawPixelTriangle(target, cx, baseY - 13, cx - 10, baseY, cx + 10, baseY, '#28613b');
+          drawPixelTriangle(target, cx - 2, baseY - 19, cx - 5, baseY - 12, cx + 1, baseY - 12, '#4a8250');
+        } else if (variant === 1) {
+          // Broad-canopy oak.
+          target.fillStyle = '#5b4028';
+          target.fillRect(Math.round(cx - 2), Math.round(baseY - 10), 4, 10);
+          target.fillStyle = '#173622';
+          target.beginPath(); target.arc(cx - 5, baseY - 13, 6, 0, Math.PI * 2); target.fill();
+          target.beginPath(); target.arc(cx + 4, baseY - 14, 7, 0, Math.PI * 2); target.fill();
+          target.beginPath(); target.arc(cx, baseY - 19, 7, 0, Math.PI * 2); target.fill();
+          target.fillStyle = '#2e6a3b';
+          target.beginPath(); target.arc(cx - 4, baseY - 15, 5, 0, Math.PI * 2); target.fill();
+          target.beginPath(); target.arc(cx + 4, baseY - 17, 5, 0, Math.PI * 2); target.fill();
+          target.fillStyle = '#57905a';
+          target.fillRect(Math.round(cx - 4), Math.round(baseY - 21), 4, 3);
+          target.fillRect(Math.round(cx + 4), Math.round(baseY - 15), 3, 3);
+        } else {
+          // Pale-trunk birch with a lighter, irregular crown.
+          target.fillStyle = '#d3ccb0';
+          target.fillRect(Math.round(cx - 1.5), Math.round(baseY - 13), 3, 13);
+          target.fillStyle = '#4a4338';
+          target.fillRect(Math.round(cx - 1.5), Math.round(baseY - 10), 2, 1);
+          target.fillRect(Math.round(cx), Math.round(baseY - 6), 2, 1);
+          target.fillStyle = '#264c2d';
+          target.beginPath(); target.arc(cx - 4, baseY - 16, 5.5, 0, Math.PI * 2); target.fill();
+          target.beginPath(); target.arc(cx + 4, baseY - 17, 5, 0, Math.PI * 2); target.fill();
+          target.beginPath(); target.arc(cx, baseY - 21, 5.5, 0, Math.PI * 2); target.fill();
+          target.fillStyle = '#6f944e';
+          target.fillRect(Math.round(cx - 5), Math.round(baseY - 19), 4, 3);
+          target.fillRect(Math.round(cx + 2), Math.round(baseY - 22), 4, 3);
+          target.fillStyle = '#9eb56b';
+          target.fillRect(Math.round(cx + 4), Math.round(baseY - 17), 2, 2);
+        }
+        drawNormalForestObstacleDecals(target, x, y, px, py, hash);
+      }
+
+      // Presentation-only lava decals. These are baked into the terrain cache,
+      // use only coordinate hashes, and never touch simulation RNG or state.
+      function drawLavaGroundDecals(target, x, y, px, py, baseHash) {
+        const detailHash = terrainVisualHash(x, y, 53);
+        const variant = detailHash % 12;
+        const ox = 3 + ((detailHash >>> 5) % 13);
+        const oy = 3 + ((detailHash >>> 10) % 13);
+
+        if (variant <= 2) {
+          // Wind-smudged ash deposit.
+          target.fillStyle = variant === 0 ? 'rgba(8,8,9,.23)' : 'rgba(78,66,61,.16)';
+          target.fillRect(px + ox - 2, py + oy, 8 + ((detailHash >>> 15) % 5), 2);
+          target.fillRect(px + ox, py + oy + 2, 5 + ((detailHash >>> 19) % 4), 1);
+          target.fillStyle = 'rgba(139,116,99,.15)';
+          target.fillRect(px + ox + 2, py + oy - 1, 2, 1);
+        } else if (variant === 3 || variant === 4) {
+          // Small obsidian splinters with a restrained glass highlight.
+          const shardX = px + ox;
+          const shardY = py + oy;
+          drawPixelTriangle(target, shardX, shardY - 3, shardX - 3, shardY + 3, shardX + 1, shardY + 2, '#111114');
+          drawPixelTriangle(target, shardX + 5, shardY - 1, shardX + 2, shardY + 4, shardX + 7, shardY + 3, '#1a181b');
+          target.fillStyle = 'rgba(135,117,124,.32)';
+          target.fillRect(Math.round(shardX - 1), Math.round(shardY - 1), 1, 2);
+        } else if (variant === 5) {
+          // Cooled lava seam.
+          target.strokeStyle = 'rgba(88,42,30,.42)';
+          target.lineWidth = 2;
+          target.beginPath();
+          target.moveTo(px + 2, py + oy);
+          target.lineTo(px + 8, py + oy - 2);
+          target.lineTo(px + 14, py + oy + 1);
+          target.lineTo(px + 22, py + oy - 1);
+          target.stroke();
+          target.strokeStyle = 'rgba(188,65,25,.25)';
+          target.lineWidth = 1;
+          target.stroke();
+        } else if (variant === 6) {
+          // Sulphur mineral bloom, kept muted for unit readability.
+          target.fillStyle = 'rgba(145,119,42,.24)';
+          target.fillRect(px + ox - 2, py + oy, 7, 3);
+          target.fillRect(px + ox, py + oy - 2, 4, 2);
+          target.fillStyle = 'rgba(205,166,55,.20)';
+          target.fillRect(px + ox + 1, py + oy - 1, 2, 2);
+        } else if (variant === 7) {
+          // Old impact/scorch ring.
+          target.strokeStyle = 'rgba(5,5,6,.38)';
+          target.lineWidth = 1;
+          target.beginPath();
+          target.ellipse(px + ox, py + oy, 5, 3, -.25, 0, Math.PI * 2);
+          target.stroke();
+          target.fillStyle = 'rgba(10,9,10,.18)';
+          target.fillRect(px + ox - 2, py + oy - 1, 4, 2);
+        } else if (variant === 8) {
+          // Basalt chips.
+          target.fillStyle = '#171719';
+          target.fillRect(px + ox - 2, py + oy, 3, 2);
+          target.fillRect(px + ox + 4, py + oy - 3, 2, 3);
+          target.fillStyle = 'rgba(95,84,83,.26)';
+          target.fillRect(px + ox - 1, py + oy, 1, 1);
+          target.fillRect(px + ox + 4, py + oy - 3, 1, 1);
+        }
+
+        // Rare hairline glow. It remains static and cached, so it adds no frame cost.
+        if ((baseHash ^ detailHash) % 37 === 0) {
+          target.strokeStyle = 'rgba(239,73,18,.43)';
+          target.lineWidth = 1;
+          target.beginPath();
+          target.moveTo(px + 5, py + 19);
+          target.lineTo(px + 9, py + 15);
+          target.lineTo(px + 13, py + 17);
+          target.lineTo(px + 18, py + 12);
+          target.stroke();
+          target.fillStyle = 'rgba(255,151,43,.47)';
+          target.fillRect(px + 12, py + 16, 2, 1);
+        }
+      }
+
+      function drawLavaMountainDecals(target, x, y, px, py, baseHash) {
+        const detailHash = terrainVisualHash(x, y, 59);
+        const rubbleY = py + TILE - 5;
+        const rubbleX = px + 3 + ((detailHash >>> 5) % 11);
+
+        // Rubble and cooled fragments at the mountain foot.
+        target.fillStyle = (detailHash & 1) ? '#151416' : '#201d1e';
+        target.fillRect(rubbleX, rubbleY, 4, 2);
+        target.fillRect(px + 16 + ((detailHash >>> 10) % 4), py + TILE - 8, 3, 3);
+        target.fillStyle = 'rgba(102,85,81,.25)';
+        target.fillRect(rubbleX + 1, rubbleY, 1, 1);
+
+        const variant = detailHash % 7;
+        if (variant === 0) {
+          // Sulphur caught in a lower crevice.
+          target.fillStyle = 'rgba(166,132,42,.28)';
+          target.fillRect(px + 4, py + 17, 5, 2);
+          target.fillStyle = 'rgba(218,174,54,.24)';
+          target.fillRect(px + 6, py + 16, 2, 1);
+        } else if (variant === 1) {
+          // Obsidian outcrop.
+          drawPixelTriangle(target, px + 18, py + 12, px + 14, py + 21, px + 21, py + 20, '#101012');
+          target.fillStyle = 'rgba(123,105,111,.28)';
+          target.fillRect(px + 17, py + 14, 1, 3);
+        } else if (variant === 2) {
+          // Ash striation across the lower slope.
+          target.strokeStyle = 'rgba(10,9,10,.3)';
+          target.lineWidth = 1;
+          target.beginPath();
+          target.moveTo(px + 5, py + 17);
+          target.lineTo(px + 11, py + 15);
+          target.lineTo(px + 18, py + 18);
+          target.stroke();
+        }
+
+        if ((baseHash ^ detailHash) % 19 === 0) {
+          target.fillStyle = 'rgba(239,74,18,.36)';
+          target.fillRect(px + 10 + ((detailHash >>> 15) % 5), py + 18, 3, 1);
+        }
+      }
+
+      // Presentation-only cached decals for the remaining biomes. Like the lava
+      // details above, these use coordinate hashes only and never enter simulation state.
+      function drawNormalForestGroundDecals(target, x, y, px, py) {
+        const detailHash = terrainVisualHash(x, y, 61);
+        const variant = detailHash % 14;
+        const ox = 3 + ((detailHash >>> 5) % 14);
+        const oy = 4 + ((detailHash >>> 10) % 13);
+
+        if (variant <= 2) {
+          // Layered grass tufts that remain subdued beneath units and tags.
+          target.strokeStyle = variant === 0 ? 'rgba(35,73,42,.55)' : 'rgba(72,105,56,.48)';
+          target.lineWidth = 1;
+          target.beginPath();
+          target.moveTo(px + ox, py + oy + 5); target.lineTo(px + ox - 1, py + oy);
+          target.moveTo(px + ox + 2, py + oy + 5); target.lineTo(px + ox + 3, py + oy + 1);
+          target.moveTo(px + ox + 4, py + oy + 5); target.lineTo(px + ox + 6, py + oy + 2);
+          target.stroke();
+        } else if (variant === 3 || variant === 4) {
+          // Fallen leaf litter.
+          target.fillStyle = 'rgba(113,76,39,.46)';
+          target.fillRect(px + ox, py + oy, 3, 2);
+          target.fillRect(px + ox + 5, py + oy + 3, 2, 2);
+          target.fillStyle = 'rgba(151,111,53,.36)';
+          target.fillRect(px + ox + 2, py + oy + 5, 2, 1);
+          target.fillRect(px + ox + 7, py + oy, 2, 1);
+        } else if (variant === 5) {
+          // Tiny wildflowers, deliberately rare and low saturation.
+          target.fillStyle = 'rgba(79,118,60,.55)';
+          target.fillRect(px + ox + 1, py + oy + 2, 1, 4);
+          target.fillRect(px + ox + 5, py + oy + 1, 1, 5);
+          target.fillStyle = (detailHash & 1) ? 'rgba(214,190,109,.72)' : 'rgba(171,182,220,.7)';
+          target.fillRect(px + ox, py + oy + 1, 3, 2);
+          target.fillRect(px + ox + 4, py + oy, 3, 2);
+        } else if (variant === 6 || variant === 7) {
+          // Pebble cluster.
+          target.fillStyle = 'rgba(59,65,55,.58)';
+          target.fillRect(px + ox, py + oy + 2, 4, 2);
+          target.fillRect(px + ox + 6, py + oy, 3, 3);
+          target.fillStyle = 'rgba(133,137,112,.32)';
+          target.fillRect(px + ox + 1, py + oy + 2, 1, 1);
+          target.fillRect(px + ox + 6, py + oy, 1, 1);
+        } else if (variant === 8) {
+          // Damp soil mark near sandy shore or on darker dirt.
+          target.fillStyle = sandTiles[y][x] ? 'rgba(68,64,43,.3)' : 'rgba(39,47,34,.32)';
+          target.beginPath();
+          target.ellipse(px + ox + 3, py + oy + 2, 6, 3, -.15, 0, Math.PI * 2);
+          target.fill();
+          target.fillStyle = 'rgba(123,126,86,.16)';
+          target.fillRect(px + ox + 1, py + oy + 1, 5, 1);
+        } else if (variant === 9) {
+          // Broken twig.
+          target.strokeStyle = 'rgba(82,57,35,.64)';
+          target.lineWidth = 1;
+          target.beginPath();
+          target.moveTo(px + ox - 1, py + oy + 5);
+          target.lineTo(px + ox + 5, py + oy + 1);
+          target.lineTo(px + ox + 8, py + oy + 3);
+          target.moveTo(px + ox + 3, py + oy + 2);
+          target.lineTo(px + ox + 2, py + oy - 1);
+          target.stroke();
+        }
+      }
+
+      function drawNormalForestObstacleDecals(target, x, y, px, py, baseHash) {
+        const detailHash = terrainVisualHash(x, y, 67);
+        const variant = detailHash % 8;
+        const rootY = py + TILE - 4;
+
+        // Roots and leaf shadow at the tree base make blocked forest tiles feel grounded.
+        target.strokeStyle = 'rgba(62,43,27,.52)';
+        target.lineWidth = 1;
+        target.beginPath();
+        target.moveTo(px + 12, rootY - 4);
+        target.lineTo(px + 7 + ((detailHash >>> 4) % 3), rootY);
+        target.moveTo(px + 13, rootY - 3);
+        target.lineTo(px + 18 + ((detailHash >>> 8) % 3), rootY);
+        target.stroke();
+        target.fillStyle = 'rgba(34,48,29,.3)';
+        target.fillRect(px + 4, py + TILE - 4, 7, 2);
+        target.fillRect(px + 15, py + TILE - 5, 6, 2);
+
+        if (variant === 0) {
+          // Small mushroom pair.
+          target.fillStyle = 'rgba(218,201,158,.72)';
+          target.fillRect(px + 5, py + 18, 1, 4);
+          target.fillRect(px + 9, py + 19, 1, 3);
+          target.fillStyle = 'rgba(139,71,49,.72)';
+          target.fillRect(px + 3, py + 17, 5, 2);
+          target.fillRect(px + 8, py + 18, 4, 2);
+        } else if (variant === 1) {
+          // Moss at the trunk foot.
+          target.fillStyle = 'rgba(78,111,49,.55)';
+          target.fillRect(px + 9, py + 19, 8, 3);
+          target.fillStyle = 'rgba(127,146,72,.36)';
+          target.fillRect(px + 11, py + 19, 3, 1);
+        } else if (variant === 2) {
+          // Acorns or seed pods.
+          target.fillStyle = 'rgba(94,63,35,.68)';
+          target.fillRect(px + 5, py + 20, 2, 2);
+          target.fillRect(px + 19, py + 18, 2, 2);
+        }
+
+        if ((baseHash ^ detailHash) % 29 === 0) {
+          target.fillStyle = 'rgba(170,128,57,.36)';
+          target.fillRect(px + 3, py + 21, 3, 1);
+          target.fillRect(px + 18, py + 20, 2, 1);
+        }
+      }
+
+      function drawToxicGroundDecals(target, x, y, px, py, baseHash) {
+        const detailHash = terrainVisualHash(x, y, 71);
+        const variant = detailHash % 14;
+        const ox = 3 + ((detailHash >>> 5) % 13);
+        const oy = 4 + ((detailHash >>> 10) % 12);
+
+        if (variant <= 2) {
+          // Chemical residue or dried sludge stain.
+          target.fillStyle = variant === 0 ? 'rgba(116,150,20,.28)' : 'rgba(56,67,20,.34)';
+          target.beginPath();
+          target.ellipse(px + ox + 3, py + oy + 2, 6, 3, .2, 0, Math.PI * 2);
+          target.fill();
+          target.fillStyle = 'rgba(181,213,43,.24)';
+          target.fillRect(px + ox + 1, py + oy + 1, 4, 1);
+        } else if (variant === 3 || variant === 4) {
+          // Rust and oxidised metal flakes.
+          target.fillStyle = 'rgba(116,61,31,.58)';
+          target.fillRect(px + ox, py + oy, 5, 2);
+          target.fillRect(px + ox + 7, py + oy + 4, 3, 2);
+          target.fillStyle = 'rgba(176,96,45,.34)';
+          target.fillRect(px + ox + 1, py + oy, 2, 1);
+        } else if (variant === 5) {
+          // Bone splinters.
+          target.fillStyle = 'rgba(184,180,137,.62)';
+          target.fillRect(px + ox, py + oy + 2, 8, 1);
+          target.fillRect(px + ox + 1, py + oy + 1, 1, 3);
+          target.fillRect(px + ox + 6, py + oy, 1, 3);
+        } else if (variant === 6) {
+          // Mutated fungal dots.
+          target.fillStyle = 'rgba(96,123,22,.72)';
+          target.fillRect(px + ox, py + oy + 2, 2, 3);
+          target.fillRect(px + ox + 5, py + oy + 1, 2, 4);
+          target.fillStyle = 'rgba(190,225,50,.62)';
+          target.fillRect(px + ox - 1, py + oy, 4, 2);
+          target.fillRect(px + ox + 4, py + oy - 1, 4, 2);
+        } else if (variant === 7) {
+          // Corroded cable fragment.
+          target.strokeStyle = 'rgba(43,42,30,.72)';
+          target.lineWidth = 2;
+          target.beginPath();
+          target.moveTo(px + ox - 2, py + oy + 1);
+          target.quadraticCurveTo(px + ox + 3, py + oy + 6, px + ox + 9, py + oy + 2);
+          target.stroke();
+          target.fillStyle = 'rgba(120,132,48,.42)';
+          target.fillRect(px + ox + 3, py + oy + 3, 2, 1);
+        } else if (variant === 8) {
+          // Faded hazard stripe remnant.
+          target.fillStyle = 'rgba(44,45,31,.55)';
+          target.fillRect(px + ox - 1, py + oy, 10, 4);
+          target.fillStyle = 'rgba(167,156,43,.45)';
+          target.fillRect(px + ox, py + oy, 2, 4);
+          target.fillRect(px + ox + 5, py + oy, 2, 4);
+        } else if (variant === 9) {
+          // Oil-like blackened patch.
+          target.fillStyle = 'rgba(15,19,13,.4)';
+          target.fillRect(px + ox - 2, py + oy, 10, 3);
+          target.fillRect(px + ox + 1, py + oy + 3, 6, 2);
+          target.fillStyle = 'rgba(100,115,36,.2)';
+          target.fillRect(px + ox + 1, py + oy, 4, 1);
+        }
+
+        if ((baseHash ^ detailHash) % 41 === 0) {
+          target.strokeStyle = 'rgba(191,229,47,.36)';
+          target.lineWidth = 1;
+          target.beginPath();
+          target.arc(px + 6 + ((detailHash >>> 16) % 10), py + 7 + ((detailHash >>> 21) % 9), 3, 0, Math.PI * 2);
+          target.stroke();
+        }
+      }
+
+      function drawToxicObstacleDecals(target, x, y, px, py, baseHash) {
+        const detailHash = terrainVisualHash(x, y, 73);
+        const variant = detailHash % 7;
+        const footY = py + TILE - 5;
+
+        // Persistent grime at the base of toxic obstacles.
+        target.fillStyle = 'rgba(18,22,11,.38)';
+        target.fillRect(px + 3, footY, 8 + ((detailHash >>> 5) % 7), 3);
+        target.fillStyle = 'rgba(111,137,26,.28)';
+        target.fillRect(px + 6, footY, 4, 1);
+
+        if (variant === 0) {
+          // Leaking pipe stub.
+          target.fillStyle = '#4c5140';
+          target.fillRect(px + 4, py + 15, 8, 4);
+          target.fillStyle = '#272b22';
+          target.fillRect(px + 3, py + 14, 3, 6);
+          target.fillStyle = 'rgba(174,211,38,.62)';
+          target.fillRect(px + 11, py + 18, 3, 2);
+        } else if (variant === 1) {
+          // Warning-plate scrap.
+          target.fillStyle = 'rgba(73,67,44,.8)';
+          target.fillRect(px + 15, py + 15, 7, 5);
+          target.fillStyle = 'rgba(186,170,43,.62)';
+          target.fillRect(px + 16, py + 16, 2, 3);
+          target.fillRect(px + 20, py + 16, 1, 3);
+        } else if (variant === 2) {
+          // Spore cluster.
+          target.fillStyle = 'rgba(115,144,25,.68)';
+          target.fillRect(px + 4, py + 18, 3, 3);
+          target.fillRect(px + 8, py + 16, 2, 4);
+          target.fillStyle = 'rgba(205,233,65,.5)';
+          target.fillRect(px + 4, py + 17, 2, 1);
+          target.fillRect(px + 8, py + 15, 2, 1);
+        }
+
+        if ((baseHash ^ detailHash) % 23 === 0) {
+          target.fillStyle = 'rgba(204,239,54,.38)';
+          target.fillRect(px + 18, py + 20, 3, 1);
+        }
+      }
+
+      function drawFrozenGroundDecals(target, x, y, px, py, baseHash) {
+        const detailHash = terrainVisualHash(x, y, 79);
+        const variant = detailHash % 14;
+        const ox = 3 + ((detailHash >>> 5) % 13);
+        const oy = 4 + ((detailHash >>> 10) % 12);
+
+        if (variant <= 2) {
+          // Fine frost fracture network.
+          target.strokeStyle = 'rgba(220,248,252,.48)';
+          target.lineWidth = 1;
+          target.beginPath();
+          target.moveTo(px + ox - 2, py + oy);
+          target.lineTo(px + ox + 2, py + oy + 3);
+          target.lineTo(px + ox, py + oy + 7);
+          target.lineTo(px + ox + 5, py + oy + 10);
+          target.moveTo(px + ox + 2, py + oy + 3);
+          target.lineTo(px + ox + 7, py + oy + 1);
+          target.stroke();
+        } else if (variant === 3 || variant === 4) {
+          // Wind-combed snow ripple.
+          target.strokeStyle = 'rgba(241,254,255,.42)';
+          target.lineWidth = 1;
+          target.beginPath();
+          target.moveTo(px + ox - 3, py + oy);
+          target.quadraticCurveTo(px + ox + 3, py + oy - 2, px + ox + 9, py + oy);
+          target.moveTo(px + ox - 1, py + oy + 3);
+          target.quadraticCurveTo(px + ox + 4, py + oy + 1, px + ox + 10, py + oy + 3);
+          target.stroke();
+        } else if (variant === 5) {
+          // Scattered ice shards.
+          drawPixelTriangle(target, px + ox, py + oy - 2, px + ox - 2, py + oy + 3, px + ox + 2, py + oy + 2, 'rgba(181,231,239,.66)');
+          drawPixelTriangle(target, px + ox + 6, py + oy, px + ox + 3, py + oy + 4, px + ox + 8, py + oy + 3, 'rgba(118,190,207,.62)');
+          target.fillStyle = 'rgba(244,255,255,.64)';
+          target.fillRect(px + ox, py + oy, 1, 1);
+        } else if (variant === 6) {
+          // Dark material trapped below the ice.
+          target.fillStyle = 'rgba(42,64,75,.25)';
+          target.fillRect(px + ox - 2, py + oy, 10, 2);
+          target.fillRect(px + ox + 1, py + oy + 2, 6, 2);
+          target.fillStyle = 'rgba(216,247,251,.24)';
+          target.fillRect(px + ox, py + oy, 5, 1);
+        } else if (variant === 7) {
+          // Two-part frozen footprint trail.
+          target.fillStyle = 'rgba(72,111,127,.25)';
+          target.fillRect(px + ox, py + oy, 3, 4);
+          target.fillRect(px + ox + 6, py + oy + 5, 3, 4);
+          target.fillStyle = 'rgba(229,251,253,.2)';
+          target.fillRect(px + ox, py + oy, 2, 1);
+          target.fillRect(px + ox + 6, py + oy + 5, 2, 1);
+        } else if (variant === 8) {
+          // Frozen blue vein.
+          target.strokeStyle = 'rgba(74,145,174,.38)';
+          target.lineWidth = 2;
+          target.beginPath();
+          target.moveTo(px + ox - 3, py + oy + 5);
+          target.lineTo(px + ox + 2, py + oy + 2);
+          target.lineTo(px + ox + 7, py + oy + 4);
+          target.lineTo(px + ox + 11, py + oy);
+          target.stroke();
+          target.strokeStyle = 'rgba(190,242,249,.34)';
+          target.lineWidth = 1;
+          target.stroke();
+        } else if (variant === 9) {
+          // Subtle alien glyph fragment.
+          target.strokeStyle = 'rgba(127,112,196,.32)';
+          target.lineWidth = 1;
+          target.beginPath();
+          target.moveTo(px + ox, py + oy + 7);
+          target.lineTo(px + ox + 3, py + oy);
+          target.lineTo(px + ox + 6, py + oy + 7);
+          target.moveTo(px + ox + 1, py + oy + 4);
+          target.lineTo(px + ox + 5, py + oy + 4);
+          target.stroke();
+        }
+
+        if ((baseHash ^ detailHash) % 43 === 0) {
+          target.fillStyle = 'rgba(242,255,255,.66)';
+          target.fillRect(px + 5 + ((detailHash >>> 17) % 12), py + 5 + ((detailHash >>> 22) % 10), 2, 2);
+        }
+      }
+
+      function drawFrozenObstacleDecals(target, x, y, px, py, baseHash) {
+        const detailHash = terrainVisualHash(x, y, 83);
+        const variant = detailHash % 7;
+        const footY = py + TILE - 5;
+
+        // Snow bank and crystal fragments at the foot of blocked tiles.
+        target.fillStyle = 'rgba(218,244,248,.34)';
+        target.fillRect(px + 3, footY, 8 + ((detailHash >>> 5) % 8), 3);
+        target.fillStyle = 'rgba(248,255,255,.46)';
+        target.fillRect(px + 5, footY, 5, 1);
+
+        if (variant === 0) {
+          drawPixelTriangle(target, px + 5, py + 16, px + 2, py + 22, px + 8, py + 22, 'rgba(126,197,211,.7)');
+          drawPixelTriangle(target, px + 10, py + 18, px + 7, py + 22, px + 13, py + 22, 'rgba(201,241,246,.72)');
+        } else if (variant === 1) {
+          // A buried dark alien fragment.
+          target.fillStyle = 'rgba(47,57,76,.72)';
+          target.fillRect(px + 15, py + 17, 7, 4);
+          target.fillStyle = 'rgba(137,120,206,.48)';
+          target.fillRect(px + 17, py + 17, 2, 1);
+        } else if (variant === 2) {
+          // Small frozen cairn.
+          target.fillStyle = 'rgba(102,145,158,.7)';
+          target.fillRect(px + 4, py + 19, 8, 3);
+          target.fillRect(px + 6, py + 16, 5, 3);
+          target.fillStyle = 'rgba(226,250,252,.42)';
+          target.fillRect(px + 7, py + 16, 2, 1);
+        }
+
+        if ((baseHash ^ detailHash) % 31 === 0) {
+          target.fillStyle = 'rgba(153,137,222,.42)';
+          target.fillRect(px + 19, py + 18, 2, 3);
+        }
+      }
+
+      function drawLavaGroundTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 5);
+        const palette = sandTiles[y][x]
+          ? ['#35231d', '#3c251d', '#43291f']
+          : transitionTiles[y][x]
+            ? ['#302824', '#352a25', '#3b2e27']
+            : dirtTiles[y][x]
+              ? ['#352923', '#3b2d26', '#402f27']
+              : ['#242526', '#292829', '#2e2b2b'];
+        target.fillStyle = palette[hash % palette.length];
+        target.fillRect(px, py, TILE, TILE);
+
+        // Angular, deterministic basalt cracks keep the entire walkable surface dark
+        // while shoreline cells carry a faint subterranean heat glow.
+        const sx = px + 3 + ((hash >>> 4) % 10);
+        const sy = py + 3 + ((hash >>> 9) % 8);
+        target.strokeStyle = sandTiles[y][x] ? 'rgba(255,92,31,.38)' : 'rgba(9,8,9,.58)';
+        target.lineWidth = 1;
+        target.beginPath();
+        target.moveTo(sx, sy);
+        target.lineTo(sx + 4 + ((hash >>> 13) % 4), sy + 3);
+        target.lineTo(sx + 2 + ((hash >>> 17) % 4), sy + 7);
+        target.lineTo(sx + 7 + ((hash >>> 21) % 4), sy + 10);
+        target.stroke();
+        if ((hash % 7) === 0) {
+          target.fillStyle = 'rgba(118,54,31,.28)';
+          target.fillRect(px + 4 + ((hash >>> 7) % 12), py + 17, 4, 2);
+        }
+        drawLavaGroundDecals(target, x, y, px, py, hash);
+      }
+
+      function drawLavaTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 7);
+        target.fillStyle = (hash & 1) ? '#721d0e' : '#81260f';
+        target.fillRect(px, py, TILE, TILE);
+        target.fillStyle = '#a83b12';
+        target.fillRect(px + 2, py + 4 + ((hash >>> 6) % 10), TILE - 4, 4);
+        target.fillStyle = '#e66316';
+        target.fillRect(px + 5 + ((hash >>> 10) % 7), py + 5 + ((hash >>> 14) % 9), 8, 2);
+        target.fillStyle = '#ff9a2f';
+        target.fillRect(px + 7 + ((hash >>> 18) % 6), py + 6 + ((hash >>> 22) % 8), 4, 1);
+        target.fillStyle = 'rgba(34,19,18,.72)';
+        target.fillRect(px + ((hash >>> 3) % 8), py + 2, 7, 3);
+        target.fillRect(px + 13, py + 16 + ((hash >>> 11) % 4), 8, 3);
+
+        // Static bubble domes and popped craters are cached. The moving surface
+        // layer in drawGround animates over these without creating game entities.
+        const domeX = px + 5 + ((hash >>> 8) % 14);
+        const domeY = py + 7 + ((hash >>> 13) % 10);
+        target.fillStyle = 'rgba(61,13,7,.46)';
+        target.beginPath();
+        target.ellipse(domeX, domeY, 3.4, 2.4, 0, 0, Math.PI * 2);
+        target.fill();
+        target.strokeStyle = 'rgba(255,126,34,.54)';
+        target.lineWidth = 1;
+        target.beginPath();
+        target.arc(domeX - 1, domeY - 1, 1.6, Math.PI * 1.05, Math.PI * 1.75);
+        target.stroke();
+        if ((hash % 3) === 0) {
+          const pitX = px + 6 + ((hash >>> 17) % 11);
+          const pitY = py + 5 + ((hash >>> 21) % 12);
+          target.strokeStyle = 'rgba(46,10,7,.62)';
+          target.beginPath();
+          target.ellipse(pitX, pitY, 3.8, 2.1, -.18, 0, Math.PI * 2);
+          target.stroke();
+          target.fillStyle = 'rgba(255,176,55,.32)';
+          target.fillRect(Math.round(pitX - 1), Math.round(pitY - 1), 2, 1);
+        }
+      }
+
+      function drawLavaMountainTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 11);
+        const peakX = px + 8 + (hash % 9);
+        const peakY = py + 3 + ((hash >>> 5) % 4);
+        target.fillStyle = (hash & 1) ? '#171719' : '#1d1b1c';
+        target.fillRect(px, py, TILE, TILE);
+        drawPixelTriangle(target, peakX, peakY, px + 2, py + TILE - 2, px + TILE - 2, py + TILE - 2, '#29282a');
+        drawPixelTriangle(target, peakX, peakY + 2, peakX, py + TILE - 3, px + TILE - 3, py + TILE - 3, '#3a3230');
+        drawPixelTriangle(target, peakX, peakY, peakX - 4, peakY + 7, peakX + 3, peakY + 6, '#111113');
+        target.strokeStyle = '#d94a16';
+        target.lineWidth = 1;
+        target.beginPath();
+        target.moveTo(peakX + 1, peakY + 5);
+        target.lineTo(peakX - 1, peakY + 10);
+        target.lineTo(peakX + 3, peakY + 14);
+        target.lineTo(peakX + 1, py + TILE - 4);
+        target.stroke();
+        target.fillStyle = '#ff8a27';
+        target.fillRect(Math.round(peakX), Math.round(peakY + 6), 2, 2);
+        drawLavaMountainDecals(target, x, y, px, py, hash);
+      }
+
+      function drawToxicGroundTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 13);
+        const palette = sandTiles[y][x]
+          ? ['#4a4d2a', '#53542d', '#5b5930']
+          : transitionTiles[y][x]
+            ? ['#41462c', '#484e2e', '#505633']
+            : dirtTiles[y][x]
+              ? ['#493d28', '#50422a', '#58482d']
+              : ['#30372a', '#373e2c', '#3d462f'];
+        target.fillStyle = palette[hash % palette.length];
+        target.fillRect(px, py, TILE, TILE);
+
+        target.strokeStyle = sandTiles[y][x] ? 'rgba(177,210,42,.22)' : 'rgba(19,23,12,.48)';
+        target.lineWidth = 1;
+        target.beginPath();
+        const sx = px + 2 + ((hash >>> 4) % 11);
+        const sy = py + 4 + ((hash >>> 9) % 9);
+        target.moveTo(sx, sy);
+        target.lineTo(sx + 5, sy + 2);
+        target.lineTo(sx + 3, sy + 6);
+        target.lineTo(sx + 8, sy + 9);
+        target.stroke();
+        if (hash % 9 === 0) {
+          target.fillStyle = 'rgba(153,190,31,.28)';
+          target.fillRect(px + 5 + ((hash >>> 14) % 11), py + 16, 4, 2);
+          target.fillStyle = 'rgba(28,31,13,.48)';
+          target.fillRect(px + 8 + ((hash >>> 19) % 8), py + 18, 5, 2);
+        }
+        drawToxicGroundDecals(target, x, y, px, py, hash);
+      }
+
+      function drawToxicLiquidTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 17);
+        target.fillStyle = (hash & 1) ? '#314708' : '#395309';
+        target.fillRect(px, py, TILE, TILE);
+        target.fillStyle = '#58770c';
+        target.fillRect(px + 2, py + 4 + ((hash >>> 5) % 11), TILE - 4, 4);
+        target.fillStyle = '#83a914';
+        target.fillRect(px + 5 + ((hash >>> 10) % 8), py + 6 + ((hash >>> 15) % 8), 9, 2);
+        target.fillStyle = '#b9da2b';
+        target.fillRect(px + 7 + ((hash >>> 19) % 6), py + 7 + ((hash >>> 23) % 8), 3, 1);
+        target.fillStyle = 'rgba(25,31,9,.68)';
+        target.fillRect(px + ((hash >>> 3) % 9), py + 2, 6, 3);
+        target.fillRect(px + 14, py + 17 + ((hash >>> 12) % 3), 7, 3);
+        if (hash % 5 === 0) {
+          target.strokeStyle = 'rgba(210,244,70,.48)';
+          target.beginPath();
+          target.arc(px + 7 + ((hash >>> 8) % 11), py + 7 + ((hash >>> 13) % 10), 2, 0, Math.PI * 2);
+          target.stroke();
+        }
+      }
+
+      function drawToxicObstacleTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 19);
+        const variant = hash % 3;
+        const cx = px + 8 + ((hash >>> 4) % 9);
+        target.fillStyle = (hash & 1) ? '#242b1c' : '#293020';
+        target.fillRect(px, py, TILE, TILE);
+        target.fillStyle = 'rgba(11,15,8,.42)';
+        target.fillRect(px + 2, py + TILE - 5, TILE - 4, 3);
+
+        if (variant === 0) {
+          drawPixelTriangle(target, cx, py + 3, cx - 6, py + TILE - 3, cx + 3, py + TILE - 3, '#354226');
+          drawPixelTriangle(target, cx + 7, py + 8, cx + 1, py + TILE - 3, cx + 11, py + TILE - 3, '#46552d');
+          drawPixelTriangle(target, cx, py + 5, cx - 2, py + 15, cx + 3, py + 14, '#91bd20');
+          target.fillStyle = '#d0ef3a';
+          target.fillRect(Math.round(cx), py + 8, 2, 3);
+          target.fillRect(Math.round(cx + 6), py + 13, 2, 2);
+        } else if (variant === 1) {
+          target.strokeStyle = '#5b4430';
+          target.lineWidth = 3;
+          target.beginPath();
+          target.moveTo(cx, py + TILE - 3);
+          target.lineTo(cx - 1, py + 10);
+          target.lineTo(cx - 6, py + 5);
+          target.moveTo(cx - 1, py + 12);
+          target.lineTo(cx + 7, py + 7);
+          target.stroke();
+          target.fillStyle = '#638117';
+          target.beginPath(); target.arc(cx - 7, py + 5, 4, 0, Math.PI * 2); target.fill();
+          target.beginPath(); target.arc(cx + 8, py + 7, 5, 0, Math.PI * 2); target.fill();
+          target.fillStyle = '#b4dc2c';
+          target.fillRect(Math.round(cx + 6), py + 4, 3, 2);
+          target.fillRect(Math.round(cx - 9), py + 3, 2, 2);
+        } else {
+          target.fillStyle = '#5a4931';
+          target.fillRect(Math.round(cx - 7), py + 10, 14, 11);
+          target.fillStyle = '#2e3422';
+          target.fillRect(Math.round(cx - 5), py + 12, 10, 7);
+          target.fillStyle = '#6f7e42';
+          target.fillRect(Math.round(cx - 4), py + 4, 4, 9);
+          target.fillRect(Math.round(cx + 3), py + 7, 3, 7);
+          target.fillStyle = '#9bc51e';
+          target.fillRect(Math.round(cx - 3), py + 3, 2, 3);
+          target.fillRect(Math.round(cx + 3), py + 5, 2, 3);
+          target.fillStyle = '#c8ed39';
+          target.fillRect(Math.round(cx - 5), py + 17, 8, 2);
+        }
+        drawToxicObstacleDecals(target, x, y, px, py, hash);
+      }
+
+      function drawFrozenGroundTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 23);
+        const palette = sandTiles[y][x]
+          ? ['#b8cdd3', '#c1d5da', '#acc3ca']
+          : transitionTiles[y][x]
+            ? ['#8fa9b3', '#98b1ba', '#a2bac2']
+            : dirtTiles[y][x]
+              ? ['#839da8', '#8ba5af', '#93adb7']
+              : ['#a1b8c0', '#abc1c8', '#b4c9cf'];
+        target.fillStyle = palette[hash % palette.length];
+        target.fillRect(px, py, TILE, TILE);
+
+        target.strokeStyle = sandTiles[y][x] ? 'rgba(238,252,255,.48)' : 'rgba(74,111,128,.28)';
+        target.lineWidth = 1;
+        target.beginPath();
+        const ridgeY = py + 5 + ((hash >>> 5) % 13);
+        target.moveTo(px + 2, ridgeY);
+        target.lineTo(px + 9, ridgeY - 2);
+        target.lineTo(px + 16, ridgeY);
+        target.lineTo(px + TILE - 2, ridgeY - 1);
+        target.stroke();
+        if (hash % 8 === 0) {
+          target.fillStyle = 'rgba(231,250,255,.62)';
+          target.fillRect(px + 5 + ((hash >>> 11) % 12), py + 6 + ((hash >>> 16) % 10), 2, 2);
+          target.fillStyle = 'rgba(77,121,143,.22)';
+          target.fillRect(px + 7, py + 19, 8, 1);
+        }
+        drawFrozenGroundDecals(target, x, y, px, py, hash);
+      }
+
+      function drawFrozenLiquidTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 29);
+        target.fillStyle = (hash & 1) ? '#17384c' : '#1b4259';
+        target.fillRect(px, py, TILE, TILE);
+        target.fillStyle = '#245a72';
+        target.fillRect(px + 2, py + 4 + ((hash >>> 5) % 11), TILE - 4, 4);
+        target.fillStyle = '#4e91a6';
+        target.fillRect(px + 5 + ((hash >>> 10) % 8), py + 6 + ((hash >>> 15) % 8), 9, 2);
+        target.fillStyle = '#a4e2ec';
+        target.fillRect(px + 7 + ((hash >>> 19) % 6), py + 7 + ((hash >>> 23) % 8), 4, 1);
+        target.strokeStyle = 'rgba(190,244,255,.5)';
+        target.lineWidth = 1;
+        target.beginPath();
+        target.moveTo(px + 3, py + 18);
+        target.lineTo(px + 9, py + 14);
+        target.lineTo(px + 14, py + 18);
+        target.lineTo(px + 21, py + 12);
+        target.stroke();
+      }
+
+      function drawFrozenObstacleTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 31);
+        const variant = hash % 3;
+        const cx = px + 8 + ((hash >>> 4) % 9);
+        target.fillStyle = (hash & 1) ? '#809aa5' : '#8ba4ae';
+        target.fillRect(px, py, TILE, TILE);
+        target.fillStyle = 'rgba(39,67,82,.26)';
+        target.fillRect(px + 2, py + TILE - 5, TILE - 4, 3);
+
+        if (variant === 0) {
+          drawPixelTriangle(target, cx, py + 2, cx - 7, py + TILE - 3, cx + 4, py + TILE - 3, '#bfeaf1');
+          drawPixelTriangle(target, cx + 7, py + 7, cx + 1, py + TILE - 3, cx + 12, py + TILE - 3, '#72b6c8');
+          drawPixelTriangle(target, cx, py + 4, cx - 2, py + 15, cx + 2, py + 13, '#f0fdff');
+          target.fillStyle = '#8b7fd4';
+          target.fillRect(Math.round(cx + 6), py + 10, 2, 5);
+        } else if (variant === 1) {
+          drawPixelTriangle(target, cx - 5, py + 8, cx - 10, py + TILE - 3, cx, py + TILE - 3, '#6ea7b8');
+          drawPixelTriangle(target, cx + 2, py + 2, cx - 3, py + TILE - 3, cx + 8, py + TILE - 3, '#d4f4f7');
+          drawPixelTriangle(target, cx + 9, py + 9, cx + 4, py + TILE - 3, cx + 13, py + TILE - 3, '#91cbd7');
+          target.fillStyle = '#f6ffff';
+          target.fillRect(Math.round(cx + 1), py + 6, 2, 4);
+        } else {
+          target.fillStyle = '#314857';
+          target.fillRect(Math.round(cx - 8), py + 11, 16, 10);
+          drawPixelTriangle(target, cx - 4, py + 5, cx - 8, py + 16, cx, py + 16, '#86c6d5');
+          drawPixelTriangle(target, cx + 5, py + 3, cx, py + 17, cx + 10, py + 17, '#c6eef3');
+          target.fillStyle = '#9b8ce3';
+          target.fillRect(Math.round(cx + 4), py + 7, 2, 4);
+        }
+        drawFrozenObstacleDecals(target, x, y, px, py, hash);
+      }
+
+      function drawMarsGroundTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 37);
+        const palette = sandTiles[y][x]
+          ? ['#98462e', '#a64d31', '#ae5635']
+          : transitionTiles[y][x]
+            ? ['#87402d', '#91452f', '#9a4a31']
+            : dirtTiles[y][x]
+              ? ['#713628', '#7b3b2a', '#843f2c']
+              : ['#7e3b2a', '#88402c', '#92452f'];
+        target.fillStyle = palette[hash % palette.length];
+        target.fillRect(px, py, TILE, TILE);
+
+        target.strokeStyle = sandTiles[y][x] ? 'rgba(242,142,80,.3)' : 'rgba(65,25,21,.38)';
+        target.lineWidth = 1;
+        target.beginPath();
+        const driftY = py + 5 + ((hash >>> 6) % 13);
+        target.moveTo(px + 2, driftY);
+        target.quadraticCurveTo(px + TILE / 2, driftY - 3, px + TILE - 2, driftY);
+        target.stroke();
+        if (hash % 31 === 0) {
+          // Small survey stakes and cable covers make the desert read as a colony
+          // perimeter without changing collision or construction rules.
+          target.fillStyle = '#d9d2bd';
+          target.fillRect(px + 5 + ((hash >>> 12) % 11), py + 6, 2, 8);
+          target.fillStyle = '#e98b42';
+          target.fillRect(px + 4 + ((hash >>> 12) % 11), py + 7, 4, 2);
+          target.fillStyle = '#3a302e';
+          target.fillRect(px + 3, py + 19, 12, 2);
+        } else if (hash % 17 === 0) {
+          target.fillStyle = 'rgba(55,34,31,.34)';
+          target.fillRect(px + 6 + ((hash >>> 10) % 10), py + 17, 6, 2);
+          target.fillStyle = 'rgba(237,150,91,.35)';
+          target.fillRect(px + 9, py + 8, 2, 2);
+        }
+      }
+
+      function drawMarsLiquidTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 41);
+        const diagonal = (hash & 1) === 0;
+        const liquidGradient = target.createLinearGradient(
+          diagonal ? px : px + TILE,
+          py + TILE,
+          diagonal ? px + TILE : px,
+          py
+        );
+        liquidGradient.addColorStop(0, '#164f91');
+        liquidGradient.addColorStop(.38, '#168f91');
+        liquidGradient.addColorStop(.68, '#5aa648');
+        liquidGradient.addColorStop(1, '#d5c83d');
+        target.fillStyle = liquidGradient;
+        target.fillRect(px, py, TILE, TILE);
+
+        // Dark blue depth pockets, green mineral bands and sulphur-yellow shallows
+        // make the lake read as an alien colony resource rather than red terrain.
+        target.fillStyle = 'rgba(8,43,91,.42)';
+        target.fillRect(px + ((hash >>> 3) % 8), py + 2, 8, 3);
+        target.fillStyle = 'rgba(23,125,114,.45)';
+        target.fillRect(px + 2, py + 5 + ((hash >>> 6) % 9), TILE - 4, 4);
+        target.fillStyle = 'rgba(119,177,65,.46)';
+        target.fillRect(px + 5 + ((hash >>> 11) % 7), py + 8 + ((hash >>> 15) % 8), 10, 2);
+        target.fillStyle = 'rgba(245,220,79,.65)';
+        target.fillRect(px + 7 + ((hash >>> 19) % 6), py + 7 + ((hash >>> 23) % 8), 4, 1);
+        target.strokeStyle = 'rgba(190,243,210,.34)';
+        target.lineWidth = 1;
+        target.beginPath();
+        target.moveTo(px + 3, py + 18 - ((hash >>> 9) % 5));
+        target.quadraticCurveTo(px + 11, py + 14 - ((hash >>> 14) % 3), px + 21, py + 17 - ((hash >>> 18) % 4));
+        target.stroke();
+      }
+
+      function drawMarsObstacleTile(target, x, y, px, py) {
+        const hash = terrainVisualHash(x, y, 43);
+        const variant = hash % 3;
+        const cx = px + 8 + ((hash >>> 4) % 9);
+        target.fillStyle = (hash & 1) ? '#683126' : '#713529';
+        target.fillRect(px, py, TILE, TILE);
+        target.fillStyle = 'rgba(54,23,20,.4)';
+        target.fillRect(px + 2, py + TILE - 5, TILE - 4, 3);
+
+        if (variant === 0) {
+          drawPixelTriangle(target, cx, py + 4, px + 2, py + TILE - 3, px + TILE - 2, py + TILE - 3, '#8b4934');
+          drawPixelTriangle(target, cx, py + 7, cx, py + TILE - 3, px + TILE - 3, py + TILE - 3, '#a85a3b');
+          drawPixelTriangle(target, cx, py + 4, cx - 4, py + 10, cx + 3, py + 10, '#643025');
+          target.fillStyle = '#d88955';
+          target.fillRect(Math.round(cx + 4), py + 13, 3, 2);
+        } else if (variant === 1) {
+          target.fillStyle = '#8d4934';
+          target.fillRect(Math.round(cx - 9), py + 11, 18, 10);
+          target.fillStyle = '#a85b3d';
+          target.fillRect(Math.round(cx - 6), py + 7, 12, 7);
+          target.fillStyle = '#c9c4b2';
+          target.fillRect(Math.round(cx - 1), py + 3, 2, 9);
+          target.fillStyle = '#f0a34f';
+          target.fillRect(Math.round(cx - 3), py + 3, 6, 2);
+          target.fillStyle = '#4b4d4b';
+          target.fillRect(Math.round(cx + 2), py + 12, 5, 4);
+        } else {
+          drawPixelTriangle(target, cx - 5, py + 8, cx - 11, py + TILE - 3, cx + 1, py + TILE - 3, '#7d3c2d');
+          drawPixelTriangle(target, cx + 6, py + 5, cx, py + TILE - 3, cx + 12, py + TILE - 3, '#a35238');
+          target.strokeStyle = '#bfc4bd';
+          target.lineWidth = 2;
+          target.beginPath();
+          target.moveTo(cx, py + 17);
+          target.lineTo(cx, py + 6);
+          target.lineTo(cx + 5, py + 3);
+          target.stroke();
+          target.fillStyle = '#79d7e6';
+          target.fillRect(Math.round(cx + 4), py + 2, 3, 3);
+        }
+      }
+
+      const RENDERED_MAP_SKINS = new Set(['normal', 'lava', 'toxic', 'frozen', 'mars']);
+
+      function currentMapSkin() {
+        return RENDERED_MAP_SKINS.has(state.mapSkin) ? state.mapSkin : 'normal';
+      }
+
+      function drawCachedTerrainTile(target, mapSkin, t, x, y, px, py) {
+        if (mapSkin === 'lava') {
+          if (t === 0) drawLavaGroundTile(target, x, y, px, py);
+          else if (t === 1) drawLavaTile(target, x, y, px, py);
+          else drawLavaMountainTile(target, x, y, px, py);
+          return true;
+        }
+        if (mapSkin === 'toxic') {
+          if (t === 0) drawToxicGroundTile(target, x, y, px, py);
+          else if (t === 1) drawToxicLiquidTile(target, x, y, px, py);
+          else drawToxicObstacleTile(target, x, y, px, py);
+          return true;
+        }
+        if (mapSkin === 'frozen') {
+          if (t === 0) drawFrozenGroundTile(target, x, y, px, py);
+          else if (t === 1) drawFrozenLiquidTile(target, x, y, px, py);
+          else drawFrozenObstacleTile(target, x, y, px, py);
+          return true;
+        }
+        if (mapSkin === 'mars') {
+          if (t === 0) drawMarsGroundTile(target, x, y, px, py);
+          else if (t === 1) drawMarsLiquidTile(target, x, y, px, py);
+          else drawMarsObstacleTile(target, x, y, px, py);
+          return true;
+        }
+        return false;
+      }
+
+      function mapGridColor(mapSkin) {
+        if (mapSkin === 'lava') return 'rgba(0,0,0,.18)';
+        if (mapSkin === 'toxic') return 'rgba(17,22,10,.2)';
+        if (mapSkin === 'frozen') return 'rgba(70,111,128,.18)';
+        if (mapSkin === 'mars') return 'rgba(72,29,24,.2)';
+        return COLORS.grid;
+      }
+
+      function minimapTerrainColor(mapSkin, t, x, y) {
+        if (mapSkin === 'lava') {
+          return t === 1 ? 'rgba(177,45,14,.94)'
+            : t === 2 ? 'rgba(43,38,39,.96)'
+            : sandTiles[y][x] ? 'rgba(67,38,29,.84)'
+            : transitionTiles[y][x] ? 'rgba(53,43,39,.8)'
+            : dirtTiles[y][x] ? 'rgba(59,45,38,.8)'
+            : 'rgba(39,39,40,.78)';
+        }
+        if (mapSkin === 'toxic') {
+          return t === 1 ? 'rgba(93,126,15,.94)'
+            : t === 2 ? 'rgba(48,60,31,.96)'
+            : sandTiles[y][x] ? 'rgba(80,82,43,.84)'
+            : transitionTiles[y][x] ? 'rgba(70,78,45,.8)'
+            : dirtTiles[y][x] ? 'rgba(79,65,41,.8)'
+            : 'rgba(55,64,43,.78)';
+        }
+        if (mapSkin === 'frozen') {
+          return t === 1 ? 'rgba(31,78,102,.94)'
+            : t === 2 ? 'rgba(121,172,187,.96)'
+            : sandTiles[y][x] ? 'rgba(183,209,217,.84)'
+            : transitionTiles[y][x] ? 'rgba(143,169,180,.8)'
+            : dirtTiles[y][x] ? 'rgba(130,157,168,.8)'
+            : 'rgba(164,188,197,.78)';
+        }
+        if (mapSkin === 'mars') {
+          const marsLakeBand = (x + y * 2) % 3;
+          return t === 1 ? (marsLakeBand === 0 ? 'rgba(27,91,153,.94)'
+            : marsLakeBand === 1 ? 'rgba(27,139,126,.94)'
+            : 'rgba(190,179,60,.94)')
+            : t === 2 ? 'rgba(132,65,46,.96)'
+            : sandTiles[y][x] ? 'rgba(166,76,49,.84)'
+            : transitionTiles[y][x] ? 'rgba(142,66,47,.8)'
+            : dirtTiles[y][x] ? 'rgba(121,57,42,.8)'
+            : 'rgba(137,63,44,.78)';
+        }
+        return t === 1 ? 'rgba(39,75,99,.9)'
+          : t === 2 ? 'rgba(31,78,45,.92)'
+          : sandTiles[y][x] ? 'rgba(155,134,88,.78)'
+          : transitionTiles[y][x] ? 'rgba(118,113,72,.72)'
+          : dirtTiles[y][x] ? 'rgba(153,119,77,.72)'
+          : 'rgba(64,82,60,.7)';
+      }
+
       function ensureTerrainCache() {
         const width = COLS * TILE;
         const height = ROWS * TILE;
-        const key = `${terrainRevision}:${width}:${height}`;
+        const mapSkin = currentMapSkin();
+        const key = `${terrainRevision}:${width}:${height}:${mapSkin}`;
         if (terrainCacheCanvas && terrainCacheKey === key) return;
-      
+
         terrainCacheCanvas = createTerrainCacheCanvas(width, height);
         terrainCacheCanvas.width = width;
         terrainCacheCanvas.height = height;
         terrainCacheContext = terrainCacheCanvas.getContext('2d', { alpha: false });
         terrainCacheContext.imageSmoothingEnabled = false;
-      
+
         const grassColors = ['#40523c', '#43563e', '#465a40'];
         const transitionColors = ['#6f7148', '#777449', '#807850'];
         const dirtColors = ['#98784f', '#a48256', '#af8c5e'];
@@ -15168,6 +16253,8 @@
           for (let x = 0; x < COLS; x++) {
             const t = terrain[y][x];
             const px = x * TILE, py = y * TILE;
+            if (drawCachedTerrainTile(terrainCacheContext, mapSkin, t, x, y, px, py)) continue;
+
             if (t === 0) {
               const sandy = sandTiles[y][x];
               if (sandy) {
@@ -15189,29 +16276,20 @@
                 terrainCacheContext.fillRect(px + 5, py + 7, 3, 3);
                 terrainCacheContext.fillRect(px + 14, py + 15, 2, 2);
               }
+              drawNormalForestGroundDecals(terrainCacheContext, x, y, px, py);
             } else if (t === 1) {
               terrainCacheContext.fillStyle = (x + y) % 2 ? COLORS.water : COLORS.waterB;
               terrainCacheContext.fillRect(px, py, TILE, TILE);
               terrainCacheContext.fillStyle = 'rgba(180,220,240,.10)';
               terrainCacheContext.fillRect(px + 4, py + 6 + ((x + y) % 3), TILE - 10, 2);
             } else {
-              terrainCacheContext.fillStyle = (x + y) % 2 ? COLORS.mountain : COLORS.mountainB;
-              terrainCacheContext.fillRect(px, py, TILE, TILE);
-              terrainCacheContext.fillStyle = 'rgba(20,22,28,.5)';
-              terrainCacheContext.beginPath();
-              terrainCacheContext.moveTo(px + 4, py + TILE - 4);
-              terrainCacheContext.lineTo(px + TILE / 2, py + 5);
-              terrainCacheContext.lineTo(px + TILE - 4, py + TILE - 4);
-              terrainCacheContext.closePath();
-              terrainCacheContext.fill();
-              terrainCacheContext.fillStyle = 'rgba(220,226,236,.35)';
-              terrainCacheContext.fillRect(px + TILE / 2 - 1, py + 6, 3, 4);
+              drawNormalTreeTile(terrainCacheContext, x, y, px, py);
             }
           }
         }
         terrainCacheKey = key;
       }
-      
+
       function drawGround() {
         ensureTerrainCache();
         const { x0, y0, x1, y1 } = visibleTileBounds();
@@ -15220,22 +16298,110 @@
         const sourceW = (x1 - x0 + 1) * TILE;
         const sourceH = (y1 - y0 + 1) * TILE;
         ctx.drawImage(terrainCacheCanvas, sourceX, sourceY, sourceW, sourceH, sourceX, sourceY, sourceW, sourceH);
-      
-        // Water remains subtly animated while every static tile is served by the cache.
-        const glistenStep = Math.floor(state.elapsed * 1.6);
+
+        // Liquid or chasm tiles retain a light animation layer while all static
+        // terrain stays cached. Every skin uses presentation-only hashes and never
+        // consumes gameplay PRNG state.
+        const mapSkin = currentMapSkin();
+        const animationRate = mapSkin === 'lava' ? 1.6
+          : mapSkin === 'toxic' ? 1.35
+            : mapSkin === 'frozen' ? 1.05
+              : mapSkin === 'mars' ? .9
+                : 1.6;
+        const glistenStep = Math.floor(state.elapsed * animationRate);
         for (let y = y0; y <= y1; y++) {
           for (let x = x0; x <= x1; x++) {
             if (terrain[y][x] !== 1) continue;
-            const glistenHash = ((x * 73856093) ^ (y * 19349663) ^ (glistenStep * 83492791)) >>> 0;
-            if (glistenHash % 23 !== 0) continue;
-            ctx.fillStyle = (x + y) % 2 ? '#2a5069' : '#325d7a';
-            ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
-            ctx.fillStyle = 'rgba(180,220,240,.10)';
-            ctx.fillRect(x * TILE + 4, y * TILE + 6 + ((x + y) % 3), TILE - 10, 2);
+            const glistenHash = mapSkin === 'normal'
+              ? ((x * 73856093) ^ (y * 19349663) ^ (glistenStep * 83492791)) >>> 0
+              : terrainVisualHash(x, y, glistenStep + 47);
+            const divisor = mapSkin === 'frozen' ? 29 : mapSkin === 'mars' ? 17 : 23;
+            const px = x * TILE, py = y * TILE;
+            if (mapSkin === 'lava') {
+              // Stable tile hashes choose bubble vents; elapsed time only controls
+              // their visual phase. Nothing is added to state or multiplayer checksums.
+              const bubbleHash = terrainVisualHash(x, y, 101);
+              if (bubbleHash % 4 !== 0) continue;
+              const speed = 1.05 + ((bubbleHash >>> 5) % 5) * .09;
+              const phase = (state.elapsed * speed + (bubbleHash % 97) / 97) % 1;
+              const bx = px + 5 + ((bubbleHash >>> 9) % 14);
+              const by = py + 8 + ((bubbleHash >>> 14) % 10) - phase * 2.2;
+              const radius = .75 + phase * 2.7;
+              const alpha = Math.sin(Math.PI * phase);
+
+              ctx.fillStyle = `rgba(64,12,6,${.25 + alpha * .34})`;
+              ctx.beginPath();
+              ctx.arc(bx, by + .8, radius + 1.25, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = `rgba(255,116,27,${.34 + alpha * .55})`;
+              ctx.lineWidth = 1 / cam.zoom;
+              ctx.beginPath();
+              ctx.arc(bx, by, radius, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.strokeStyle = `rgba(255,213,92,${.26 + alpha * .52})`;
+              ctx.beginPath();
+              ctx.arc(bx - radius * .28, by - radius * .3, Math.max(.45, radius * .34), Math.PI * 1.08, Math.PI * 1.82);
+              ctx.stroke();
+
+              // A smaller asynchronous bubble keeps broad lava lakes visibly active.
+              const phase2 = (phase + .47) % 1;
+              const radius2 = .55 + phase2 * 1.65;
+              const alpha2 = Math.sin(Math.PI * phase2);
+              const bx2 = px + 4 + ((bubbleHash >>> 20) % 15);
+              const by2 = py + 7 + ((bubbleHash >>> 25) % 11) - phase2 * 1.4;
+              ctx.strokeStyle = `rgba(255,151,43,${.2 + alpha2 * .45})`;
+              ctx.beginPath();
+              ctx.arc(bx2, by2, radius2, 0, Math.PI * 2);
+              ctx.stroke();
+
+              if (phase > .82) {
+                const pop = (phase - .82) / .18;
+                ctx.strokeStyle = `rgba(255,190,65,${(1 - pop) * .58})`;
+                ctx.beginPath();
+                ctx.ellipse(bx, by + 1.5, 2.8 + pop * 4.5, 1.2 + pop * 2.1, 0, 0, Math.PI * 2);
+                ctx.stroke();
+              }
+            } else {
+              if (glistenHash % divisor !== 0) continue;
+              if (mapSkin === 'toxic') {
+              const pulse = .42 + Math.sin(state.elapsed * 3.6 + (glistenHash % 19)) * .16;
+              ctx.fillStyle = `rgba(190,231,42,${pulse})`;
+              ctx.beginPath();
+              ctx.arc(px + 5 + ((glistenHash >>> 4) % 14), py + 5 + ((glistenHash >>> 9) % 13), 2.2, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = 'rgba(226,255,101,.62)';
+              ctx.lineWidth = 1 / cam.zoom;
+              ctx.beginPath();
+              ctx.arc(px + 8 + ((glistenHash >>> 14) % 10), py + 7 + ((glistenHash >>> 18) % 9), 3.2, 0, Math.PI * 2);
+              ctx.stroke();
+            } else if (mapSkin === 'frozen') {
+              const pulse = .28 + Math.sin(state.elapsed * 2.1 + (glistenHash % 23)) * .1;
+              ctx.strokeStyle = `rgba(199,249,255,${pulse})`;
+              ctx.lineWidth = 1 / cam.zoom;
+              ctx.beginPath();
+              ctx.moveTo(px + 3, py + 18 - ((glistenHash >>> 7) % 7));
+              ctx.lineTo(px + 10, py + 13 - ((glistenHash >>> 12) % 4));
+              ctx.lineTo(px + 20, py + 17 - ((glistenHash >>> 17) % 6));
+              ctx.stroke();
+              ctx.fillStyle = 'rgba(239,255,255,.7)';
+              ctx.fillRect(px + 7 + ((glistenHash >>> 20) % 10), py + 6 + ((glistenHash >>> 24) % 9), 2, 2);
+            } else if (mapSkin === 'mars') {
+              const pulse = .25 + Math.sin(state.elapsed * 1.7 + (glistenHash % 13)) * .1;
+              ctx.fillStyle = `rgba(83,221,196,${pulse})`;
+              ctx.fillRect(px + 4 + ((glistenHash >>> 5) % 9), py + 6 + ((glistenHash >>> 10) % 10), 10, 2);
+              ctx.fillStyle = 'rgba(255,232,102,.48)';
+              ctx.fillRect(px + 8 + ((glistenHash >>> 15) % 8), py + 7 + ((glistenHash >>> 20) % 8), 3, 1);
+              } else {
+                ctx.fillStyle = (x + y) % 2 ? '#2a5069' : '#325d7a';
+                ctx.fillRect(px, py, TILE, TILE);
+                ctx.fillStyle = 'rgba(180,220,240,.10)';
+                ctx.fillRect(px + 4, py + 6 + ((x + y) % 3), TILE - 10, 2);
+              }
+            }
           }
         }
-      
-        ctx.strokeStyle = COLORS.grid;
+
+        ctx.strokeStyle = mapGridColor(mapSkin);
         ctx.lineWidth = 1 / cam.zoom;
         for (let x = x0; x <= x1 + 1; x++) {
           const gx = x * TILE + .5;
@@ -15246,7 +16412,7 @@
           ctx.beginPath(); ctx.moveTo(x0 * TILE, gy); ctx.lineTo((x1 + 1) * TILE, gy); ctx.stroke();
         }
       }
-      
+
       function drawMotionMarks() {
         for (const mark of state.motionMarks) {
           if (!entityInCamera(mark, 18)) continue;
@@ -15306,6 +16472,50 @@
         ctx.restore();
       }
       
+      function drawMineralPrism(cx, tipY, baseY, halfWidth, palette) {
+        // Pixel-art crystal with an ink silhouette and three readable facets.
+        ctx.fillStyle = palette.ink;
+        ctx.beginPath();
+        ctx.moveTo(cx, tipY - 1);
+        ctx.lineTo(cx - halfWidth - 1, baseY + 1);
+        ctx.lineTo(cx + halfWidth + 1, baseY + 1);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = palette.body;
+        ctx.beginPath();
+        ctx.moveTo(cx, tipY);
+        ctx.lineTo(cx - halfWidth, baseY);
+        ctx.lineTo(cx + halfWidth, baseY);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = palette.dark;
+        ctx.beginPath();
+        ctx.moveTo(cx, tipY);
+        ctx.lineTo(cx, baseY);
+        ctx.lineTo(cx - halfWidth, baseY);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = palette.light;
+        ctx.beginPath();
+        ctx.moveTo(cx, tipY + 1);
+        ctx.lineTo(cx + Math.max(1, halfWidth - 1), baseY - 1);
+        ctx.lineTo(cx + 1, baseY - 2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = palette.edge;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx, tipY + 1);
+        ctx.lineTo(cx, baseY - 1);
+        ctx.stroke();
+        ctx.fillStyle = palette.spark;
+        ctx.fillRect(Math.round(cx + 1), Math.round(tipY + 3), 1, Math.max(1, Math.min(4, baseY - tipY - 5)));
+      }
+
       function drawNode(n) {
         const tx = clamp(Math.floor(n.x / TILE), 0, COLS - 1);
         const ty = clamp(Math.floor(n.y / TILE), 0, ROWS - 1);
@@ -15315,38 +16525,182 @@
         ctx.translate(Math.floor(n.x), Math.floor(n.y));
         ctx.globalAlpha = n.depleted ? .25 : 1;
         if (n.type === 'mineral') {
-          ctx.fillStyle = '#183c4b';
-          ctx.fillRect(-18, 10, 36, 6);
-          ctx.fillStyle = color;
-          const crystals = [[-14, 7, 7, 15], [-5, -6, 9, 27], [7, 0, 8, 21]];
-          for (const [x, y, w, h] of crystals) {
-            ctx.beginPath();
-            ctx.moveTo(x, y + h); ctx.lineTo(x + w / 2, y); ctx.lineTo(x + w, y + h);
-            ctx.closePath(); ctx.fill();
+          const richness = clamp(Number(n.richness) || 0, 0, 1);
+          const visualHash = (Math.imul((Number(n.id) || 1), 2654435761) ^ 0x51ed270b) >>> 0;
+          const palette = {
+            ink: '#06131b',
+            dark: '#137394',
+            body: '#31b9df',
+            light: '#79e5f5',
+            edge: 'rgba(215,251,255,.8)',
+            spark: '#efffff'
+          };
+
+          // Soft cached-looking glow and a layered mineral-bearing rock base.
+          ctx.fillStyle = `rgba(73,211,244,${.08 + richness * .1})`;
+          ctx.beginPath();
+          ctx.ellipse(0, 5, 20, 13, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#071a23';
+          ctx.beginPath();
+          ctx.moveTo(-19, 10); ctx.lineTo(-14, 6); ctx.lineTo(-6, 8);
+          ctx.lineTo(1, 5); ctx.lineTo(9, 8); ctx.lineTo(15, 6);
+          ctx.lineTo(20, 11); ctx.lineTo(17, 16); ctx.lineTo(-17, 16);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#123b49';
+          ctx.beginPath();
+          ctx.moveTo(-17, 10); ctx.lineTo(-12, 7); ctx.lineTo(-4, 10);
+          ctx.lineTo(2, 7); ctx.lineTo(9, 10); ctx.lineTo(14, 8);
+          ctx.lineTo(17, 11); ctx.lineTo(14, 14); ctx.lineTo(-15, 14);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#276478';
+          ctx.fillRect(-12, 10, 8, 2);
+          ctx.fillRect(4, 9, 9, 2);
+          ctx.fillStyle = 'rgba(137,231,247,.38)';
+          ctx.fillRect(-8, 10, 4, 1);
+          ctx.fillRect(7, 9, 3, 1);
+
+          // Rear crystals first, then the tall central prism and foreground shards.
+          drawMineralPrism(-13, 1 + ((visualHash >>> 3) & 1), 13, 4, palette);
+          drawMineralPrism(12, 3 - ((visualHash >>> 6) & 1), 13, 3, palette);
+          drawMineralPrism(-6, -4, 13, 4, palette);
+          drawMineralPrism(7, -2 - ((visualHash >>> 9) & 1), 13, 4, palette);
+          drawMineralPrism(0, -10, 14, 5, {
+            ...palette,
+            dark: '#106681',
+            body: '#48cceb',
+            light: '#9af1fb',
+            edge: 'rgba(235,255,255,.92)'
+          });
+
+          // Embedded chips and angular facets make the deposit readable when zoomed.
+          ctx.fillStyle = '#0b2732';
+          ctx.fillRect(-18, 13, 4, 2);
+          ctx.fillRect(14, 12, 4, 2);
+          ctx.fillStyle = '#5edcf1';
+          ctx.fillRect(-17, 11, 2, 2);
+          ctx.fillRect(15, 10, 2, 2);
+          ctx.fillStyle = '#dffcff';
+          ctx.fillRect(-2, -5, 2, 5);
+          ctx.fillRect(8, 2, 1, 3);
+          ctx.fillRect(-7, 1, 1, 3);
+
+          // A restrained deterministic glint adds life without consuming RNG.
+          const glintPhase = (state.elapsed * 1.4 + (visualHash % 29) / 29) % 1;
+          if (glintPhase < .13 && !n.depleted) {
+            const glintAlpha = 1 - glintPhase / .13;
+            ctx.fillStyle = `rgba(255,255,255,${glintAlpha * .9})`;
+            ctx.fillRect(2, -7, 2, 2);
+            ctx.fillRect(3, -9, 1, 6);
+            ctx.fillRect(0, -6, 6, 1);
           }
-          ctx.fillStyle = '#d6f7ff';
-          ctx.fillRect(-2, -1, 2, 7);
-          // Gold pips and the exact load label make richer central deposits easy
-          // to identify before committing a harvesting route.
-          const pips = 1 + Math.floor(n.richness * 3.99);
+
+          // Gold pips and the exact load label retain the original richness cue.
+          const pips = 1 + Math.floor(richness * 3.99);
+          ctx.fillStyle = '#5d4014';
+          ctx.fillRect(-pips * 3, -16, pips * 6, 5);
           ctx.fillStyle = COLORS.warn;
-          for (let i = 0; i < pips; i++) ctx.fillRect(-pips * 3 + i * 6 + 1, -11, 4, 3);
+          for (let i = 0; i < pips; i++) {
+            const pipX = -pips * 3 + i * 6 + 1;
+            ctx.fillRect(pipX, -15, 4, 3);
+            ctx.fillStyle = '#fff1a6';
+            ctx.fillRect(pipX + 1, -15, 2, 1);
+            ctx.fillStyle = COLORS.warn;
+          }
         } else {
-          // Gas leak: a venting geyser with rising bubbles until it runs dry.
+          // Gas leak: a layered fractured vent with deterministic vapor plumes.
+          // Animation reads presentation time and a node-id hash only; it never
+          // consumes gameplay RNG or adds anything to deterministic state.
+          const visualHash = (Math.imul((Number(n.id) || 1), 2246822519) ^ 0x7a31b4d9) >>> 0;
+          const baseAlpha = ctx.globalAlpha;
+
+          // Subsurface gas glow beneath the fractured rock shelf.
+          ctx.fillStyle = 'rgba(168,120,255,.12)';
+          ctx.beginPath(); ctx.ellipse(0, 6, 23, 15, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#17101f';
+          ctx.beginPath();
+          ctx.moveTo(-21, 10); ctx.lineTo(-16, 5); ctx.lineTo(-10, 7);
+          ctx.lineTo(-5, 3); ctx.lineTo(1, 6); ctx.lineTo(7, 3);
+          ctx.lineTo(12, 7); ctx.lineTo(18, 5); ctx.lineTo(22, 11);
+          ctx.lineTo(18, 16); ctx.lineTo(-18, 16); ctx.closePath(); ctx.fill();
           ctx.fillStyle = '#3c2a53';
-          ctx.fillRect(-17, 9, 34, 7);
-          ctx.fillStyle = color;
-          ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = 'rgba(216,189,255,.75)';
+          ctx.beginPath();
+          ctx.moveTo(-18, 10); ctx.lineTo(-14, 7); ctx.lineTo(-9, 9);
+          ctx.lineTo(-4, 5); ctx.lineTo(1, 8); ctx.lineTo(7, 5);
+          ctx.lineTo(12, 9); ctx.lineTo(16, 7); ctx.lineTo(19, 11);
+          ctx.lineTo(15, 14); ctx.lineTo(-15, 14); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = '#67458a';
+          ctx.fillRect(-14, 10, 8, 2);
+          ctx.fillRect(5, 9, 9, 2);
+          ctx.fillStyle = 'rgba(226,206,255,.34)';
+          ctx.fillRect(-11, 9, 4, 1);
+          ctx.fillRect(8, 8, 3, 1);
+
+          // Radial cracks reveal small veins of pressurized gas around the mouth.
+          ctx.strokeStyle = '#21152e';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-6, 5); ctx.lineTo(-13, 1); ctx.lineTo(-18, 2);
+          ctx.moveTo(6, 5); ctx.lineTo(13, 0); ctx.lineTo(18, -1);
+          ctx.moveTo(-8, 9); ctx.lineTo(-16, 11);
+          ctx.moveTo(8, 8); ctx.lineTo(17, 12);
+          ctx.stroke();
+          ctx.strokeStyle = 'rgba(168,120,255,.76)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(-6, 5); ctx.lineTo(-13, 1); ctx.lineTo(-17, 2);
+          ctx.moveTo(6, 5); ctx.lineTo(13, 0); ctx.lineTo(17, -1);
+          ctx.moveTo(-8, 9); ctx.lineTo(-15, 11);
+          ctx.moveTo(8, 8); ctx.lineTo(16, 12);
+          ctx.stroke();
+
+          // Armored-looking vent lip and luminous inner reservoir.
+          ctx.fillStyle = '#120b1a';
+          ctx.beginPath(); ctx.ellipse(0, 2, 14, 10, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#573278';
+          ctx.beginPath(); ctx.ellipse(0, 1, 11, 8, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#8a55bd';
+          ctx.beginPath(); ctx.ellipse(0, 0, 8, 6, 0, 0, Math.PI * 2); ctx.fill();
+          const ventPulse = n.depleted ? .18 : .58 + Math.sin(state.elapsed * 3.4 + (visualHash % 17)) * .12;
+          ctx.fillStyle = `rgba(216,189,255,${ventPulse})`;
+          ctx.beginPath(); ctx.ellipse(-1, -1, 5, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = 'rgba(246,237,255,.82)';
+          ctx.fillRect(-4, -3, 4, 2);
+          ctx.fillStyle = '#2a1839';
+          ctx.fillRect(-10, 4, 4, 3);
+          ctx.fillRect(7, 3, 4, 3);
+
           if (!n.depleted) {
-            const t = state.elapsed * 2;
-            for (let i = 0; i < 3; i++) {
-              const yy = -6 - ((t + i * 6) % 16);
-              ctx.fillRect(-6 + i * 5, yy, 3, 3);
+            // Five staggered wisps rise at different speeds and horizontal sway.
+            // Their coordinates are derived from the stable node hash.
+            for (let i = 0; i < 5; i++) {
+              const seed = (visualHash >>> (i * 5)) & 31;
+              const speed = .34 + i * .055;
+              const phase = (state.elapsed * speed + seed / 31 + i * .19) % 1;
+              const rise = phase * 34;
+              const sway = Math.sin(state.elapsed * (1.25 + i * .12) + seed) * (2.2 + i * .35);
+              const px = -7 + i * 3.4 + sway;
+              const py = -5 - rise;
+              const radius = 2.1 + (1 - phase) * 2.2 + (seed % 3) * .35;
+              ctx.globalAlpha = baseAlpha * (.12 + (1 - phase) * .62);
+              ctx.fillStyle = i % 2 ? '#b987ef' : '#8d5bc6';
+              ctx.beginPath(); ctx.ellipse(px, py, radius, radius * .72, 0, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = 'rgba(238,222,255,.72)';
+              ctx.fillRect(Math.round(px - radius * .3), Math.round(py - radius * .35), Math.max(1, Math.round(radius * .55)), 1);
+            }
+
+            // Occasional short pressure jet makes the leak feel active at a glance.
+            const jetPhase = (state.elapsed * .72 + (visualHash % 23) / 23) % 1;
+            if (jetPhase < .18) {
+              const jetAlpha = 1 - jetPhase / .18;
+              ctx.globalAlpha = baseAlpha * jetAlpha * .72;
+              ctx.fillStyle = '#d8bdff';
+              ctx.fillRect(-2, -12, 4, 9);
+              ctx.fillStyle = '#f4eaff';
+              ctx.fillRect(-1, -15, 2, 7);
             }
           }
-          ctx.fillStyle = '#d8bdff';
-          ctx.fillRect(-4, -3, 4, 4);
+          ctx.globalAlpha = baseAlpha;
         }
         // Remaining amount bar for every finite resource node.
         if (!n.depleted && n.amount != null) {
@@ -18524,12 +19878,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           for (let x = 0; x < COLS; x += 2) {
             if (!state.explored[y][x]) continue;
             const t = terrain[y][x];
-            ctx.fillStyle = t === 1 ? 'rgba(39,75,99,.9)'
-              : t === 2 ? 'rgba(90,95,107,.9)'
-              : sandTiles[y][x] ? 'rgba(155,134,88,.78)'
-              : transitionTiles[y][x] ? 'rgba(118,113,72,.72)'
-              : dirtTiles[y][x] ? 'rgba(153,119,77,.72)'
-              : 'rgba(64,82,60,.7)';
+            ctx.fillStyle = minimapTerrainColor(currentMapSkin(), t, x, y);
             ctx.fillRect(mx + x * TILE * sx, my + y * TILE * sy, TILE * sx * 2, TILE * sy * 2);
           }
         }
@@ -19052,7 +20401,8 @@ function drawStructureUpgradeDetails(s, x, y, team) {
         computerAIs: Object.create(null),
         enemyAI: null,
         matchSeed: null,
-        matchGameCode: null
+        matchGameCode: null,
+        mapSkin: 'normal'
       };
       
       function resetVisibilityGrids() {
@@ -19415,7 +20765,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
       
       
       // ---------------------------------------------------------------------------
-      // Terrain (randomized lakes & mountains) — 0 ground, 1 water, 2 mountain.
+      // Terrain geometry — 0 ground, 1 liquid, 2 sight-blocking high terrain/forest.
       // Sand is a separate visual layer so shoreline tiles remain fully walkable
       // and buildable and cannot accidentally alter pathfinding or placement rules.
       // ---------------------------------------------------------------------------
@@ -19578,8 +20928,8 @@ function drawStructureUpgradeDetails(s, x, y, team) {
       }
       
       // ---------------------------------------------------------------------------
-      // Line of sight + tile pathfinding (units route around lakes & mountains,
-      // and cannot shoot through mountains)
+      // Line of sight + tile pathfinding (units route around liquid and solid cover;
+      // shots cannot pass through tree masses or volcanic mountains)
       // ---------------------------------------------------------------------------
       const tileAt = (tx, ty) => (ty < 0 || tx < 0 || ty >= ROWS || tx >= COLS) ? 2 : terrain[ty][tx];
       
