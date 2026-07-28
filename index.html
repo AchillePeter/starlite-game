@@ -23,7 +23,7 @@
       history.replaceState(null, '', `${url.pathname}${query ? `?${query}` : ''}${url.hash}`);
     })();
   </script>
-  <title>StarLite II</title>
+  <title>StarLite II — Helias Fleet Update</title>
   <style>
     :root { color-scheme: dark; }
     html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#080b10; }
@@ -1948,7 +1948,7 @@
       const MAX_VEHICLE_DEBRIS = 160;
       const MAX_TROOP_STAINS = 220;
       const MAX_BATTLE_MARKS = 320;
-      const TROOP_STAIN_TYPES = new Set(['forager', 'mechanic', 'infantry', 'assault', 'mortar', 'healer', 'radar', 'insectSwarmling', 'insectBurstling', 'insectQueen', 'insectSpitter', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodTitan', 'heliasVanguard', 'heliasLancer', 'heliasSentry', 'heliasWalker']);
+      const TROOP_STAIN_TYPES = new Set(['forager', 'mechanic', 'infantry', 'assault', 'mortar', 'healer', 'radar', 'insectSwarmling', 'insectBurstling', 'insectQueen', 'insectSpitter', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodTitan', 'heliasVanguard', 'heliasLancer', 'heliasSentry', 'heliasWalker', 'heliasImmortal']);
       
       const particlePool = [];
       const effectPool = [];
@@ -2906,6 +2906,86 @@
             if (distance > splashRadius) continue;
             damage(victim, u.damage * .5 * (1 - distance / splashRadius * .45), u);
           }
+        } else if (u.type === 'heliasVanguard') {
+          const color = '#9cf2ff';
+          u.attackAnim = .28;
+          const reach = u.radius + 8;
+          const strikeX = u.x + Math.cos(u.heading) * reach;
+          const strikeY = u.y + Math.sin(u.heading) * reach;
+          addEffect('swoosh', { x: strikeX, y: strikeY, angle: u.heading - .18, radius: 20, arc: .62, width: 4.2, color, intensity: 1.25, life: .18, double: true });
+          addEffect('swoosh', { x: strikeX, y: strikeY, angle: u.heading + .18, radius: 18, arc: .54, width: 3.2, color: '#f4fbff', intensity: 1, life: .15, double: true });
+          addEffect('impactFlash', { x: target.x, y: target.y, color, scale: 1.15, life: .14, angle: u.heading });
+          burst(target.x, target.y, color, 7, false, { shape: 'spark', lifeMin: .08, lifeMax: .3, sizeMin: 1, sizeMax: 3, speedMin: 24, speedMax: 88 });
+          damage(target, u.damage, u);
+        } else if (u.type === 'heliasLancer') {
+          fireProjectile(u, target, u.damage, {
+            speed: 470, color: '#8deaff', trailColor: '#d8fbff', radius: 4.5, length: 24,
+            style: 'plasma', recoil: .13, muzzleScale: 1.35, muzzleOffset: u.radius + 11,
+            intensity: 1.55, zigzagAmplitude: 2.4, zigzagFrequency: 19
+          });
+        } else if (u.type === 'heliasSentry') {
+          fireProjectile(u, target, u.damage, {
+            speed: 430, color: '#c4a8ff', trailColor: '#eff7ff', radius: 3.6, length: 18,
+            style: 'energy', recoil: .08, muzzleScale: 1.05, muzzleOffset: u.radius + 8,
+            intensity: 1.25, zigzagAmplitude: 3.2, zigzagFrequency: 16
+          });
+        } else if (u.type === 'heliasWalker') {
+          fireProjectile(u, target, u.damage, {
+            speed: 320, color: '#76ddff', trailColor: '#d8f8ff', radius: 7, length: 28,
+            style: 'siege', recoil: .24, muzzleScale: 1.9, muzzleOffset: u.radius + 14,
+            splash: u.splash || 24, intensity: 2.15, canHitAir: false
+          });
+        } else if (u.type === 'heliasImmortal') {
+          const blastColor = '#b8f7ff';
+          u.attackAnim = .3;
+          for (const muzzleSideOffset of [-9, 9]) {
+            fireProjectile(u, target, u.damage * .5, {
+              speed: 365, color: blastColor, trailColor: '#ffffff', radius: 6.4, length: 27,
+              style: 'plasma', recoil: .22, muzzleScale: 1.7, muzzleOffset: u.radius + 14,
+              muzzleSideOffset, splash: u.splash || 18, intensity: 2.05, canHitAir: false
+            });
+          }
+          addEffect('muzzleRing', {
+            x: u.x + Math.cos(u.heading) * (u.radius + 11),
+            y: u.y + Math.sin(u.heading) * (u.radius + 11),
+            angle: u.heading, color: '#8deaff', radius: 15, intensity: 1.8, life: .15
+          });
+        } else if (u.type === 'heliasSkimmer') {
+          fireProjectile(u, target, u.damage, {
+            speed: 570, color: '#8deaff', trailColor: '#effcff', radius: 3.5, length: 25,
+            style: 'plasma', recoil: .08, muzzleScale: 1.22, muzzleOffset: u.radius + 10,
+            intensity: 1.45, zigzagAmplitude: 2.2, zigzagFrequency: 21
+          });
+        } else if (u.type === 'heliasPhoenix') {
+          u.attackAnim = .18;
+          for (const muzzleSideOffset of [-8, 8]) {
+            fireProjectile(u, target, u.damage * .5, {
+              speed: 720, color: '#8deaff', trailColor: '#effcff', radius: 3.1, length: 19,
+              style: 'plasma', recoil: .045, muzzleScale: .9, muzzleOffset: u.radius + 11,
+              muzzleSideOffset, intensity: 1.15, canHitGround: false, inaccuracy: .025, aimJitter: 2
+            });
+          }
+        } else if (u.type === 'heliasVoidRay') {
+          u.cooldownLeft = u.cooldown;
+          u.recoil = .08;
+          u.attackAnim = .26;
+          u.voidRayCharge = Math.min(1, (u.voidRayCharge || 0) + .14);
+          const charge = u.voidRayCharge || 0;
+          addEffect('beam', {
+            source: u, target, color: '#8f63ff', innerColor: '#eafcff', voidRay: true,
+            originOffset: u.radius + 9, charge,
+            life: .27, max: .27, width: 5.8 + charge * 4.8,
+            phase: u.id * .73 + state.elapsed * (10 + charge * 5)
+          });
+          addEffect('muzzleRing', {
+            x: u.x + Math.cos(u.heading) * (u.radius + 9),
+            y: u.y + Math.sin(u.heading) * (u.radius + 9),
+            angle: u.heading, color: charge > .66 ? '#f1f7ff' : '#bff7ff',
+            radius: 12 + charge * 8, intensity: 1.8 + charge, life: .16
+          });
+          burst(target.x, target.y, charge > .66 ? '#eafcff' : '#bff7ff', 4 + Math.round(charge * 4), false,
+            { shape: 'spark', lifeMin: .08, lifeMax: .26, sizeMin: 1, sizeMax: 3.4, speedMin: 18, speedMax: 76 });
+          damage(target, u.damage, u);
         } else if (u.type === 'infantry') {
           const doubleBlades = u.doubleBlades;
           const intensity = doubleBlades ? 1.35 : 1;
@@ -3541,6 +3621,7 @@
         u.flash = Math.max(0, u.flash - dt);
         u.recoil = Math.max(0, (u.recoil || 0) - dt);
         u.attackAnim = Math.max(0, (u.attackAnim || 0) - dt);
+        if (u.type === 'heliasVoidRay') u.voidRayCharge = Math.max(0, (u.voidRayCharge || 0) - dt * .28);
         u.aceSpin = Math.max(0, (u.aceSpin || 0) - dt);
         updateFortressLock(u, dt);
         updateInsectRegeneration(u, dt);
@@ -3727,42 +3808,95 @@
       // physically reach the footprint, then transform into the growing structure.
       function updateBuilder(u, dt) {
         const site = u.buildSite;
-        if (!site || site.hp <= 0 || !site.underConstruction || site.constructionStarted) {
+        if (!site || site.hp <= 0) {
           resumeForaging(u);
           return;
         }
+        if (!site.underConstruction) {
+          resumeForaging(u);
+          return;
+        }
+        const faction = teamFactionId(site.team, state.teamFactions);
+        const organicMorph = faction === 'insects';
+        const humanConstruction = faction === 'humans';
         const reach = Math.max(site.w, site.h) / 2 + u.radius + 8;
-        if (dist(u, site) <= reach) {
-          const organicMorph = teamFactionId(site.team, state.teamFactions) === 'insects';
-          site.constructionStarted = true;
-          site.builderId = null;
-          u.heading = Math.atan2(site.y - u.y, site.x - u.x);
-          burst(site.x, site.y, organicMorph ? '#a95d8f' : COLORS.warn, 14, true);
-          if (organicMorph) {
-            addEffect('organicSplash', {
-              x: site.x, y: site.y, color: '#a95d8f', innerColor: '#d8ff9c',
-              radius: Math.max(22, Math.min(40, Math.max(site.w, site.h) * .7)),
-              seed: site.id * 1.37, life: .62, max: .62, intensity: 1.35
-            });
-            burst(site.x, site.y, '#7f3a69', 24, false, {
-              shape: 'droplet', lifeMin: .18, lifeMax: .58, sizeMin: 2, sizeMax: 5,
-              speedMin: 32, speedMax: 108, gravity: 90, alpha: .88
-            });
-          }
-          const d = BUILDING_DATA[site.type];
-          if (organicMorph) {
-            state.selected?.delete?.(u.id);
-            const unitIndex = units.indexOf(u);
-            if (unitIndex >= 0) units.splice(unitIndex, 1);
-            site.morphedFromUnitId = u.id;
-            site.organicBuilderId = null;
-            toast(`DRONE transformed into ${d.label} · ready in ${d.buildTime}s.`, COLORS.good, site.team);
-          } else {
+        if (!site.constructionStarted) {
+          if (dist(u, site) <= reach) {
+            site.constructionStarted = true;
+            site.builderId = humanConstruction ? u.id : null;
+            u.heading = Math.atan2(site.y - u.y, site.x - u.x);
+            burst(site.x, site.y, organicMorph ? '#a95d8f' : COLORS.warn, 14, true);
+            if (organicMorph) {
+              addEffect('organicSplash', {
+                x: site.x, y: site.y, color: '#a95d8f', innerColor: '#d8ff9c',
+                radius: Math.max(22, Math.min(40, Math.max(site.w, site.h) * .7)),
+                seed: site.id * 1.37, life: .62, max: .62, intensity: 1.35
+              });
+              burst(site.x, site.y, '#7f3a69', 24, false, {
+                shape: 'droplet', lifeMin: .18, lifeMax: .58, sizeMin: 2, sizeMax: 5,
+                speedMin: 32, speedMax: 108, gravity: 90, alpha: .88
+              });
+            }
+            const d = BUILDING_DATA[site.type];
+            if (organicMorph) {
+              state.selected?.delete?.(u.id);
+              const unitIndex = units.indexOf(u);
+              if (unitIndex >= 0) units.splice(unitIndex, 1);
+              site.morphedFromUnitId = u.id;
+              site.organicBuilderId = null;
+              toast(`DRONE transformed into ${d.label} · ready in ${d.buildTime}s.`, COLORS.good, site.team);
+              return;
+            }
             toast(`${d.label} started — ready in ${d.buildTime}s.`, COLORS.good, site.team);
-            resumeForaging(u);
+            if (!humanConstruction) {
+              resumeForaging(u);
+              return;
+            }
+            const awayAngle = Math.atan2(u.y - site.y, u.x - site.x);
+            const anchorAngle = Number.isFinite(awayAngle) ? awayAngle : (u.id * 2.399963229728653) % (Math.PI * 2);
+            const anchorRadius = Math.max(site.w, site.h) / 2 + u.radius + 3;
+            u.buildAnchor = {
+              siteId: site.id,
+              x: clamp(site.x + Math.cos(anchorAngle) * anchorRadius, u.radius, WORLD_W - u.radius),
+              y: clamp(site.y + Math.sin(anchorAngle) * anchorRadius, u.radius, WORLD_H - u.radius)
+            };
+            u.builderSparkClock = 0;
+          } else {
+            moveTo(u, site.x, site.y, dt);
+            return;
           }
-        } else {
-          moveTo(u, site.x, site.y, dt);
+        }
+
+        if (!humanConstruction) return;
+        if (!u.buildAnchor || u.buildAnchor.siteId !== site.id) {
+          const angle = Math.atan2(u.y - site.y, u.x - site.x);
+          const anchorRadius = Math.max(site.w, site.h) / 2 + u.radius + 3;
+          u.buildAnchor = {
+            siteId: site.id,
+            x: clamp(site.x + Math.cos(angle) * anchorRadius, u.radius, WORLD_W - u.radius),
+            y: clamp(site.y + Math.sin(angle) * anchorRadius, u.radius, WORLD_H - u.radius)
+          };
+        }
+        if (dist(u, u.buildAnchor) > 3) moveTo(u, u.buildAnchor.x, u.buildAnchor.y, dt);
+        else {
+          u.movementOrderActive = false;
+          u.path = null;
+          u.destination = { x: u.buildAnchor.x, y: u.buildAnchor.y };
+        }
+        u.heading = Math.atan2(site.y - u.y, site.x - u.x);
+        u.builderSparkClock = (u.builderSparkClock || 0) - dt;
+        if (u.builderSparkClock <= 0) {
+          u.builderSparkClock += .2;
+          const toolX = u.x + Math.cos(u.heading) * (u.radius + 5);
+          const toolY = u.y + Math.sin(u.heading) * (u.radius + 5);
+          burst(toolX, toolY, '#ffd166', 3, false, {
+            shape: 'spark', lifeMin: .08, lifeMax: .24, sizeMin: 1, sizeMax: 2.6,
+            speedMin: 18, speedMax: 65, gravity: 35, alpha: .95
+          });
+          addEffect('muzzleRing', {
+            x: toolX, y: toolY, angle: u.heading, color: '#fff3bd',
+            radius: 4.5, intensity: .65, life: .08
+          });
         }
       }
       
@@ -7045,7 +7179,11 @@
         heliasLancer: { label: 'STALKER', costM: 125, costG: 50, hp: 160, speed: 64, damage: 23, range: 130, cooldown: .9, sight: 178, radius: 10, buildTime: 10, pop: 2, tier: 2, shieldHp: 80, shieldRegen: 11, shieldDelay: 2.9 },
         heliasSentry: { label: 'SENTRY', costM: 100, costG: 100, hp: 100, speed: 58, damage: 12, range: 118, cooldown: 1.02, sight: 170, radius: 10, buildTime: 10, pop: 2, tier: 2, shieldHp: 70, shieldRegen: 12, shieldDelay: 2.7 },
         heliasWalker: { label: 'AEGIS WALKER', costM: 255, costG: 180, hp: 390, speed: 38, damage: 44, range: 142, cooldown: 1.32, sight: 195, radius: 16, buildTime: 17, pop: 4, tier: 2, splash: 24, shieldHp: 110, shieldRegen: 9, shieldDelay: 3.1 },
-        heliasSkimmer: { label: 'SOLAR SKIMMER', costM: 220, costG: 170, hp: 245, speed: 116, damage: 25, range: 155, cooldown: .78, sight: 230, radius: 15, buildTime: 16, pop: 3, tier: 2, shieldHp: 90, shieldRegen: 11, shieldDelay: 2.8 }
+        heliasObserver: { label: 'OBSERVER', costM: 25, costG: 75, hp: 40, speed: 94, damage: 0, range: 0, cooldown: 1, sight: 305, radius: 11, buildTime: 8, pop: 1, tier: 2, shieldHp: 40, shieldRegen: 10, shieldDelay: 2.5, detector: true },
+        heliasImmortal: { label: 'IMMORTAL', costM: 275, costG: 100, hp: 300, speed: 42, damage: 58, range: 132, cooldown: 1.28, sight: 195, radius: 18, buildTime: 18, pop: 4, tier: 2, splash: 18, shieldHp: 100, shieldRegen: 9, shieldDelay: 3.1 },
+        heliasSkimmer: { label: 'SOLAR SKIMMER', costM: 220, costG: 170, hp: 245, speed: 116, damage: 25, range: 155, cooldown: .78, sight: 230, radius: 15, buildTime: 16, pop: 3, tier: 2, shieldHp: 90, shieldRegen: 11, shieldDelay: 2.8 },
+        heliasPhoenix: { label: 'PHOENIX', costM: 150, costG: 100, hp: 180, speed: 148, damage: 20, range: 158, cooldown: .62, sight: 240, radius: 17, buildTime: 15, pop: 2, tier: 2, shieldHp: 80, shieldRegen: 12, shieldDelay: 2.7 },
+        heliasVoidRay: { label: 'VOID RAY', costM: 250, costG: 150, hp: 280, speed: 78, damage: 9, range: 168, cooldown: .24, sight: 235, radius: 20, buildTime: 22, pop: 4, tier: 2, shieldHp: 120, shieldRegen: 10, shieldDelay: 3 }
       };
       
       // These families drive footprints, tracks and ambient vehicle effects. Body
@@ -7053,10 +7191,10 @@
       // instance override passed to addUnit), so every unit can receive its own
       // animator later without changing drawUnit. Only close-combat infantry opts
       // in for now.
-      const FOOT_UNIT_TYPES = new Set(['forager', 'mechanic', 'infantry', 'assault', 'mortar', 'healer', 'radar', 'insectSwarmling', 'insectBurstling', 'insectQueen', 'insectSpitter', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodTitan', 'heliasVanguard', 'heliasLancer', 'heliasSentry']);
+      const FOOT_UNIT_TYPES = new Set(['forager', 'mechanic', 'infantry', 'assault', 'mortar', 'healer', 'radar', 'insectSwarmling', 'insectBurstling', 'insectQueen', 'insectSpitter', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodTitan', 'heliasVanguard', 'heliasLancer', 'heliasSentry', 'heliasImmortal']);
       const VEHICLE_UNIT_TYPES = new Set(['roboMiner', 'jeep', 'armoredJeep', 'heavy', 'titanTank', 'forceFieldTruck']);
-      const AIR_UNIT_TYPES = new Set(['helicopter', 'doubleChopper', 'antiAirFighter', 'bomber', 'insectOverlord', 'insectWasp', 'insectSkyblight', 'insectBroodReaver', 'insectBroodCarrier', 'heliasSkimmer']);
-      const WALKER_UNIT_TYPES = new Set([...FOOT_UNIT_TYPES, 'mecha']);
+      const AIR_UNIT_TYPES = new Set(['helicopter', 'doubleChopper', 'antiAirFighter', 'bomber', 'insectOverlord', 'insectWasp', 'insectSkyblight', 'insectBroodReaver', 'insectBroodCarrier', 'heliasSkimmer', 'heliasObserver', 'heliasPhoenix', 'heliasVoidRay']);
+      const WALKER_UNIT_TYPES = new Set([...FOOT_UNIT_TYPES, 'mecha', 'heliasWalker']);
       const RESOURCE_HARVESTER_TYPES = new Set(['forager', 'roboMiner']);
       
       function isAirUnitType(type) {
@@ -7560,7 +7698,7 @@
         }),
         helias: Object.freeze({
           id: 'helias', label: 'THE HELIAS', hqLabel: 'NEXUS', enabled: true,
-          unitTypes: Object.freeze(['forager', 'heliasVanguard', 'heliasLancer', 'heliasSentry', 'heliasWalker', 'heliasSkimmer']),
+          unitTypes: Object.freeze(['forager', 'heliasVanguard', 'heliasLancer', 'heliasSentry', 'heliasWalker', 'heliasObserver', 'heliasImmortal', 'heliasSkimmer', 'heliasPhoenix', 'heliasVoidRay']),
           buildingTypes: Object.freeze(['hq', 'gasExtractor', 'heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate']),
           startingUnits: Object.freeze([
             Object.freeze({ type: 'forager', count: 4, autoHarvest: true })
@@ -7572,14 +7710,26 @@
               Object.freeze({ type: 'heliasLancer', level: 1 }),
               Object.freeze({ type: 'heliasSentry', level: 1 })
             ]),
-            heliasRoboticsFacility: Object.freeze([Object.freeze({ type: 'heliasWalker', level: 1 })]),
-            heliasStargate: Object.freeze([Object.freeze({ type: 'heliasSkimmer', level: 1 })])
+            heliasRoboticsFacility: Object.freeze([
+              Object.freeze({ type: 'heliasWalker', level: 1 }),
+              Object.freeze({ type: 'heliasObserver', level: 1 }),
+              Object.freeze({ type: 'heliasImmortal', level: 1 })
+            ]),
+            heliasStargate: Object.freeze([
+              Object.freeze({ type: 'heliasSkimmer', level: 1 }),
+              Object.freeze({ type: 'heliasPhoenix', level: 1 }),
+              Object.freeze({ type: 'heliasVoidRay', level: 1 })
+            ])
           }),
           unitRequirements: Object.freeze({
             heliasLancer: Object.freeze(['heliasCyberCore']),
             heliasSentry: Object.freeze(['heliasCyberCore']),
             heliasWalker: Object.freeze(['heliasRoboticsFacility']),
-            heliasSkimmer: Object.freeze(['heliasStargate'])
+            heliasObserver: Object.freeze(['heliasRoboticsFacility']),
+            heliasImmortal: Object.freeze(['heliasRoboticsFacility']),
+            heliasSkimmer: Object.freeze(['heliasStargate']),
+            heliasPhoenix: Object.freeze(['heliasStargate']),
+            heliasVoidRay: Object.freeze(['heliasStargate'])
           }),
           buildMenu: Object.freeze([
             Object.freeze({ type: 'heliasPylon', purpose: '+8 population · projects a power field for nearby Helias structures', tone: 'economy' }),
@@ -7594,7 +7744,8 @@
           }),
           unitLabels: Object.freeze({
             forager: 'PROBE', heliasVanguard: 'ZEALOT', heliasLancer: 'STALKER',
-            heliasSentry: 'SENTRY', heliasWalker: 'AEGIS WALKER', heliasSkimmer: 'SOLAR SKIMMER'
+            heliasSentry: 'SENTRY', heliasWalker: 'AEGIS WALKER', heliasObserver: 'OBSERVER',
+            heliasImmortal: 'IMMORTAL', heliasSkimmer: 'SOLAR SKIMMER', heliasPhoenix: 'PHOENIX', heliasVoidRay: 'VOID RAY'
           })
         })
       });
@@ -8920,7 +9071,7 @@
       function clearBuildJob(u) {
         const site = u?.buildSite;
         if (site && site.builderId === u.id && site.underConstruction && !site.constructionStarted) site.builderId = null;
-        if (u) { u.buildSite = null; u.buildResume = null; }
+        if (u) { u.buildSite = null; u.buildResume = null; u.buildAnchor = null; u.builderSparkClock = 0; }
       }
       
       function assignHarvest(u, node) {
@@ -10089,6 +10240,8 @@
         };
         u.job = 'build';
         u.buildSite = site;
+        u.buildAnchor = null;
+        u.builderSparkClock = 0;
         u.command = 'hold';
         u.target = null;
         u.targetSource = null;
@@ -10568,7 +10721,7 @@
         return null;
       }
       
-      const CANNOT_ATTACK_AIR_TYPES = new Set(['infantry', 'mecha', 'mortar', 'heavy', 'helicopter', 'bomber', 'insectSwarmling', 'insectBurstling', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodReaver', 'insectBroodTitan']);
+      const CANNOT_ATTACK_AIR_TYPES = new Set(['infantry', 'mecha', 'mortar', 'heavy', 'helicopter', 'bomber', 'insectSwarmling', 'insectBurstling', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodReaver', 'insectBroodTitan', 'heliasVanguard', 'heliasWalker', 'heliasImmortal']);
       
       function canAttackTarget(attacker, target) {
         if (!attacker || !target || attacker.hp <= 0 || target.hp <= 0 || attacker.team === target.team || attacker.damage <= 0 || attacker.morphJob) return false;
@@ -10580,7 +10733,7 @@
         }
         if (isResourceHarvester(attacker) || attacker.type === 'healer' || attacker.type === 'radar' || attacker.type === 'mechanic' || attacker.type === 'forceFieldTruck') return false;
         const targetIsAir = isAirUnit(target);
-        if (attacker.type === 'antiAirFighter' || attacker.type === 'insectSkyblight') return targetIsAir;
+        if (attacker.type === 'antiAirFighter' || attacker.type === 'insectSkyblight' || attacker.type === 'heliasPhoenix') return targetIsAir;
         if (attacker.type === 'bomber') {
           return !targetIsAir && (target.kind === 'structure' || (target.kind === 'unit' && attacker.canBombTroops));
         }
@@ -12514,7 +12667,7 @@
         .starlite-menu__online-choice strong { font-size: 18px; letter-spacing: .07em; }
         .starlite-menu__online-choice small { color: rgba(244,250,255,.72); font-size: 12px; line-height: 1.45; }
         .starlite-menu__tag-teaser {
-          position: absolute; right: 0; top: 58%; z-index: 3; width: 132px; min-height: 112px; padding: 15px 12px;
+          position: absolute; left: 0; right: auto; top: 58%; z-index: 3; width: 132px; min-height: 112px; padding: 15px 12px;
           display: grid; place-items: center; align-content: center; gap: 6px;
           border: 2px solid #18331d; border-radius: 10px; color: #17311a; background: #b9ef78; cursor: pointer;
           box-shadow: 6px 8px 0 rgba(7,18,9,.4), inset 0 0 0 2px rgba(255,255,255,.32);
@@ -12525,6 +12678,17 @@
         .starlite-menu__tag-teaser strong { font-size: 18px; line-height: 1; letter-spacing: .07em; }
         .starlite-menu__tag-teaser small { font-size: 9px; font-weight: 850; letter-spacing: .13em; opacity: .72; }
         .starlite-menu__tag-teaser-mark { width: 38px; height: 38px; display: grid; place-items: center; border: 2px solid currentColor; border-radius: 6px; font: 950 22px ui-monospace, monospace; }
+        .starlite-menu__tutorial-teaser {
+          position: absolute; right: 0; top: 58%; z-index: 3; width: 150px; min-height: 112px; padding: 15px 12px;
+          display: grid; place-items: center; align-content: center; gap: 7px;
+          border: 2px solid #14294a; border-radius: 10px; color: #dff7ff; background: linear-gradient(145deg, #315fa3, #58438e);
+          box-shadow: -6px 8px 0 rgba(7,12,24,.4), inset 0 0 0 2px rgba(255,255,255,.2);
+          transform: rotate(6deg); transform-origin: 28% 88%; cursor: not-allowed;
+        }
+        .starlite-menu__tutorial-teaser strong { max-width: 126px; font-size: 15px; line-height: 1.08; letter-spacing: .06em; text-align: center; }
+        .starlite-menu__tutorial-teaser small { font-size: 8px; font-weight: 850; letter-spacing: .12em; opacity: .78; text-align: center; }
+        .starlite-menu__tutorial-teaser-mark { width: 38px; height: 38px; display: grid; place-items: center; border: 2px solid currentColor; border-radius: 50%; font: 950 21px ui-monospace, monospace; }
+        .starlite-menu__tutorial-teaser:disabled { opacity: .92; color: #e4f8ff; }
         @keyframes starlite-tag-wobble {
           0%, 70%, 100% { transform: rotate(-7deg); }
           74% { transform: rotate(-11deg) translateY(-2px); }
@@ -12575,8 +12739,10 @@
           .starlite-menu__branch-actions, .starlite-menu__online-create, .starlite-menu__mode-gates, .starlite-menu__online-choices { grid-template-columns: 1fr; }
           .starlite-menu__gate { min-height: 126px; }
           .starlite-menu__top-actions { top: 10px; right: 10px; }
-          .starlite-menu__tag-teaser { position: static; width: min(180px, 62vw); min-height: 72px; margin: 15px auto 0; grid-template-columns: auto 1fr; transform: rotate(-4deg); }
-          .starlite-menu__tag-teaser-mark { grid-row: 1 / span 2; }
+          .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser { position: static; width: min(210px, 72vw); min-height: 72px; margin: 15px auto 0; grid-template-columns: auto 1fr; }
+          .starlite-menu__tag-teaser { transform: rotate(-4deg); }
+          .starlite-menu__tutorial-teaser { transform: rotate(3deg); }
+          .starlite-menu__tag-teaser-mark, .starlite-menu__tutorial-teaser-mark { grid-row: 1 / span 2; }
           .starlite-menu__profile-card { grid-template-columns: 58px 1fr; }
           .starlite-menu__profile-avatar { width: 58px; height: 58px; }
           .starlite-menu__account-fields, .starlite-menu__account-actions { grid-template-columns: 1fr; }
@@ -12588,7 +12754,7 @@
           .starlite-menu__tag-color-groups { grid-template-columns: 1fr; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__tag-teaser { transition: none; animation: none !important; }
+          .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser { transition: none; animation: none !important; }
         }
       `;
       
@@ -13074,6 +13240,9 @@
             </section>
             <button class="starlite-menu__tag-teaser" type="button" data-open-tag-lab aria-label="Open Tag Lab">
               <span class="starlite-menu__tag-teaser-mark" aria-hidden="true">✎</span><strong>TAG LAB</strong><small>MAKE YOUR MARK</small>
+            </button>
+            <button class="starlite-menu__tutorial-teaser" type="button" disabled aria-disabled="true" aria-label="Tutorials under construction">
+              <span class="starlite-menu__tutorial-teaser-mark" aria-hidden="true">?</span><strong>TUTORIALS</strong><small>UNDER CONSTRUCTION</small>
             </button>
             <footer class="starlite-menu__footer">Deterministic lockstep · WebSocket relay ready</footer>
           </main>`;
@@ -23438,6 +23607,198 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           ctx.globalAlpha = 1;
           ctx.fillStyle = '#aef5ff'; ctx.fillRect(10 - (u.recoil || 0) * 8, -2, 11, 4);
           ctx.fillStyle = '#ffffff'; ctx.fillRect(19 - (u.recoil || 0) * 8, -1, 3, 2);
+        } else if (u.type === 'heliasObserver') {
+          const bob = Math.sin(state.elapsed * 4.1 + u.flightPhase) * 1.7;
+          const spin = state.elapsed * 1.45 + u.id * .23;
+          const shimmer = .82 + Math.sin(state.elapsed * 9 + u.id * .7) * .08;
+          ctx.translate(0, bob);
+          ctx.globalAlpha = .12;
+          ctx.fillStyle = '#8deaff';
+          ctx.beginPath(); ctx.ellipse(-1, 13, 14, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = shimmer;
+          ctx.strokeStyle = '#05080d'; ctx.lineWidth = 2.1 / cam.zoom;
+
+          // Four swept sensor vanes make the unit read as an Observer at a glance.
+          ctx.fillStyle = '#05080d';
+          for (const side of [-1, 1]) {
+            ctx.beginPath();
+            ctx.moveTo(-2, side * 5); ctx.quadraticCurveTo(-10, side * 13, -18, side * 16);
+            ctx.lineTo(-12, side * 5); ctx.lineTo(-19, 0); ctx.lineTo(-8, side * 1); ctx.closePath(); ctx.fill();
+          }
+          ctx.fillStyle = u.flash > 0 ? '#ffffff' : '#d6b963';
+          for (const side of [-1, 1]) {
+            ctx.beginPath();
+            ctx.moveTo(-1, side * 4); ctx.quadraticCurveTo(-8, side * 10, -14, side * 12);
+            ctx.lineTo(-9, side * 4); ctx.lineTo(-14, 0); ctx.lineTo(-6, side * 1); ctx.closePath(); ctx.fill(); ctx.stroke();
+          }
+
+          ctx.fillStyle = '#05080d'; ctx.beginPath(); ctx.ellipse(3, 0, 10.5, 8.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#2a1d43'; ctx.beginPath(); ctx.ellipse(3, 0, 8, 6.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#d8c86b';
+          ctx.beginPath(); ctx.arc(-3.5, 0, 3.2, 0, Math.PI * 2); ctx.fill();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.shadowColor = '#8deaff'; ctx.shadowBlur = 12;
+          ctx.fillStyle = '#bff7ff'; ctx.beginPath(); ctx.ellipse(6, 0, 4.3, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(7.2, -.7, 1.25, 0, Math.PI * 2); ctx.fill();
+          ctx.shadowBlur = 0;
+
+          ctx.save(); ctx.rotate(spin); ctx.strokeStyle = '#aef5ff'; ctx.lineWidth = 1.2 / cam.zoom;
+          ctx.globalAlpha = .5 + Math.sin(state.elapsed * 6 + u.id) * .14;
+          ctx.beginPath(); ctx.ellipse(0, 0, 16.5, 10.5, 0, -.72, .72); ctx.stroke();
+          ctx.beginPath(); ctx.ellipse(0, 0, 16.5, 10.5, 0, Math.PI - .72, Math.PI + .72); ctx.stroke();
+          for (const side of [-1, 1]) {
+            ctx.fillStyle = '#8deaff'; ctx.beginPath(); ctx.arc(0, side * 10.5, 1.8, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.restore();
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.globalAlpha = .2;
+          ctx.strokeStyle = '#bff7ff'; ctx.lineWidth = 1 / cam.zoom;
+          ctx.beginPath(); ctx.arc(0, 0, 20 + Math.sin(state.elapsed * 3 + u.id) * 2, 0, Math.PI * 2); ctx.stroke();
+          ctx.globalAlpha = 1;
+        } else if (u.type === 'heliasImmortal') {
+          const step = !!u.moving && u.moveSpeed > 1 ? Math.sin(u.motionPhase || 0) : 0;
+          const kick = (u.recoil || 0) * 18;
+          const firePulse = Math.min(1, (u.attackAnim || 0) * 4);
+          ctx.strokeStyle = '#05080d'; ctx.lineWidth = 2.7 / cam.zoom;
+
+          // Four articulated legs around a squat central chassis.
+          for (const front of [-1, 1]) {
+            for (const side of [-1, 1]) {
+              const baseX = front * 7 - 4;
+              const baseY = side * 9;
+              const footX = front * 11 - 6 + (front > 0 ? -step : step) * 1.7;
+              const footY = side * (19 + (front > 0 ? step : -step) * 2);
+              ctx.strokeStyle = '#05080d'; ctx.lineWidth = 5 / cam.zoom;
+              ctx.beginPath(); ctx.moveTo(baseX, baseY); ctx.lineTo(footX, footY); ctx.stroke();
+              ctx.strokeStyle = '#c9ab56'; ctx.lineWidth = 2.5 / cam.zoom;
+              ctx.beginPath(); ctx.moveTo(baseX, baseY); ctx.lineTo(footX, footY); ctx.stroke();
+              ctx.fillStyle = '#17131f'; ctx.fillRect(footX - 3, footY - 2.2, 7, 4.4);
+            }
+          }
+
+          // Heavy crescent shoulder shell and recessed pilot cradle.
+          ctx.fillStyle = '#05080d';
+          ctx.beginPath();
+          ctx.moveTo(-18, -16); ctx.quadraticCurveTo(5, -25, 19, -13);
+          ctx.lineTo(14, -5); ctx.lineTo(20, 0); ctx.lineTo(14, 5);
+          ctx.quadraticCurveTo(5, 25, -18, 16); ctx.lineTo(-11, 0); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = u.flash > 0 ? '#ffffff' : '#c9ab56';
+          ctx.beginPath();
+          ctx.moveTo(-14, -12); ctx.quadraticCurveTo(4, -19, 14, -10);
+          ctx.lineTo(10, -4); ctx.lineTo(15, 0); ctx.lineTo(10, 4);
+          ctx.quadraticCurveTo(4, 19, -14, 12); ctx.lineTo(-8, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#25183c'; ctx.beginPath(); ctx.ellipse(-1, 0, 9.5, 7.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#171d2c'; ctx.beginPath(); ctx.ellipse(2, 0, 6.2, 5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.shadowColor = '#8deaff'; ctx.shadowBlur = 11 + firePulse * 6;
+          ctx.fillStyle = firePulse > .45 ? '#ffffff' : '#8deaff';
+          ctx.beginPath(); ctx.ellipse(3.5, 0, 4.2, 3.4, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
+          ctx.strokeStyle = '#d8f8ff'; ctx.lineWidth = 1.35 / cam.zoom;
+          ctx.beginPath(); ctx.arc(-1, 0, 13, -.82, .82); ctx.stroke();
+
+          // Twin phase-disruptor cannons mounted high on either shoulder.
+          for (const side of [-1, 1]) {
+            ctx.fillStyle = '#05080d'; ctx.fillRect(6 - kick, side * 10 - 4, 23, 8);
+            ctx.fillStyle = '#2d2510'; ctx.fillRect(8 - kick, side * 10 - 3, 18, 6);
+            ctx.fillStyle = '#aef5ff'; ctx.fillRect(23 - kick, side * 10 - 2.2, 7, 4.4);
+            ctx.fillStyle = '#ffffff'; ctx.globalAlpha = .45 + firePulse * .5;
+            ctx.fillRect(28 - kick, side * 10 - 1, 3, 2); ctx.globalAlpha = 1;
+          }
+        } else if (u.type === 'heliasPhoenix') {
+          const bob = Math.sin(state.elapsed * 7 + u.flightPhase) * 1.6;
+          const bank = Math.sin(state.elapsed * 2.6 + u.flightPhase) * .08;
+          const pulse = .55 + Math.sin(state.elapsed * 9 + u.id) * .18 + (u.attackAnim || 0) * .8;
+          const recoil = (u.recoil || 0) * 8;
+          ctx.translate(0, bob); ctx.rotate(bank);
+          ctx.globalAlpha = .14; ctx.fillStyle = '#8deaff'; ctx.beginPath(); ctx.ellipse(-3, 15, 20, 5, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+          ctx.strokeStyle = '#05080d'; ctx.lineWidth = 2.2 / cam.zoom;
+
+          // Black under-silhouette first, then the gold crescent shell.
+          ctx.fillStyle = '#05080d';
+          ctx.beginPath();
+          ctx.moveTo(25, 0); ctx.quadraticCurveTo(5, -7, -17, -20);
+          ctx.quadraticCurveTo(-10, -6, -22, 0);
+          ctx.quadraticCurveTo(-10, 6, -17, 20);
+          ctx.quadraticCurveTo(5, 7, 25, 0); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = u.flash > 0 ? '#ffffff' : '#d3b25f';
+          ctx.beginPath();
+          ctx.moveTo(20, 0); ctx.quadraticCurveTo(4, -5, -12, -14);
+          ctx.quadraticCurveTo(-7, -4, -16, 0);
+          ctx.quadraticCurveTo(-7, 4, -12, 14);
+          ctx.quadraticCurveTo(4, 5, 20, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+          // Hollow centre and paired blue engine vanes.
+          ctx.fillStyle = '#201637'; ctx.beginPath(); ctx.ellipse(1, 0, 10, 7.2, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#111829'; ctx.beginPath(); ctx.ellipse(6, 0, 6.5, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = '#8deaff'; ctx.shadowBlur = 12;
+          ctx.globalAlpha = pulse; ctx.fillStyle = '#8deaff';
+          ctx.beginPath(); ctx.ellipse(8, 0, 5.5, 2.7, 0, 0, Math.PI * 2); ctx.fill();
+          for (const side of [-1, 1]) {
+            ctx.fillStyle = '#bff7ff';
+            ctx.beginPath(); ctx.ellipse(-8, side * 12, 5, 2, side * .22, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
+
+          // Twin ion cannons at the forward tips.
+          for (const side of [-1, 1]) {
+            ctx.fillStyle = '#05080d'; ctx.fillRect(9 - recoil, side * 8 - 2.3, 14, 4.6);
+            ctx.fillStyle = '#aef5ff'; ctx.fillRect(11 - recoil, side * 8 - 1.4, 12, 2.8);
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(21 - recoil, side * 8 - .8, 3, 1.6);
+          }
+          ctx.strokeStyle = '#d8f8ff'; ctx.lineWidth = 1.1 / cam.zoom; ctx.globalAlpha = .48;
+          ctx.beginPath(); ctx.arc(-1, 0, 18, -1.08, 1.08); ctx.stroke(); ctx.globalAlpha = 1;
+        } else if (u.type === 'heliasVoidRay') {
+          const bob = Math.sin(state.elapsed * 4.7 + u.flightPhase) * 1.5;
+          const spin = state.elapsed * (1.4 + (u.voidRayCharge || 0) * 1.4) + u.id * .19;
+          const charge = clamp(.28 + Math.sin(state.elapsed * 8 + u.id) * .12 + (u.voidRayCharge || 0) * .72, .2, 1);
+          const recoil = (u.recoil || 0) * 9;
+          ctx.translate(0, bob);
+          ctx.globalAlpha = .14; ctx.fillStyle = '#8deaff'; ctx.beginPath(); ctx.ellipse(-5, 18, 23, 5.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+          ctx.strokeStyle = '#05080d'; ctx.lineWidth = 2.35 / cam.zoom;
+
+          // Three-pronged dark hull silhouette.
+          ctx.fillStyle = '#05080d';
+          ctx.beginPath();
+          ctx.moveTo(32, 0); ctx.lineTo(8, -5); ctx.lineTo(-17, -21); ctx.lineTo(-11, -7);
+          ctx.lineTo(-26, 0); ctx.lineTo(-11, 7); ctx.lineTo(-17, 21); ctx.lineTo(8, 5); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = u.flash > 0 ? '#ffffff' : '#c9ab56';
+          ctx.beginPath();
+          ctx.moveTo(27, 0); ctx.lineTo(7, -3); ctx.lineTo(-11, -14); ctx.lineTo(-7, -4);
+          ctx.lineTo(-19, 0); ctx.lineTo(-7, 4); ctx.lineTo(-11, 14); ctx.lineTo(7, 3); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+          // Purple recessed body and long crystalline focusing spine.
+          ctx.fillStyle = '#24183f'; ctx.beginPath(); ctx.ellipse(1, 0, 12, 7.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#151c2b'; ctx.beginPath(); ctx.ellipse(7, 0, 8, 4.7, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.shadowColor = charge > .75 ? '#eafcff' : '#8f63ff'; ctx.shadowBlur = 13 + charge * 9;
+          ctx.globalAlpha = .55 + charge * .4;
+          ctx.fillStyle = charge > .72 ? '#eafcff' : '#aef5ff';
+          ctx.beginPath(); ctx.moveTo(3, 0); ctx.lineTo(24 - recoil, -3.1); ctx.lineTo(29 - recoil, 0); ctx.lineTo(24 - recoil, 3.1); ctx.closePath(); ctx.fill();
+          ctx.globalAlpha = 1;
+
+          // Three rotating lens petals around the prismatic core.
+          ctx.save(); ctx.rotate(spin);
+          for (let i = 0; i < 3; i++) {
+            ctx.save(); ctx.rotate(i * Math.PI * 2 / 3);
+            ctx.fillStyle = i === 0 ? '#eafcff' : '#9b7dff';
+            ctx.globalAlpha = .45 + charge * .45;
+            ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(15, -2.6); ctx.lineTo(17, 0); ctx.lineTo(15, 2.6); ctx.closePath(); ctx.fill();
+            ctx.restore();
+          }
+          ctx.globalAlpha = .6 + charge * .3;
+          ctx.strokeStyle = charge > .68 ? '#eafcff' : '#9b7dff'; ctx.lineWidth = (1.3 + charge) / cam.zoom;
+          ctx.beginPath(); ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2); ctx.stroke();
+          ctx.restore();
+          ctx.shadowBlur = 0; ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+
+          // Gold blade ribs keep the silhouette readable underneath the energy.
+          ctx.strokeStyle = '#e1cf83'; ctx.lineWidth = 1.5 / cam.zoom;
+          for (const side of [-1, 1]) {
+            ctx.beginPath(); ctx.moveTo(-7, side * 4); ctx.lineTo(-14, side * 14); ctx.lineTo(6, side * 3); ctx.stroke();
+          }
+          ctx.fillStyle = '#ffffff'; ctx.globalAlpha = .45 + charge * .5;
+          ctx.fillRect(27 - recoil, -1, 4, 2); ctx.globalAlpha = 1;
         } else {
           ctx.fillRect(-11, -9, 18, 18);
           ctx.fillStyle = light; ctx.fillRect(1, -4, 15, 8);
@@ -23445,7 +23806,9 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           ctx.fillStyle = team; ctx.fillRect(-13, -11, 5, 22); ctx.fillRect(8, -11, 5, 22);
         }
         ctx.restore();
-        hpBar(u, (u.type === 'titanTank' || u.type === 'mecha' || u.type === 'bomber') ? 42 : u.type === 'doubleChopper' ? 38 : u.type === 'antiAirFighter' ? 34 : (u.type === 'forceFieldTruck' || u.type === 'heavy' || u.type === 'armoredJeep' || u.type === 'jeep' || u.type === 'roboMiner' || u.type === 'helicopter') ? 30 : (u.type === 'mortar' ? 28 : (u.type === 'forager' ? 20 : 24)), -u.radius - 10);
+        const largeHelias = u.type === 'heliasWalker' || u.type === 'heliasImmortal' || u.type === 'heliasVoidRay';
+        const mediumHelias = u.type === 'heliasLancer' || u.type === 'heliasSentry' || u.type === 'heliasSkimmer' || u.type === 'heliasObserver' || u.type === 'heliasPhoenix';
+        hpBar(u, (u.type === 'titanTank' || u.type === 'mecha' || u.type === 'bomber' || largeHelias) ? 42 : u.type === 'doubleChopper' ? 38 : (u.type === 'antiAirFighter' || mediumHelias) ? 34 : (u.type === 'forceFieldTruck' || u.type === 'heavy' || u.type === 'armoredJeep' || u.type === 'jeep' || u.type === 'roboMiner' || u.type === 'helicopter') ? 30 : (u.type === 'mortar' ? 28 : (u.type === 'forager' ? 20 : 24)), -u.radius - 10);
       }
       
       function drawBattleMarks() {
@@ -24170,21 +24533,84 @@ function drawStructureUpgradeDetails(s, x, y, team) {
             ctx.fillStyle = '#effff5';
             ctx.fillRect(-2, -8, 4, 16); ctx.fillRect(-8, -2, 16, 4);
           } else if (e.type === 'beam' && e.source && e.target) {
-            const sx = e.source.x, sy = e.source.y;
+            const sourceHeading = Number.isFinite(e.source.heading) ? e.source.heading : 0;
+            const originOffset = e.originOffset || 0;
+            const sx = e.source.x + Math.cos(sourceHeading) * originOffset;
+            const sy = e.source.y + Math.sin(sourceHeading) * originOffset;
             const tx = e.target.x, ty = e.target.y;
             ctx.globalAlpha = alpha;
-            ctx.strokeStyle = e.color;
-            ctx.lineWidth = (e.width || 3) / cam.zoom;
-            if (e.repair) ctx.setLineDash([5 / cam.zoom, 3 / cam.zoom]);
-            if (e.engineer) ctx.shadowColor = e.color, ctx.shadowBlur = 10;
-            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
-            ctx.shadowBlur = 0;
-            ctx.setLineDash([]);
-            ctx.strokeStyle = '#f5fff0';
-            ctx.lineWidth = 1 / cam.zoom;
-            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
-            ctx.strokeStyle = e.color;
-            ctx.beginPath(); ctx.arc(tx, ty, 6 + progress * 5, 0, Math.PI * 2); ctx.stroke();
+            if (e.voidRay) {
+              const dx = tx - sx, dy = ty - sy;
+              const len = Math.max(1, Math.hypot(dx, dy));
+              const px = -dy / len, py = dx / len;
+              const charge = clamp(Number(e.charge) || 0, 0, 1);
+              const width = e.width || 6.5;
+              ctx.globalCompositeOperation = 'lighter';
+              ctx.lineCap = 'round';
+              ctx.shadowColor = '#8f63ff';
+              ctx.shadowBlur = 18 + charge * 12;
+              ctx.strokeStyle = '#6e42e8';
+              ctx.globalAlpha = alpha * (.48 + charge * .22);
+              ctx.lineWidth = (width + 7 + charge * 5) / cam.zoom;
+              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
+              ctx.strokeStyle = e.color;
+              ctx.globalAlpha = alpha * .9;
+              ctx.lineWidth = width / cam.zoom;
+              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
+              ctx.strokeStyle = '#8deaff';
+              ctx.lineWidth = (3.6 + charge * 1.8) / cam.zoom;
+              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
+              ctx.strokeStyle = e.innerColor || '#eafcff';
+              ctx.globalAlpha = alpha;
+              ctx.lineWidth = (1.25 + charge * .8) / cam.zoom;
+              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
+
+              ctx.strokeStyle = charge > .62 ? '#f1f7ff' : '#c4a8ff';
+              ctx.lineWidth = (1.15 + charge * .5) / cam.zoom;
+              for (const side of [-1, 1]) {
+                ctx.beginPath();
+                for (let step = 0; step <= 12; step++) {
+                  const t = step / 12;
+                  const envelope = Math.sin(Math.PI * t);
+                  const wave = Math.sin((e.phase || 0) + t * Math.PI * (5 + charge * 2) + side * 1.7) *
+                    (4.5 + charge * 4) * envelope * side;
+                  const bx = sx + dx * t + px * wave;
+                  const by = sy + dy * t + py * wave;
+                  if (!step) ctx.moveTo(bx, by); else ctx.lineTo(bx, by);
+                }
+                ctx.stroke();
+              }
+
+              for (let node = 1; node <= 3; node++) {
+                const t = ((node / 4) + progress * .18) % 1;
+                const pulse = 1.5 + charge * 1.8 + Math.sin((e.phase || 0) + node * 2.1) * .5;
+                ctx.fillStyle = node % 2 ? '#eafcff' : '#c4a8ff';
+                ctx.globalAlpha = alpha * (.55 + charge * .3);
+                ctx.beginPath(); ctx.arc(sx + dx * t, sy + dy * t, pulse, 0, Math.PI * 2); ctx.fill();
+              }
+              ctx.shadowBlur = 0;
+              ctx.globalAlpha = alpha;
+              ctx.fillStyle = '#f4fbff';
+              ctx.beginPath(); ctx.arc(tx, ty, 3.5 + progress * 4 + charge * 2, 0, Math.PI * 2); ctx.fill();
+              ctx.strokeStyle = charge > .66 ? '#eafcff' : e.color;
+              ctx.lineWidth = (2 + charge) / cam.zoom;
+              ctx.beginPath(); ctx.arc(tx, ty, 9 + progress * 7 + charge * 6, 0, Math.PI * 2); ctx.stroke();
+              ctx.globalAlpha = alpha * .62;
+              ctx.beginPath(); ctx.arc(sx, sy, 7 + charge * 8 + progress * 2, 0, Math.PI * 2); ctx.stroke();
+            } else {
+              ctx.strokeStyle = e.color;
+              ctx.lineWidth = (e.width || 3) / cam.zoom;
+              if (e.repair) ctx.setLineDash([5 / cam.zoom, 3 / cam.zoom]);
+              if (e.engineer) ctx.shadowColor = e.color, ctx.shadowBlur = 10;
+              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
+              ctx.shadowBlur = 0;
+              ctx.setLineDash([]);
+              ctx.strokeStyle = '#f5fff0';
+              ctx.lineWidth = 1 / cam.zoom;
+              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
+              ctx.strokeStyle = e.color;
+              ctx.beginPath(); ctx.arc(tx, ty, 6 + progress * 5, 0, Math.PI * 2); ctx.stroke();
+            }
           }
           ctx.restore();
         }
@@ -25439,7 +25865,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           cooldown: d.cooldown, cooldownLeft: rand(0, .2), sight: d.sight,
           command: 'hold', destination: { x, y }, guardPoint: { x, y },
           target: null, targetSource: null, retaliationTarget: null, movePriorityUntil: 0, retaliationOverrideUntil: 0,
-          heading: 0, selected: false, flash: 0, recoil: 0, attackAnim: 0,
+          heading: 0, selected: false, flash: 0, recoil: 0, attackAnim: 0, voidRayCharge: 0,
           mortarSetup: 0,
           animation: d.animation || null,
           moving: false, moveSpeed: 0, motionPhase: rand(0, Math.PI * 2),
@@ -25455,7 +25881,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           gatherMultiplier: d.gatherMultiplier || 1, loadMultiplier: d.loadMultiplier || 1,
           path: null, pathIdx: 0, pathKey: '', repath: 0,
           job: null, harvestNode: null, harvestPreference: null, harvestDropoff: null, dropoff: null, carrying: 0, carryType: null, phase: 'toNode', harvestTimer: 0,
-          buildSite: null, buildResume: null,
+          buildSite: null, buildResume: null, buildAnchor: null, builderSparkClock: 0,
           static: isComputerTeam(team), ...extra
         };
         const upgradeRegistry = team === 'player' ? state.unitUpgrades : state.teamUnitUpgrades?.[team];
