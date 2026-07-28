@@ -1948,7 +1948,7 @@
       const MAX_VEHICLE_DEBRIS = 160;
       const MAX_TROOP_STAINS = 220;
       const MAX_BATTLE_MARKS = 320;
-      const TROOP_STAIN_TYPES = new Set(['forager', 'mechanic', 'infantry', 'assault', 'mortar', 'healer', 'radar', 'insectSwarmling', 'insectBurstling', 'insectQueen', 'insectSpitter', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodTitan']);
+      const TROOP_STAIN_TYPES = new Set(['forager', 'mechanic', 'infantry', 'assault', 'mortar', 'healer', 'radar', 'insectSwarmling', 'insectBurstling', 'insectQueen', 'insectSpitter', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodTitan', 'heliasVanguard', 'heliasLancer', 'heliasSentry', 'heliasWalker']);
       
       const particlePool = [];
       const effectPool = [];
@@ -4687,7 +4687,7 @@
   __define("commandPanel.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("state.js"); const __dep3 = __require("commandSync.js"); const __dep4 = __require("terrain.js"); const __dep5 = __require("uiLayout.js"); const __dep6 = __require("portraitRenderer.js"); const __dep7 = __require("multiplayer.js");
-    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep0["pointInRect"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep0["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep0["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep0["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "buildingSellValue", { enumerable: true, get: () => __dep1["buildingSellValue"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep1["canAfford"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep1["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep1["incomeRates"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep1["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep1["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep1["populationUsed"] }); Object.defineProperty(__imports, "structureHasCancelableUpgrade", { enumerable: true, get: () => __dep1["structureHasCancelableUpgrade"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep2["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep2["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep2["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep2["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep2["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep2["canvas"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep2["ctx"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep3["queueCommand"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep4["dirtTiles"] }); Object.defineProperty(__imports, "isVisibleToTeam", { enumerable: true, get: () => __dep4["isVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep4["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep4["terrain"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep4["transitionTiles"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep5["commandConsoleLayout"] }); Object.defineProperty(__imports, "hideGLBPortrait", { enumerable: true, get: () => __dep6["hideGLBPortrait"] }); Object.defineProperty(__imports, "portraitRendererStatus", { enumerable: true, get: () => __dep6["portraitRendererStatus"] }); Object.defineProperty(__imports, "syncGLBPortrait", { enumerable: true, get: () => __dep6["syncGLBPortrait"] }); Object.defineProperty(__imports, "multiplayerPingMs", { enumerable: true, get: () => __dep7["multiplayerPingMs"] });
+    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep0["pointInRect"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep0["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep0["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep0["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "buildingSellValue", { enumerable: true, get: () => __dep1["buildingSellValue"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep1["canAfford"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep1["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep1["incomeRates"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep1["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep1["isProductionBuilding"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep1["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep1["populationUsed"] }); Object.defineProperty(__imports, "structureHasCancelableUpgrade", { enumerable: true, get: () => __dep1["structureHasCancelableUpgrade"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep2["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep2["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep2["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep2["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep2["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep2["canvas"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep2["ctx"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep3["queueCommand"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep4["dirtTiles"] }); Object.defineProperty(__imports, "isVisibleToTeam", { enumerable: true, get: () => __dep4["isVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep4["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep4["terrain"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep4["transitionTiles"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep5["commandConsoleLayout"] }); Object.defineProperty(__imports, "hideGLBPortrait", { enumerable: true, get: () => __dep6["hideGLBPortrait"] }); Object.defineProperty(__imports, "portraitRendererStatus", { enumerable: true, get: () => __dep6["portraitRendererStatus"] }); Object.defineProperty(__imports, "syncGLBPortrait", { enumerable: true, get: () => __dep6["syncGLBPortrait"] }); Object.defineProperty(__imports, "multiplayerPingMs", { enumerable: true, get: () => __dep7["multiplayerPingMs"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "clearCommandMenu", { enumerable: true, get: () => clearCommandMenu }); Object.defineProperty(__exports, "drawCommandPanel", { enumerable: true, get: () => drawCommandPanel }); Object.defineProperty(__exports, "drawPixelResourceIcon", { enumerable: true, get: () => drawPixelResourceIcon }); Object.defineProperty(__exports, "handleCommandPanelClick", { enumerable: true, get: () => handleCommandPanelClick }); Object.defineProperty(__exports, "isCommandConsolePoint", { enumerable: true, get: () => isCommandConsolePoint }); Object.defineProperty(__exports, "menuItemEnabled", { enumerable: true, get: () => menuItemEnabled }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "setCommandMenu", { enumerable: true, get: () => setCommandMenu });
@@ -4975,6 +4975,27 @@
         }
         if (state.infoSellRect && pointInRect(p, state.infoSellRect)) {
           if (selectedStructure) queuePanelCommand({ type: 'sellStructure', team: selectedStructure.team, structureId: selectedStructure.id });
+          return true;
+        }
+        if (state.infoRallyRect && pointInRect(p, state.infoRallyRect)) {
+          const requestedIds = new Set(state.infoRallyStructureIds || []);
+          const rallyTargets = structures.filter(structure =>
+            requestedIds.has(structure.id) && structure.team === activeCommandTeam() &&
+            structure.hp > 0 && !structure.underConstruction && isProductionBuilding(structure)
+          ).sort((a, b) => a.id - b.id);
+          if (rallyTargets.length) {
+            state.placingGroundTag = false;
+            state.placingQueenAbility = null;
+            state.queenAbilityUnitIds = [];
+            state.placingSpawnFlag = true;
+            state.spawnFlagMode = rallyTargets[0].type;
+            state.spawnFlagStructureIds = rallyTargets.map(structure => structure.id);
+            state.contextMenu = null;
+            const scope = rallyTargets.length > 1
+              ? `${rallyTargets.length} selected production buildings`
+              : `this ${factionStructureLabel(rallyTargets[0].type, rallyTargets[0].team, state.teamFactions)}`;
+            toast(`Click any open ground — explored or fogged — to set the spawn flag for ${scope}.`, COLORS.warn);
+          }
           return true;
         }
         if (!state.commandMenu) return true;
@@ -5362,7 +5383,7 @@
           kind: 'faction',
           type: teamFactionId(team, state.teamFactions),
           team,
-          label: teamFactionId(team, state.teamFactions) === 'insects' ? 'INSECT BROOD' : 'COMMANDER'
+          label: teamFactionId(team, state.teamFactions) === 'insects' ? 'INSECT BROOD' : teamFactionId(team, state.teamFactions) === 'helias' ? 'HELIAS CONCLAVE' : 'COMMANDER'
         };
       }
       
@@ -5833,6 +5854,38 @@
         ctx.globalAlpha = 1;
       }
       
+      function drawInfoFlagButton(rect, enabled = true) {
+        const hovered = enabled && pointInRect(state.mouse, rect);
+        ctx.globalAlpha = enabled ? 1 : .4;
+        ctx.fillStyle = hovered ? '#4b6190' : '#3a4c72';
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.strokeStyle = '#7895cf';
+        ctx.strokeRect(rect.x + .5, rect.y + .5, Math.max(0, rect.w - 1), Math.max(0, rect.h - 1));
+
+        const poleX = Math.round(rect.x + rect.w * .36) + .5;
+        const topY = Math.round(rect.y + rect.h * .24) + .5;
+        const bottomY = Math.round(rect.y + rect.h * .78) + .5;
+        const flagW = Math.max(5, Math.round(rect.w * .28));
+        const flagH = Math.max(4, Math.round(rect.h * .28));
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#f2f6ff';
+        ctx.beginPath();
+        ctx.moveTo(poleX, topY);
+        ctx.lineTo(poleX, bottomY);
+        ctx.stroke();
+        ctx.fillStyle = '#9ec5ff';
+        ctx.beginPath();
+        ctx.moveTo(poleX + 1, topY);
+        ctx.lineTo(poleX + flagW, topY + Math.round(flagH * .34));
+        ctx.lineTo(poleX + 1, topY + flagH);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#f2f6ff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
       function drawStructureInfo(zone, selected, compact) {
         const primary = selected[0];
         const data = BUILDING_DATA[primary.type] || { label: primary.type.toUpperCase() };
@@ -5843,13 +5896,22 @@
         const single = selected.length === 1;
         const canCancel = single && structureHasCancelableUpgrade(primary);
         const canSell = single && primary.type !== 'hq';
-        const stackedActions = compact && (canSell || canCancel);
+        const operationalProduction = selected.filter(structure =>
+          structure.team === activeCommandTeam() && structure.hp > 0 && !structure.underConstruction && isProductionBuilding(structure)
+        );
+        const insectHiveGroup = operationalProduction.length === selected.length && selected.every(structure =>
+          teamFactionId(structure.team, state.teamFactions) === 'insects' && (structure.type === 'hq' || structure.type === 'broodHive')
+        );
+        const canRally = operationalProduction.length === selected.length && operationalProduction.length > 0 &&
+          (single || sameType || insectHiveGroup);
+        const stackedActions = compact && (canSell || canCancel || canRally);
         const buttonH = compact ? 15 : 20;
         const buttonGap = compact ? 2 : 5;
         let actionRight = zone.x + zone.w - pad;
         let actionWidth = 0;
+        if (canRally) state.infoRallyStructureIds = operationalProduction.map(structure => structure.id);
         if (stackedActions) {
-          const count = Number(canSell) + Number(canCancel);
+          const count = Number(canSell) + Number(canCancel) + Number(canRally);
           const compactW = Math.max(12, Math.floor((maxW - buttonGap * Math.max(0, count - 1)) / Math.max(1, count)));
           let actionX = x;
           if (canCancel) {
@@ -5860,10 +5922,23 @@
           if (canSell) {
             state.infoSellRect = { x: actionX, y: zone.y + 25, w: compactW, h: buttonH };
             drawInfoActionButton(state.infoSellRect, '$', 'sell');
+            actionX += compactW + buttonGap;
+          }
+          if (canRally) {
+            state.infoRallyRect = { x: actionX, y: zone.y + 25, w: compactW, h: buttonH };
+            drawInfoFlagButton(state.infoRallyRect);
           }
         } else {
           const sellW = 50;
           const cancelW = 66;
+          const rallyW = 28;
+          // Rally is deliberately the right-most information action. Sell sits
+          // immediately to its left, matching the three-faction command layout.
+          if (canRally) {
+            state.infoRallyRect = { x: actionRight - rallyW, y: zone.y + 7, w: rallyW, h: buttonH };
+            actionRight -= rallyW + buttonGap;
+            drawInfoFlagButton(state.infoRallyRect);
+          }
           if (canSell) {
             state.infoSellRect = { x: actionRight - sellW, y: zone.y + 7, w: sellW, h: buttonH };
             actionRight -= sellW + buttonGap;
@@ -5910,6 +5985,8 @@
         const zone = layout.info;
         state.infoSellRect = null;
         state.infoCancelUpgradeRect = null;
+        state.infoRallyRect = null;
+        state.infoRallyStructureIds = [];
         state.infoQueueHitRects = [];
         drawInsetPanel(zone, '#121b26');
 
@@ -6955,7 +7032,12 @@
         insectBroodReaver: { label: 'BROOD REAVER', costM: 380, costG: 355, hp: 430, speed: 54, damage: 48, range: 238, cooldown: 1.72, sight: 272, radius: 21, buildTime: 0, pop: 5, tier: 3, splash: 44 },
         insectBroodCarrier: { label: 'BROOD CARRIER', costM: 365, costG: 350, hp: 470, speed: 68, damage: 28, range: 170, cooldown: .78, sight: 240, radius: 20, buildTime: 0, pop: 5, tier: 3, splash: 18 },
         insectBroodTitan: { label: 'BROOD TITAN', costM: 430, costG: 360, hp: 960, speed: 24, damage: 98, range: 28, cooldown: 1.82, sight: 215, radius: 21, buildTime: 25, pop: 7, tier: 3, splash: 58, requiresHiveLevel: 3 },
-        insectOverlord: { label: 'OVERLORD', costM: 100, costG: 0, hp: 210, speed: 34, damage: 0, range: 0, cooldown: 1, sight: 210, radius: 17, buildTime: 9, pop: 0, tier: 0, supply: 8 }
+        insectOverlord: { label: 'OVERLORD', costM: 100, costG: 0, hp: 210, speed: 34, damage: 0, range: 0, cooldown: 1, sight: 210, radius: 17, buildTime: 9, pop: 0, tier: 0, supply: 8 },
+        heliasVanguard: { label: 'ZEALOT', costM: 100, costG: 0, hp: 140, speed: 72, damage: 18, range: 20, cooldown: .7, sight: 145, radius: 9, buildTime: 8, pop: 2, tier: 1 },
+        heliasLancer: { label: 'STALKER', costM: 125, costG: 50, hp: 160, speed: 64, damage: 23, range: 130, cooldown: .9, sight: 178, radius: 10, buildTime: 10, pop: 2, tier: 2 },
+        heliasSentry: { label: 'SENTRY', costM: 100, costG: 100, hp: 100, speed: 58, damage: 12, range: 118, cooldown: 1.02, sight: 170, radius: 10, buildTime: 10, pop: 2, tier: 2 },
+        heliasWalker: { label: 'AEGIS WALKER', costM: 255, costG: 180, hp: 390, speed: 38, damage: 44, range: 142, cooldown: 1.32, sight: 195, radius: 16, buildTime: 17, pop: 4, tier: 2, splash: 24 },
+        heliasSkimmer: { label: 'SOLAR SKIMMER', costM: 220, costG: 170, hp: 245, speed: 116, damage: 25, range: 155, cooldown: .78, sight: 230, radius: 15, buildTime: 16, pop: 3, tier: 2 }
       };
       
       // These families drive footprints, tracks and ambient vehicle effects. Body
@@ -6963,9 +7045,9 @@
       // instance override passed to addUnit), so every unit can receive its own
       // animator later without changing drawUnit. Only close-combat infantry opts
       // in for now.
-      const FOOT_UNIT_TYPES = new Set(['forager', 'mechanic', 'infantry', 'assault', 'mortar', 'healer', 'radar', 'insectSwarmling', 'insectBurstling', 'insectQueen', 'insectSpitter', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodTitan']);
+      const FOOT_UNIT_TYPES = new Set(['forager', 'mechanic', 'infantry', 'assault', 'mortar', 'healer', 'radar', 'insectSwarmling', 'insectBurstling', 'insectQueen', 'insectSpitter', 'insectSiegeSpitter', 'insectAcidBeetle', 'insectBroodTitan', 'heliasVanguard', 'heliasLancer', 'heliasSentry']);
       const VEHICLE_UNIT_TYPES = new Set(['roboMiner', 'jeep', 'armoredJeep', 'heavy', 'titanTank', 'forceFieldTruck']);
-      const AIR_UNIT_TYPES = new Set(['helicopter', 'doubleChopper', 'antiAirFighter', 'bomber', 'insectOverlord', 'insectWasp', 'insectSkyblight', 'insectBroodReaver', 'insectBroodCarrier']);
+      const AIR_UNIT_TYPES = new Set(['helicopter', 'doubleChopper', 'antiAirFighter', 'bomber', 'insectOverlord', 'insectWasp', 'insectSkyblight', 'insectBroodReaver', 'insectBroodCarrier', 'heliasSkimmer']);
       const WALKER_UNIT_TYPES = new Set([...FOOT_UNIT_TYPES, 'mecha']);
       const RESOURCE_HARVESTER_TYPES = new Set(['forager', 'roboMiner']);
       
@@ -7082,7 +7164,12 @@
         airSpire: { label: 'AIR SPIRE', costM: 220, costG: 180, hp: 520, sight: 180, w: 52, h: 58, buildTime: 14 },
         creepTumor: { label: 'CREEP TUMOR', costM: 0, costG: 0, hp: 240, sight: 105, w: 26, h: 24, buildTime: 6 },
         thornmawCrawler: { label: 'EARTH TENTACLE', costM: 110, costG: 35, hp: 420, sight: 185, range: 168, damage: 25, cooldown: .82, w: 40, h: 38, buildTime: 9 },
-        skysporeSentinel: { label: 'SKYSPORE SENTINEL', costM: 125, costG: 55, hp: 390, sight: 240, range: 218, damage: 39, cooldown: 1.05, w: 40, h: 40, buildTime: 10 }
+        skysporeSentinel: { label: 'SKYSPORE SENTINEL', costM: 125, costG: 55, hp: 390, sight: 240, range: 218, damage: 39, cooldown: 1.05, w: 40, h: 40, buildTime: 10 },
+        heliasPylon: { label: 'PYLON', costM: 100, costG: 0, hp: 300, sight: 125, w: 26, h: 24, buildTime: 8, popCap: 8, powerRadius: 182 },
+        heliasGateway: { label: 'GATEWAY', costM: 150, costG: 0, hp: 500, sight: 135, w: 56, h: 46, buildTime: 11 },
+        heliasCyberCore: { label: 'CYBERNETICS CORE', costM: 150, costG: 100, hp: 450, sight: 145, w: 52, h: 48, buildTime: 12 },
+        heliasRoboticsFacility: { label: 'ROBOTICS FACILITY', costM: 200, costG: 120, hp: 520, sight: 145, w: 58, h: 48, buildTime: 14 },
+        heliasStargate: { label: 'STARGATE', costM: 225, costG: 150, hp: 500, sight: 175, w: 60, h: 50, buildTime: 15 }
       };
       
       const INSECT_HIVE_EVOLUTION = Object.freeze({
@@ -7344,9 +7431,10 @@
       // Existing content is registered as Humans without renaming legacy entity IDs,
       // while the Insects prototype deliberately reuses the proven worker mechanics.
       const DEFAULT_FACTION_ID = 'humans';
-      const HUMAN_UNIT_TYPES = Object.freeze(Object.keys(UNIT_DATA).filter(type => !type.startsWith('insect')));
+      const HUMAN_UNIT_TYPES = Object.freeze(Object.keys(UNIT_DATA).filter(type => !type.startsWith('insect') && !type.startsWith('helias')));
       const INSECT_ONLY_BUILDING_TYPES = new Set(['broodHive', 'spawningNest', 'evolutionPit', 'spitterDen', 'carapaceWarren', 'airSpire', 'creepTumor', 'thornmawCrawler', 'skysporeSentinel']);
-      const HUMAN_BUILDING_TYPES = Object.freeze(['hq', ...Object.keys(BUILDING_DATA).filter(type => !INSECT_ONLY_BUILDING_TYPES.has(type))]);
+      const HELIAS_ONLY_BUILDING_TYPES = new Set(['heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate']);
+      const HUMAN_BUILDING_TYPES = Object.freeze(['hq', ...Object.keys(BUILDING_DATA).filter(type => !INSECT_ONLY_BUILDING_TYPES.has(type) && !HELIAS_ONLY_BUILDING_TYPES.has(type))]);
       const HUMAN_BUILD_MENU = Object.freeze([
         Object.freeze({ type: 'barracks', purpose: 'fast melee · long-range · mortar · T4 mecha', tone: 'military' }),
         Object.freeze({ type: 'garage', purpose: 'jeeps · flame jeep · T4 titan tank', tone: 'military' }),
@@ -7461,6 +7549,45 @@
             thornmawCrawler: 'EARTH TENTACLE', skysporeSentinel: 'SKYSPORE SENTINEL'
           }),
           unitLabels: Object.freeze({ forager: 'DRONE', insectSwarmling: 'SWARMLING', insectBurstling: 'BURSTLING', insectQueen: 'QUEEN', insectSpitter: 'SPITTER', insectSiegeSpitter: 'SIEGE SPITTER', insectAcidBeetle: 'ACID BEETLE', insectWasp: 'VENOM WASP', insectSkyblight: 'SKYBLIGHT', insectBroodReaver: 'BROOD REAVER', insectBroodCarrier: 'BROOD CARRIER', insectBroodTitan: 'BROOD TITAN', insectOverlord: 'OVERLORD' })
+        }),
+        helias: Object.freeze({
+          id: 'helias', label: 'THE HELIAS', hqLabel: 'NEXUS', enabled: true,
+          unitTypes: Object.freeze(['forager', 'heliasVanguard', 'heliasLancer', 'heliasSentry', 'heliasWalker', 'heliasSkimmer']),
+          buildingTypes: Object.freeze(['hq', 'gasExtractor', 'heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate']),
+          startingUnits: Object.freeze([
+            Object.freeze({ type: 'forager', count: 4, autoHarvest: true })
+          ]),
+          production: Object.freeze({
+            hq: Object.freeze([Object.freeze({ type: 'forager', level: 1 })]),
+            heliasGateway: Object.freeze([
+              Object.freeze({ type: 'heliasVanguard', level: 1 }),
+              Object.freeze({ type: 'heliasLancer', level: 1 }),
+              Object.freeze({ type: 'heliasSentry', level: 1 })
+            ]),
+            heliasRoboticsFacility: Object.freeze([Object.freeze({ type: 'heliasWalker', level: 1 })]),
+            heliasStargate: Object.freeze([Object.freeze({ type: 'heliasSkimmer', level: 1 })])
+          }),
+          unitRequirements: Object.freeze({
+            heliasLancer: Object.freeze(['heliasCyberCore']),
+            heliasSentry: Object.freeze(['heliasCyberCore']),
+            heliasWalker: Object.freeze(['heliasRoboticsFacility']),
+            heliasSkimmer: Object.freeze(['heliasStargate'])
+          }),
+          buildMenu: Object.freeze([
+            Object.freeze({ type: 'heliasPylon', purpose: '+8 population · projects a power field for nearby Helias structures', tone: 'economy' }),
+            Object.freeze({ type: 'heliasGateway', purpose: 'warps in frontline Helias infantry · requires Pylon power', tone: 'military' }),
+            Object.freeze({ type: 'heliasCyberCore', purpose: 'unlocks advanced Gateway units · requires Gateway and Pylon power', tone: 'research', unique: true, requires: ['heliasGateway'] }),
+            Object.freeze({ type: 'heliasRoboticsFacility', purpose: 'warps in heavy robotic units · requires Cybernetics Core and Pylon power', tone: 'military', unique: true, requires: ['heliasCyberCore'] }),
+            Object.freeze({ type: 'heliasStargate', purpose: 'warps in Helias air units · requires Cybernetics Core and Pylon power', tone: 'military', unique: true, requires: ['heliasCyberCore'] })
+          ]),
+          structureLabels: Object.freeze({
+            hq: 'NEXUS', gasExtractor: 'ASSIMILATOR', heliasPylon: 'PYLON', heliasGateway: 'GATEWAY',
+            heliasCyberCore: 'CYBERNETICS CORE', heliasRoboticsFacility: 'ROBOTICS FACILITY', heliasStargate: 'STARGATE'
+          }),
+          unitLabels: Object.freeze({
+            forager: 'PROBE', heliasVanguard: 'ZEALOT', heliasLancer: 'STALKER',
+            heliasSentry: 'SENTRY', heliasWalker: 'AEGIS WALKER', heliasSkimmer: 'SOLAR SKIMMER'
+          })
         })
       });
 
@@ -7817,6 +7944,33 @@
 
       function isInsectTeam(team) {
         return teamFactionId(team, state.teamFactions) === 'insects';
+      }
+
+      const HELIAS_POWER_RADIUS = BUILDING_DATA.heliasPylon?.powerRadius || 182;
+      const HELIAS_CHRONO_MULTIPLIER = 1.5;
+      const HELIAS_UNPOWERED_EXEMPT_TYPES = new Set(['hq', 'gasExtractor', 'heliasPylon']);
+      const HELIAS_POWERED_STRUCTURE_TYPES = new Set(['heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate']);
+
+      function isHeliasTeam(team) {
+        return teamFactionId(team, state.teamFactions) === 'helias';
+      }
+
+      function pointHasHeliasPower(team, x, y, footprint = null) {
+        if (!isHeliasTeam(team)) return true;
+        const margin = footprint ? Math.hypot((footprint.w || 0) / 2, (footprint.h || 0) / 2) * .28 : 0;
+        return structures.some(structure =>
+          structure.team === team && structure.type === 'heliasPylon' && structure.hp > 0 && !structure.underConstruction &&
+          Math.hypot(structure.x - x, structure.y - y) <= Math.max(24, HELIAS_POWER_RADIUS - margin)
+        );
+      }
+
+      function heliaStructureRequiresPower(type) {
+        return HELIAS_POWERED_STRUCTURE_TYPES.has(type) && !HELIAS_UNPOWERED_EXEMPT_TYPES.has(type);
+      }
+
+      function heliaStructurePowered(structure) {
+        if (!structure || !isHeliasTeam(structure.team) || !heliaStructureRequiresPower(structure.type)) return true;
+        return pointHasHeliasPower(structure.team, structure.x, structure.y, structure);
       }
 
       function isInsectHive(structure) {
@@ -8378,8 +8532,13 @@
           ), 0);
           return INSECT_BASE_POP_CAP + sandboxBonus + overlordSupply;
         }
+        const faction = teamFactionId(team, state.teamFactions);
         return BASE_POP_CAP + sandboxBonus + structures.reduce((sum, s) => sum + (
-          s.team === team && s.type === 'housing' && s.hp > 0 && !s.underConstruction ? housingCapacity(s) : 0
+          s.team === team && s.hp > 0 && !s.underConstruction
+            ? s.type === 'housing' ? housingCapacity(s)
+              : faction === 'helias' && s.type === 'heliasPylon' ? (BUILDING_DATA.heliasPylon.popCap || 8)
+              : 0
+            : 0
         ), 0);
       }
       function teamPopulationUsed(team = 'player') {
@@ -9413,6 +9572,10 @@
       function queueUnit(type, producer) {
         if (state.gameOver) return false;
         const d = UNIT_DATA[type];
+        if (producer && !heliaStructurePowered(producer)) {
+          toast(`${factionStructureLabel(producer.type, producer.team, state.teamFactions)} is unpowered. Restore a nearby Pylon before warping units.`, COLORS.warn, producer.team);
+          return false;
+        }
         if (!factionCanUseUnit(producer?.team, type, state.teamFactions)) {
           toast('That unit does not belong to this faction.', COLORS.warn);
           return false;
@@ -9797,6 +9960,10 @@
       }
       
       function updateProduction(dt) {
+        for (const structure of structures) {
+          if ((structure.chronoBoostTimeLeft || 0) > 0) structure.chronoBoostTimeLeft = Math.max(0, structure.chronoBoostTimeLeft - dt);
+          if ((structure.chronoCooldownLeft || 0) > 0) structure.chronoCooldownLeft = Math.max(0, structure.chronoCooldownLeft - dt);
+        }
         updateInsectMacro(dt);
         for (const organism of structures) {
           if (!isInsectTeam(organism.team)) continue;
@@ -9861,13 +10028,14 @@
           }
         }
         for (const producer of structures) {
-          if (producer.hp <= 0 || producer.underConstruction || !isProductionBuilding(producer)) continue;
+          if (producer.hp <= 0 || producer.underConstruction || !isProductionBuilding(producer) || !heliaStructurePowered(producer)) continue;
           if (producer.conversionJob || producer.hiveEvolutionJob) continue;
           if (!producer.queue.length) continue;
+          const productionDt = dt * ((producer.chronoBoostTimeLeft || 0) > 0 ? HELIAS_CHRONO_MULTIPLIER : 1);
           if (isInsectHive(producer)) {
             const completed = [];
             for (const item of producer.queue) {
-              item.timeLeft = Math.max(0, item.timeLeft - dt);
+              item.timeLeft = Math.max(0, item.timeLeft - productionDt);
               if (item.timeLeft <= 0) completed.push(item);
             }
             if (completed.length) {
@@ -9884,7 +10052,7 @@
             continue;
           }
           const item = producer.queue[0];
-          item.timeLeft -= dt;
+          item.timeLeft -= productionDt;
           if (item.timeLeft <= 0) {
             producer.queue.shift();
             const count = Math.max(1, Math.trunc(item.spawnCount || UNIT_DATA[item.type]?.spawnCount || 1));
@@ -9953,6 +10121,9 @@
         if (!insectBuildingFootprintOnCreep(type, options.team, cx, cy, d)) {
           return 'Organic technology structures must be grown entirely on creep.';
         }
+        if (isHeliasTeam(options.team) && heliaStructureRequiresPower(type) && !pointHasHeliasPower(options.team, cx, cy, d)) {
+          return 'Helias structures must be placed inside an operational Pylon power field.';
+        }
         if (type === 'minersHut') {
           const field = resourceFieldAt(cx, cy);
           if (!field) return 'MINERS HUTS must be built on a marked resource-field pad.';
@@ -9979,7 +10150,8 @@
         'Too close to another building.',
         'Cannot build on water or mountains.',
         'Too close to a resource deposit.',
-        'Organic technology structures must be grown entirely on creep.'
+        'Organic technology structures must be grown entirely on creep.',
+        'Helias structures must be placed inside an operational Pylon power field.'
       ]);
       
       // When a clicked tile clips a nearby obstacle, search the closest tile
@@ -10097,6 +10269,15 @@
         }
         const insectPrerequisiteError = insectBuildingPrerequisiteError(type, team);
         if (insectPrerequisiteError) { toast(insectPrerequisiteError, COLORS.warn); return false; }
+        const factionMissing = (factionBuildEntry?.requires || []).find(required => !hasOperationalTeamStructure(required, team));
+        if (factionMissing) {
+          toast(`${factionStructureLabel(factionMissing, team, state.teamFactions)} is required before constructing ${factionStructureLabel(type, team, state.teamFactions)}.`, COLORS.warn, team);
+          return false;
+        }
+        if (factionBuildEntry?.unique && hasTeamStructure(type, team)) {
+          toast(`Only one ${factionStructureLabel(type, team, state.teamFactions)} can be active.`, COLORS.warn, team);
+          return false;
+        }
         if (type === 'airBay' && !hasOperationalTeamStructure('garage', team)) {
           toast('Complete a GARAGE before constructing an AIR BAY.', COLORS.warn); return;
         }
@@ -10220,7 +10401,7 @@
   __define("input.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("menu.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("pathing.js"); const __dep6 = __require("commandPanel.js"); const __dep7 = __require("rendering.js"); const __dep8 = __require("state.js"); const __dep9 = __require("terrain.js");
-    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => __dep1["MAX_GROUND_TAGS_PER_TEAM"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep2["placeCreepTumor"] }); Object.defineProperty(__imports, "commandQueenInject", { enumerable: true, get: () => __dep2["commandQueenInject"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep2["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "setQueenInjectAutocast", { enumerable: true, get: () => __dep2["setQueenInjectAutocast"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep2["startUnitMorph"] }); Object.defineProperty(__imports, "cancelUnitMorph", { enumerable: true, get: () => __dep2["cancelUnitMorph"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep2["startInsectUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openInsectStructureMenu", { enumerable: true, get: () => __dep7["openInsectStructureMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep9["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep9["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] });
+    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => __dep1["MAX_GROUND_TAGS_PER_TEAM"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep2["placeCreepTumor"] }); Object.defineProperty(__imports, "commandQueenInject", { enumerable: true, get: () => __dep2["commandQueenInject"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep2["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "setQueenInjectAutocast", { enumerable: true, get: () => __dep2["setQueenInjectAutocast"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep2["startUnitMorph"] }); Object.defineProperty(__imports, "cancelUnitMorph", { enumerable: true, get: () => __dep2["cancelUnitMorph"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep2["startInsectUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openInsectStructureMenu", { enumerable: true, get: () => __dep7["openInsectStructureMenu"] }); Object.defineProperty(__imports, "openHeliasStructureMenu", { enumerable: true, get: () => __dep7["openHeliasStructureMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep9["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep9["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activateNextQueuedUnitOrder", { enumerable: true, get: () => activateNextQueuedUnitOrder }); Object.defineProperty(__exports, "applyGameCommand", { enumerable: true, get: () => applyGameCommand }); Object.defineProperty(__exports, "canAttackTarget", { enumerable: true, get: () => canAttackTarget }); Object.defineProperty(__exports, "clearSelection", { enumerable: true, get: () => clearSelection }); Object.defineProperty(__exports, "commandUnits", { enumerable: true, get: () => commandUnits }); Object.defineProperty(__exports, "selectedUnits", { enumerable: true, get: () => selectedUnits }); Object.defineProperty(__exports, "updateCamera", { enumerable: true, get: () => updateCamera });
@@ -10628,6 +10809,41 @@
         return true;
       }
       
+      const HELIAS_CHRONO_DURATION = 15;
+      const HELIAS_CHRONO_COOLDOWN = 45;
+      const HELIAS_CHRONO_MULTIPLIER = 1.5;
+
+      function heliaChronoTargetPowered(target) {
+        if (!target || !['heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate'].includes(target.type)) return true;
+        const radius = BUILDING_DATA.heliasPylon?.powerRadius || 182;
+        const margin = Math.hypot((target.w || 0) / 2, (target.h || 0) / 2) * .28;
+        return structures.some(structure =>
+          structure.team === target.team && structure.type === 'heliasPylon' && structure.hp > 0 && !structure.underConstruction &&
+          Math.hypot(structure.x - target.x, structure.y - target.y) <= Math.max(24, radius - margin)
+        );
+      }
+
+      function activateHeliasChronoBoost(nexus, target) {
+        if (!nexus || !target || nexus.hp <= 0 || target.hp <= 0 || nexus.underConstruction || target.underConstruction) return false;
+        if (nexus.team !== target.team || teamFactionId(nexus.team, state.teamFactions) !== 'helias' || nexus.type !== 'hq') return false;
+        if ((nexus.chronoCooldownLeft || 0) > 0) {
+          toast(`Chrono Boost recharges in ${Math.ceil(nexus.chronoCooldownLeft)}s.`, COLORS.warn, nexus.team);
+          return false;
+        }
+        const allowed = new Set(['hq', 'heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate']);
+        if (!allowed.has(target.type)) return false;
+        if (!heliaChronoTargetPowered(target)) {
+          toast('Chrono Boost cannot stabilize an unpowered facility.', COLORS.warn, nexus.team);
+          return false;
+        }
+        nexus.chronoCooldownLeft = HELIAS_CHRONO_COOLDOWN;
+        target.chronoBoostTimeLeft = HELIAS_CHRONO_DURATION;
+        target.chronoBoostSourceId = nexus.id;
+        burst(target.x, target.y, '#9eeeff', 24, true, { lifeMin: .25, lifeMax: .7, sizeMin: 2, sizeMax: 5, speedMin: 22, speedMax: 74, alpha: .9 });
+        toast(`CHRONO BOOST active on ${target.type === 'hq' ? 'NEXUS' : (BUILDING_DATA[target.type]?.label || 'FACILITY')} for ${HELIAS_CHRONO_DURATION}s.`, COLORS.good, nexus.team);
+        return true;
+      }
+
       function applyGameCommand(command) {
         if (!command || state.gameOver) return false;
         const previousNotificationTeam = state.notificationTeamContext || null;
@@ -10686,6 +10902,11 @@
           case 'convertMinersHut': {
             const structure = structures.find(candidate => candidate.id === command.structureId && candidate.team === command.team);
             return !!startMinersHutConversion(structure, command.upgradeType);
+          }
+          case 'activateChronoBoost': {
+            const nexus = structures.find(candidate => candidate.id === command.nexusId && candidate.team === command.team);
+            const target = structures.find(candidate => candidate.id === command.targetId && candidate.team === command.team);
+            return !!activateHeliasChronoBoost(nexus, target);
           }
           case 'activateAdrenaline': {
             const structure = structures.find(candidate => candidate.id === command.structureId && candidate.team === command.team);
@@ -10821,8 +11042,9 @@
             openBuildMenu();
             return;
           }
-          const groupedProductionClick = own.type === 'barracks' || own.type === 'garage' || own.type === 'airBay' ||
-            own.type === 'supportCamp' || isInsectHiveStructure(own);
+          const groupedProductionClick = own.type === 'hq' || own.type === 'barracks' || own.type === 'garage' || own.type === 'airBay' ||
+            own.type === 'supportCamp' || own.type === 'heliasGateway' || own.type === 'heliasRoboticsFacility' ||
+            own.type === 'heliasStargate' || isInsectHiveStructure(own);
           if (!groupedProductionClick) state.lastStructureClick = { time: 0, id: null };
           // Preserve the familiar worker-to-extractor shortcut before changing the
           // selection to the clicked structure.
@@ -10847,6 +11069,10 @@
               const group = selectHiveGroup(own, isDouble);
               if (isDouble) toast(`${group.length} × HIVE selected · brood production and spawn flags are shared.`, COLORS.good);
               openHQMenu(screenPt, group);
+            } else if (own.type === 'hq') {
+              const group = selectProductionStructure(own, isDouble);
+              if (isDouble) toast(`${group.length} × ${BUILDING_DATA[own.type].label} selected · worker production and spawn flags are shared.`, COLORS.good);
+              openHQMenu(screenPt, group);
             } else {
               const group = selectProductionStructure(own, isDouble);
               if (isDouble) toast(`${group.length} × ${BUILDING_DATA[own.type].label} selected · production will be balanced.`, COLORS.good);
@@ -10857,6 +11083,7 @@
           selectStructure(own);
           if (own.type === 'gasExtractor') { openGasExtractorMenu(own, screenPt); return; }
           if (['spawningNest', 'evolutionPit', 'spitterDen', 'carapaceWarren', 'airSpire', 'creepTumor', 'thornmawCrawler', 'skysporeSentinel'].includes(own.type)) { openInsectStructureMenu(own, screenPt); return; }
+          if (['heliasPylon', 'heliasCyberCore'].includes(own.type)) { openHeliasStructureMenu(own, screenPt); return; }
           if (own.type === 'minersHut') { openMinersHutMenu(own, screenPt); return; }
           if (own.type === 'housing') { openHousingMenu(own, screenPt); return; }
           if (own.type === 'researchFacility') { openResearchFacilityMenu(own, screenPt); return; }
@@ -11321,6 +11548,22 @@
         Object.freeze({ type: 'laboratory', forward: 222, side: 38 }),
         Object.freeze({ type: 'housing', forward: 222, side: 98 })
       ]);
+      const SANDBOX_INSECT_BUILDINGS = Object.freeze([
+        Object.freeze({ type: 'spawningNest', forward: 145, side: -92 }),
+        Object.freeze({ type: 'evolutionPit', forward: 145, side: 0 }),
+        Object.freeze({ type: 'spitterDen', forward: 145, side: 92 }),
+        Object.freeze({ type: 'carapaceWarren', forward: 225, side: -55 }),
+        Object.freeze({ type: 'airSpire', forward: 225, side: 55 })
+      ]);
+      const SANDBOX_HELIAS_BUILDINGS = Object.freeze([
+        Object.freeze({ type: 'heliasPylon', forward: 145, side: -90 }),
+        Object.freeze({ type: 'heliasPylon', forward: 145, side: 90 }),
+        Object.freeze({ type: 'heliasGateway', forward: 230, side: -95 }),
+        Object.freeze({ type: 'heliasCyberCore', forward: 220, side: 0 }),
+        Object.freeze({ type: 'heliasRoboticsFacility', forward: 230, side: 95 }),
+        Object.freeze({ type: 'heliasPylon', forward: 285, side: 0 }),
+        Object.freeze({ type: 'heliasStargate', forward: 365, side: 0 })
+      ]);
       
       const SANDBOX_VILLAGES = Object.freeze([
         Object.freeze({
@@ -11384,9 +11627,21 @@
       }
       
       function addSandboxPlayerInfrastructure(hq) {
+        const faction = teamFactionId('player', state.teamFactions);
         maximizeProductionTech('player');
-        hq.level = PRODUCTION_TECH.hq.maxLevel;
-        for (const spec of SANDBOX_PLAYER_BUILDINGS) {
+        if (faction === 'insects') {
+          hq.level = 3;
+          hq.hiveLevel = 3;
+          hq.larvaCount = Math.max(3, Number(hq.larvaCount) || 0);
+        } else if (faction === 'humans') {
+          hq.level = PRODUCTION_TECH.hq.maxLevel;
+        }
+        const specs = faction === 'insects'
+          ? SANDBOX_INSECT_BUILDINGS
+          : faction === 'helias'
+            ? SANDBOX_HELIAS_BUILDINGS
+            : SANDBOX_PLAYER_BUILDINGS;
+        for (const spec of specs) {
           const point = localBasePoint(hq, spec.forward, spec.side);
           const level = PRODUCTION_TECH[spec.type]?.maxLevel || 1;
           addStructure(spec.type, 'player', point.x, point.y, { level });
@@ -12668,6 +12923,7 @@
                 <select data-solo-faction>
                   <option value="humans" selected>HUMANS</option>
                   <option value="insects">INSECTS</option>
+                  <option value="helias">THE HELIAS</option>
                 </select>
                 <small>Choose the faction you will command in this match.</small>
               </label>
@@ -12688,6 +12944,7 @@
                 <select data-pvp-faction>
                   <option value="humans" selected>HUMANS</option>
                   <option value="insects">INSECTS</option>
+                  <option value="helias">THE HELIAS</option>
                 </select>
                 <small>Changing faction in a connected lobby clears your ready status.</small>
               </label>
@@ -13730,8 +13987,8 @@
       const PEER_TIMEOUT_MS = 10000;
       const CHAT_MESSAGE_LIMIT = 60;
       const CHAT_TEXT_LIMIT = 180;
-      const BUILD_VERSION = '2026.07.28.22';
-      const MULTIPLAYER_PROTOCOL_VERSION = 25;
+      const BUILD_VERSION = '2026.07.28.25';
+      const MULTIPLAYER_PROTOCOL_VERSION = 26;
       const VERSION_MISMATCH_CODE = 'STARLITE_VERSION_MISMATCH';
       const PUBLIC_DIRECTORY_ROOM = '__STARLITE_PUBLIC_LOBBIES_V2__';
       const PUBLIC_DIRECTORY_PROTOCOL = 2;
@@ -16016,6 +16273,7 @@
       });
       // Every command-panel item without a dedicated portrait shares the exact same
       // commander holder, preventing a reload when moving between default items.
+      const HELIAS_PORTRAIT_GLB = './assets/helias.glb';
       const INSECT_GLB_HOLDER = Object.seal({
         ...createHolder('faction', 'insects'),
         id: 'faction:insects',
@@ -16024,6 +16282,17 @@
         cameraTilt: -0.34,
         cameraDistance: 2.18,
         cameraLift: -0.04,
+        animationMode: 'none',
+        rotationMode: 'full'
+      });
+      const HELIAS_GLB_HOLDER = Object.seal({
+        ...createHolder('faction', 'helias'),
+        id: 'faction:helias',
+        glb: HELIAS_PORTRAIT_GLB,
+        fallbackGlb: null,
+        cameraTilt: -0.45,
+        cameraDistance: 2.2,
+        cameraLift: -0.02,
         animationMode: 'none',
         rotationMode: 'full'
       });
@@ -16075,6 +16344,7 @@
       function holderForPortraitSubject(subject) {
         if (!subject) return DEFAULT_GLB_HOLDER;
         if (teamFactionId(subject.team, state.teamFactions) === 'insects') return INSECT_GLB_HOLDER;
+        if (teamFactionId(subject.team, state.teamFactions) === 'helias') return HELIAS_GLB_HOLDER;
         if (subject.kind === 'unit') {
           const base = UNIT_GLB_HOLDERS[subject.type];
           return base?.levels?.[unitPortraitLevel(subject)] || base || GENERIC_GLB_HOLDER;
@@ -16705,7 +16975,7 @@
     Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "INSECT_HIVE_EVOLUTION", { enumerable: true, get: () => __dep1["INSECT_HIVE_EVOLUTION"] }); Object.defineProperty(__imports, "INSECT_UPGRADES", { enumerable: true, get: () => __dep1["INSECT_UPGRADES"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "factionBuildMenuEntries", { enumerable: true, get: () => __dep1["factionBuildMenuEntries"] }); Object.defineProperty(__imports, "factionProductionTypes", { enumerable: true, get: () => __dep1["factionProductionTypes"] }); Object.defineProperty(__imports, "factionUnitRequirements", { enumerable: true, get: () => __dep1["factionUnitRequirements"] }); Object.defineProperty(__imports, "factionCanUseBuilding", { enumerable: true, get: () => __dep1["factionCanUseBuilding"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep1["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep1["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveEvolutionSpec", { enumerable: true, get: () => __dep1["insectHiveEvolutionSpec"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep1["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "committedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["committedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "insectHiveLarvae", { enumerable: true, get: () => __dep2["insectHiveLarvae"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep2["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "creepTumorPlacementStatus", { enumerable: true, get: () => __dep2["creepTumorPlacementStatus"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep2["insectUpgradeOrders"] }); Object.defineProperty(__imports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => __dep2["insectUpgradeRequirementStatus"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "unitMorphOptions", { enumerable: true, get: () => __dep2["unitMorphOptions"] }); Object.defineProperty(__imports, "unitMorphRequirementStatus", { enumerable: true, get: () => __dep2["unitMorphRequirementStatus"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep7["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep7["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep8["clearCommandMenu"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "applySpawnFlagCommand", { enumerable: true, get: () => applySpawnFlagCommand }); Object.defineProperty(__exports, "draw", { enumerable: true, get: () => draw }); Object.defineProperty(__exports, "gasNodeForExtractor", { enumerable: true, get: () => gasNodeForExtractor }); Object.defineProperty(__exports, "handleMenuClick", { enumerable: true, get: () => handleMenuClick }); Object.defineProperty(__exports, "handleSettingsClick", { enumerable: true, get: () => handleSettingsClick }); Object.defineProperty(__exports, "handleQueueStripClick", { enumerable: true, get: () => handleQueueStripClick }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "openBuildMenu", { enumerable: true, get: () => openBuildMenu }); Object.defineProperty(__exports, "placePendingBuilding", { enumerable: true, get: () => placePendingBuilding }); Object.defineProperty(__exports, "openConstructionMenu", { enumerable: true, get: () => openConstructionMenu }); Object.defineProperty(__exports, "openGasExtractorMenu", { enumerable: true, get: () => openGasExtractorMenu }); Object.defineProperty(__exports, "openGasLeakMenu", { enumerable: true, get: () => openGasLeakMenu }); Object.defineProperty(__exports, "openHQMenu", { enumerable: true, get: () => openHQMenu }); Object.defineProperty(__exports, "openInsectStructureMenu", { enumerable: true, get: () => openInsectStructureMenu }); Object.defineProperty(__exports, "openHousingMenu", { enumerable: true, get: () => openHousingMenu }); Object.defineProperty(__exports, "openLaboratoryMenu", { enumerable: true, get: () => openLaboratoryMenu }); Object.defineProperty(__exports, "openMinersHutMenu", { enumerable: true, get: () => openMinersHutMenu }); Object.defineProperty(__exports, "openProductionMenu", { enumerable: true, get: () => openProductionMenu }); Object.defineProperty(__exports, "openResearchFacilityMenu", { enumerable: true, get: () => openResearchFacilityMenu }); Object.defineProperty(__exports, "openUpgradeMenu", { enumerable: true, get: () => openUpgradeMenu }); Object.defineProperty(__exports, "resetGame", { enumerable: true, get: () => resetGame }); Object.defineProperty(__exports, "setSpawnFlag", { enumerable: true, get: () => setSpawnFlag });
+      Object.defineProperty(__exports, "applySpawnFlagCommand", { enumerable: true, get: () => applySpawnFlagCommand }); Object.defineProperty(__exports, "draw", { enumerable: true, get: () => draw }); Object.defineProperty(__exports, "gasNodeForExtractor", { enumerable: true, get: () => gasNodeForExtractor }); Object.defineProperty(__exports, "handleMenuClick", { enumerable: true, get: () => handleMenuClick }); Object.defineProperty(__exports, "handleSettingsClick", { enumerable: true, get: () => handleSettingsClick }); Object.defineProperty(__exports, "handleQueueStripClick", { enumerable: true, get: () => handleQueueStripClick }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "openBuildMenu", { enumerable: true, get: () => openBuildMenu }); Object.defineProperty(__exports, "placePendingBuilding", { enumerable: true, get: () => placePendingBuilding }); Object.defineProperty(__exports, "openConstructionMenu", { enumerable: true, get: () => openConstructionMenu }); Object.defineProperty(__exports, "openGasExtractorMenu", { enumerable: true, get: () => openGasExtractorMenu }); Object.defineProperty(__exports, "openGasLeakMenu", { enumerable: true, get: () => openGasLeakMenu }); Object.defineProperty(__exports, "openHQMenu", { enumerable: true, get: () => openHQMenu }); Object.defineProperty(__exports, "openInsectStructureMenu", { enumerable: true, get: () => openInsectStructureMenu }); Object.defineProperty(__exports, "openHeliasStructureMenu", { enumerable: true, get: () => openHeliasStructureMenu }); Object.defineProperty(__exports, "openHousingMenu", { enumerable: true, get: () => openHousingMenu }); Object.defineProperty(__exports, "openLaboratoryMenu", { enumerable: true, get: () => openLaboratoryMenu }); Object.defineProperty(__exports, "openMinersHutMenu", { enumerable: true, get: () => openMinersHutMenu }); Object.defineProperty(__exports, "openProductionMenu", { enumerable: true, get: () => openProductionMenu }); Object.defineProperty(__exports, "openResearchFacilityMenu", { enumerable: true, get: () => openResearchFacilityMenu }); Object.defineProperty(__exports, "openUpgradeMenu", { enumerable: true, get: () => openUpgradeMenu }); Object.defineProperty(__exports, "resetGame", { enumerable: true, get: () => resetGame }); Object.defineProperty(__exports, "setSpawnFlag", { enumerable: true, get: () => setSpawnFlag });
       // Canvas drawing, production/menu UI, HUD, minimap, fog rendering, and game-over UI.
       // Extracted from the original single-file build; gameplay logic is intentionally unchanged.
       
@@ -17091,18 +17361,28 @@
               });
             }
           }
+        } else if (teamFactionId(team, state.teamFactions) === 'helias') {
+          const chronoTargets = structures.filter(structure =>
+            structure.team === team && structure.hp > 0 && !structure.underConstruction &&
+            ['hq', 'heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate'].includes(structure.type)
+          ).sort((a, b) => a.id - b.id);
+          for (const target of chronoTargets) {
+            items.push({
+              label: `CHRONO BOOST · ${factionStructureLabel(target.type, team, state.teamFactions)}`,
+              sub: () => (primary.chronoCooldownLeft || 0) > 0
+                ? `recharging · ${Math.ceil(primary.chronoCooldownLeft)}s`
+                : (target.chronoBoostTimeLeft || 0) > 0
+                  ? `already accelerated · ${Math.ceil(target.chronoBoostTimeLeft)}s remaining`
+                  : `+50% production speed for 15s${target.queue?.length ? ` · ${target.queue.length} queued` : ''}`,
+              tone: 'ability',
+              enabled: () => (primary.chronoCooldownLeft || 0) <= 0 && (target.chronoBoostTimeLeft || 0) <= 0,
+              command: { type: 'activateChronoBoost', team, nexusId: primary.id, targetId: target.id },
+              afterQueue: () => openHQMenu(screenPt, primary)
+            });
+          }
         } else if (!insectHive) {
           items.push(adrenalineMenuItem(primary, () => openHQMenu(screenPt, primary)));
         }
-
-        items.push({
-          label: producers.every(structure => structure.spawnFlag)
-            ? (producers.length > 1 ? 'MOVE SELECTED HIVE SPAWN FLAGS' : 'MOVE HQ SPAWN FLAG')
-            : (producers.length > 1 ? 'SET SELECTED HIVE SPAWN FLAGS' : 'SET HQ SPAWN FLAG'),
-          sub: producers.length > 1 ? `updates all ${producers.length} selected Hives` : 'this HQ owns its rally point',
-          tone: 'rally',
-          action: () => beginSpawnFlagPlacement(producers)
-        });
 
         const title = producers.length > 1
           ? `${producers.length} × SELECTED HIVES · SHARED BROOD PRODUCTION`
@@ -17208,13 +17488,6 @@
             action: () => {}
           });
         }
-        items.push({
-          label: producers.every(s => s.spawnFlag)
-            ? (producers.length > 1 ? 'MOVE SELECTED SPAWN FLAGS' : 'MOVE SPAWN FLAG')
-            : (producers.length > 1 ? 'SET SELECTED SPAWN FLAGS' : 'SET SPAWN FLAG'),
-          sub: producers.length > 1 ? `updates all ${producers.length} selected buildings` : 'this building owns its rally point',
-          action: () => beginSpawnFlagPlacement(producers)
-        });
         const levelText = `L${productionTechLevel(productionTeam, buildingType)}`;
         const title = producers.length > 1
           ? `${producers.length} × ${BUILDING_DATA[buildingType].label} · ${levelText}`
@@ -17496,8 +17769,7 @@
         const converting = s.conversionJob;
         const items = [
           { label: converting ? 'FORAGER · PRODUCTION PAUSED' : d.label, sub: converting ? 'conversion in progress' : `${d.costM}M · ${d.buildTime}s · ${d.pop} pop`, tone: 'train', costM: d.costM, costG: d.costG, enabled: !converting, command: { type: 'produce', team: s.team, unitType: 'forager', producerIds: [s.id], balanceAcross: false } },
-          { label: 'RESOURCE DROP-OFF', sub: 'foragers use this field with this hut', tone: 'resource', enabled: false, action: () => {} },
-          { label: s.spawnFlag ? 'MOVE HUT SPAWN FLAG' : 'SET HUT SPAWN FLAG', sub: 'new foragers rally there before finding a stocked field', tone: 'rally', action: () => beginSpawnFlagPlacement([s]) }
+          { label: 'RESOURCE DROP-OFF', sub: 'foragers use this field with this hut', tone: 'resource', enabled: false, action: () => {} }
         ];
         items.push(adrenalineMenuItem(s, () => openMinersHutMenu(s, screenPt)));
         if (converting) {
@@ -17721,6 +17993,32 @@
         if (!items.length) return;
         openMenu(screenPt, factionStructureLabel(s.type, s.team, state.teamFactions), items, true);
       }
+      function heliaStructurePoweredForMenu(structure) {
+        if (!structure || teamFactionId(structure.team, state.teamFactions) !== 'helias') return true;
+        if (!['heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate'].includes(structure.type)) return true;
+        const radius = BUILDING_DATA.heliasPylon?.powerRadius || 182;
+        const margin = Math.hypot((structure.w || 0) / 2, (structure.h || 0) / 2) * .28;
+        return structures.some(pylon =>
+          pylon.team === structure.team && pylon.type === 'heliasPylon' && pylon.hp > 0 && !pylon.underConstruction &&
+          Math.hypot(pylon.x - structure.x, pylon.y - structure.y) <= Math.max(24, radius - margin)
+        );
+      }
+
+      function openHeliasStructureMenu(s, screenPt) {
+        if (!s || teamFactionId(s.team, state.teamFactions) !== 'helias') return;
+        const items = [];
+        if (s.type === 'heliasPylon') {
+          items.push({ label: 'POWER FIELD ONLINE', sub: `${BUILDING_DATA.heliasPylon.powerRadius || 182} range · powers nearby Helias structures`, tone: 'support', enabled: false, action: () => {} });
+          items.push({ label: '+8 POPULATION CAPACITY', sub: 'Pylons combine strategic power projection with army housing', tone: 'economy', enabled: false, action: () => {} });
+        } else if (s.type === 'heliasCyberCore') {
+          const powered = heliaStructurePoweredForMenu(s);
+          items.push({ label: powered ? 'POWERED' : 'UNPOWERED', sub: powered ? 'Pylon field stable · Helias technology is operational' : 'restore an operational Pylon field to reactivate this structure', tone: powered ? 'support' : 'warning', enabled: false, action: () => {} });
+          items.push({ label: 'STALKER & SENTRY UNLOCKED', sub: 'advanced Gateway units are now available at powered Gateways', tone: 'research', enabled: false, action: () => {} });
+          items.push({ label: 'ADVANCED TECHNOLOGY FOUNDATION', sub: 'required before warping a Robotics Facility or Stargate', tone: 'info', enabled: false, action: () => {} });
+        }
+        if (items.length) openMenu(screenPt, factionStructureLabel(s.type, s.team, state.teamFactions), items, true);
+      }
+
       function openUpgradeMenu(s, screenPt) {
         if (s.type === 'radarTurret') {
           openMenu(screenPt, BUILDING_DATA.radarTurret.label, [{
@@ -18047,7 +18345,7 @@
         }
         const sameType = selected.every(structure => structure.type === selected[0].type);
         if (sameType && selected.every(structure => !structure.underConstruction && isProductionBuilding(structure)) &&
-            ['barracks', 'garage', 'airBay', 'supportCamp'].includes(selected[0].type)) {
+            ['barracks', 'garage', 'airBay', 'supportCamp', 'heliasGateway', 'heliasRoboticsFacility', 'heliasStargate'].includes(selected[0].type)) {
           openProductionMenu(selected, state.mouse);
           return true;
         }
@@ -18058,6 +18356,7 @@
         if (['spawningNest', 'evolutionPit', 'spitterDen', 'carapaceWarren', 'airSpire', 'creepTumor', 'thornmawCrawler', 'skysporeSentinel'].includes(structure.type)) {
           openInsectStructureMenu(structure, state.mouse); return true;
         }
+        if (['heliasPylon', 'heliasCyberCore'].includes(structure.type)) { openHeliasStructureMenu(structure, state.mouse); return true; }
         if (structure.type === 'minersHut') { openMinersHutMenu(structure, state.mouse); return true; }
         if (structure.type === 'housing') { openHousingMenu(structure, state.mouse); return true; }
         if (structure.type === 'researchFacility') { openResearchFacilityMenu(structure, state.mouse); return true; }
@@ -18124,7 +18423,7 @@
           });
         }
         const placing = BUILDING_DATA[state.placingBuildingType];
-        const factionName = teamFactionId(team, state.teamFactions) === 'insects' ? 'INSECT BROOD' : 'CONSTRUCTION';
+        const factionName = teamFactionId(team, state.teamFactions) === 'insects' ? 'INSECT BROOD' : teamFactionId(team, state.teamFactions) === 'helias' ? 'HELIAS WARP CONSTRUCTION' : 'CONSTRUCTION';
         openMenu(state.mouse, placing ? `PLACE ${placing.label} · CLICK MAP` : factionName, items, true);
       }
       
@@ -20153,7 +20452,240 @@ function drawInsectTechBranchStructure(s, x, y, team, light, flash) {
   drawStructureLabel(label, s, y, labelColor, 9);
 }
 
+
+function drawHeliasPylonStructure(s, x, y, team, light, flash) {
+  drawBuildingShadow(x - 1, y + 10, s.w + 2, Math.max(10, s.h - 9));
+  const pulse = .68 + Math.sin(state.elapsed * 3.1 + s.id * .17) * .22;
+  const cx = s.x, baseY = y + s.h - 2;
+  ctx.save();
+  ctx.fillStyle = '#0b0e16';
+  ctx.beginPath();
+  ctx.moveTo(cx - 10, baseY); ctx.lineTo(cx - 5, y + 10); ctx.lineTo(cx + 5, y + 10); ctx.lineTo(cx + 10, baseY);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = flash ? '#ffffff' : '#8c6b24';
+  ctx.beginPath();
+  ctx.moveTo(cx - 9, baseY - 1); ctx.lineTo(cx - 4, y + 11); ctx.lineTo(cx + 4, y + 11); ctx.lineTo(cx + 9, baseY - 1);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = flash ? '#ffffff' : '#d7b55a';
+  ctx.beginPath();
+  ctx.moveTo(cx - 6, baseY - 2); ctx.lineTo(cx, y + 2); ctx.lineTo(cx + 6, baseY - 2); ctx.lineTo(cx + 3, baseY + 1); ctx.lineTo(cx - 3, baseY + 1);
+  ctx.closePath(); ctx.fill();
+  ctx.globalAlpha = .82;
+  ctx.fillStyle = '#79e6ff';
+  ctx.beginPath();
+  ctx.moveTo(cx - 3, baseY - 1); ctx.lineTo(cx, y + 5); ctx.lineTo(cx + 3, baseY - 1); ctx.lineTo(cx, baseY + 1);
+  ctx.closePath(); ctx.fill();
+  ctx.globalAlpha = .45 + pulse * .25;
+  ctx.fillStyle = '#c6fbff';
+  ctx.beginPath(); ctx.ellipse(cx, baseY - 8, 4.2, 9.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  drawStructureLabel('PYLON', s, y, '#9eeeff', 8);
+}
+
+function drawHeliasGatewayStructure(s, x, y, team, light, flash) {
+  drawBuildingShadow(x - 3, y + 9, s.w + 6, s.h - 7);
+  drawClippedPlate(x - 2, y + 10, s.w + 4, s.h - 10, 8, flash ? '#ffffff' : '#5f4a1c', '#13171f');
+  drawClippedPlate(x + 1, y + 14, s.w - 2, s.h - 18, 7, flash ? '#ffffff' : '#b58b32', '#1a1f28');
+  drawClippedPlate(x + 4, y + 18, 12, s.h - 22, 4, flash ? '#ffffff' : '#7a5c24', '#0d1118');
+  drawClippedPlate(x + s.w - 16, y + 18, 12, s.h - 22, 4, flash ? '#ffffff' : '#7a5c24', '#0d1118');
+  ctx.fillStyle = '#0a0d17';
+  ctx.beginPath(); ctx.ellipse(s.x, y + 26, 13, 11, 0, 0, Math.PI * 2); ctx.fill();
+  const orbPulse = .62 + Math.sin(state.elapsed * 2.8 + s.id * .09) * .18;
+  ctx.strokeStyle = '#7cdfff'; ctx.lineWidth = 1.6 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(s.x, y + 26, 16, 13, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = .32 + orbPulse * .18;
+  ctx.fillStyle = '#0e1020';
+  ctx.beginPath(); ctx.ellipse(s.x, y + 26, 11, 9, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = .75 + orbPulse * .2;
+  ctx.fillStyle = '#7cdfff';
+  ctx.beginPath(); ctx.arc(s.x - 3, y + 23, 2.5, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+  drawGlowStrip(s.x - 18, y + 16, 10, 3, s.id * .17, '#d3b259', '#fff2a8');
+  drawGlowStrip(s.x + 8, y + 16, 10, 3, s.id * .17 + 1.2, '#d3b259', '#fff2a8');
+  drawTeamPanel(x + 5, y + s.h - 8, 8, 4, team, light);
+  drawTeamPanel(x + s.w - 13, y + s.h - 8, 8, 4, team, light);
+  drawStructureLabel('GATEWAY', s, y, '#efe1a2');
+}
+
+
+function drawHeliasAssimilatorStructure(s, x, y, team, light, flash) {
+  // Protoss-inspired golden capture lattice around the gas vent.
+  drawBuildingShadow(x - 3, y + 9, s.w + 6, s.h - 6);
+  const pulse = .62 + Math.sin(state.elapsed * 3.4 + s.id * .19) * .2;
+  ctx.save();
+  ctx.fillStyle = '#0b0f19';
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 3, 20, 15, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = flash ? '#ffffff' : '#b58c36'; ctx.lineWidth = 5 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 3, 18, 13, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = '#f0d989'; ctx.lineWidth = 1.5 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 3, 20, 15, 0, 0, Math.PI * 2); ctx.stroke();
+
+  // Six inward golden vanes lock the phase field to the geyser.
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI / 3 + .12;
+    ctx.save(); ctx.translate(s.x + Math.cos(a) * 17, s.y + 3 + Math.sin(a) * 12); ctx.rotate(a + Math.PI / 2);
+    ctx.fillStyle = flash ? '#ffffff' : '#9d7429';
+    ctx.beginPath(); ctx.moveTo(-4, 5); ctx.lineTo(0, -8); ctx.lineTo(4, 5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#8fe8ff'; ctx.fillRect(-1, -5, 2, 7);
+    ctx.restore();
+  }
+
+  // Floating purple gas orb and counter-rotating energy hoops.
+  ctx.globalAlpha = .38 + pulse * .22;
+  ctx.fillStyle = COLORS.gas;
+  ctx.beginPath(); ctx.arc(s.x, s.y + 1, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.save(); ctx.translate(s.x, s.y + 1); ctx.rotate(state.elapsed * .8 + s.id * .08);
+  ctx.strokeStyle = '#d8bdff'; ctx.lineWidth = 1.4 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(0, 0, 14, 5, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.rotate(-state.elapsed * 1.55);
+  ctx.strokeStyle = '#9eeeff';
+  ctx.beginPath(); ctx.ellipse(0, 0, 5, 13, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#f3eaff'; ctx.beginPath(); ctx.arc(s.x - 2, s.y - 2, 2.2, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  if (!s.underConstruction) {
+    const node = gasNodeForExtractor(s);
+    const gasLeft = node ? Math.ceil(node.amount) : 0;
+    const gasCap = node?.capacity || 0;
+    drawText('ASSIMILATOR', s.x, y + s.h + 5, 8, '#d8bdff', 'center');
+    drawText(`GAS ${gasLeft}/${gasCap}`, s.x, y + s.h + 15, 8, gasLeft > 0 ? '#e8d7ff' : COLORS.bad, 'center');
+  }
+}
+
+function drawHeliasCyberCoreStructure(s, x, y, team, light, flash) {
+  // Detailed golden technology shrine with six phase-discs around a dark core.
+  drawBuildingShadow(x - 5, y + 10, s.w + 10, s.h - 7);
+  drawClippedPlate(x - 3, y + 13, s.w + 6, s.h - 13, 10, flash ? '#ffffff' : '#514017', '#0c111a');
+  drawClippedPlate(x + 4, y + 17, s.w - 8, s.h - 21, 8, flash ? '#ffffff' : '#a47e2e', '#151b27');
+  const cy = y + 25;
+
+  // Six articulated discs, each with gold armor and cyan phase veins.
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI / 3 + state.elapsed * .07;
+    const px = s.x + Math.cos(a) * 18;
+    const py = cy + Math.sin(a) * 12;
+    ctx.save(); ctx.translate(px, py); ctx.rotate(a + Math.PI / 2);
+    ctx.fillStyle = '#0a0e17';
+    ctx.beginPath(); ctx.ellipse(0, 0, 7.5, 4.8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = flash ? '#ffffff' : '#c6a34b';
+    ctx.beginPath(); ctx.ellipse(0, 0, 6.5, 3.8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#8fe8ff'; ctx.lineWidth = 1.1 / cam.zoom;
+    ctx.beginPath(); ctx.ellipse(0, 0, 4.2, 2.1, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = '#dff9ff'; ctx.fillRect(2, -1, 2, 2);
+    ctx.restore();
+  }
+
+  // Central dark-space aperture with rotating blue-gold rings.
+  const pulse = .58 + Math.sin(state.elapsed * 3 + s.id * .21) * .2;
+  ctx.fillStyle = '#050811';
+  ctx.beginPath(); ctx.arc(s.x, cy, 11, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = .28 + pulse * .22;
+  ctx.fillStyle = '#214d70';
+  ctx.beginPath(); ctx.arc(s.x, cy, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.save(); ctx.translate(s.x, cy); ctx.rotate(state.elapsed * .55 + s.id * .09);
+  ctx.strokeStyle = '#9eeeff'; ctx.lineWidth = 1.5 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(0, 0, 14, 6, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.rotate(-state.elapsed * 1.1);
+  ctx.strokeStyle = '#f0db8c';
+  ctx.beginPath(); ctx.ellipse(0, 0, 6, 14, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#f4fdff'; ctx.beginPath(); ctx.arc(s.x - 2.5, cy - 2.5, 2.3, 0, Math.PI * 2); ctx.fill();
+
+  drawTeamPanel(x + 5, y + s.h - 8, 9, 4, team, light);
+  drawTeamPanel(x + s.w - 14, y + s.h - 8, 9, 4, team, light);
+  drawGlowStrip(s.x - 14, y + s.h - 12, 28, 3, s.id * .14, '#d2af58', '#fff0aa');
+  drawStructureLabel('CYBER CORE', s, y, '#efe1a2', 8);
+}
+
+function drawHeliasTechStructure(s, x, y, team, light, flash, label, variant = 'core') {
+  drawBuildingShadow(x - 3, y + 8, s.w + 6, s.h - 6);
+  drawClippedPlate(x - 2, y + 9, s.w + 4, s.h - 10, 8, flash ? '#ffffff' : '#4f3f18', '#131722');
+  drawClippedPlate(x + 3, y + 14, s.w - 6, s.h - 18, 7, flash ? '#ffffff' : '#b3913a', '#1c2230');
+  ctx.fillStyle = '#0d1220';
+  ctx.beginPath(); ctx.ellipse(s.x, y + s.h * .52, variant === 'stargate' ? 15 : 12, variant === 'robotics' ? 9 : 10, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = variant === 'stargate' ? '#9eeeff' : '#79d7ff'; ctx.lineWidth = 1.5 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(s.x, y + s.h * .52, variant === 'stargate' ? 19 : 16, variant === 'robotics' ? 12 : 13, 0, 0, Math.PI * 2); ctx.stroke();
+  drawTeamPanel(x + 5, y + s.h - 8, 8, 4, team, light);
+  drawTeamPanel(x + s.w - 13, y + s.h - 8, 8, 4, team, light);
+  drawStructureLabel(label, s, y, '#efe1a2', 8);
+}
+
 function drawHQStructure(s, x, y, team, light, flash) {
+  if (teamFactionId(s.team, state.teamFactions) === 'helias') {
+    // Visually larger than its gameplay footprint: a layered golden pyramid with
+    // corner pylons, power rails and a suspended phase core.
+    const vx = x - 10, vy = y - 11, vw = s.w + 20, vh = s.h + 18;
+    const pulse = .62 + Math.sin(state.elapsed * 2.5 + s.id * .13) * .2;
+    drawBuildingShadow(vx - 3, vy + 24, vw + 6, vh - 17);
+
+    // Wide octagonal foundation and three progressively raised pyramid terraces.
+    drawClippedPlate(vx, vy + 22, vw, vh - 21, 13, flash ? '#ffffff' : '#4a3916', '#0c1119');
+    drawClippedPlate(vx + 7, vy + 15, vw - 14, vh - 24, 12, flash ? '#ffffff' : '#8b6b25', '#111722');
+    drawClippedPlate(vx + 15, vy + 8, vw - 30, vh - 28, 10, flash ? '#ffffff' : '#c19a42', '#171d28');
+
+    // Golden pyramid crown with inset dark technology planes.
+    ctx.fillStyle = flash ? '#ffffff' : '#e0c06a';
+    ctx.beginPath();
+    ctx.moveTo(s.x, vy - 2);
+    ctx.lineTo(vx + vw - 18, vy + vh - 18);
+    ctx.lineTo(vx + 18, vy + vh - 18);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = flash ? '#ffffff' : '#9e782d';
+    ctx.beginPath();
+    ctx.moveTo(s.x, vy + 5);
+    ctx.lineTo(vx + vw - 27, vy + vh - 22);
+    ctx.lineTo(vx + 27, vy + vh - 22);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#101522';
+    ctx.beginPath();
+    ctx.moveTo(s.x, vy + 12);
+    ctx.lineTo(vx + vw - 35, vy + vh - 25);
+    ctx.lineTo(vx + 35, vy + vh - 25);
+    ctx.closePath(); ctx.fill();
+
+    // Four detailed corner pylons visually anchor the enlarged silhouette.
+    for (const [px, py, flip] of [
+      [vx + 9, vy + vh - 20, -1], [vx + vw - 9, vy + vh - 20, 1],
+      [vx + 20, vy + 23, -1], [vx + vw - 20, vy + 23, 1]
+    ]) {
+      ctx.save(); ctx.translate(px, py); ctx.scale(flip, 1);
+      ctx.fillStyle = '#111722'; ctx.fillRect(-5, -13, 10, 17);
+      ctx.fillStyle = flash ? '#ffffff' : '#b88c32';
+      ctx.beginPath(); ctx.moveTo(-5, 3); ctx.lineTo(-2, -13); ctx.lineTo(5, 3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#8fe8ff'; ctx.fillRect(-1, -10, 2, 9);
+      ctx.restore();
+    }
+
+    // Suspended central core, dark aperture and two counter-rotating rings.
+    const coreY = vy + vh * .50;
+    ctx.fillStyle = '#080c17';
+    ctx.beginPath(); ctx.ellipse(s.x, coreY, 17, 12, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = .38 + pulse * .22;
+    ctx.fillStyle = '#45bfe6';
+    ctx.beginPath(); ctx.ellipse(s.x, coreY, 13, 9, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.save(); ctx.translate(s.x, coreY); ctx.rotate(state.elapsed * .38 + s.id * .07);
+    ctx.strokeStyle = '#9eeeff'; ctx.lineWidth = 1.7 / cam.zoom;
+    ctx.beginPath(); ctx.ellipse(0, 0, 23, 9, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.rotate(-state.elapsed * .76 - s.id * .11);
+    ctx.strokeStyle = '#f3df93';
+    ctx.beginPath(); ctx.ellipse(0, 0, 10, 20, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = '#e9fbff';
+    ctx.beginPath(); ctx.arc(s.x - 3, coreY - 3, 3.2, 0, Math.PI * 2); ctx.fill();
+
+    // Phase conduits and faction plates around the pyramid base.
+    drawGlowStrip(vx + 11, vy + vh - 19, 18, 3, s.id * .23, '#d9b45d', '#fff0aa');
+    drawGlowStrip(vx + vw - 29, vy + vh - 19, 18, 3, s.id * .23 + 1.4, '#d9b45d', '#fff0aa');
+    drawGlowStrip(s.x - 11, vy + vh - 11, 22, 3, s.id * .29, '#6fdfff', '#d9fbff');
+    drawTeamPanel(vx + 8, vy + vh - 13, 12, 5, team, light);
+    drawTeamPanel(vx + vw - 20, vy + vh - 13, 12, 5, team, light);
+    drawStructureLabel(hqLabel(s.team), s, vy + 2, '#f1dda0', 12);
+    return;
+  }
   // Command citadel: broad side wings, a raised central keep and a command spire.
   drawBuildingShadow(x - 3, y + 7, s.w + 6, s.h - 5);
   drawClippedPlate(x - 2, y + 13, s.w + 4, s.h - 13, 8, flash ? '#ffffff' : '#273846', '#101922');
@@ -21022,12 +21554,31 @@ function drawStructureUpgradeDetails(s, x, y, team) {
         }
       }
 
+      function drawHeliasPowerField(s) {
+        if (s.type !== 'heliasPylon' || s.hp <= 0 || s.underConstruction) return;
+        const radius = BUILDING_DATA.heliasPylon.powerRadius || 182;
+        ctx.save();
+        ctx.globalAlpha = .08 + Math.sin(state.elapsed * 2.2 + s.id) * .018;
+        ctx.fillStyle = '#72d8ff';
+        ctx.beginPath(); ctx.arc(s.x, s.y, radius, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = .34;
+        ctx.strokeStyle = '#9eeeff'; ctx.lineWidth = 1.2 / cam.zoom;
+        ctx.beginPath(); ctx.arc(s.x, s.y, radius, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+      }
+
       function drawStructure(s) {
   if (s.hp <= 0) return;
   if (!isLocallyVisibleToTeam(activeCommandTeam(), s.x, s.y) && s.team !== activeCommandTeam()) return;
+  drawHeliasPowerField(s);
   const x = Math.floor(s.x - s.w / 2);
   const y = Math.floor(s.y - s.h / 2);
   const team = colorForTeam(s.team);
+  if ((s.chronoBoostTimeLeft || 0) > 0) {
+    ctx.save(); ctx.globalAlpha = .38 + Math.sin(state.elapsed * 8 + s.id) * .12;
+    ctx.strokeStyle = '#9eeeff'; ctx.lineWidth = 2.2 / cam.zoom;
+    ctx.beginPath(); ctx.arc(s.x, s.y, Math.max(s.w, s.h) * .72, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  }
   const light = colorForTeam(s.team, 'light');
   const flash = s.flash > 0;
 
@@ -21070,6 +21621,11 @@ function drawStructureUpgradeDetails(s, x, y, team) {
   else if (s.type === 'creepTumor') drawCreepTumorStructure(s, x, y, team, light, flash);
   else if (s.type === 'thornmawCrawler') drawInsectDefenseStructure(s, x, y, team, light, flash, false);
   else if (s.type === 'skysporeSentinel') drawInsectDefenseStructure(s, x, y, team, light, flash, true);
+  else if (s.type === 'heliasPylon') drawHeliasPylonStructure(s, x, y, team, light, flash);
+  else if (s.type === 'heliasGateway') drawHeliasGatewayStructure(s, x, y, team, light, flash);
+  else if (s.type === 'heliasCyberCore') drawHeliasCyberCoreStructure(s, x, y, team, light, flash);
+  else if (s.type === 'heliasRoboticsFacility') drawHeliasTechStructure(s, x, y, team, light, flash, 'ROBOTICS', 'robotics');
+  else if (s.type === 'heliasStargate') drawHeliasTechStructure(s, x, y, team, light, flash, 'STARGATE', 'stargate');
   else if (s.type === 'hq') drawHQStructure(s, x, y, team, light, flash);
   else if (s.type === 'turret') drawGroundTurretStructure(s, x, y, team, light, flash);
   else if (s.type === 'antiAirTurret') drawAntiAirTurretStructure(s, x, y, team, light, flash);
@@ -21078,6 +21634,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
   else if (s.type === 'garage') drawGarageStructure(s, x, y, team, light, flash);
   else if (s.type === 'airBay') drawAirBayStructure(s, x, y, team, light, flash);
   else if (s.type === 'supportCamp') drawSupportStructure(s, x, y, team, light, flash);
+  else if (s.type === 'gasExtractor' && teamFactionId(s.team, state.teamFactions) === 'helias') drawHeliasAssimilatorStructure(s, x, y, team, light, flash);
   else if (s.type === 'gasExtractor') drawGasExtractorStructure(s, x, y, team, light, flash);
   else if (s.type === 'minersHut') drawMinersHutStructure(s, x, y, team, light, flash);
   else if (s.type === 'housing') drawHousingStructure(s, x, y, team, light, flash);
@@ -21959,6 +22516,22 @@ function drawStructureUpgradeDetails(s, x, y, team) {
             ctx.fillStyle = '#07080a'; ctx.fillRect(-8, -4, 7, 8);
             ctx.fillStyle = cargoColor; ctx.fillRect(-7, -3, 5, 6);
           }
+        } else if (u.type === 'forager' && teamFactionId(u.team, state.teamFactions) === 'helias') {
+          const float = Math.sin(state.elapsed * 5.2 + u.id) * 1.2;
+          const cargoColor = u.carryType === 'gas' ? COLORS.gas : COLORS.mineral;
+          ctx.save();
+          ctx.translate(0, float);
+          ctx.fillStyle = 'rgba(0,0,0,.28)';
+          ctx.beginPath(); ctx.ellipse(-2, 7 - float, 10, 4, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#05080d'; ctx.lineWidth = 2.4 / cam.zoom;
+          ctx.fillStyle = u.flash > 0 ? '#ffffff' : '#e9f5ff';
+          ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(-2, -8); ctx.lineTo(10, -5); ctx.lineTo(13, 0); ctx.lineTo(10, 5); ctx.lineTo(-2, 8); ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = team; ctx.beginPath(); ctx.ellipse(1, 0, 7, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#9eeeff'; ctx.beginPath(); ctx.arc(7, 0, 2.4, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#9eeeff'; ctx.lineWidth = 1.4 / cam.zoom;
+          ctx.beginPath(); ctx.moveTo(-2, -6); ctx.lineTo(-8, -11); ctx.moveTo(-2, 6); ctx.lineTo(-8, 11); ctx.stroke();
+          if (u.carrying > 0) { ctx.fillStyle = cargoColor; ctx.beginPath(); ctx.arc(-9, 0, 3.5, 0, Math.PI * 2); ctx.fill(); }
+          ctx.restore();
         } else if (u.type === 'forager') {
           // Smaller triangular worker: pointed tail at the back, flat face at the
           // front, and two clamp-tools on the front corners. When returning to a
@@ -24464,6 +25037,8 @@ function drawStructureUpgradeDetails(s, x, y, team) {
         commandNavRects: [],
         infoSellRect: null,
         infoCancelUpgradeRect: null,
+        infoRallyRect: null,
+        infoRallyStructureIds: [],
         requestBuildMenu: false,
         commandMenuRefreshAt: 0,
         cameraShake: 0,
@@ -24631,7 +25206,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
       
       function addStructure(type, team, x, y, extra = {}) {
         let base;
-        if (type === 'hq') base = { w: 60, h: 52, hp: isHumanTeam(team) ? 720 : 820, sight: 170 };
+        if (type === 'hq') base = { w: 60, h: 52, hp: (state.teamFactions?.[team] || 'humans') === 'helias' ? 900 : isHumanTeam(team) ? 720 : 820, sight: 170 };
         else if (BUILDING_DATA[type]) {
           const d = BUILDING_DATA[type];
           base = { w: d.w, h: d.h, hp: d.hp, sight: d.sight, range: d.range, damage: d.damage, cooldown: d.cooldown, radarRange: d.radarRange };
@@ -24816,7 +25391,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
       
       
       
-      const CHECKSUM_SCHEMA_VERSION = 25;
+      const CHECKSUM_SCHEMA_VERSION = 26;
       
       const OMITTED_KEYS = new Set([
         // Render interpolation / local presentation.
