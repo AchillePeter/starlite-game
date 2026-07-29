@@ -14097,6 +14097,220 @@
           .starlite-menu__panel[data-view="sizes"] .starlite-menu__branch-actions .starlite-menu__secondary { min-height: 32px; padding: 4px 3px; font-size: 7px; letter-spacing: .02em; }
         }
 
+
+        /* Streamlined tutorial, computer setup, and GLB faction portrait controls. */
+        .starlite-menu__panel[data-view="tutorials"] {
+          width: min(920px, 100%); padding: 72px 22px 22px; overflow: hidden;
+        }
+        .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;
+        }
+        .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-card {
+          min-height: 330px; padding: 10px; grid-template-rows: minmax(0, 1fr) auto; gap: 12px;
+        }
+        .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-portrait { aspect-ratio: auto; height: 100%; min-height: 245px; }
+        .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-card strong { font-size: 17px; }
+
+        .starlite-menu__computer-setup { display: grid; gap: 14px; }
+        .starlite-menu__computer-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        .starlite-menu__selection-card {
+          position: relative; min-height: 330px; padding: 14px; display: grid;
+          grid-template-rows: auto minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px;
+          border: 1px solid rgba(178,221,151,.28); border-radius: 12px; overflow: hidden;
+          color: #edf7e8; background: rgba(16,29,20,.88); cursor: pointer; text-align: center;
+          transition: transform .16s ease, border-color .16s ease, background .16s ease;
+        }
+        .starlite-menu__selection-card:hover, .starlite-menu__selection-card:focus-visible {
+          outline: none; transform: translateY(-2px); border-color: #a7ef74; background: rgba(33,56,35,.94);
+        }
+        .starlite-menu__selection-kicker, .starlite-menu__selection-change {
+          color: #9fba99; font-size: 9px; font-weight: 900; letter-spacing: .16em;
+        }
+        .starlite-menu__selection-card > strong { font-size: 24px; letter-spacing: .08em; }
+        .starlite-menu__selection-card > small { min-height: 30px; color: #aebfa9; font-size: 11px; line-height: 1.35; }
+        .starlite-menu__selection-change { color: #b8f288; }
+        .starlite-menu__selection-portrait {
+          position: relative; width: 100%; height: 205px; overflow: hidden; border: 1px solid rgba(191,231,168,.24); border-radius: 9px;
+          background: rgba(3,9,5,.78);
+        }
+        .starlite-menu__selection-portrait canvas, .starlite-menu__faction-portrait-box canvas {
+          display: block; width: 100%; height: 100%; image-rendering: auto;
+        }
+        .starlite-menu__selection-random {
+          position: absolute; inset: 0; display: grid; place-items: center;
+          color: #d2a8ff; font: 950 82px ui-monospace, monospace;
+          background: radial-gradient(circle, rgba(210,168,255,.19), rgba(3,9,5,.96) 70%);
+        }
+        .starlite-menu__mode-formation {
+          min-height: 205px; display: grid; place-items: center; align-content: center; grid-auto-flow: column; gap: 44px;
+          border: 1px solid rgba(191,231,168,.24); border-radius: 9px; background: rgba(3,9,5,.78);
+        }
+        .starlite-menu__mode-formation i, .starlite-menu__mode-formation b, .starlite-menu__mode-formation::before, .starlite-menu__mode-formation::after {
+          content: ""; width: 54px; height: 54px; border: 3px solid #b8f288; border-radius: 50%; background: rgba(184,242,136,.13);
+          box-shadow: 0 0 0 8px rgba(184,242,136,.035);
+        }
+        .starlite-menu__mode-formation[data-count="3"] { grid-template-columns: repeat(3, 54px); gap: 25px; }
+        .starlite-menu__mode-formation[data-count="4"] { grid-template-columns: repeat(2, 54px); grid-auto-flow: row; gap: 24px 58px; }
+        .starlite-menu__mode-formation[data-count="2"]::before, .starlite-menu__mode-formation[data-count="2"]::after { display: none; }
+        .starlite-menu__mode-formation[data-count="3"]::after { display: none; }
+        .starlite-menu__computer-picker { min-height: 330px; display: grid; align-items: center; }
+        .starlite-menu__computer-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .starlite-menu__computer-choice-grid[data-computer-faction-options] { grid-template-columns: 1fr; }
+        .starlite-menu__computer-picker-title { grid-column: 1 / -1; color: #b8f288; font-size: 11px; font-weight: 900; letter-spacing: .16em; text-align: center; }
+        .starlite-menu__computer-mode-choice {
+          min-height: 190px; padding: 18px 10px; display: grid; place-content: center; gap: 9px;
+          border: 1px solid rgba(178,221,151,.28); border-radius: 11px; color: #edf7e8; background: rgba(11,23,15,.84); cursor: pointer;
+        }
+        .starlite-menu__computer-mode-choice:hover, .starlite-menu__computer-mode-choice:focus-visible,
+        .starlite-menu__computer-mode-choice[aria-pressed="true"] { outline: none; border-color: #a7ef74; background: rgba(54,89,49,.72); }
+        .starlite-menu__computer-mode-choice strong { font-size: 25px; }
+        .starlite-menu__computer-mode-choice small { color: #9fb499; font-size: 9px; letter-spacing: .09em; }
+        .starlite-menu__computer-start {
+          min-height: 58px; border: 1px solid #b8f288; border-radius: 10px; color: #102214; background: #b8f288;
+          font: 950 15px ui-monospace, monospace; letter-spacing: .16em; cursor: pointer;
+          animation: starlite-start-pulse 1.8s ease-in-out infinite;
+        }
+        .starlite-menu__computer-start:hover, .starlite-menu__computer-start:focus-visible { outline: 2px solid #f4ffe9; outline-offset: 3px; }
+        @keyframes starlite-start-pulse {
+          0%, 100% { transform: translateY(0); box-shadow: 0 0 0 0 rgba(184,242,136,.32); }
+          50% { transform: translateY(-2px); box-shadow: 0 0 0 7px rgba(184,242,136,0); }
+        }
+        .starlite-menu__faction-portrait-box {
+          width: 100%; height: 88px; overflow: hidden; display: grid; place-items: center;
+          border: 1px solid currentColor; border-radius: 8px; background: rgba(2,7,4,.82);
+        }
+        .starlite-menu__faction-portrait-box--random { color: #d2a8ff; font: 950 37px ui-monospace, monospace; }
+        .starlite-menu__faction-card { grid-template-rows: 88px auto auto; }
+        .starlite-menu__lobby-player {
+          min-height: 64px; grid-template-columns: 54px minmax(0, 1fr) auto;
+        }
+        .starlite-menu__lobby-faction-box {
+          width: 52px; height: 52px; overflow: hidden; display: grid; place-items: center;
+          border: 1px solid rgba(190,216,232,.28); border-radius: 7px; color: #aab9be; background: rgba(2,7,10,.74);
+          font: 950 24px ui-monospace, monospace;
+        }
+        .starlite-menu__lobby-faction-box canvas { width: 100%; height: 100%; display: block; }
+        .starlite-menu__lobby-player-name { min-width: 0; }
+        .starlite-menu__lobby-faction-name { display: block; margin-top: 3px; color: #b8f288; font-size: 9px; font-weight: 900; letter-spacing: .11em; }
+        .starlite-menu__lobby-faction-name[data-hidden="true"] { color: #7e9199; }
+
+        @media (max-height: 720px) {
+          .starlite-menu__panel[data-view="sizes"] { width: min(780px, 100%); padding: 12px 15px; }
+          .starlite-menu__selection-card { min-height: 250px; grid-template-rows: auto minmax(0, 1fr) auto auto auto; }
+          .starlite-menu__selection-portrait, .starlite-menu__mode-formation { height: 135px; min-height: 135px; }
+          .starlite-menu__computer-picker { min-height: 250px; }
+          .starlite-menu__computer-mode-choice { min-height: 145px; }
+          .starlite-menu__faction-portrait-box { height: 64px; }
+          .starlite-menu__faction-card { min-height: 105px !important; grid-template-rows: 64px auto auto !important; }
+          .starlite-menu__panel[data-view="tutorials"] { padding-top: 58px; }
+          .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-card { min-height: 250px; }
+          .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-portrait { min-height: 180px; }
+        }
+        @media (max-width: 560px) {
+          .starlite-menu__panel[data-view="tutorials"] { padding: 55px 8px 10px; }
+          .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+          .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-card { min-height: 210px; padding: 5px; display: grid; grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+          .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-portrait { min-height: 155px; grid-row: auto; }
+          .starlite-menu__panel[data-view="tutorials"] .starlite-menu__tutorial-card strong { font-size: 8px; text-align: center; white-space: normal; }
+          .starlite-menu__computer-summary { gap: 7px; }
+          .starlite-menu__selection-card { min-height: 260px; padding: 8px; }
+          .starlite-menu__selection-card > strong { font-size: 16px; }
+          .starlite-menu__selection-portrait, .starlite-menu__mode-formation { height: 145px; }
+          .starlite-menu__selection-kicker, .starlite-menu__selection-change { font-size: 7px; }
+          .starlite-menu__computer-choice-grid { gap: 5px; }
+          .starlite-menu__computer-mode-choice { min-height: 150px; padding: 9px 4px; }
+          .starlite-menu__computer-mode-choice strong { font-size: 16px; }
+          .starlite-menu__faction-portrait-box { height: 70px; }
+          .starlite-menu__panel[data-view="sizes"] .starlite-menu__faction-grid,
+          .starlite-menu__panel[data-view="pvp"] .starlite-menu__faction-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+          .starlite-menu__panel[data-view="sizes"] .starlite-menu__faction-card,
+          .starlite-menu__panel[data-view="pvp"] .starlite-menu__faction-card { min-height: 103px !important; grid-template-rows: 70px auto !important; }
+          .starlite-menu__panel[data-view="sizes"] .starlite-menu__faction-card small,
+          .starlite-menu__panel[data-view="pvp"] .starlite-menu__faction-card small { display: none; }
+        }
+
+
+        /* Portrait-first Vs. Computer summary cards and resilient menu portrait sizing. */
+        .starlite-menu__computer-summary {
+          grid-template-columns: repeat(2, minmax(180px, 252px));
+          justify-content: center;
+          align-items: stretch;
+          gap: clamp(12px, 2.4vw, 24px);
+        }
+        .starlite-menu__selection-card {
+          width: 100%;
+          min-height: 0;
+          height: min(52vh, 390px);
+          aspect-ratio: 3 / 4;
+          padding: 12px;
+          grid-template-rows: minmax(0, 1fr) auto;
+          gap: 11px;
+        }
+        .starlite-menu__selection-kicker,
+        .starlite-menu__selection-card > small,
+        .starlite-menu__selection-change { display: none; }
+        .starlite-menu__selection-card > strong {
+          font-size: clamp(19px, 2.2vw, 27px);
+          line-height: 1.05;
+          letter-spacing: .07em;
+        }
+        .starlite-menu__selection-portrait,
+        .starlite-menu__mode-formation {
+          width: 100%;
+          height: 100%;
+          min-height: 0;
+        }
+        .starlite-menu__selection-portrait canvas,
+        .starlite-menu__faction-portrait-box canvas,
+        .starlite-menu__tutorial-portrait canvas {
+          display: block;
+          width: 100%;
+          height: 100%;
+        }
+        .starlite-menu__selection-card--faction,
+        .starlite-menu__selection-card--mode {
+          grid-template-rows: minmax(0, 1fr) auto;
+        }
+        .starlite-menu__mode-formation {
+          min-height: 0;
+          gap: clamp(18px, 4vw, 42px);
+        }
+        .starlite-menu__mode-formation i,
+        .starlite-menu__mode-formation b,
+        .starlite-menu__mode-formation::before,
+        .starlite-menu__mode-formation::after {
+          width: clamp(40px, 5.1vw, 56px);
+          height: clamp(40px, 5.1vw, 56px);
+        }
+        @media (max-height: 720px) {
+          .starlite-menu__selection-card { height: min(48vh, 310px); }
+        }
+        @media (max-height: 610px) {
+          .starlite-menu__selection-card { height: min(45vh, 250px); padding: 8px; }
+          .starlite-menu__selection-card > strong { font-size: 16px; }
+          .starlite-menu__computer-start { min-height: 48px; }
+        }
+        @media (max-width: 560px) {
+          .starlite-menu__computer-summary {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+          }
+          .starlite-menu__selection-card {
+            height: min(48vh, 300px);
+            aspect-ratio: 2 / 3;
+            padding: 7px;
+          }
+          .starlite-menu__selection-card > strong { font-size: clamp(13px, 4.2vw, 18px); }
+          .starlite-menu__mode-formation { gap: 11px; }
+          .starlite-menu__mode-formation i,
+          .starlite-menu__mode-formation b,
+          .starlite-menu__mode-formation::before,
+          .starlite-menu__mode-formation::after {
+            width: clamp(30px, 10vw, 43px);
+            height: clamp(30px, 10vw, 43px);
+          }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser, .starlite-menu__new-tag, .starlite-menu__confetti-piece, .starlite-menu__tag-celebration-message { transition: none; animation: none !important; }
         }
@@ -14640,41 +14854,66 @@
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="sizes">
               <button class="starlite-menu__return" type="button" data-close-sizes aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
-              <h2 class="starlite-menu__heading" data-size-heading>Choose game size</h2>
-              <p class="starlite-menu__pvp-copy" data-size-copy>Choose the total number of commanders.</p>
-              <label class="starlite-menu__identity" data-ai-difficulty-wrap>
-                <span>AI DIFFICULTY</span>
-                <select data-ai-difficulty>
-                  <option value="easy">EASY</option>
-                  <option value="normal" selected>NORMAL</option>
-                  <option value="hard">HARD</option>
-                </select>
-                <small>Changes computer reaction speed, scouting, attack tempo and starting resources.</small>
-              </label>
-              <fieldset class="starlite-menu__identity starlite-menu__faction-picker" data-solo-faction-wrap>
-                <legend>YOUR FACTION</legend>
-                <div class="starlite-menu__faction-grid" data-solo-faction role="group" aria-label="Choose your faction">
-                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="humans" aria-pressed="true">
-                    <span class="starlite-menu__faction-emblem" aria-hidden="true">H</span><strong>HUMANS</strong><small>ARMOR · INDUSTRY</small>
+              <h2 class="starlite-menu__heading" data-size-heading>Vs. computer</h2>
+              <div class="starlite-menu__computer-setup" data-computer-setup>
+                <div class="starlite-menu__computer-summary" data-computer-summary>
+                  <button class="starlite-menu__selection-card starlite-menu__selection-card--faction" type="button" data-computer-open-faction aria-label="Change selected faction" title="Change faction">
+                    <span class="starlite-menu__selection-kicker">SELECTED FACTION</span>
+                    <span class="starlite-menu__selection-portrait" data-computer-faction-portrait>
+                      <canvas data-menu-glb="./assets/default_commander.glb" data-menu-fallback-glb="./default_commander.glb" data-menu-faction="humans" aria-label="Selected Human faction GLB portrait"></canvas>
+                      <span class="starlite-menu__selection-random starlite-hidden" data-computer-random-mark aria-hidden="true">?</span>
+                    </span>
+                    <strong data-computer-faction-label>HUMANS</strong>
+                    <small data-computer-faction-copy>Armor · industry · combined arms</small>
+                    <span class="starlite-menu__selection-change">SELECT TO CHANGE</span>
                   </button>
-                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="insects" aria-pressed="false">
-                    <span class="starlite-menu__faction-emblem" aria-hidden="true">Z</span><strong>ZGLENGO</strong><small>BROOD · EVOLUTION</small>
-                  </button>
-                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="helias" aria-pressed="false">
-                    <span class="starlite-menu__faction-emblem" aria-hidden="true">Ψ</span><strong>THE HELIAS</strong><small>SHIELDS · WARP</small>
-                  </button>
-                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="random" aria-pressed="false">
-                    <span class="starlite-menu__faction-emblem" aria-hidden="true">?</span><strong>RANDOM</strong><small>REVEALED IN GAME</small>
+                  <button class="starlite-menu__selection-card starlite-menu__selection-card--mode" type="button" data-computer-open-mode aria-label="Change selected match mode" title="Change match mode">
+                    <span class="starlite-menu__selection-kicker">SELECTED MODE</span>
+                    <span class="starlite-menu__mode-formation" data-computer-mode-formation aria-hidden="true"><i></i><b></b></span>
+                    <strong data-computer-mode-label>1v1</strong>
+                    <small data-computer-mode-copy>You versus one computer commander.</small>
+                    <span class="starlite-menu__selection-change">SELECT TO CHANGE</span>
                   </button>
                 </div>
-                <small>Choose a faction block. Random is resolved once from the match seed.</small>
-              </fieldset>
-              <div class="starlite-menu__modes" data-size-modes></div>
+                <div class="starlite-menu__computer-picker starlite-hidden" data-computer-picker>
+                  <div class="starlite-menu__computer-choice-grid starlite-hidden" data-computer-faction-options data-solo-faction-wrap>
+                    <div class="starlite-menu__computer-picker-title">CHOOSE YOUR FACTION</div>
+                    <div class="starlite-menu__faction-grid" data-solo-faction role="group" aria-label="Choose your faction">
+                      <button class="starlite-menu__faction-card" type="button" data-faction-choice="humans" aria-pressed="true">
+                        <span class="starlite-menu__faction-portrait-box"><canvas data-menu-glb="./assets/default_commander.glb" data-menu-fallback-glb="./default_commander.glb" data-menu-faction="humans" aria-label="Human faction GLB portrait"></canvas></span><strong>HUMANS</strong><small>ARMOR · INDUSTRY</small>
+                      </button>
+                      <button class="starlite-menu__faction-card" type="button" data-faction-choice="insects" aria-pressed="false">
+                        <span class="starlite-menu__faction-portrait-box"><canvas data-menu-glb="./assets/insect.glb" data-menu-fallback-glb="./insect.glb" data-menu-faction="insects" aria-label="Zglengo faction GLB portrait"></canvas></span><strong>ZGLENGO</strong><small>BROOD · EVOLUTION</small>
+                      </button>
+                      <button class="starlite-menu__faction-card" type="button" data-faction-choice="helias" aria-pressed="false">
+                        <span class="starlite-menu__faction-portrait-box"><canvas data-menu-glb="./assets/helias.glb" data-menu-fallback-glb="./helias.glb" data-menu-faction="helias" aria-label="Helias faction GLB portrait"></canvas></span><strong>THE HELIAS</strong><small>SHIELDS · WARP</small>
+                      </button>
+                      <button class="starlite-menu__faction-card" type="button" data-faction-choice="random" aria-pressed="false">
+                        <span class="starlite-menu__faction-portrait-box starlite-menu__faction-portrait-box--random" aria-hidden="true">?</span><strong>RANDOM</strong><small>REVEALED IN GAME</small>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="starlite-menu__computer-choice-grid starlite-hidden" data-computer-mode-options role="group" aria-label="Choose computer match mode">
+                    <div class="starlite-menu__computer-picker-title">CHOOSE THE MATCH MODE</div>
+                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="duel" aria-pressed="true"><strong>1v1</strong><small>ONE COMPUTER OPPONENT</small></button>
+                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="threeWay" aria-pressed="false"><strong>1v1v1</strong><small>TWO COMPUTER OPPONENTS</small></button>
+                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="fourWay" aria-pressed="false"><strong>1v1v1v1</strong><small>THREE COMPUTER OPPONENTS</small></button>
+                  </div>
+                </div>
+                <button class="starlite-menu__computer-start" type="button" data-computer-start>START GAME</button>
+              </div>
+              <div class="starlite-menu__private-size-setup starlite-hidden" data-pvp-size-setup>
+                <p class="starlite-menu__pvp-copy" data-size-copy>Choose the total number of human commanders in the room.</p>
+                <div class="starlite-menu__modes" data-size-modes></div>
+              </div>
+              <label class="starlite-menu__identity starlite-hidden" data-ai-difficulty-wrap>
+                <span>AI DIFFICULTY</span><select data-ai-difficulty><option value="normal" selected>NORMAL</option></select>
+              </label>
               <p class="starlite-menu__status" data-size-status role="status" aria-live="polite"></p>
-              <div class="starlite-menu__branch-actions">
-                <button class="starlite-menu__secondary" type="button" data-computer-sandbox>SANDBOX MODE</button>
-                <button class="starlite-menu__secondary" type="button" data-insect-prototype>PLAY AS ZGLENGO</button>
-                <button class="starlite-menu__secondary" type="button" data-insect-ai>HUMANS VS ZGLENGO AI</button>
+              <div class="starlite-hidden" aria-hidden="true">
+                <button type="button" data-computer-sandbox>SANDBOX MODE</button>
+                <button type="button" data-insect-prototype>PLAY AS ZGLENGO</button>
+                <button type="button" data-insect-ai>HUMANS VS ZGLENGO AI</button>
               </div>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="pvp">
@@ -14685,19 +14924,19 @@
                 <legend>YOUR FACTION</legend>
                 <div class="starlite-menu__faction-grid" data-pvp-faction role="group" aria-label="Choose your multiplayer faction">
                   <button class="starlite-menu__faction-card" type="button" data-faction-choice="humans" aria-pressed="true">
-                    <span class="starlite-menu__faction-emblem" aria-hidden="true">H</span><strong>HUMANS</strong><small>ARMOR · INDUSTRY</small>
+                    <span class="starlite-menu__faction-portrait-box"><canvas data-menu-glb="./assets/default_commander.glb" data-menu-fallback-glb="./default_commander.glb" data-menu-faction="humans" aria-label="Human faction GLB portrait"></canvas></span><strong>HUMANS</strong><small>ARMOR · INDUSTRY</small>
                   </button>
                   <button class="starlite-menu__faction-card" type="button" data-faction-choice="insects" aria-pressed="false">
-                    <span class="starlite-menu__faction-emblem" aria-hidden="true">Z</span><strong>ZGLENGO</strong><small>BROOD · EVOLUTION</small>
+                    <span class="starlite-menu__faction-portrait-box"><canvas data-menu-glb="./assets/insect.glb" data-menu-fallback-glb="./insect.glb" data-menu-faction="insects" aria-label="Zglengo faction GLB portrait"></canvas></span><strong>ZGLENGO</strong><small>BROOD · EVOLUTION</small>
                   </button>
                   <button class="starlite-menu__faction-card" type="button" data-faction-choice="helias" aria-pressed="false">
-                    <span class="starlite-menu__faction-emblem" aria-hidden="true">Ψ</span><strong>THE HELIAS</strong><small>SHIELDS · WARP</small>
+                    <span class="starlite-menu__faction-portrait-box"><canvas data-menu-glb="./assets/helias.glb" data-menu-fallback-glb="./helias.glb" data-menu-faction="helias" aria-label="Helias faction GLB portrait"></canvas></span><strong>THE HELIAS</strong><small>SHIELDS · WARP</small>
                   </button>
                   <button class="starlite-menu__faction-card" type="button" data-faction-choice="random" aria-pressed="false">
-                    <span class="starlite-menu__faction-emblem" aria-hidden="true">?</span><strong>RANDOM</strong><small>LOCKS A FACTION</small>
+                    <span class="starlite-menu__faction-portrait-box starlite-menu__faction-portrait-box--random" aria-hidden="true">?</span><strong>RANDOM</strong><small>LOCKS A FACTION</small>
                   </button>
                 </div>
-                <small>Changing faction in a connected lobby clears your ready status.</small>
+                <small>Your faction is visible to you. Opponent factions remain hidden until the match begins.</small>
               </fieldset>
               <div class="starlite-menu__pvp-actions" data-pvp-actions>
                 <button class="starlite-menu__secondary" type="button" data-pvp-host>HOST</button>
@@ -14784,26 +15023,20 @@
             </div>
             <div class="starlite-menu__tag-celebration starlite-hidden" data-tag-celebration aria-live="polite" aria-label="Tag saved celebration"></div>
             <section class="starlite-menu__panel starlite-hidden" data-view="tutorials">
-              <button class="starlite-menu__return" type="button" data-close-tutorials aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
-              <h2 class="starlite-menu__heading">Choose a faction tutorial</h2>
-              <p class="starlite-menu__tutorial-copy">Select the faction you want to learn. Each portrait is generated from the faction's existing GLB asset.</p>
-              <div class="starlite-menu__tutorial-grid" role="group" aria-label="Faction tutorials">
-                <button class="starlite-menu__tutorial-card" type="button" data-tutorial-faction="humans" aria-pressed="false">
-                  <span class="starlite-menu__tutorial-portrait"><canvas data-tutorial-glb="./assets/default_commander.glb" aria-label="Human commander GLB portrait"></canvas><span class="starlite-menu__tutorial-glb-label">default_commander.glb</span></span>
-                  <strong>HUMANS</strong><small>Economy, builders, production queues and combined-arms control.</small>
+              <button class="starlite-menu__return" type="button" data-close-tutorials aria-label="Back" title="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
+              <div class="starlite-menu__tutorial-grid" role="group" aria-label="Start a faction tutorial">
+                <button class="starlite-menu__tutorial-card" type="button" data-tutorial-faction="humans">
+                  <span class="starlite-menu__tutorial-portrait"><canvas data-menu-glb="./assets/default_commander.glb" data-menu-fallback-glb="./default_commander.glb" data-menu-faction="humans" aria-label="Human commander GLB portrait"></canvas></span>
+                  <strong>HUMAN</strong>
                 </button>
-                <button class="starlite-menu__tutorial-card" type="button" data-tutorial-faction="insects" aria-pressed="false">
-                  <span class="starlite-menu__tutorial-portrait"><canvas data-tutorial-glb="./assets/insect.glb" aria-label="Zglengo GLB portrait"></canvas><span class="starlite-menu__tutorial-glb-label">insect.glb</span></span>
-                  <strong>ZGLENGO</strong><small>Creep, larvae, evolution, regeneration and swarm pressure.</small>
+                <button class="starlite-menu__tutorial-card" type="button" data-tutorial-faction="insects">
+                  <span class="starlite-menu__tutorial-portrait"><canvas data-menu-glb="./assets/insect.glb" data-menu-fallback-glb="./insect.glb" data-menu-faction="insects" aria-label="Zglengo GLB portrait"></canvas></span>
+                  <strong>ZGLENGO</strong>
                 </button>
-                <button class="starlite-menu__tutorial-card" type="button" data-tutorial-faction="helias" aria-pressed="false">
-                  <span class="starlite-menu__tutorial-portrait"><canvas data-tutorial-glb="./assets/helias.glb" data-tutorial-fallback-glb="./helias.glb" aria-label="Helias GLB portrait"></canvas><span class="starlite-menu__tutorial-glb-label">helias.glb</span></span>
-                  <strong>THE HELIAS</strong><small>Power fields, shields, warp construction and energy technology.</small>
+                <button class="starlite-menu__tutorial-card" type="button" data-tutorial-faction="helias">
+                  <span class="starlite-menu__tutorial-portrait"><canvas data-menu-glb="./assets/helias.glb" data-menu-fallback-glb="./helias.glb" data-menu-faction="helias" aria-label="Helias GLB portrait"></canvas></span>
+                  <strong>THE HELIAS</strong>
                 </button>
-              </div>
-              <p class="starlite-menu__tutorial-status" data-tutorial-status role="status" aria-live="polite">Choose one of the three faction tutorials.</p>
-              <div class="starlite-menu__actions" style="margin-top:14px">
-                <button class="starlite-menu__button" type="button" data-start-human-tutorial disabled>CHOOSE A FACTION</button>
               </div>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="player">
@@ -14890,10 +15123,22 @@
         const settingsView = root.querySelector('[data-view="settings"]');
         const tagTeaser = root.querySelector('[data-open-tag-lab]');
         const tutorialTeaser = root.querySelector('.starlite-menu__tutorial-teaser');
-        const tutorialStatus = root.querySelector('[data-tutorial-status]');
         const tutorialCards = [...root.querySelectorAll('[data-tutorial-faction]')];
-        const startHumanTutorialButton = root.querySelector('[data-start-human-tutorial]');
-        let selectedTutorialFaction = null;
+        const computerSetup = root.querySelector('[data-computer-setup]');
+        const computerSummary = root.querySelector('[data-computer-summary]');
+        const computerPicker = root.querySelector('[data-computer-picker]');
+        const computerFactionOptions = root.querySelector('[data-computer-faction-options]');
+        const computerModeOptions = root.querySelector('[data-computer-mode-options]');
+        const computerFactionLabel = root.querySelector('[data-computer-faction-label]');
+        const computerFactionCopy = root.querySelector('[data-computer-faction-copy]');
+        const computerFactionPortrait = root.querySelector('[data-computer-faction-portrait]');
+        const computerFactionCanvas = computerFactionPortrait?.querySelector('canvas');
+        const computerRandomMark = root.querySelector('[data-computer-random-mark]');
+        const computerModeLabel = root.querySelector('[data-computer-mode-label]');
+        const computerModeCopy = root.querySelector('[data-computer-mode-copy]');
+        const computerModeFormation = root.querySelector('[data-computer-mode-formation]');
+        const computerStartButton = root.querySelector('[data-computer-start]');
+        const pvpSizeSetup = root.querySelector('[data-pvp-size-setup]');
         const tagCelebration = root.querySelector('[data-tag-celebration]');
         const status = categoryView.querySelector('.starlite-menu__status');
         const sizeHeading = root.querySelector('[data-size-heading]');
@@ -14974,11 +15219,17 @@
         let accountUnsubscribe = null;
         let accountMode = 'sign-in';
         let soloFactionChoice = 'humans';
+        let selectedComputerModeKey = 'duel';
+        let activeComputerPicker = null;
         let pvpFactionChoice = 'humans';
         let pvpResolvedFaction = 'humans';
+        const menuPortraitPromises = new Map();
+        const menuPortraitModels = new WeakMap();
       
         chooseSoloFaction(soloFactionChoice);
         choosePvpFaction(pvpFactionChoice, { broadcast: false });
+        syncComputerModeSummary();
+        ensureMenuFactionPortraits(root);
 
         function setAccountMode(mode) {
           accountMode = mode === 'sign-up' ? 'sign-up' : 'sign-in';
@@ -15020,8 +15271,38 @@
           return normalized;
         }
 
+        function factionMenuPresentation(faction) {
+          const normalized = normalizeMenuFactionChoice(faction);
+          if (normalized === 'insects') return { label: 'ZGLENGO', copy: 'Brood · evolution · regeneration', path: './assets/insect.glb', fallback: './insect.glb', faction: 'insects' };
+          if (normalized === 'helias') return { label: 'THE HELIAS', copy: 'Shields · warp · focused energy', path: './assets/helias.glb', fallback: './helias.glb', faction: 'helias' };
+          if (normalized === 'random') return { label: 'RANDOM', copy: 'Faction revealed when the match begins', path: '', fallback: '', faction: 'random' };
+          return { label: 'HUMANS', copy: 'Armor · industry · combined arms', path: './assets/default_commander.glb', fallback: './default_commander.glb', faction: 'humans' };
+        }
+
+        function syncComputerFactionSummary() {
+          if (!computerFactionLabel) return;
+          const presentation = factionMenuPresentation(soloFactionChoice);
+          computerFactionLabel.textContent = presentation.label;
+          computerFactionCopy.textContent = presentation.copy;
+          computerRandomMark?.classList.toggle('starlite-hidden', presentation.faction !== 'random');
+          computerFactionCanvas?.classList.toggle('starlite-hidden', presentation.faction === 'random');
+          if (computerFactionCanvas && presentation.path) {
+            const changed = computerFactionCanvas.dataset.menuGlb !== presentation.path || computerFactionCanvas.dataset.menuFaction !== presentation.faction;
+            computerFactionCanvas.dataset.menuGlb = presentation.path;
+            computerFactionCanvas.dataset.menuFaction = presentation.faction;
+            if (presentation.fallback) computerFactionCanvas.dataset.menuFallbackGlb = presentation.fallback;
+            else delete computerFactionCanvas.dataset.menuFallbackGlb;
+            if (changed) {
+              delete computerFactionCanvas.dataset.glbLoaded;
+              delete computerFactionCanvas.dataset.portraitToken;
+            }
+            ensureMenuFactionPortraits(computerFactionPortrait);
+          }
+        }
+
         function chooseSoloFaction(choice) {
           soloFactionChoice = setFactionPickerChoice(soloFactionPicker, choice);
+          syncComputerFactionSummary();
           return soloFactionChoice;
         }
 
@@ -15029,6 +15310,7 @@
           pvpFactionChoice = normalizeMenuFactionChoice(choice);
           pvpResolvedFaction = pvpFactionChoice === 'random' ? concreteRandomFaction() : normalizeFactionId(pvpFactionChoice);
           setFactionPickerChoice(pvpFactionPicker, pvpFactionChoice, !!lobbySnapshot?.started);
+          ensureMenuFactionPortraits(pvpFactionPicker);
           if (broadcast && lobbySnapshot?.connected) setMultiplayerFaction(pvpResolvedFaction);
           return pvpResolvedFaction;
         }
@@ -15049,6 +15331,10 @@
           const onMainMenu = activeView === categoryView;
           tagTeaser.classList.toggle('starlite-hidden', !onMainMenu);
           tutorialTeaser?.classList.toggle('starlite-hidden', !onMainMenu);
+          requestAnimationFrame(() => {
+            ensureMenuFactionPortraits(activeView);
+            requestAnimationFrame(() => ensureMenuFactionPortraits(activeView));
+          });
         }
       
         function utilityReturnTarget() {
@@ -15158,6 +15444,14 @@
           }
         }
       
+        function lobbyFactionPortraitMarkup(faction, isLocal) {
+          if (!isLocal) return '<span class="starlite-menu__lobby-faction-box" aria-label="Opponent faction hidden">?</span>';
+          const presentation = factionMenuPresentation(faction);
+          if (!presentation.path) return '<span class="starlite-menu__lobby-faction-box" aria-label="Random faction">?</span>';
+          const fallback = presentation.fallback ? ` data-menu-fallback-glb="${presentation.fallback}"` : '';
+          return `<span class="starlite-menu__lobby-faction-box"><canvas data-menu-glb="${presentation.path}"${fallback} data-menu-faction="${presentation.faction}" aria-label="${presentation.label} GLB portrait"></canvas></span>`;
+        }
+
         function renderPvpLobby(snapshot = lobbySnapshot) {
           lobbySnapshot = snapshot || null;
           const slotCount = snapshot?.slotCount || selectedPvpMode.spawnCount || 2;
@@ -15165,17 +15459,21 @@
           pvpPlayers.innerHTML = Array.from({ length: slotCount }, (_, slot) => {
             const player = players.find(candidate => candidate.slot === slot);
             const ready = !!player?.ready;
+            const isLocal = !!player && player.clientId === snapshot?.clientId;
             const labels = [`PLAYER ${slot + 1}`];
             if (player?.host) labels.push('HOST');
-            if (player?.clientId === snapshot?.clientId) labels.push('YOU');
+            if (isLocal) labels.push('YOU');
             const name = player ? escapeHTML(player.username || `Player ${slot + 1}`) : `PLAYER ${slot + 1}`;
-            const faction = normalizeFactionId(player?.faction || 'humans');
-            const detail = player ? `${labels.join(' · ')} · ${player.team.toUpperCase()} · ${faction.toUpperCase()}` : 'WAITING FOR CONNECTION';
-            return `<div class="starlite-menu__lobby-player" data-ready="${ready}" data-faction="${faction}">
-              <span><strong>${name}</strong><small>${detail}</small></span>
+            const faction = isLocal ? normalizeFactionId(player?.faction || pvpResolvedFaction || 'humans') : null;
+            const factionName = isLocal ? factionMenuPresentation(faction).label : 'FACTION HIDDEN';
+            const detail = player ? `${labels.join(' · ')} · ${player.team.toUpperCase()}` : 'WAITING FOR CONNECTION';
+            return `<div class="starlite-menu__lobby-player" data-ready="${ready}">
+              ${player ? lobbyFactionPortraitMarkup(faction, isLocal) : '<span class="starlite-menu__lobby-faction-box" aria-hidden="true">–</span>'}
+              <span class="starlite-menu__lobby-player-name"><strong>${name}</strong><small>${detail}</small><span class="starlite-menu__lobby-faction-name" data-hidden="${!isLocal}">${player ? factionName : 'EMPTY SLOT'}</span></span>
               <span class="starlite-menu__ready-indicator">${player ? (ready ? 'READY' : 'NOT READY') : 'EMPTY'}</span>
             </div>`;
           }).join('');
+          ensureMenuFactionPortraits(pvpPlayers);
       
           const connected = !!snapshot?.connected;
           const assigned = !!snapshot?.localTeam;
@@ -15185,10 +15483,11 @@
             pvpResolvedFaction = localFaction;
           }
           setFactionPickerChoice(pvpFactionPicker, pvpFactionChoice, !!snapshot?.started);
+          ensureMenuFactionPortraits(pvpFactionPicker);
           const lobbyMode = gameModeById(snapshot?.modeId);
           if (lobbyMode) {
             pvpHeading.textContent = `${lobbyMode.spawnCount}-PLAYER PVP LOBBY`;
-            pvpCopy.textContent = `Host or join a ${lobbyMode.spawnCount}-player free-for-all. The match starts only after every connected slot is ready.`;
+            pvpCopy.textContent = `Host or join a ${lobbyMode.spawnCount}-player free-for-all. Opponent factions stay hidden until the match begins.`;
           }
           const joining = !!snapshot?.roomCode;
           pvpActions.classList.toggle('starlite-hidden', joining);
@@ -15209,24 +15508,73 @@
           else pvpStatus.textContent = 'Ready · waiting for the host to start.';
         }
       
+        function modeMenuPresentation(key = selectedComputerModeKey) {
+          if (key === 'threeWay') return { label: '1v1v1', copy: 'Three commanders in a free-for-all.', count: 3 };
+          if (key === 'fourWay') return { label: '1v1v1v1', copy: 'Four commanders in a free-for-all.', count: 4 };
+          return { label: '1v1', copy: 'You versus one computer commander.', count: 2 };
+        }
+
+        function syncComputerModeSummary() {
+          const presentation = modeMenuPresentation(selectedComputerModeKey);
+          computerModeLabel.textContent = presentation.label;
+          computerModeCopy.textContent = presentation.copy;
+          computerModeFormation.dataset.count = String(presentation.count);
+          for (const button of computerModeOptions.querySelectorAll('[data-computer-mode-choice]')) {
+            button.setAttribute('aria-pressed', String(button.dataset.computerModeChoice === selectedComputerModeKey));
+          }
+        }
+
+        function closeComputerPicker({ focus = true } = {}) {
+          const previous = activeComputerPicker;
+          activeComputerPicker = null;
+          computerPicker.classList.add('starlite-hidden');
+          computerSummary.classList.remove('starlite-hidden');
+          computerStartButton.classList.remove('starlite-hidden');
+          computerFactionOptions.classList.add('starlite-hidden');
+          computerModeOptions.classList.add('starlite-hidden');
+          if (focus) root.querySelector(previous === 'mode' ? '[data-computer-open-mode]' : '[data-computer-open-faction]')?.focus();
+        }
+
+        function openComputerPicker(kind) {
+          activeComputerPicker = kind === 'mode' ? 'mode' : 'faction';
+          computerSummary.classList.add('starlite-hidden');
+          computerStartButton.classList.add('starlite-hidden');
+          computerPicker.classList.remove('starlite-hidden');
+          computerFactionOptions.classList.toggle('starlite-hidden', activeComputerPicker !== 'faction');
+          computerModeOptions.classList.toggle('starlite-hidden', activeComputerPicker !== 'mode');
+          if (activeComputerPicker === 'faction') {
+            ensureMenuFactionPortraits(computerFactionOptions);
+            soloFactionPicker.querySelector(`[data-faction-choice="${soloFactionChoice}"]`)?.focus();
+          } else computerModeOptions.querySelector(`[data-computer-mode-choice="${selectedComputerModeKey}"]`)?.focus();
+        }
+
         function openSizeSelection(branch) {
           selectedBranch = branch === 'pvp' ? 'pvp' : 'computer';
           status.textContent = '';
           sizeStatus.textContent = '';
           const pvp = selectedBranch === 'pvp';
-          sizeHeading.textContent = pvp ? 'Choose PVP game size' : 'Choose computer game size';
-          sizeCopy.textContent = pvp
-            ? 'Choose the total number of human commanders in the room.'
-            : 'Choose the total number of commanders in the match.';
-          sizeModes.innerHTML = modeCardsMarkup(pvp ? PVP_MODE_KEYS : COMPUTER_MODE_KEYS);
-          sandboxButton.classList.toggle('starlite-hidden', pvp);
-          aiDifficultyWrap.classList.toggle('starlite-hidden', pvp);
-          soloFactionWrap.classList.toggle('starlite-hidden', pvp);
+          sizeHeading.textContent = pvp ? 'Choose PVP game size' : 'Vs. computer';
+          computerSetup.classList.toggle('starlite-hidden', pvp);
+          pvpSizeSetup.classList.toggle('starlite-hidden', !pvp);
+          if (pvp) {
+            sizeModes.innerHTML = modeCardsMarkup(PVP_MODE_KEYS);
+            showOnly(sizeView);
+            sizeModes.querySelector('[data-mode]')?.focus();
+            return;
+          }
+          closeComputerPicker({ focus: false });
+          syncComputerFactionSummary();
+          syncComputerModeSummary();
           showOnly(sizeView);
-          sizeModes.querySelector('[data-mode]')?.focus();
+          ensureMenuFactionPortraits(computerSetup);
+          root.querySelector('[data-computer-open-faction]')?.focus();
         }
       
         function closeSizes() {
+          if (selectedBranch === 'computer' && activeComputerPicker) {
+            closeComputerPicker();
+            return;
+          }
           if (selectedBranch === 'pvp') {
             showOnly(onlineChoiceView);
             onlineChoiceView.querySelector('[data-online-choice="private"]')?.focus();
@@ -15249,6 +15597,7 @@
           pvpRoomCode.textContent = '';
           lobbySnapshot = null;
           renderPvpLobby(null);
+          ensureMenuFactionPortraits(pvpFactionPicker);
           pvpView.querySelector('[data-pvp-host]')?.focus();
         }
       
@@ -15524,40 +15873,104 @@
           canvas.dataset.glbLoaded = 'true';
         }
 
-        function ensureTutorialPortraits() {
-          for (const canvas of tutorialView.querySelectorAll('[data-tutorial-glb]')) {
-            const path = canvas.dataset.tutorialGlb;
-            const fallbackPath = canvas.dataset.tutorialFallbackGlb;
-            const faction = canvas.closest('[data-tutorial-faction]')?.dataset.tutorialFaction || 'humans';
-            if (canvas.dataset.glbLoaded === 'true' || tutorialPreviewPromises.has(canvas)) continue;
-            drawTutorialPortraitFallback(canvas, faction, 'Loading GLB portrait…');
-            const promise = loadGLBModel(path)
-              .catch(primaryError => {
-                if (!fallbackPath || fallbackPath === path) throw primaryError;
-                console.warn(`Tutorial portrait primary path unavailable: ${path}; trying ${fallbackPath}.`, primaryError);
-                return loadGLBModel(fallbackPath);
+        function menuPortraitPathCandidates(path, fallbackPath = '') {
+          const candidates = [];
+          const add = value => {
+            const normalized = String(value || '').trim();
+            if (normalized && !candidates.includes(normalized)) candidates.push(normalized);
+          };
+          add(path);
+          add(fallbackPath);
+          const fileName = String(path || fallbackPath || '').split('/').pop();
+          if (fileName) {
+            add(`./assets/${fileName}`);
+            add(`assets/${fileName}`);
+            add(`./${fileName}`);
+            add(fileName);
+          }
+          return candidates;
+        }
+
+        async function loadMenuPortraitModel(path, fallbackPath = '') {
+          let latestError = null;
+          for (const candidate of menuPortraitPathCandidates(path, fallbackPath)) {
+            try {
+              return { model: await loadGLBModel(candidate), loadedPath: candidate };
+            } catch (error) {
+              latestError = error;
+            }
+          }
+          throw latestError || new Error(`No GLB portrait path is available for ${path || 'unknown faction'}`);
+        }
+
+        function ensureMenuFactionPortraits(container = root) {
+          if (!container) return;
+          for (const canvas of container.querySelectorAll?.('[data-menu-glb]') || []) {
+            const path = canvas.dataset.menuGlb;
+            const fallbackPath = canvas.dataset.menuFallbackGlb;
+            const faction = canvas.dataset.menuFaction || canvas.closest('[data-faction-choice]')?.dataset.factionChoice || 'humans';
+            if (!path) continue;
+            const requestedToken = `${path}|${fallbackPath || ''}|${faction}`;
+            const cached = menuPortraitModels.get(canvas);
+            if (canvas.dataset.glbLoaded === 'true' && canvas.dataset.portraitToken === requestedToken && cached?.token === requestedToken) {
+              drawTutorialGLBModel(canvas, cached.model, faction);
+              canvas.dataset.portraitToken = requestedToken;
+              continue;
+            }
+            if (menuPortraitPromises.get(canvas)?.token === requestedToken) continue;
+            canvas.dataset.portraitToken = requestedToken;
+            drawTutorialPortraitFallback(canvas, faction, 'Loading portrait…');
+            canvas.dataset.portraitToken = requestedToken;
+            const promise = loadMenuPortraitModel(path, fallbackPath)
+              .then(({ model, loadedPath }) => {
+                if (canvas.dataset.portraitToken !== requestedToken) return;
+                menuPortraitModels.set(canvas, { token: requestedToken, model, loadedPath });
+                drawTutorialGLBModel(canvas, model, faction);
+                canvas.dataset.loadedGlbPath = loadedPath;
+                canvas.dataset.portraitToken = requestedToken;
               })
-              .then(model => drawTutorialGLBModel(canvas, model, faction))
               .catch(error => {
-                console.warn(`Tutorial portrait unavailable: ${path}`, error);
-                drawTutorialPortraitFallback(canvas, faction);
+                if (canvas.dataset.portraitToken !== requestedToken) return;
+                menuPortraitModels.delete(canvas);
+                console.warn(`Menu faction portrait unavailable: ${path}`, error);
+                drawTutorialPortraitFallback(canvas, faction, 'Portrait asset unavailable');
+                canvas.dataset.portraitToken = requestedToken;
               })
-              .finally(() => tutorialPreviewPromises.delete(canvas));
-            tutorialPreviewPromises.set(canvas, promise);
+              .finally(() => {
+                if (menuPortraitPromises.get(canvas)?.token === requestedToken) menuPortraitPromises.delete(canvas);
+              });
+            menuPortraitPromises.set(canvas, { token: requestedToken, promise });
           }
         }
 
-        function chooseTutorialFaction(faction) {
-          selectedTutorialFaction = faction;
-          for (const card of tutorialCards) card.setAttribute('aria-pressed', String(card.dataset.tutorialFaction === faction));
+        function ensureTutorialPortraits() {
+          ensureMenuFactionPortraits(tutorialView);
+          requestAnimationFrame(() => ensureMenuFactionPortraits(tutorialView));
+        }
+
+        let menuPortraitResizeFrame = 0;
+        globalThis.addEventListener?.('resize', () => {
+          cancelAnimationFrame(menuPortraitResizeFrame);
+          menuPortraitResizeFrame = requestAnimationFrame(() => ensureMenuFactionPortraits(activeView || root));
+        }, { passive: true });
+
+        function factionTutorialMode(faction) {
+          if (!['humans', 'insects', 'helias'].includes(faction)) return null;
+          const seed = createRandomSeed();
+          const enemyOptions = ['humans', 'insects', 'helias'].filter(candidate => candidate !== faction);
+          const enemyFaction = enemyOptions[(seed >>> 0) % enemyOptions.length];
           const labels = { humans: 'HUMAN', insects: 'ZGLENGO', helias: 'HELIAS' };
-          startHumanTutorialButton.disabled = !labels[faction];
-          startHumanTutorialButton.textContent = labels[faction] ? `START ${labels[faction]} TUTORIAL` : 'CHOOSE A FACTION';
-          tutorialStatus.textContent = faction === 'humans'
-            ? 'Humans tutorial selected · learn builders, production queues, movement and combined-arms fundamentals.'
-            : faction === 'insects'
-              ? 'Zglengo tutorial selected · learn creep, living construction, Hive larvae and swarm pressure.'
-              : 'The Helias tutorial selected · learn Pylon power, warp construction, shields and focused attacks.';
+          return {
+            ...GAME_MODES.duel,
+            id: `${faction}-tutorial`,
+            label: `${labels[faction]} TUTORIAL`,
+            description: `Guided ${labels[faction]} tutorial followed by an optional easy computer match.`,
+            tutorial: faction,
+            seed,
+            aiDifficulty: 'easy',
+            playerFaction: faction,
+            computerFaction: enemyFaction
+          };
         }
 
         function openTutorials() {
@@ -15830,11 +16243,6 @@
 
         root.querySelector('[data-open-tutorials]').addEventListener('click', openTutorials);
         root.querySelector('[data-close-tutorials]').addEventListener('click', closeTutorials);
-        tutorialView.addEventListener('click', event => {
-          const card = event.target.closest('[data-tutorial-faction]');
-          if (!card || !tutorialView.contains(card)) return;
-          chooseTutorialFaction(card.dataset.tutorialFaction);
-        });
         root.querySelector('[data-open-tag-lab]').addEventListener('click', openTagLab);
         root.querySelector('[data-close-tag-lab]').addEventListener('click', closeTagLab);
         root.querySelector('[data-open-tag-shop]').addEventListener('click', openTagShop);
@@ -16072,6 +16480,13 @@
             root.remove();
             resolve(mode);
           }
+
+          tutorialView.addEventListener('click', event => {
+            const card = event.target.closest('[data-tutorial-faction]');
+            if (!card || !tutorialView.contains(card)) return;
+            const mode = factionTutorialMode(card.dataset.tutorialFaction);
+            if (mode) finish(mode);
+          });
       
           function beginPvpConnection(role, gameCode, { publicLobby = false } = {}) {
             if (pvpConnectionPending) return;
@@ -16131,29 +16546,30 @@
             });
           }
       
-          startHumanTutorialButton.addEventListener('click', () => {
-            if (!['humans', 'insects', 'helias'].includes(selectedTutorialFaction)) return;
-            const seed = createRandomSeed();
-            const enemyOptions = ['humans', 'insects', 'helias'].filter(faction => faction !== selectedTutorialFaction);
-            const enemyFaction = enemyOptions[(seed >>> 0) % enemyOptions.length];
-            const labels = { humans: 'HUMAN', insects: 'ZGLENGO', helias: 'HELIAS' };
-            finish({
-              ...GAME_MODES.duel,
-              id: `${selectedTutorialFaction}-tutorial`,
-              label: `${labels[selectedTutorialFaction]} TUTORIAL`,
-              description: `Guided ${labels[selectedTutorialFaction]} tutorial followed by an optional easy computer match.`,
-              tutorial: selectedTutorialFaction,
-              seed,
-              aiDifficulty: 'easy',
-              playerFaction: selectedTutorialFaction,
-              computerFaction: enemyFaction
-            });
-          });
 
           soloFactionPicker.addEventListener('click', event => {
             const button = event.target.closest('[data-faction-choice]');
             if (!button || !soloFactionPicker.contains(button)) return;
             chooseSoloFaction(button.dataset.factionChoice);
+            closeComputerPicker();
+          });
+          root.querySelector('[data-computer-open-faction]').addEventListener('click', () => openComputerPicker('faction'));
+          root.querySelector('[data-computer-open-mode]').addEventListener('click', () => openComputerPicker('mode'));
+          computerModeOptions.addEventListener('click', event => {
+            const button = event.target.closest('[data-computer-mode-choice]');
+            if (!button || !computerModeOptions.contains(button)) return;
+            selectedComputerModeKey = COMPUTER_MODE_KEYS.includes(button.dataset.computerModeChoice) ? button.dataset.computerModeChoice : 'duel';
+            syncComputerModeSummary();
+            closeComputerPicker();
+          });
+          computerStartButton.addEventListener('click', () => {
+            const mode = GAME_MODES[selectedComputerModeKey] || GAME_MODES.duel;
+            finish({
+              ...mode,
+              aiDifficulty: 'normal',
+              playerFaction: soloFactionChoice,
+              computerFaction: 'random'
+            });
           });
           pvpFactionPicker.addEventListener('click', event => {
             const button = event.target.closest('[data-faction-choice]');
@@ -16171,17 +16587,11 @@
             const button = event.target.closest('[data-mode]');
             if (!button || !sizeModes.contains(button)) return;
             const mode = GAME_MODES[button.dataset.mode];
-            if (!mode?.enabled) {
-              sizeStatus.textContent = 'This mode is currently unavailable.';
+            if (!mode?.enabled || !mode.pvp) {
+              sizeStatus.textContent = 'This private-room size is currently unavailable.';
               return;
             }
-            if (mode.pvp) openPvp(mode, 'sizes');
-            else finish({
-              ...mode,
-              aiDifficulty: aiDifficultySelect.value || 'normal',
-              playerFaction: soloFactionChoice,
-              computerFaction: 'random'
-            });
+            openPvp(mode, 'sizes');
           });
           sandboxButton.addEventListener('click', () => finish({
             ...GAME_MODES.sandbox,
@@ -18914,7 +19324,28 @@
       };
       
       function canLoadExternalPortraits() {
-        return typeof fetch === 'function' && globalThis.location?.protocol !== 'file:';
+        if (globalThis.location?.protocol === 'file:') return typeof XMLHttpRequest === 'function';
+        return typeof fetch === 'function';
+      }
+
+      function requestPortraitArrayBuffer(glbPath) {
+        if (globalThis.location?.protocol === 'file:' && typeof XMLHttpRequest === 'function') {
+          return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open('GET', glbPath, true);
+            request.responseType = 'arraybuffer';
+            request.onload = () => {
+              if (request.response && (request.status === 0 || (request.status >= 200 && request.status < 300))) resolve(request.response);
+              else reject(new Error(`GLB request failed: ${request.status || 'file unavailable'}`));
+            };
+            request.onerror = () => reject(new Error(`GLB file could not be read: ${glbPath}`));
+            request.send();
+          });
+        }
+        return fetch(glbPath, { cache: 'no-cache' }).then(response => {
+          if (!response.ok) throw new Error(`GLB request failed: ${response.status}`);
+          return response.arrayBuffer();
+        });
       }
       
       function shouldUseCommanderFallback(holder) {
@@ -18990,9 +19421,7 @@
           const canFetch = canLoadExternalPortraits();
           if (canFetch) {
             try {
-              const response = await fetch(glbPath, { cache: 'no-cache' });
-              if (!response.ok) throw new Error(`GLB request failed: ${response.status}`);
-              return parseGLB(await response.arrayBuffer());
+              return parseGLB(await requestPortraitArrayBuffer(glbPath));
             } catch (error) {
               if (glbPath !== DEFAULT_PORTRAIT_GLB_PATH) throw error;
             }
