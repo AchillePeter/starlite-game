@@ -37,6 +37,8 @@
       developmentSeconds: 8
     };
   </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4359620363966949"
+     crossorigin="anonymous"></script>
   <style>
     :root { color-scheme: dark; }
     html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#080b10; }
@@ -11960,7 +11962,7 @@
   __define("main.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("multiplayer.js"); const __dep7 = __require("syncChecksum.js"); const __dep8 = __require("economy.js"); const __dep9 = __require("menu.js"); const __dep10 = __require("rendering.js"); const __dep11 = __require("state.js"); const __dep12 = __require("terrain.js"); const __dep13 = __require("workerBridge.js");
-    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "getCombatSyncState", { enumerable: true, get: () => __dep1["getCombatSyncState"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep2["UNIT_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep2["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "DEFAULT_FACTION_ID", { enumerable: true, get: () => __dep2["DEFAULT_FACTION_ID"] }); Object.defineProperty(__imports, "factionStartingUnits", { enumerable: true, get: () => __dep2["factionStartingUnits"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep2["normalizeFactionId"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep2["teamFactionId"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep3["getRandomState"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep4["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep4["setPathingSyncState"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep5["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep5["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep5["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep5["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep6["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep6["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep6["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep6["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep6["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep6["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep7["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep7["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep8["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep8["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep8["teamEconomyState"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep9["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep10["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep10["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep11["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep11["addStructure"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep11["getNextEntityId"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep11["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep11["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep11["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep11["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep11["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep11["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep11["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep11["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep11["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep11["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep11["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep11["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep11["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep11["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep11["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep12["generateTerrain"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep12["isBlocked"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep12["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep12["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep12["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep13["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep13["setDeterministicLockstepMode"] });
+    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "getCombatSyncState", { enumerable: true, get: () => __dep1["getCombatSyncState"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep2["UNIT_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep2["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "DEFAULT_FACTION_ID", { enumerable: true, get: () => __dep2["DEFAULT_FACTION_ID"] }); Object.defineProperty(__imports, "factionStartingUnits", { enumerable: true, get: () => __dep2["factionStartingUnits"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep2["normalizeFactionId"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep2["teamFactionId"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep3["getRandomState"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep4["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep4["setPathingSyncState"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep5["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep5["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep5["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep5["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep6["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep6["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep6["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep6["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep6["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep6["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep7["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep7["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep8["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep8["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep8["teamEconomyState"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep8["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep8["productionTechLevel"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep8["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep9["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep10["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep10["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep11["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep11["addStructure"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep11["getNextEntityId"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep11["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep11["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep11["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep11["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep11["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep11["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep11["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep11["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep11["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep11["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep11["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep11["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep11["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep11["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep11["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep12["generateTerrain"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep12["isBlocked"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep12["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep12["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep12["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep13["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep13["setDeterministicLockstepMode"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeGameMode", { enumerable: true, get: () => activeGameMode }); Object.defineProperty(__exports, "bootstrapWorld", { enumerable: true, get: () => bootstrapWorld }); Object.defineProperty(__exports, "competitiveSpawnLayout", { enumerable: true, get: () => competitiveSpawnLayout }); Object.defineProperty(__exports, "enemyHQ", { enumerable: true, get: () => enemyHQ }); Object.defineProperty(__exports, "enemyHQs", { enumerable: true, get: () => enemyHQs }); Object.defineProperty(__exports, "getActiveTeams", { enumerable: true, get: () => getActiveTeams }); Object.defineProperty(__exports, "getHQForTeam", { enumerable: true, get: () => getHQForTeam }); Object.defineProperty(__exports, "getLivingHQs", { enumerable: true, get: () => getLivingHQs }); Object.defineProperty(__exports, "getNearestHostileHQ", { enumerable: true, get: () => getNearestHostileHQ }); Object.defineProperty(__exports, "matchSeedForMode", { enumerable: true, get: () => matchSeedForMode }); Object.defineProperty(__exports, "normalizedGameCode", { enumerable: true, get: () => normalizedGameCode }); Object.defineProperty(__exports, "playerHQ", { enumerable: true, get: () => playerHQ }); Object.defineProperty(__exports, "setLocalCommandTeam", { enumerable: true, get: () => setLocalCommandTeam }); Object.defineProperty(__exports, "startStarLite", { enumerable: true, get: () => startStarLite });
@@ -12429,7 +12431,7 @@
           ? { minerals: 950, gas: 320 }
           : tutorialFaction === 'insects'
             ? { minerals: 800, gas: 240 }
-            : { minerals: 850, gas: 240 };
+            : { minerals: 1400, gas: 650 };
         state.minerals = sandbox ? 50000 : tutorialFaction ? tutorialResources.minerals : 200;
         state.gas = sandbox ? 50000 : tutorialFaction ? tutorialResources.gas : 120;
         for (const team of humanTeams) {
@@ -12572,7 +12574,8 @@
 
       const FACTION_TUTORIAL_STEPS = Object.freeze({
         INTRO: 'intro', SELECT_HQ: 'select-hq', BUILD_STRUCTURE: 'build-structure',
-        TRAIN_UNIT: 'train-unit', MOVE_UNIT: 'move-unit', DEFEND_WAVE: 'defend-wave', COMPLETE: 'complete'
+        TRAIN_UNIT: 'train-unit', MOVE_UNIT: 'move-unit', ADVANCED: 'advanced',
+        DEFEND_WAVE: 'defend-wave', COMPLETE: 'complete'
       });
 
       const FACTION_TUTORIAL_CONFIG = Object.freeze({
@@ -12583,29 +12586,66 @@
           buildSequence: Object.freeze([
             Object.freeze({
               type: 'barracks', name: 'BARRACKS',
-              title: 'Buildings turn resources into options.',
-              copy: 'Select a Forager to open the construction menu. Housing raises your population limit, production buildings unlock troops, and support structures add healing, research and defence.',
+              title: 'First rule: turn minerals into momentum.',
+              copy: 'Humans are the flexible builder faction. A Forager can drop a new production line almost anywhere, then stay beside it to finish the job. Build fast and you can answer almost any threat.',
               objective: 'Select a Forager, choose BARRACKS, place it near the HQ and keep the builder beside it until construction finishes.',
-              waiting: remaining => `Barracks construction underway · ${remaining}s remaining. Keep the Forager at the site.`
+              waiting: remaining => `Barracks construction underway · ${remaining}s remaining. Keep the Forager beside the site.`
+            })
+          ]),
+          advancedSequence: Object.freeze([
+            Object.freeze({
+              kind: 'build', type: 'researchFacility', name: 'RESEARCH FACILITY',
+              title: 'Now build the brain of the base.',
+              copy: 'The Research Facility upgrades whole building families. One order can improve every Barracks you own, so your army tech scales with your economy.',
+              objective: 'Select a Forager and construct a RESEARCH FACILITY near the HQ.',
+              waiting: remaining => `Research Facility construction underway · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'productionUpgrade', structureType: 'barracks', targetLevel: 2, facilityType: 'researchFacility',
+              title: 'Upgrade a building line — not just one building.',
+              copy: 'Select the Research Facility and upgrade BARRACKS to Level 2. This unlocks Long-Range Infantry in every current and future Barracks.',
+              objective: 'Select the RESEARCH FACILITY, then choose the BARRACKS L1 → L2 upgrade.',
+              waiting: remaining => `Barracks technology is being researched · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'build', type: 'laboratory', name: 'LABORATORY',
+              title: 'Buildings unlock units. Laboratories improve them.',
+              copy: 'A Laboratory researches permanent upgrades for specific troop types. These bonuses apply to units already on the field and every one trained later.',
+              objective: 'Select a Forager and construct a LABORATORY near the Research Facility.',
+              waiting: remaining => `Laboratory construction underway · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'unitUpgrade', unitType: 'infantry', targetLevel: 1, facilityType: 'laboratory',
+              title: 'Give your infantry sharper teeth.',
+              copy: 'Open INFANTRY, choose CLOSE COMBAT, then research PLASMA-EDGED BLADES. This is a permanent damage upgrade for every Close-Combat Infantry unit.',
+              objective: 'Select the LABORATORY and research INFANTRY → CLOSE COMBAT → PLASMA-EDGED BLADES.',
+              waiting: remaining => `Plasma-Edged Blades research underway · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'build', type: 'turret', name: 'TURRET',
+              title: 'Make the enemy pay for entering your base.',
+              copy: 'Turrets automatically track and fire on ground enemies. They are cheap, fast to build and perfect for protecting workers or buying time for your army to arrive.',
+              objective: 'Select a Forager and build one TURRET on the approach to your HQ.',
+              waiting: remaining => `Turret construction underway · ${remaining}s remaining.`
             })
           ]),
           intros: Object.freeze([
-            Object.freeze({ title: 'Welcome to the Human command, Commander.', copy: 'Humans win through industry and flexibility. Foragers establish the economy, builders turn resources into production, and mixed ground, vehicle and air forces let you answer almost any threat.' }),
-            Object.freeze({ title: 'A war on two fronts.', copy: 'The Zglengo spread living swarms that consume territory and resources. The Helias regard Human expansion and machinery as a dangerous intrusion on their ancient energy network. Neither side intends to give ground.' }),
-            Object.freeze({ title: 'Keep the machine moving.', copy: 'Human strength comes from a working chain: gather, construct, produce, reposition and strike. Lose momentum and the enemy will overwhelm you.' }),
-            Object.freeze({ title: 'There is work to do.', copy: 'Your base is exposed and hostile scouts are already moving. We had better hurry.' })
+            Object.freeze({ title: 'Boots on the ground, Commander.', copy: 'Humans win by building a machine that never stops: workers gather, structures unlock options, upgrades sharpen the army, and mixed forces hit wherever the enemy is weak.' }),
+            Object.freeze({ title: 'Why is everyone shooting at us?', copy: 'The Zglengo see Human industry as a world-eating infection. The Helias see our machines drilling into their ancient energy lattice. Both factions want us gone. We intend to stay.' }),
+            Object.freeze({ title: 'Your winning loop is simple.', copy: 'Mine → build → train → upgrade → push. Keep that loop moving and Humans can adapt to almost anything.' }),
+            Object.freeze({ title: 'No time for a museum tour.', copy: 'Hostile scouts are closing in. Let us get a Barracks online, improve the army and lock down the approach before they arrive.' })
           ]),
-          selectTitle: 'Start with the Headquarters.',
-          selectCopy: 'The HQ is the heart of a Human base. It receives gathered resources, trains additional Foragers and anchors your economy.',
-          selectObjective: 'Select your HQ by left-clicking the large command building.',
-          trainTitle: 'Production buildings create your army.',
-          trainCopy: 'A Barracks trains infantry through its production queue. More Barracks increase production capacity, while upgrades unlock specialised troops.',
-          trainObjective: 'Select the completed Barracks and train one CLOSE-COMBAT INFANTRY unit.',
-          moveTitle: 'Reposition before the fight.',
-          moveCopy: 'Select units with the left mouse button. Right-click the ground to move them. Positioning keeps ranged troops safe, closes distance with melee units and lets you defend the right approach.',
+          selectTitle: 'This is your Headquarters — your lifeline.',
+          selectCopy: 'The HQ receives gathered resources, trains more Foragers and anchors your economy. Lose it and the base stops breathing.',
+          selectObjective: 'Left-click the large Headquarters now.',
+          trainTitle: 'A production queue turns resources into soldiers.',
+          trainCopy: 'Select the Barracks and queue one Close-Combat Infantry unit. Production continues while you give other orders, so keep your buildings busy.',
+          trainObjective: 'Select the completed BARRACKS and train one CLOSE-COMBAT INFANTRY unit.',
+          moveTitle: 'Units only survive when you move them with purpose.',
+          moveCopy: 'Left-click a unit, then right-click the ground to move. Use movement to surround enemies, dodge danger and place the right unit on the right lane.',
           moveObjective: 'Select your new infantry and right-click a nearby point to move it away from the Barracks.',
-          combatCopy: 'Right-click an enemy to issue a focused attack. Your units also retaliate and acquire nearby hostiles, but direct orders concentrate damage and end fights faster.',
-          completionCopy: 'You have established production, trained a unit, repositioned it and survived a live attack. The enemy commander is still active across the map.'
+          combatCopy: 'Right-click an enemy to focus fire. Your new turret covers the approach while upgraded infantry intercept the attackers — concentrate on one target at a time.',
+          completionCopy: 'You built production, trained and moved a unit, upgraded a building line, improved a troop type, constructed a turret and survived a live attack. That is the Human playbook in miniature.'
         }),
         insects: Object.freeze({
           faction: 'insects', speaker: 'Zglengo brood mind', accent: '#9bdd63', softAccent: '#b9ff80',
@@ -12702,13 +12742,28 @@
           .starlite-tutorial-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
           .starlite-tutorial-action{min-width:112px;padding:9px 12px;border:1px solid var(--tutorial-accent);border-radius:8px;background:#26313a;color:#f5fbff;font:900 11px system-ui;letter-spacing:.08em;cursor:pointer}
           .starlite-tutorial-action:hover,.starlite-tutorial-action:focus-visible{background:#394750;outline:2px solid color-mix(in srgb,var(--tutorial-accent) 45%,transparent);outline-offset:2px}
-          @media(max-width:700px){.starlite-tutorial-bubble{left:10px;bottom:128px;width:calc(100vw - 20px);padding:11px 12px}.starlite-tutorial-title{font-size:15px}.starlite-tutorial-copy,.starlite-tutorial-objective{font-size:11px}}
+          .starlite-tutorial-arrow-layer{position:fixed;z-index:14990;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.7))}
+          .starlite-tutorial-arrow-layer[hidden]{display:none}
+          .starlite-tutorial-arrow-line{fill:none;stroke:var(--tutorial-arrow,#ffe18a);stroke-width:5;stroke-linecap:round;stroke-dasharray:12 8;animation:starliteTutorialArrowFlow .7s linear infinite}
+          .starlite-tutorial-arrow-ring{fill:rgba(255,225,138,.08);stroke:var(--tutorial-arrow,#ffe18a);stroke-width:3;animation:starliteTutorialArrowPulse 1s ease-in-out infinite}
+          .starlite-tutorial-arrow-label{fill:#fff8d6;stroke:#111923;stroke-width:5;paint-order:stroke;stroke-linejoin:round;font:900 12px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;text-anchor:middle}
+          @keyframes starliteTutorialArrowFlow{to{stroke-dashoffset:-20}}
+          @keyframes starliteTutorialArrowPulse{50%{r:25;opacity:.45}}
+          @media(max-width:700px){.starlite-tutorial-bubble{left:10px;bottom:128px;width:calc(100vw - 20px);padding:11px 12px}.starlite-tutorial-title{font-size:15px}.starlite-tutorial-copy,.starlite-tutorial-objective{font-size:11px}.starlite-tutorial-arrow-label{font-size:10px}}
+          @media(prefers-reduced-motion:reduce){.starlite-tutorial-arrow-line,.starlite-tutorial-arrow-ring{animation:none}}
         `;
         document.head.appendChild(style);
       }
 
       function createFactionTutorialBubble(config) {
         ensureFactionTutorialStyle();
+        const arrowRoot = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        arrowRoot.classList.add('starlite-tutorial-arrow-layer');
+        arrowRoot.style.setProperty('--tutorial-arrow', config.softAccent || config.accent);
+        arrowRoot.setAttribute('aria-hidden', 'true');
+        arrowRoot.hidden = true;
+        arrowRoot.innerHTML = `<defs><marker id="starlite-tutorial-arrow-head" markerWidth="14" markerHeight="14" refX="11" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L12,6 L0,12 Z" fill="${config.softAccent || config.accent}"></path></marker></defs><path class="starlite-tutorial-arrow-line" data-tutorial-arrow-line marker-end="url(#starlite-tutorial-arrow-head)"></path><circle class="starlite-tutorial-arrow-ring" data-tutorial-arrow-ring r="18"></circle><text class="starlite-tutorial-arrow-label" data-tutorial-arrow-label></text>`;
+        document.body.appendChild(arrowRoot);
         const bubble = document.createElement('section');
         bubble.className = 'starlite-tutorial-bubble';
         bubble.style.setProperty('--tutorial-accent', config.accent);
@@ -12724,6 +12779,10 @@
         document.body.appendChild(bubble);
         const ui = {
           root: bubble,
+          arrowRoot,
+          arrowLine: arrowRoot.querySelector('[data-tutorial-arrow-line]'),
+          arrowRing: arrowRoot.querySelector('[data-tutorial-arrow-ring]'),
+          arrowLabel: arrowRoot.querySelector('[data-tutorial-arrow-label]'),
           speaker: bubble.querySelector('[data-faction-tutorial-speaker]'),
           title: bubble.querySelector('[data-faction-tutorial-title]'),
           copy: bubble.querySelector('[data-faction-tutorial-copy]'),
@@ -12756,7 +12815,7 @@
       }
 
       function tutorialObjectiveTotal(config = factionTutorial?.config) {
-        return 4 + (config?.buildSequence?.length || 1);
+        return 4 + (config?.buildSequence?.length || 1) + (config?.advancedSequence?.length || 0);
       }
 
       function tutorialProgressLabel(number) {
@@ -12839,6 +12898,154 @@
         });
       }
 
+      function openFactionTutorialAdvancedObjective(index = 0) {
+        if (!factionTutorial) return;
+        const config = factionTutorial.config;
+        const target = config.advancedSequence?.[index];
+        if (!target) { openFactionTutorialCombatObjective(); return; }
+        factionTutorial.step = FACTION_TUTORIAL_STEPS.ADVANCED;
+        factionTutorial.advancedIndex = index;
+        setFactionTutorialMessage({
+          title: target.title,
+          copy: target.copy,
+          objective: target.objective,
+          progress: tutorialProgressLabel(4 + config.buildSequence.length + index)
+        });
+      }
+
+      function tutorialSelectedUnit(type = null) {
+        return units.find(unit => unit.hp > 0 && unit.team === 'player' && state.selected?.has(unit.id) && (!type || unit.type === type)) || null;
+      }
+
+      function tutorialSelectedStructure(type = null) {
+        return structures.find(structure => structure.hp > 0 && structure.team === 'player' && state.selectedStructures?.has(structure.id) && (!type || structure.type === type)) || null;
+      }
+
+      function tutorialCanvasPoint(x, y) {
+        const gameCanvas = document.getElementById('game');
+        if (!gameCanvas) return null;
+        const rect = gameCanvas.getBoundingClientRect();
+        const sx = rect.left + ((x - cam.x) * cam.zoom) * (rect.width / Math.max(1, gameCanvas.width));
+        const sy = rect.top + ((y - cam.y) * cam.zoom) * (rect.height / Math.max(1, gameCanvas.height));
+        if (!Number.isFinite(sx) || !Number.isFinite(sy)) return null;
+        return { x: sx, y: sy };
+      }
+
+      function tutorialCommandPoint(predicate) {
+        const hit = (state.commandHitRects || []).find(candidate => {
+          try { return predicate(candidate.item || {}, candidate); }
+          catch { return false; }
+        });
+        if (!hit?.rect) return null;
+        const gameCanvas = document.getElementById('game');
+        if (!gameCanvas) return null;
+        const canvasRect = gameCanvas.getBoundingClientRect();
+        return {
+          x: canvasRect.left + (hit.rect.x + hit.rect.w / 2) * (canvasRect.width / Math.max(1, gameCanvas.width)),
+          y: canvasRect.top + (hit.rect.y + hit.rect.h / 2) * (canvasRect.height / Math.max(1, gameCanvas.height))
+        };
+      }
+
+      function tutorialBuildArrowTarget(target) {
+        const structure = tutorialStructure(target.type);
+        if (structure) return { point: tutorialCanvasPoint(structure.x, structure.y), label: structure.underConstruction ? 'BUILDING' : 'READY' };
+        const selectedWorker = tutorialSelectedUnit('forager');
+        if (selectedWorker) {
+          const commandPoint = tutorialCommandPoint(item => item.placementType === target.type);
+          if (commandPoint) return { point: commandPoint, label: 'BUILD' };
+        }
+        const worker = units.find(unit => unit.hp > 0 && unit.team === 'player' && unit.type === 'forager' && unit.job !== 'build') ||
+          units.find(unit => unit.hp > 0 && unit.team === 'player' && unit.type === 'forager');
+        return worker ? { point: tutorialCanvasPoint(worker.x, worker.y), label: 'SELECT WORKER' } : null;
+      }
+
+      function tutorialAdvancedArrowTarget(target) {
+        if (!target) return null;
+        if (target.kind === 'build') return tutorialBuildArrowTarget(target);
+        const facility = tutorialStructure(target.facilityType);
+        if (!facility) return null;
+        if (!tutorialSelectedStructure(target.facilityType)) return { point: tutorialCanvasPoint(facility.x, facility.y), label: 'SELECT' };
+        if (target.kind === 'productionUpgrade') {
+          const commandPoint = tutorialCommandPoint(item => item.command?.type === 'upgradeProduction' &&
+            String(item.label || '').toUpperCase().includes(String(target.structureType || '').toUpperCase()));
+          return commandPoint ? { point: commandPoint, label: 'UPGRADE' } : { point: tutorialCanvasPoint(facility.x, facility.y), label: 'RESEARCH' };
+        }
+        if (target.kind === 'unitUpgrade') {
+          const title = String(state.commandMenu?.title || '').toUpperCase();
+          let commandPoint = null;
+          if (title.includes('UNIT TYPES')) commandPoint = tutorialCommandPoint(item => String(item.label || '').toUpperCase().startsWith('INFANTRY'));
+          else if (title.includes('INFANTRY')) commandPoint = tutorialCommandPoint(item => item.command?.type === 'upgradeUnit' && item.command?.unitType === target.unitType);
+          else commandPoint = tutorialCommandPoint(item => item.command?.type === 'upgradeUnit' && item.command?.unitType === target.unitType);
+          return commandPoint ? { point: commandPoint, label: 'UPGRADE' } : { point: tutorialCanvasPoint(facility.x, facility.y), label: 'OPEN LAB' };
+        }
+        return null;
+      }
+
+      function currentFactionTutorialArrowTarget() {
+        if (!factionTutorial || !state.gameStarted) return null;
+        const config = factionTutorial.config;
+        if (factionTutorial.step === FACTION_TUTORIAL_STEPS.SELECT_HQ) {
+          return playerHQ ? { point: tutorialCanvasPoint(playerHQ.x, playerHQ.y), label: 'SELECT HQ' } : null;
+        }
+        if (factionTutorial.step === FACTION_TUTORIAL_STEPS.BUILD_STRUCTURE) {
+          return tutorialBuildArrowTarget(config.buildSequence[factionTutorial.buildIndex || 0]);
+        }
+        if (factionTutorial.step === FACTION_TUTORIAL_STEPS.TRAIN_UNIT) {
+          const producer = tutorialStructure(config.producerType) || (config.producerType === 'hq' ? playerHQ : null);
+          if (!producer) return null;
+          if (tutorialSelectedStructure(config.producerType) || (config.producerType === 'hq' && state.selectedStructures?.has(playerHQ?.id))) {
+            const commandPoint = tutorialCommandPoint(item => item.command?.type === 'produce' && item.command?.unitType === config.unitType);
+            if (commandPoint) return { point: commandPoint, label: 'TRAIN' };
+          }
+          return { point: tutorialCanvasPoint(producer.x, producer.y), label: 'SELECT' };
+        }
+        if (factionTutorial.step === FACTION_TUTORIAL_STEPS.MOVE_UNIT) {
+          const unit = units.find(candidate => candidate.id === factionTutorial.trainedUnitId && candidate.hp > 0) || tutorialPlayerCombatUnits(config.unitType)[0];
+          return unit ? { point: tutorialCanvasPoint(unit.x, unit.y), label: 'MOVE' } : null;
+        }
+        if (factionTutorial.step === FACTION_TUTORIAL_STEPS.ADVANCED) {
+          return tutorialAdvancedArrowTarget(config.advancedSequence?.[factionTutorial.advancedIndex || 0]);
+        }
+        if (factionTutorial.step === FACTION_TUTORIAL_STEPS.DEFEND_WAVE) {
+          const attacker = units.find(unit => factionTutorial.waveIds?.includes(unit.id) && unit.hp > 0);
+          return attacker ? { point: tutorialCanvasPoint(attacker.x, attacker.y), label: 'ATTACK' } : null;
+        }
+        return null;
+      }
+
+      function updateFactionTutorialArrow() {
+        const ui = factionTutorial?.ui;
+        if (!ui?.arrowRoot) return;
+        const target = currentFactionTutorialArrowTarget();
+        if (!target?.point || factionTutorial.step === FACTION_TUTORIAL_STEPS.INTRO || factionTutorial.step === FACTION_TUTORIAL_STEPS.COMPLETE) {
+          ui.arrowRoot.hidden = true;
+          return;
+        }
+        const x = clamp(target.point.x, 22, Math.max(22, window.innerWidth - 22));
+        const y = clamp(target.point.y, 22, Math.max(22, window.innerHeight - 22));
+        const bubbleRect = ui.root.getBoundingClientRect();
+        const centerX = bubbleRect.left + bubbleRect.width / 2;
+        const centerY = bubbleRect.top + bubbleRect.height / 2;
+        const dx = x - centerX, dy = y - centerY;
+        const safeDx = Math.abs(dx) < 1 ? (dx < 0 ? -1 : 1) : dx;
+        const safeDy = Math.abs(dy) < 1 ? (dy < 0 ? -1 : 1) : dy;
+        const edgeScale = Math.min(
+          Math.abs((bubbleRect.width / 2 + 8) / safeDx),
+          Math.abs((bubbleRect.height / 2 + 8) / safeDy)
+        );
+        const startX = centerX + dx * Math.min(.92, edgeScale);
+        const startY = centerY + dy * Math.min(.92, edgeScale);
+        const bendX = startX + dx * .48 + (dy >= 0 ? -1 : 1) * Math.min(58, Math.abs(dy) * .13);
+        const bendY = startY + dy * .42;
+        ui.arrowLine.setAttribute('d', `M ${startX.toFixed(1)} ${startY.toFixed(1)} Q ${bendX.toFixed(1)} ${bendY.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`);
+        ui.arrowRing.setAttribute('cx', x.toFixed(1));
+        ui.arrowRing.setAttribute('cy', y.toFixed(1));
+        ui.arrowLabel.setAttribute('x', x.toFixed(1));
+        ui.arrowLabel.setAttribute('y', (y - 29).toFixed(1));
+        ui.arrowLabel.textContent = target.label || 'HERE';
+        ui.arrowRoot.hidden = false;
+      }
+
       function tutorialWaveSpawnPoint(index) {
         const baseAngle = Number.isFinite(playerHQ?.inwardAngle) ? playerHQ.inwardAngle : 0;
         for (let attempt = 0; attempt < 30; attempt++) {
@@ -12904,7 +13111,7 @@
           title: `${tutorialEnemyWaveName(faction)} incoming!`,
           copy: config.combatCopy,
           objective: `Defend the ${config.hqName} and destroy every attacker in the tutorial wave.`,
-          progress: tutorialProgressLabel(4 + config.buildSequence.length)
+          progress: tutorialProgressLabel(4 + config.buildSequence.length + (config.advancedSequence?.length || 0))
         });
       }
 
@@ -12927,6 +13134,7 @@
         if (!factionTutorial || factionTutorial.step === FACTION_TUTORIAL_STEPS.COMPLETE) return;
         const config = factionTutorial.config;
         factionTutorial.step = FACTION_TUTORIAL_STEPS.COMPLETE;
+        if (factionTutorial.ui?.arrowRoot) factionTutorial.ui.arrowRoot.hidden = true;
         setFactionTutorialMessage({
           title: `${config.faction === 'helias' ? 'Helias' : config.faction === 'insects' ? 'Zglengo' : 'Human'} tutorial complete.`,
           copy: config.completionCopy,
@@ -12944,6 +13152,7 @@
 
       function updateFactionTutorial() {
         if (!factionTutorial || !state.gameStarted) return;
+        updateFactionTutorialArrow();
         const config = factionTutorial.config;
         if (factionTutorial.step === FACTION_TUTORIAL_STEPS.SELECT_HQ) {
           if (state.selectedStructures?.has(playerHQ?.id)) openFactionTutorialBuildObjective(0);
@@ -12974,7 +13183,45 @@
           const origin = factionTutorial.trainedUnitOrigin || unit;
           const moved = Math.hypot(unit.x - origin.x, unit.y - origin.y) > 32;
           const ordered = unit.movementOrderActive && Math.hypot(unit.destination.x - origin.x, unit.destination.y - origin.y) > 32;
-          if (moved || ordered) openFactionTutorialCombatObjective();
+          if (moved || ordered) {
+            if (config.advancedSequence?.length) openFactionTutorialAdvancedObjective(0);
+            else openFactionTutorialCombatObjective();
+          }
+          return;
+        }
+        if (factionTutorial.step === FACTION_TUTORIAL_STEPS.ADVANCED) {
+          const index = factionTutorial.advancedIndex || 0;
+          const target = config.advancedSequence?.[index];
+          if (!target) { openFactionTutorialCombatObjective(); return; }
+          let complete = false;
+          if (target.kind === 'build') {
+            const structure = tutorialStructure(target.type);
+            if (!structure) return;
+            if (structure.underConstruction) {
+              const remaining = Math.max(0, Math.ceil(structure.buildTimeLeft || 0));
+              factionTutorial.ui.objective.textContent = target.waiting ? target.waiting(remaining) : target.objective;
+              return;
+            }
+            complete = true;
+          } else if (target.kind === 'productionUpgrade') {
+            complete = productionTechLevel('player', target.structureType) >= target.targetLevel;
+            if (!complete) {
+              const job = productionTechJob('player', target.structureType);
+              if (job?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(job.timeLeft)));
+            }
+          } else if (target.kind === 'unitUpgrade') {
+            complete = completedUnitUpgradeLevel(target.unitType, 'player') >= target.targetLevel;
+            if (!complete) {
+              const lab = tutorialStructure(target.facilityType);
+              const order = [lab?.labJob, ...(Array.isArray(lab?.labQueue) ? lab.labQueue : [])]
+                .find(job => job?.unitType === target.unitType && (job.upgradeLevel || 1) >= target.targetLevel);
+              if (order?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(order.timeLeft)));
+            }
+          }
+          if (complete) {
+            if (index + 1 < config.advancedSequence.length) openFactionTutorialAdvancedObjective(index + 1);
+            else openFactionTutorialCombatObjective();
+          }
           return;
         }
         if (factionTutorial.step === FACTION_TUTORIAL_STEPS.DEFEND_WAVE) {
@@ -12985,6 +13232,7 @@
 
       function initializeFactionTutorial(mode) {
         factionTutorial?.ui?.root?.remove();
+        factionTutorial?.ui?.arrowRoot?.remove();
         factionTutorial = null;
         const faction = ['humans', 'insects', 'helias'].includes(mode?.tutorial) ? mode.tutorial : null;
         if (!faction) return;
@@ -12995,6 +13243,7 @@
           step: FACTION_TUTORIAL_STEPS.INTRO,
           introIndex: 0,
           buildIndex: 0,
+          advancedIndex: 0,
           waveSpawned: false,
           waveIds: [],
           aiResumed: false,
@@ -13644,7 +13893,52 @@
         .starlite-menu__branch-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
         .starlite-menu__branch-actions > :only-child,
         .starlite-menu__branch-actions > .starlite-hidden + .starlite-menu__secondary { grid-column: 1 / -1; }
-        .starlite-menu__footer { margin-top: 13px; color: rgba(226, 241, 216, .6); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
+        .starlite-menu__footer {
+          width: 100%; margin-top: 13px; display: grid; justify-items: center; gap: 7px;
+          color: rgba(226, 241, 216, .58); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+        }
+        .starlite-menu__footer-note { opacity: .72; text-align: center; }
+        .starlite-menu__footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; }
+        .starlite-menu__info-link {
+          padding: 2px 0; border: 0; border-bottom: 1px solid transparent; color: rgba(226,241,216,.72);
+          background: transparent; font: inherit; font-size: 9px; font-weight: 750; letter-spacing: .08em;
+          text-transform: uppercase; cursor: pointer;
+        }
+        .starlite-menu__info-link:hover, .starlite-menu__info-link:focus-visible {
+          outline: none; color: #c8f6a8; border-bottom-color: rgba(200,246,168,.75);
+        }
+        #starlite-menu:not([data-active-view="categories"]) .starlite-menu__footer { display: none; }
+        .starlite-menu__info-overlay {
+          position: fixed; inset: 0; z-index: 110; display: grid; place-items: center; padding: 18px;
+          background: rgba(2,7,5,.78); backdrop-filter: blur(6px);
+        }
+        .starlite-menu__info-dialog {
+          position: relative; width: min(680px, 100%); max-height: calc(100vh - 36px); padding: 25px 26px 22px;
+          overflow-y: auto; border: 2px solid rgba(194,235,169,.34); border-radius: 14px;
+          color: #eaf5e5; background:
+            linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+            linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px),
+            linear-gradient(155deg, rgba(23,38,27,.985), rgba(7,14,10,.985));
+          background-size: 8px 8px, 8px 8px, auto;
+          box-shadow: 0 24px 70px rgba(0,0,0,.62), inset 0 1px rgba(255,255,255,.06);
+        }
+        .starlite-menu__info-close {
+          position: absolute; top: 13px; right: 13px; width: 38px; height: 38px; display: grid; place-items: center;
+          border: 1px solid rgba(204,232,190,.26); border-radius: 50%; color: #eaf5e5;
+          background: rgba(5,13,8,.72); font: 800 21px/1 ui-monospace, monospace; cursor: pointer;
+        }
+        .starlite-menu__info-close:hover, .starlite-menu__info-close:focus-visible { outline: none; color: #c8f6a8; border-color: #9de36f; }
+        .starlite-menu__info-dialog h2 { margin: 0 50px 7px 0; color: #d9f6c5; font-size: 19px; letter-spacing: .08em; text-transform: uppercase; }
+        .starlite-menu__info-updated { margin: 0 0 16px; color: #82977d; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+        .starlite-menu__info-body { color: #bfd0b9; font-size: 12px; line-height: 1.58; }
+        .starlite-menu__info-body p { margin: 0 0 12px; }
+        .starlite-menu__info-body h3 { margin: 18px 0 7px; color: #eaf5e5; font-size: 11px; letter-spacing: .09em; text-transform: uppercase; }
+        .starlite-menu__info-body ul { margin: 0 0 12px; padding-left: 19px; }
+        .starlite-menu__info-body li + li { margin-top: 5px; }
+        .starlite-menu__info-body a { color: #b8f288; text-decoration: none; border-bottom: 1px solid rgba(184,242,136,.45); }
+        .starlite-menu__info-body a:hover, .starlite-menu__info-body a:focus-visible { outline: none; color: #d8ffbd; border-bottom-color: currentColor; }
+        .starlite-menu__info-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+        .starlite-menu__info-consent-status { min-height: 17px; margin: 10px 0 0; color: #f2c77a; font-size: 10px; line-height: 1.4; }
         .starlite-hidden { display: none !important; }
         @keyframes starlite-pulse { to { box-shadow: 0 0 18px rgba(173, 239, 116, .35); } }
         .starlite-menu__online-create { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; margin-bottom: 14px; }
@@ -13976,6 +14270,11 @@
           .starlite-menu__shop-teaser { margin: 0; grid-template-columns: auto 1fr; transform: rotate(-1deg); }
           .starlite-menu__tag-owned canvas { width: 38px; height: 38px; }
           .starlite-menu__tag-color-groups { grid-template-columns: 1fr; }
+          .starlite-menu__footer { gap: 6px; }
+          .starlite-menu__footer-links { gap: 4px 9px; }
+          .starlite-menu__info-overlay { padding: 10px; }
+          .starlite-menu__info-dialog { max-height: calc(100vh - 20px); padding: 21px 18px 18px; }
+          .starlite-menu__info-dialog h2 { font-size: 16px; }
         }
 
         /* Game-selection views are viewport-contained at normal browser zoom.
@@ -14311,6 +14610,17 @@
           }
         }
 
+        .starlite-menu__welcome-gate { position: fixed; z-index: 120; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(3,8,12,.72); backdrop-filter: blur(5px); }
+        .starlite-menu__welcome-card { width: min(520px, calc(100vw - 28px)); padding: clamp(22px,4vw,34px); border: 2px solid rgba(229,191,103,.82); border-radius: 18px; background: linear-gradient(155deg,rgba(20,30,36,.98),rgba(6,12,17,.98)); box-shadow: 0 26px 90px rgba(0,0,0,.58), inset 0 0 0 1px rgba(255,255,255,.05); text-align: center; }
+        .starlite-menu__welcome-card h2 { margin: 0 0 10px; color: #fff4cf; font-size: clamp(25px,5vw,38px); letter-spacing: .015em; }
+        .starlite-menu__welcome-card p { margin: 0 auto 22px; max-width: 390px; color: #c9d6dd; font-size: clamp(13px,2.4vw,16px); line-height: 1.55; }
+        .starlite-menu__welcome-actions { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .starlite-menu__welcome-primary,.starlite-menu__welcome-secondary { min-height: 46px; padding: 11px 17px; border-radius: 9px; font: 900 12px system-ui,-apple-system,'Segoe UI',sans-serif; letter-spacing: .07em; cursor: pointer; }
+        .starlite-menu__welcome-primary { border: 1px solid #e5bf67; background: #e5bf67; color: #172027; box-shadow: 0 0 22px rgba(229,191,103,.2); }
+        .starlite-menu__welcome-secondary { border: 1px solid #718091; background: #273246; color: #f1f6f9; }
+        .starlite-menu__welcome-primary:hover,.starlite-menu__welcome-primary:focus-visible,.starlite-menu__welcome-secondary:hover,.starlite-menu__welcome-secondary:focus-visible { transform: translateY(-1px); outline: 2px solid rgba(125,232,255,.55); outline-offset: 3px; }
+        .starlite-menu__welcome-separator { color: #81909a; font-weight: 900; }
+        @media(max-width:520px){.starlite-menu__welcome-actions{display:grid;grid-template-columns:1fr}.starlite-menu__welcome-separator{display:none}.starlite-menu__welcome-primary,.starlite-menu__welcome-secondary{width:100%}}
         @media (prefers-reduced-motion: reduce) {
           .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser, .starlite-menu__new-tag, .starlite-menu__confetti-piece, .starlite-menu__tag-celebration-message { transition: none; animation: none !important; }
         }
@@ -15106,8 +15416,39 @@
             <button class="starlite-menu__tutorial-teaser" type="button" data-open-tutorials aria-label="Choose a faction tutorial">
               <span class="starlite-menu__tutorial-teaser-mark" aria-hidden="true">?</span><strong>TUTORIALS</strong><small>CHOOSE A FACTION</small>
             </button>
-            <footer class="starlite-menu__footer">Deterministic lockstep · WebSocket relay ready</footer>
-          </main>`;
+            <footer class="starlite-menu__footer">
+              <span class="starlite-menu__footer-note">Deterministic lockstep · WebSocket relay ready</span>
+              <nav class="starlite-menu__footer-links" aria-label="Information and privacy">
+                <button class="starlite-menu__info-link" type="button" data-menu-info="privacy">Privacy policy</button>
+                <button class="starlite-menu__info-link" type="button" data-menu-info="contact">About / contact</button>
+                <button class="starlite-menu__info-link" type="button" data-menu-info="advertising">Cookies &amp; advertising</button>
+                <button class="starlite-menu__info-link" type="button" data-menu-info="game">About the game</button>
+              </nav>
+            </footer>
+          </main>
+          <div class="starlite-menu__info-overlay starlite-hidden" data-menu-info-overlay aria-hidden="true">
+            <section class="starlite-menu__info-dialog" role="dialog" aria-modal="true" aria-labelledby="starlite-menu-info-title">
+              <button class="starlite-menu__info-close" type="button" data-close-menu-info aria-label="Close information popup">×</button>
+              <h2 id="starlite-menu-info-title" data-menu-info-title>Information</h2>
+              <p class="starlite-menu__info-updated" data-menu-info-updated></p>
+              <div class="starlite-menu__info-body" data-menu-info-body></div>
+              <div class="starlite-menu__info-actions">
+                <button class="starlite-menu__secondary starlite-hidden" type="button" data-manage-privacy-choices>MANAGE PRIVACY CHOICES</button>
+              </div>
+              <p class="starlite-menu__info-consent-status" data-menu-consent-status role="status" aria-live="polite"></p>
+            </section>
+          </div>
+          <div class="starlite-menu__welcome-gate" data-new-player-prompt role="dialog" aria-modal="true" aria-labelledby="starlite-new-player-title" aria-describedby="starlite-new-player-copy">
+            <section class="starlite-menu__welcome-card">
+              <h2 id="starlite-new-player-title">New to StarLite II?</h2>
+              <p id="starlite-new-player-copy">Learn the basics in a short guided battle.</p>
+              <div class="starlite-menu__welcome-actions">
+                <button class="starlite-menu__welcome-primary" type="button" data-start-human-tutorial>Start tutorial</button>
+                <span class="starlite-menu__welcome-separator" aria-hidden="true">·</span>
+                <button class="starlite-menu__welcome-secondary" type="button" data-skip-new-player>Skip to main menu</button>
+              </div>
+            </section>
+          </div>`;
         document.body.appendChild(root);
       
         const stopBackdrop = startMenuBackdrop(root.querySelector('canvas'));
@@ -15124,6 +15465,15 @@
         const tagTeaser = root.querySelector('[data-open-tag-lab]');
         const tutorialTeaser = root.querySelector('.starlite-menu__tutorial-teaser');
         const tutorialCards = [...root.querySelectorAll('[data-tutorial-faction]')];
+        const newPlayerPrompt = root.querySelector('[data-new-player-prompt]');
+        const startHumanTutorialButton = root.querySelector('[data-start-human-tutorial]');
+        const skipNewPlayerButton = root.querySelector('[data-skip-new-player]');
+        const menuInfoOverlay = root.querySelector('[data-menu-info-overlay]');
+        const menuInfoTitle = root.querySelector('[data-menu-info-title]');
+        const menuInfoUpdated = root.querySelector('[data-menu-info-updated]');
+        const menuInfoBody = root.querySelector('[data-menu-info-body]');
+        const managePrivacyChoicesButton = root.querySelector('[data-manage-privacy-choices]');
+        const menuConsentStatus = root.querySelector('[data-menu-consent-status]');
         const computerSetup = root.querySelector('[data-computer-setup]');
         const computerSummary = root.querySelector('[data-computer-summary]');
         const computerPicker = root.querySelector('[data-computer-picker]');
@@ -15321,6 +15671,133 @@
         });
         usernameInput.addEventListener('change', currentUsername);
         usernameInput.addEventListener('blur', currentUsername);
+
+        const MENU_INFORMATION = Object.freeze({
+          privacy: Object.freeze({
+            title: 'Privacy policy',
+            updated: 'Last updated · 29 July 2026',
+            body: `
+              <p>StarLite II can be played without creating an account. This notice explains the information used by the current browser build and the optional online services built into it.</p>
+              <h3>Information saved on your device</h3>
+              <ul>
+                <li>Your commander name, volume, keybinds, warning preference, saved ground tags, and recent menu choices may be stored in your browser's local storage.</li>
+                <li>You can remove this local information by clearing this site's browser storage.</li>
+              </ul>
+              <h3>Optional accounts and multiplayer</h3>
+              <ul>
+                <li>If you create or sign in to an account, Supabase authentication and cloud storage process your email, account identifier, session information, commander name, settings, and saved tag palette.</li>
+                <li>If you use Google sign-in, Google and the authentication provider process the information needed to complete that sign-in.</li>
+                <li>Online matches send your commander name and gameplay synchronization data through the StarLite relay. Do not use sensitive personal information as your commander name.</li>
+              </ul>
+              <h3>Analytics and advertising</h3>
+              <ul>
+                <li>GameAnalytics may receive technical and gameplay event information used to understand performance and improve the game.</li>
+                <li>Google AdSense and Google Ad Manager may process browser, device, network, consent, and advertising information and may use cookies or similar storage where permitted.</li>
+                <li>Rewarded adverts are voluntary. A new rewarded tag is granted only after the advertising provider reports that the reward was earned.</li>
+              </ul>
+              <p>Questions or privacy requests can be sent to <a href="mailto:achille.glimpselab@gmail.com">achille.glimpselab@gmail.com</a>.</p>`
+          }),
+          contact: Object.freeze({
+            title: 'About & contact',
+            updated: 'StarLite II · Independent browser RTS',
+            body: `
+              <p>StarLite II is a compact real-time strategy game designed for quick browser battles, faction experimentation, custom ground tags, guided tutorials, computer opponents, and deterministic online multiplayer.</p>
+              <p>The project combines a lightweight standalone game client with optional cloud accounts, voluntary rewarded advertising, and a relay for multiplayer matches.</p>
+              <h3>Contact</h3>
+              <p>Feedback, support requests, business enquiries, privacy questions, and bug reports can be sent to <a href="mailto:achille.glimpselab@gmail.com">achille.glimpselab@gmail.com</a>.</p>
+              <p>When reporting a bug, include what you were doing, your browser, whether the match was solo or multiplayer, and any visible error message.</p>`
+          }),
+          advertising: Object.freeze({
+            title: 'Cookies & advertising',
+            updated: 'Advertising and privacy choices',
+            body: `
+              <p>StarLite II uses browser storage for settings and saved creations. Optional account sign-in, analytics, multiplayer, Google AdSense, and Google Ad Manager may also use cookies or similar technologies.</p>
+              <h3>Voluntary rewarded adverts</h3>
+              <p>Rewarded adverts are offered when you choose to unlock certain cosmetic tag features. They do not interrupt an active battle, and declining an advert simply leaves the item locked.</p>
+              <h3>Google advertising</h3>
+              <p>Google may show advertising and process information for ad delivery, measurement, fraud prevention, frequency control, and—when permitted—personalization. Where required, the site's published Google Privacy & messaging consent screen controls those choices.</p>
+              <p>The button below asks Google's own consent system to show your privacy choices again. It becomes available on the deployed site after the relevant Privacy & messaging message has been configured and published in the publisher account.</p>`
+          }),
+          game: Object.freeze({
+            title: 'About the game',
+            updated: 'The basics of StarLite II',
+            body: `
+              <p>StarLite II is a real-time strategy game. Gather minerals and gas, expand your base, unlock technology, train an army, scout the map, and destroy the opposing commanders before they overwhelm you.</p>
+              <h3>Three factions</h3>
+              <ul>
+                <li><strong>Humans</strong> rely on industry, flexible production, upgrades, armor, and combined-arms defenses.</li>
+                <li><strong>Zglengo</strong> spread living territory, regenerate, transform workers into structures, and attack as a fast-growing swarm.</li>
+                <li><strong>The Helias</strong> use Pylon power fields, regenerating shields, precise energy weapons, and expensive specialized troops.</li>
+              </ul>
+              <h3>Getting started</h3>
+              <p>Open Tutorials from the main menu to play a guided battle for any faction. In a normal match, select workers to gather and build, select production structures to train units, right-click to move or attack, and use upgrades to strengthen your army.</p>
+              <p>Solo battles support one to three computer opponents. Multiplayer uses deterministic lockstep so every player simulates the same battle state.</p>`
+          })
+        });
+        let menuInfoReturnFocus = null;
+
+        function openMenuInformation(topic) {
+          const information = MENU_INFORMATION[topic] || MENU_INFORMATION.game;
+          menuInfoReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          menuInfoTitle.textContent = information.title;
+          menuInfoUpdated.textContent = information.updated;
+          menuInfoBody.innerHTML = information.body;
+          managePrivacyChoicesButton.classList.toggle('starlite-hidden', topic !== 'advertising');
+          menuConsentStatus.textContent = '';
+          menuInfoOverlay.classList.remove('starlite-hidden');
+          menuInfoOverlay.setAttribute('aria-hidden', 'false');
+          requestAnimationFrame(() => root.querySelector('[data-close-menu-info]')?.focus());
+        }
+
+        function closeMenuInformation() {
+          if (menuInfoOverlay.classList.contains('starlite-hidden')) return;
+          menuInfoOverlay.classList.add('starlite-hidden');
+          menuInfoOverlay.setAttribute('aria-hidden', 'true');
+          const target = menuInfoReturnFocus;
+          menuInfoReturnFocus = null;
+          requestAnimationFrame(() => target?.focus?.());
+        }
+
+        function openGooglePrivacyChoices() {
+          menuConsentStatus.textContent = 'Opening Google privacy choices…';
+          window.googlefc = window.googlefc || {};
+          window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+          let invoked = false;
+          const showChoices = () => {
+            if (invoked) return;
+            invoked = true;
+            try {
+              if (typeof window.googlefc.showRevocationMessage !== 'function') throw new Error('Consent message is not available.');
+              window.googlefc.showRevocationMessage();
+              menuConsentStatus.textContent = 'Google privacy choices opened.';
+            } catch {
+              menuConsentStatus.textContent = 'Privacy choices are unavailable in this local build or have not yet been published for this site.';
+            }
+          };
+          if (typeof window.googlefc.showRevocationMessage === 'function') showChoices();
+          else {
+            window.googlefc.callbackQueue.push({ CONSENT_API_READY: showChoices });
+            window.setTimeout(() => {
+              if (!invoked) menuConsentStatus.textContent = 'Privacy choices are unavailable in this local build or have not yet been published for this site.';
+            }, 2600);
+          }
+        }
+
+        for (const button of root.querySelectorAll('[data-menu-info]')) {
+          button.addEventListener('click', () => openMenuInformation(button.dataset.menuInfo));
+        }
+        root.querySelector('[data-close-menu-info]')?.addEventListener('click', closeMenuInformation);
+        menuInfoOverlay.addEventListener('click', event => {
+          if (event.target === menuInfoOverlay) closeMenuInformation();
+        });
+        managePrivacyChoicesButton.addEventListener('click', openGooglePrivacyChoices);
+        root.addEventListener('keydown', event => {
+          if (event.key === 'Escape' && !menuInfoOverlay.classList.contains('starlite-hidden')) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeMenuInformation();
+          }
+        });
       
         function showOnly(view) {
           activeView = view || categoryView;
@@ -16480,6 +16957,16 @@
             root.remove();
             resolve(mode);
           }
+
+          startHumanTutorialButton?.addEventListener('click', () => {
+            const mode = factionTutorialMode('humans');
+            if (mode) finish(mode);
+          });
+          skipNewPlayerButton?.addEventListener('click', () => {
+            newPlayerPrompt?.remove();
+            root.querySelector('[data-category="computer"]')?.focus();
+          });
+          requestAnimationFrame(() => startHumanTutorialButton?.focus());
 
           tutorialView.addEventListener('click', event => {
             const card = event.target.closest('[data-tutorial-faction]');
