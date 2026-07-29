@@ -24,6 +24,19 @@
     })();
   </script>
   <title>StarLite II — Helias Fleet Update</title>
+  <script>
+    // StarLite voluntary rewarded-ad configuration.
+    // Production: set enabled=true and replace adUnitPath with the rewarded web
+    // ad-unit path created in Google Ad Manager. Keep testMode=false for revenue.
+    // Local/file builds use a clearly labelled development placeholder by default.
+    window.STARLITE_REWARDED_AD_CONFIG = window.STARLITE_REWARDED_AD_CONFIG || {
+      enabled: false,
+      adUnitPath: '',
+      testMode: false,
+      developmentPlaceholder: true,
+      developmentSeconds: 8
+    };
+  </script>
   <style>
     :root { color-scheme: dark; }
     html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#080b10; }
@@ -827,6 +840,7 @@
           buildTime: data.buildTime,
           buildTimeLeft: data.buildTime,
           constructionGrantedHp: initialHp,
+          level: Math.max(1, Math.trunc(plan.level || 1)),
           aiBase: true,
           aiOrganic: !!plan.organic
         });
@@ -919,6 +933,27 @@
       function isInsectComputerTeam(team) {
         return isComputerTeam(team) && teamFactionId(team, state.teamFactions) === 'insects';
       }
+
+      function isHeliasComputerTeam(team) {
+        return isComputerTeam(team) && teamFactionId(team, state.teamFactions) === 'helias';
+      }
+
+      const HELIAS_AI_BUILD_PLAN = Object.freeze([
+        Object.freeze({ at: 7, type: 'heliasPylon', dx: -25, dy: 105 }),
+        Object.freeze({ at: 18, type: 'heliasGateway', dx: -112, dy: 62 }),
+        Object.freeze({ at: 46, type: 'heliasCyberCore', dx: 54, dy: 104 }),
+        Object.freeze({ at: 72, type: 'heliasForge', dx: 104, dy: 28 }),
+        Object.freeze({ at: 88, type: 'heliasTurret', dx: -58, dy: 150 }),
+        Object.freeze({ at: 112, type: 'heliasRoboticsFacility', dx: -118, dy: -18 }),
+        Object.freeze({ at: 140, type: 'heliasPylon', dx: 98, dy: -76 }),
+        Object.freeze({ at: 158, type: 'heliasStargate', dx: 52, dy: -58 })
+      ]);
+
+      const HELIAS_AI_UPGRADE_PLAN = Object.freeze([
+        Object.freeze({ at: 128, type: 'heliasGateway', toLevel: 2 }),
+        Object.freeze({ at: 238, type: 'heliasRoboticsFacility', toLevel: 2 }),
+        Object.freeze({ at: 318, type: 'heliasStargate', toLevel: 2 })
+      ]);
 
       function insectAITechReserve(team) {
         const level = highestInsectHiveLevel(team);
@@ -1509,6 +1544,113 @@
         beginProductionTechJob(team, plan.type, plan.toLevel, spec);
       }
       
+      function updateHeliasComputerUpgradePlan(team) {
+        const ai = computerAIState(team);
+        if (!ai) return false;
+        for (const plan of HELIAS_AI_UPGRADE_PLAN) {
+          if (state.elapsed < plan.at || productionTechLevel(team, plan.type) >= plan.toLevel) continue;
+          if (productionTechJob(team, plan.type)) return false;
+          const producer = aiTeamStructures(team).find(structure =>
+            structure.type === plan.type && structure.hp > 0 && !structure.underConstruction
+          );
+          const spec = PRODUCTION_TECH[plan.type]?.upgrades?.[plan.toLevel];
+          if (!producer || !spec || ai.minerals < spec.costM || ai.gas < spec.costG) return false;
+          ai.minerals -= spec.costM;
+          ai.gas -= spec.costG;
+          beginProductionTechJob(team, plan.type, plan.toLevel, spec);
+          return true;
+        }
+        return false;
+      }
+
+      function queueHeliasComputerProduction(team) {
+        const ai = computerAIState(team);
+        if (!ai) return false;
+        const candidates = [];
+        const living = aiTeamUnits(team);
+        const count = type => living.reduce((total, unit) => total + (unit.hp > 0 && unit.type === type ? 1 : 0), 0);
+        const addCandidate = (producer, type, weight) => {
+          const data = UNIT_DATA[type];
+          if (!data || ai.minerals < data.costM || ai.gas < data.costG) return;
+          if (teamPopulationUsed(team) + (data.pop ?? 1) > teamPopulationCap(team)) return;
+          candidates.push({ producer, type, weight: weight / (1 + (producer.queue?.length || 0) * 2) });
+        };
+
+        for (const producer of aiTeamStructures(team)) {
+          if (producer.hp <= 0 || producer.underConstruction || producer.upgradeJob || (producer.queue?.length || 0) >= 2) continue;
+          if (producer.type === 'heliasGateway') {
+            addCandidate(producer, 'heliasVanguard', 6.2);
+            if (hasOperationalTeamStructure('heliasCyberCore', team)) addCandidate(producer, 'heliasLancer', 4.1);
+            if (productionTechLevel(team, 'heliasGateway') >= 2) addCandidate(producer, 'heliasSentry', 2.0);
+          } else if (producer.type === 'heliasRoboticsFacility') {
+            if (count('heliasObserver') < 2) addCandidate(producer, 'heliasObserver', 1.6);
+            addCandidate(producer, 'heliasImmortal', 2.6);
+            if (productionTechLevel(team, 'heliasRoboticsFacility') >= 2) addCandidate(producer, 'heliasColossus', .75);
+          } else if (producer.type === 'heliasStargate') {
+            addCandidate(producer, 'heliasPhoenix', 2.2);
+            addCandidate(producer, 'heliasVoidRay', 1.8);
+            if (productionTechLevel(team, 'heliasStargate') >= 2) addCandidate(producer, 'heliasCarrier', .48);
+          }
+        }
+        if (!candidates.length) return false;
+        const totalWeight = candidates.reduce((sum, candidate) => sum + candidate.weight, 0);
+        let roll = rand(0, totalWeight);
+        let choice = candidates[candidates.length - 1];
+        for (const candidate of candidates) {
+          roll -= candidate.weight;
+          if (roll <= 0) { choice = candidate; break; }
+        }
+        const data = UNIT_DATA[choice.type];
+        ai.minerals -= data.costM;
+        ai.gas -= data.costG;
+        const buildTime = unitBuildTimeFor(choice.type, choice.producer);
+        choice.producer.queue.push({ type: choice.type, timeLeft: buildTime, total: buildTime });
+        return true;
+      }
+
+      function updateHeliasComputerAI(team, dt) {
+        const ai = computerAIState(team);
+        const hq = getHQForTeam(team);
+        if (!ai || !ai.active || !hq || hq.hp <= 0) return;
+
+        ai.incomeClock += dt;
+        while (ai.incomeClock >= 1) {
+          ai.incomeClock -= 1;
+          ai.minerals += 8;
+          ai.gas += 4;
+        }
+
+        const nextBuilding = HELIAS_AI_BUILD_PLAN[ai.buildIndex];
+        if (nextBuilding && state.elapsed >= nextBuilding.at && startComputerBuilding(team, nextBuilding)) ai.buildIndex++;
+        updateHeliasComputerUpgradePlan(team);
+
+        ai.productionClock -= dt;
+        if (ai.productionClock <= 0) {
+          const queued = queueHeliasComputerProduction(team);
+          ai.productionClock = queued ? rand(8.5, 12.5) : 4.5;
+        }
+
+        updateComputerManeuvers(team, dt);
+        ai.clock -= dt;
+        if (ai.clock <= 0) {
+          const profile = aiDifficultyProfile(ai);
+          if (profile.skipAttackWaveChance > 0 && random() < profile.skipAttackWaveChance) {
+            ai.clock = ai.interval;
+            return;
+          }
+          const nextWave = ai.wave + 1;
+          const sent = launchComputerWave(team, nextWave);
+          if (sent > 0) {
+            ai.wave = nextWave;
+            ai.interval = Math.max(32, 48 - ai.wave * 1.35) * profile.interval;
+            ai.clock = ai.interval;
+            toast(`${teamLabel(team)} wave ${ai.wave}: ${sent} unit${sent === 1 ? '' : 's'} mobilized.`, teamColor(team));
+          } else {
+            ai.clock = scaledAIClock(ai, 'interval', 12);
+          }
+        }
+      }
+
       function queueComputerProduction(team) {
         const ai = computerAIState(team);
         if (!ai) return false;
@@ -1742,10 +1884,12 @@
         }
         const size = isInsectComputerTeam(team)
           ? Math.min(12, 4 + Math.floor((waveNumber - 1) / 2))
-          : Math.min(5, 2 + Math.floor((waveNumber - 1) / 3));
+          : isHeliasComputerTeam(team)
+            ? Math.min(7, 3 + Math.floor((waveNumber - 1) / 3))
+            : Math.min(5, 2 + Math.floor((waveNumber - 1) / 3));
         const includesAirTest = waveNumber % 3 === 0;
       
-        if (includesAirTest && !firstAir && !isInsectComputerTeam(team)) {
+        if (includesAirTest && !firstAir && !isInsectComputerTeam(team) && !isHeliasComputerTeam(team)) {
           // Preserve the original periodic anti-air test contact, but create it for
           // the specific CPU and send it toward that CPU's current rival.
           const launchSite = aiTeamStructures(team).find(structure =>
@@ -1807,6 +1951,10 @@
         if (!ai || !ai.active || !hq || hq.hp <= 0) return;
         if (isInsectComputerTeam(team)) {
           updateInsectComputerAI(team, dt);
+          return;
+        }
+        if (isHeliasComputerTeam(team)) {
+          updateHeliasComputerAI(team, dt);
           return;
         }
       
@@ -4374,6 +4522,16 @@
         s.barrelAngle = current + clamp(delta, -turn, turn);
       }
       
+      function heliaTurretPowered(s) {
+        if (!s || s.type !== 'heliasTurret' || teamFactionId(s.team, state.teamFactions) !== 'helias') return true;
+        const radius = BUILDING_DATA.heliasPylon?.powerRadius || 182;
+        const margin = Math.hypot((s.w || 0) / 2, (s.h || 0) / 2) * .28;
+        return structures.some(pylon =>
+          pylon.team === s.team && pylon.type === 'heliasPylon' && pylon.hp > 0 && !pylon.underConstruction &&
+          Math.hypot(pylon.x - s.x, pylon.y - s.y) <= Math.max(24, radius - margin)
+        );
+      }
+
       function updateStructure(s, dt) {
         s.flash = Math.max(0, s.flash - dt);
         s.recoil = Math.max(0, (s.recoil || 0) - dt);
@@ -4473,9 +4631,15 @@
         const isOutpost = s.type === 'minersHut' && s.hutUpgrade === 'outpost';
         const isInsectGroundTurret = s.type === 'thornmawCrawler';
         const isInsectAntiAirTurret = s.type === 'skysporeSentinel';
+        const isHeliasTurret = s.type === 'heliasTurret';
         const isAntiAirTurret = s.type === 'antiAirTurret' || isInsectAntiAirTurret;
-        if (s.type !== 'turret' && !isInsectGroundTurret && !isAntiAirTurret && !isOutpost) return;
+        if (s.type !== 'turret' && !isInsectGroundTurret && !isAntiAirTurret && !isHeliasTurret && !isOutpost) return;
         s.cooldownLeft -= dt;
+        if (isHeliasTurret && !heliaTurretPowered(s)) {
+          s.target = null;
+          updateIdleTurretPivot(s, dt);
+          return;
+        }
         if (!isAlive(s.target) || !canAttackTarget(s, s.target) || dist(s, s.target) > s.range + 40 || !shotClear(s, s.target)) s.target = null;
         if (!s.target && targetAcquisitionDue(s, STRUCTURE_TARGET_ACQUISITION_INTERVAL)) s.target = nearestEnemy(s, s.range);
         if (s.target) {
@@ -4484,7 +4648,14 @@
           const mountOffset = isOutpost ? 24 : 0;
           s.barrelAngle = Math.atan2(s.target.y - (s.y - mountOffset), s.target.x - s.x);
           if (dist(s, s.target) - tr <= s.range && shotClear(s, s.target) && s.cooldownLeft <= 0) {
-            if (isAntiAirTurret) {
+            if (isHeliasTurret) {
+              fireProjectile(s, s.target, s.damage, {
+                speed: 430, color: '#80e8ff', trailColor: '#e2fbff', radius: 6, length: 15,
+                style: 'plasma', offY: 4, muzzleOffset: 17, muzzleScale: 1.65,
+                recoil: .16, intensity: 1.85, canHitAir: true, canHitGround: true,
+                zigzagAmplitude: 2.2, zigzagFrequency: 20
+              });
+            } else if (isAntiAirTurret) {
               const insectSpore = isInsectAntiAirTurret;
               const missileColor = insectSpore ? '#b8ff63' : isHumanTeam(s.team) ? '#9cf2ff' : colorForTeam(s.team, 'light');
               fireProjectile(s, s.target, s.damage, {
@@ -4520,7 +4691,7 @@
               });
             }
           }
-        } else if (s.type === 'turret' || s.type === 'thornmawCrawler' || s.type === 'skysporeSentinel') {
+        } else if (s.type === 'turret' || s.type === 'thornmawCrawler' || s.type === 'skysporeSentinel' || s.type === 'heliasTurret') {
           updateIdleTurretPivot(s, dt);
         }
       }
@@ -5697,7 +5868,12 @@
       }
       
       function structureStatus(structure) {
-        if (structure.underConstruction) return structure.constructionStarted ? `BUILDING · ${Math.ceil(structure.buildTimeLeft)}s` : 'AWAITING BUILDER';
+        if (structure.underConstruction) {
+          if (!structure.constructionStarted) return 'AWAITING BUILDER';
+          const faction = teamFactionId(structure.team, state.teamFactions);
+          const verb = faction === 'helias' ? 'WARPING' : faction === 'insects' ? 'GESTATING' : 'BUILDING';
+          return `${verb} · ${Math.ceil(structure.buildTimeLeft)}s`;
+        }
         if (structure.hiveEvolutionJob) return `EVOLVING TO ${insectHiveTierLabel(structure.hiveEvolutionJob.toLevel)} · ${Math.ceil(structure.hiveEvolutionJob.timeLeft)}s`;
         if (structure.upgradeJob) return `UPGRADING TO L${structure.upgradeJob.toLevel} · ${Math.ceil(structure.upgradeJob.timeLeft)}s`;
         if (structure.conversionJob) return `CONVERTING · ${Math.ceil(structure.conversionJob.timeLeft)}s`;
@@ -6237,6 +6413,9 @@
         ],
         antiAirTurret: [
           '.22.22.', '..222..', '..111..', '.12221.', '1233321', '1222221', '.11111.'
+        ],
+        heliasTurret: [
+          '...2...', '..222..', '.21112.', '21.3.12', '.21112.', '..111..', '.1...1.'
         ],
         radarTurret: [
           '...2...', '..222..', '.2.1.2.', '..111..', '.12221.', '1233321', '.11111.'
@@ -7339,6 +7518,7 @@
         heliasGateway: { label: 'GATEWAY', costM: 150, costG: 0, hp: 500, sight: 135, w: 56, h: 46, buildTime: 11 },
         heliasCyberCore: { label: 'CYBERNETICS CORE', costM: 150, costG: 100, hp: 450, sight: 145, w: 52, h: 48, buildTime: 12 },
         heliasForge: { label: 'FORGE', costM: 150, costG: 100, hp: 480, sight: 140, w: 54, h: 46, buildTime: 12 },
+        heliasTurret: { label: 'PHOTON CANNON', costM: 150, costG: 0, hp: 430, sight: 220, range: 190, damage: 28, cooldown: .68, w: 40, h: 40, buildTime: 10 },
         heliasRoboticsFacility: { label: 'ROBOTICS FACILITY', costM: 200, costG: 120, hp: 520, sight: 145, w: 58, h: 48, buildTime: 14 },
         heliasStargate: { label: 'STARGATE', costM: 225, costG: 150, hp: 500, sight: 175, w: 60, h: 50, buildTime: 15 }
       };
@@ -7622,7 +7802,7 @@
       const DEFAULT_FACTION_ID = 'humans';
       const HUMAN_UNIT_TYPES = Object.freeze(Object.keys(UNIT_DATA).filter(type => !type.startsWith('insect') && !type.startsWith('helias')));
       const INSECT_ONLY_BUILDING_TYPES = new Set(['broodHive', 'spawningNest', 'evolutionPit', 'spitterDen', 'carapaceWarren', 'airSpire', 'creepTumor', 'thornmawCrawler', 'skysporeSentinel']);
-      const HELIAS_ONLY_BUILDING_TYPES = new Set(['heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasRoboticsFacility', 'heliasStargate']);
+      const HELIAS_ONLY_BUILDING_TYPES = new Set(['heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate']);
       const HUMAN_BUILDING_TYPES = Object.freeze(['hq', ...Object.keys(BUILDING_DATA).filter(type => !INSECT_ONLY_BUILDING_TYPES.has(type) && !HELIAS_ONLY_BUILDING_TYPES.has(type))]);
       const HUMAN_BUILD_MENU = Object.freeze([
         Object.freeze({ type: 'barracks', purpose: 'fast melee · long-range · mortar · T4 mecha', tone: 'military' }),
@@ -7742,7 +7922,7 @@
         helias: Object.freeze({
           id: 'helias', label: 'THE HELIAS', hqLabel: 'NEXUS', enabled: true,
           unitTypes: Object.freeze(['forager', 'heliasVanguard', 'heliasLancer', 'heliasSentry', 'heliasObserver', 'heliasImmortal', 'heliasColossus', 'heliasPhoenix', 'heliasVoidRay', 'heliasCarrier']),
-          buildingTypes: Object.freeze(['hq', 'gasExtractor', 'heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasRoboticsFacility', 'heliasStargate']),
+          buildingTypes: Object.freeze(['hq', 'gasExtractor', 'heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate']),
           startingUnits: Object.freeze([
             Object.freeze({ type: 'forager', count: 4, autoHarvest: true })
           ]),
@@ -7779,12 +7959,13 @@
             Object.freeze({ type: 'heliasGateway', purpose: 'warps in frontline Helias infantry · requires Pylon power', tone: 'military' }),
             Object.freeze({ type: 'heliasCyberCore', purpose: 'unlocks Stalkers and advanced Helias technology · requires Gateway and Pylon power', tone: 'research', unique: true, requires: ['heliasGateway'] }),
             Object.freeze({ type: 'heliasForge', purpose: 'global Helias shield, movement and weapon upgrades · requires Cybernetics Core and Pylon power', tone: 'research', unique: true, requires: ['heliasCyberCore'] }),
+            Object.freeze({ type: 'heliasTurret', purpose: 'powered photon defence · attacks land and air · requires Forge and Pylon power', tone: 'defense', requires: ['heliasForge'] }),
             Object.freeze({ type: 'heliasRoboticsFacility', purpose: 'Observers and Immortals · facility upgrade unlocks Colossus · requires Cybernetics Core and Pylon power', tone: 'military', unique: true, requires: ['heliasCyberCore'] }),
             Object.freeze({ type: 'heliasStargate', purpose: 'Phoenix and Void Ray · Stargate upgrade unlocks Carrier with 3 interceptors', tone: 'military', unique: true, requires: ['heliasCyberCore'] })
           ]),
           structureLabels: Object.freeze({
             hq: 'NEXUS', gasExtractor: 'ASSIMILATOR', heliasPylon: 'PYLON', heliasGateway: 'GATEWAY',
-            heliasCyberCore: 'CYBERNETICS CORE', heliasForge: 'FORGE', heliasRoboticsFacility: 'ROBOTICS FACILITY', heliasStargate: 'STARGATE'
+            heliasCyberCore: 'CYBERNETICS CORE', heliasForge: 'FORGE', heliasTurret: 'PHOTON CANNON', heliasRoboticsFacility: 'ROBOTICS FACILITY', heliasStargate: 'STARGATE'
           }),
           unitLabels: Object.freeze({
             forager: 'PROBE', heliasVanguard: 'ZEALOT', heliasLancer: 'STALKER',
@@ -8152,7 +8333,7 @@
       const HELIAS_POWER_RADIUS = BUILDING_DATA.heliasPylon?.powerRadius || 182;
       const HELIAS_CHRONO_MULTIPLIER = 1.5;
       const HELIAS_UNPOWERED_EXEMPT_TYPES = new Set(['hq', 'gasExtractor', 'heliasPylon']);
-      const HELIAS_POWERED_STRUCTURE_TYPES = new Set(['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasRoboticsFacility', 'heliasStargate']);
+      const HELIAS_POWERED_STRUCTURE_TYPES = new Set(['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate']);
 
       function isHeliasTeam(team) {
         return teamFactionId(team, state.teamFactions) === 'helias';
@@ -10903,6 +11084,7 @@
         if (!attacker || !target || attacker.hp <= 0 || target.hp <= 0 || attacker.team === target.team || attacker.damage <= 0 || attacker.morphJob) return false;
         if (attacker.kind === 'structure') {
           const targetIsAir = isAirUnit(target);
+          if (attacker.type === 'heliasTurret') return true;
           if (attacker.type === 'antiAirTurret' || attacker.type === 'skysporeSentinel') return targetIsAir;
           if (attacker.type === 'turret' || attacker.type === 'thornmawCrawler' || (attacker.type === 'minersHut' && attacker.hutUpgrade === 'outpost')) return !targetIsAir;
           return true;
@@ -11420,7 +11602,7 @@
           selectStructure(own);
           if (own.type === 'gasExtractor') { openGasExtractorMenu(own, screenPt); return; }
           if (['spawningNest', 'evolutionPit', 'spitterDen', 'carapaceWarren', 'airSpire', 'creepTumor', 'thornmawCrawler', 'skysporeSentinel'].includes(own.type)) { openInsectStructureMenu(own, screenPt); return; }
-          if (['heliasPylon', 'heliasCyberCore', 'heliasForge'].includes(own.type)) { openHeliasStructureMenu(own, screenPt); return; }
+          if (['heliasPylon', 'heliasCyberCore', 'heliasForge', 'heliasTurret'].includes(own.type)) { openHeliasStructureMenu(own, screenPt); return; }
           if (own.type === 'minersHut') { openMinersHutMenu(own, screenPt); return; }
           if (own.type === 'housing') { openHousingMenu(own, screenPt); return; }
           if (own.type === 'researchFacility') { openResearchFacilityMenu(own, screenPt); return; }
@@ -11868,12 +12050,39 @@
         Object.freeze({ x: 1285 / 1600, y: 810 / 1120, angle: -2.38 })
       ]);
       
-      const COMPUTER_DEFENDERS = Object.freeze([
-        Object.freeze({ type: 'infantry', dx: -72, dy: 64 }),
-        Object.freeze({ type: 'infantry', dx: -40, dy: 46 }),
-        Object.freeze({ type: 'assault', dx: 40, dy: 82 }),
-        Object.freeze({ type: 'heavy', dx: 18, dy: 58 }),
-        Object.freeze({ type: 'assault', dx: -100, dy: 0 })
+      const COMPUTER_DEFENDERS = Object.freeze({
+        humans: Object.freeze([
+          Object.freeze({ type: 'infantry', dx: -72, dy: 64 }),
+          Object.freeze({ type: 'infantry', dx: -40, dy: 46 }),
+          Object.freeze({ type: 'assault', dx: 40, dy: 82 }),
+          Object.freeze({ type: 'heavy', dx: 18, dy: 58 }),
+          Object.freeze({ type: 'assault', dx: -100, dy: 0 })
+        ]),
+        insects: Object.freeze([
+          Object.freeze({ type: 'insectSwarmling', dx: -72, dy: 58 }),
+          Object.freeze({ type: 'insectSwarmling', dx: -42, dy: 44 }),
+          Object.freeze({ type: 'insectSwarmling', dx: 20, dy: 62 }),
+          Object.freeze({ type: 'insectSpitter', dx: 48, dy: 82 }),
+          Object.freeze({ type: 'insectQueen', dx: -96, dy: 4 })
+        ]),
+        helias: Object.freeze([
+          Object.freeze({ type: 'heliasVanguard', dx: -72, dy: 60 }),
+          Object.freeze({ type: 'heliasVanguard', dx: -38, dy: 44 }),
+          Object.freeze({ type: 'heliasLancer', dx: 42, dy: 82 }),
+          Object.freeze({ type: 'heliasSentry', dx: 16, dy: 58 }),
+          Object.freeze({ type: 'heliasLancer', dx: -98, dy: 2 })
+        ])
+      });
+
+      const HELIAS_COMPUTER_BUILD_SITES = Object.freeze([
+        Object.freeze({ type: 'heliasPylon', dx: -25, dy: 105 }),
+        Object.freeze({ type: 'heliasGateway', dx: -112, dy: 62 }),
+        Object.freeze({ type: 'heliasCyberCore', dx: 54, dy: 104 }),
+        Object.freeze({ type: 'heliasForge', dx: 104, dy: 28 }),
+        Object.freeze({ type: 'heliasTurret', dx: -58, dy: 150 }),
+        Object.freeze({ type: 'heliasRoboticsFacility', dx: -118, dy: -18 }),
+        Object.freeze({ type: 'heliasPylon', dx: 98, dy: -76 }),
+        Object.freeze({ type: 'heliasStargate', dx: 52, dy: -58 })
       ]);
       
       const SANDBOX_PLAYER_BUILDINGS = Object.freeze([
@@ -11898,6 +12107,7 @@
         Object.freeze({ type: 'heliasGateway', forward: 230, side: -95 }),
         Object.freeze({ type: 'heliasCyberCore', forward: 220, side: -25 }),
         Object.freeze({ type: 'heliasForge', forward: 295, side: -105 }),
+        Object.freeze({ type: 'heliasTurret', forward: 310, side: 105 }),
         Object.freeze({ type: 'heliasRoboticsFacility', forward: 230, side: 95 }),
         Object.freeze({ type: 'heliasPylon', forward: 285, side: 0 }),
         Object.freeze({ type: 'heliasStargate', forward: 365, side: 0 })
@@ -12073,7 +12283,9 @@
       
       function addComputerDefenders(hq) {
         const rotation = hq.inwardAngle - ENEMY_PLAN_REFERENCE_ANGLE;
-        for (const defender of COMPUTER_DEFENDERS) {
+        const faction = teamFactionId(hq.team, state.teamFactions);
+        const defenders = COMPUTER_DEFENDERS[faction] || COMPUTER_DEFENDERS.humans;
+        for (const defender of defenders) {
           const offset = rotateOffset(defender.dx, defender.dy, rotation);
           const x = clamp(hq.x + offset.x, 18, WORLD_W - 18);
           const y = clamp(hq.y + offset.y, 18, WORLD_H - 18);
@@ -12091,8 +12303,10 @@
         for (const unit of units) safeZones.push({ x: unit.x, y: unit.y, r: (unit.radius || 10) + 22 });
         for (const field of resourceFields) safeZones.push({ x: field.x, y: field.y, r: 172 });
         for (const hq of enemyHQs) {
-          if (teamFactionId(hq.team, state.teamFactions) === 'insects') continue;
-          for (const plan of ENEMY_BUILD_PLAN) {
+          const faction = teamFactionId(hq.team, state.teamFactions);
+          if (faction === 'insects') continue;
+          const plans = faction === 'helias' ? HELIAS_COMPUTER_BUILD_SITES : ENEMY_BUILD_PLAN;
+          for (const plan of plans) {
             const data = BUILDING_DATA[plan.type];
             const position = computerBuildPosition(hq, plan);
             if (data && position) safeZones.push({ x: position.x, y: position.y, r: Math.max(data.w, data.h) + 22 });
@@ -12100,6 +12314,13 @@
         }
       }
       
+      const RANDOMIZABLE_FACTION_IDS = Object.freeze(['humans', 'insects', 'helias']);
+
+      function seededFactionChoice(matchSeed, salt) {
+        const index = hashStringToSeed(`faction:${matchSeed}:${salt}`) % RANDOMIZABLE_FACTION_IDS.length;
+        return RANDOMIZABLE_FACTION_IDS[index];
+      }
+
       function bootstrapWorld(mode) {
         const gameCode = normalizedGameCode(mode);
         const matchSeed = matchSeedForMode(mode);
@@ -12168,8 +12389,13 @@
         if (mode.pvp) activateMultiplayerCommandQueue();
         const computerTeams = COMPUTER_TEAMS.slice(0, mode.computerCount).filter(team => !humanTeams.includes(team));
         const teams = canonicalTeamOrder([...humanTeams, ...computerTeams]);
-        const requestedPlayerFaction = normalizeFactionId(mode.playerFaction || DEFAULT_FACTION_ID);
-        const requestedComputerFaction = normalizeFactionId(mode.computerFaction || DEFAULT_FACTION_ID);
+        const requestedPlayerFaction = String(mode.playerFaction || '').toLowerCase() === 'random'
+          ? seededFactionChoice(matchSeed, 'player')
+          : normalizeFactionId(mode.playerFaction || DEFAULT_FACTION_ID);
+        const randomizeComputerFactions = String(mode.computerFaction || '').toLowerCase() === 'random';
+        const requestedComputerFaction = randomizeComputerFactions
+          ? null
+          : normalizeFactionId(mode.computerFaction || DEFAULT_FACTION_ID);
         const multiplayerFactionByTeam = Object.fromEntries(
           (Array.isArray(mode.multiplayerPlayers) ? mode.multiplayerPlayers : [])
             .filter(player => player && teams.includes(player.team))
@@ -12181,7 +12407,9 @@
             : team === 'player'
               ? requestedPlayerFaction
               : computerTeams.includes(team)
-                ? requestedComputerFaction
+                ? (randomizeComputerFactions
+                    ? seededFactionChoice(matchSeed, `computer:${team}`)
+                    : requestedComputerFaction)
                 : DEFAULT_FACTION_ID;
         }
         state.activeTeams = teams;
@@ -12422,8 +12650,8 @@
 
   __define("menu.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js"); const __dep3 = __require("account.js");
-    Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep0["normalizeFactionId"] }); Object.defineProperty(__imports, "GROUND_TAG_COLORS", { enumerable: true, get: () => __dep0["GROUND_TAG_COLORS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "MAX_OWNED_GROUND_TAGS", { enumerable: true, get: () => __dep0["MAX_OWNED_GROUND_TAGS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerFaction", { enumerable: true, get: () => __dep2["setMultiplayerFaction"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] }); Object.defineProperty(__imports, "initializeAccountSync", { enumerable: true, get: () => __dep3["initializeAccountSync"] }); Object.defineProperty(__imports, "scheduleAccountSync", { enumerable: true, get: () => __dep3["scheduleAccountSync"] }); Object.defineProperty(__imports, "signInAccount", { enumerable: true, get: () => __dep3["signInAccount"] }); Object.defineProperty(__imports, "signInWithGoogleAccount", { enumerable: true, get: () => __dep3["signInWithGoogleAccount"] }); Object.defineProperty(__imports, "signOutAccount", { enumerable: true, get: () => __dep3["signOutAccount"] }); Object.defineProperty(__imports, "signUpAccount", { enumerable: true, get: () => __dep3["signUpAccount"] }); Object.defineProperty(__imports, "subscribeAccount", { enumerable: true, get: () => __dep3["subscribeAccount"] }); Object.defineProperty(__imports, "syncAccountNow", { enumerable: true, get: () => __dep3["syncAccountNow"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js"); const __dep3 = __require("account.js"); const __dep4 = __require("portraitRenderer.js");
+    Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep0["normalizeFactionId"] }); Object.defineProperty(__imports, "GROUND_TAG_COLORS", { enumerable: true, get: () => __dep0["GROUND_TAG_COLORS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "MAX_OWNED_GROUND_TAGS", { enumerable: true, get: () => __dep0["MAX_OWNED_GROUND_TAGS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerFaction", { enumerable: true, get: () => __dep2["setMultiplayerFaction"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] }); Object.defineProperty(__imports, "initializeAccountSync", { enumerable: true, get: () => __dep3["initializeAccountSync"] }); Object.defineProperty(__imports, "scheduleAccountSync", { enumerable: true, get: () => __dep3["scheduleAccountSync"] }); Object.defineProperty(__imports, "signInAccount", { enumerable: true, get: () => __dep3["signInAccount"] }); Object.defineProperty(__imports, "signInWithGoogleAccount", { enumerable: true, get: () => __dep3["signInWithGoogleAccount"] }); Object.defineProperty(__imports, "signOutAccount", { enumerable: true, get: () => __dep3["signOutAccount"] }); Object.defineProperty(__imports, "signUpAccount", { enumerable: true, get: () => __dep3["signUpAccount"] }); Object.defineProperty(__imports, "subscribeAccount", { enumerable: true, get: () => __dep3["subscribeAccount"] }); Object.defineProperty(__imports, "syncAccountNow", { enumerable: true, get: () => __dep3["syncAccountNow"] }); Object.defineProperty(__imports, "loadGLBModel", { enumerable: true, get: () => __dep4["loadGLBModel"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "actionForKeyboardEvent", { enumerable: true, get: () => actionForKeyboardEvent }); Object.defineProperty(__exports, "getKeybinds", { enumerable: true, get: () => getKeybinds }); Object.defineProperty(__exports, "isMenuOpen", { enumerable: true, get: () => isMenuOpen }); Object.defineProperty(__exports, "keybindCodeLabel", { enumerable: true, get: () => keybindCodeLabel }); Object.defineProperty(__exports, "matchesKeybind", { enumerable: true, get: () => matchesKeybind }); Object.defineProperty(__exports, "resetKeybinds", { enumerable: true, get: () => resetKeybinds }); Object.defineProperty(__exports, "showMainMenu", { enumerable: true, get: () => showMainMenu });
@@ -12500,6 +12728,181 @@
       const COMPUTER_MODE_KEYS = Object.freeze(['duel', 'threeWay', 'fourWay']);
       const PVP_MODE_KEYS = Object.freeze(['pvp', 'pvp3', 'pvp4']);
       const MENU_VOLUME_STORAGE_KEY = 'starlite.volume.v1';
+      const GOOGLE_PUBLISHER_TAG_URL = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
+      const GOOGLE_REWARDED_TEST_AD_UNIT = '/22639388115/rewarded_web_example';
+      let googlePublisherTagPromise = null;
+
+      function rewardedAdConfiguration() {
+        const raw = globalThis.STARLITE_REWARDED_AD_CONFIG || {};
+        const seconds = Number(raw.developmentSeconds);
+        return Object.freeze({
+          enabled: raw.enabled === true,
+          adUnitPath: String(raw.adUnitPath || '').trim(),
+          testMode: raw.testMode === true,
+          developmentPlaceholder: raw.developmentPlaceholder !== false,
+          developmentSeconds: Number.isFinite(seconds) ? Math.max(3, Math.min(30, Math.round(seconds))) : 8,
+          consentGate: typeof raw.consentGate === 'function' ? raw.consentGate : null
+        });
+      }
+
+      function isLocalRewardedAdEnvironment() {
+        if (typeof location === 'undefined') return false;
+        return location.protocol === 'file:' || location.hostname === 'localhost' ||
+          location.hostname === '127.0.0.1' || location.hostname === '[::1]';
+      }
+
+      function loadGooglePublisherTag() {
+        if (globalThis.googletag?.apiReady) return Promise.resolve(globalThis.googletag);
+        if (googlePublisherTagPromise) return googlePublisherTagPromise;
+        if (typeof document === 'undefined') return Promise.reject(new Error('Rewarded ads require a browser.'));
+
+        globalThis.googletag = globalThis.googletag || { cmd: [] };
+        googlePublisherTagPromise = new Promise((resolve, reject) => {
+          let settled = false;
+          const finish = (callback, value) => {
+            if (settled) return;
+            settled = true;
+            globalThis.clearTimeout(timeoutId);
+            callback(value);
+          };
+          let script = document.querySelector('script[data-starlite-google-publisher-tag]');
+          if (!script) {
+            script = document.createElement('script');
+            script.src = GOOGLE_PUBLISHER_TAG_URL;
+            script.async = true;
+            script.crossOrigin = 'anonymous';
+            script.dataset.starliteGooglePublisherTag = 'true';
+            document.head.appendChild(script);
+          }
+          const loaded = () => finish(resolve, globalThis.googletag);
+          script.addEventListener('load', loaded, { once: true });
+          script.addEventListener('error', () => finish(reject, new Error('Google rewarded-ad service could not load.')), { once: true });
+          const timeoutId = globalThis.setTimeout(
+            () => finish(reject, new Error('Google rewarded-ad service timed out.')),
+            15000
+          );
+          if (globalThis.googletag?.apiReady) loaded();
+        }).catch(error => {
+          googlePublisherTagPromise = null;
+          throw error;
+        });
+        return googlePublisherTagPromise;
+      }
+
+      async function prepareGoogleRewardedAd(onStatus = () => {}) {
+        const config = rewardedAdConfiguration();
+        if (!config.enabled && !config.testMode) throw new Error('Rewarded ads are not configured for this deployment.');
+        if (config.consentGate) {
+          const consent = await config.consentGate();
+          if (consent === false) throw new Error('Advertising consent was not granted.');
+        }
+        const adUnitPath = config.testMode ? GOOGLE_REWARDED_TEST_AD_UNIT : config.adUnitPath;
+        if (!adUnitPath) throw new Error('Add your Google Ad Manager rewarded ad-unit path first.');
+
+        await loadGooglePublisherTag();
+        return new Promise((resolve, reject) => {
+          let rewardedSlot = null;
+          let settled = false;
+          let granted = false;
+          let completionResolve = null;
+          let readyTimeout = 0;
+          let pubads = null;
+          const handlers = Object.create(null);
+
+          const eventMatchesSlot = event => !event?.slot || event.slot === rewardedSlot;
+          const removeListeners = () => {
+            if (!pubads || typeof pubads.removeEventListener !== 'function') return;
+            for (const [name, handler] of Object.entries(handlers)) pubads.removeEventListener(name, handler);
+          };
+          const destroy = () => {
+            globalThis.clearTimeout(readyTimeout);
+            removeListeners();
+            if (rewardedSlot && globalThis.googletag?.destroySlots) {
+              try { globalThis.googletag.destroySlots([rewardedSlot]); } catch { /* Slot may already be gone. */ }
+            }
+            rewardedSlot = null;
+          };
+          const fail = error => {
+            if (settled) return;
+            settled = true;
+            destroy();
+            reject(error instanceof Error ? error : new Error(String(error || 'Rewarded ad unavailable.')));
+          };
+
+          globalThis.googletag.cmd.push(() => {
+            try {
+              rewardedSlot = globalThis.googletag.defineOutOfPageSlot(
+                adUnitPath,
+                globalThis.googletag.enums.OutOfPageFormat.REWARDED
+              );
+              if (!rewardedSlot) {
+                fail(new Error('Rewarded ads are not supported by this page or device.'));
+                return;
+              }
+              pubads = globalThis.googletag.pubads();
+              rewardedSlot.addService(pubads);
+
+              handlers.rewardedSlotReady = event => {
+                if (!eventMatchesSlot(event) || settled) return;
+                settled = true;
+                globalThis.clearTimeout(readyTimeout);
+                onStatus('A voluntary rewarded ad is ready.');
+                resolve({
+                  show() {
+                    if (!rewardedSlot) return Promise.resolve(false);
+                    return new Promise(completion => {
+                      completionResolve = completion;
+                      try {
+                        event.makeRewardedVisible();
+                        onStatus('Rewarded ad is playing. Complete it to unlock the new tag.');
+                      } catch (error) {
+                        completionResolve = null;
+                        destroy();
+                        completion(false);
+                        onStatus(error?.message || 'The rewarded ad could not open.');
+                      }
+                    });
+                  },
+                  cancel() {
+                    const completion = completionResolve;
+                    completionResolve = null;
+                    destroy();
+                    if (completion) completion(false);
+                  }
+                });
+              };
+              handlers.rewardedSlotVideoCompleted = event => {
+                if (eventMatchesSlot(event)) onStatus('Advert completed. Waiting for Google to grant the reward…');
+              };
+              handlers.rewardedSlotGranted = event => {
+                if (!eventMatchesSlot(event)) return;
+                granted = true;
+                onStatus('Reward granted. Close the advert to continue.');
+              };
+              handlers.rewardedSlotClosed = event => {
+                if (!eventMatchesSlot(event)) return;
+                const completion = completionResolve;
+                completionResolve = null;
+                destroy();
+                if (completion) completion(granted);
+              };
+              handlers.slotRenderEnded = event => {
+                if (event.slot !== rewardedSlot || !event.isEmpty) return;
+                if (!settled) fail(new Error('No rewarded advert is available right now.'));
+              };
+              for (const [name, handler] of Object.entries(handlers)) pubads.addEventListener(name, handler);
+              globalThis.googletag.enableServices();
+              globalThis.googletag.display(rewardedSlot);
+              readyTimeout = globalThis.setTimeout(
+                () => fail(new Error('No rewarded advert became ready. Try again later.')),
+                20000
+              );
+            } catch (error) {
+              fail(error);
+            }
+          });
+        });
+      }
       
       function loadMenuVolume() {
         const raw = storageGet(MENU_VOLUME_STORAGE_KEY);
@@ -12667,14 +13070,14 @@
         }
         .starlite-menu__title span { color: #a7ef74; }
         .starlite-menu__panel {
-          width: min(620px, 100%); padding: clamp(18px, 4vw, 30px);
+          position: relative; width: min(620px, 100%); padding: clamp(18px, 4vw, 30px);
           border: 1px solid rgba(212, 245, 191, .3); border-radius: 18px;
           background: linear-gradient(155deg, rgba(21, 31, 25, .95), rgba(11, 17, 14, .93));
           box-shadow: 0 24px 65px rgba(0,0,0,.48), inset 0 1px rgba(255,255,255,.06);
           backdrop-filter: blur(12px);
         }
         .starlite-menu__return {
-          position: fixed; top: max(14px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); z-index: 6;
+          position: absolute; top: 14px; left: 14px; z-index: 6;
           width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
           border: 1px solid rgba(204,232,190,.32); border-radius: 50%; color: #edf7e8;
           background: rgba(10,18,13,.78); cursor: pointer; backdrop-filter: blur(10px);
@@ -12682,6 +13085,9 @@
         .starlite-menu__return:hover, .starlite-menu__return:focus-visible { outline: none; border-color: #9de36f; color: #b8f288; background: rgba(28,52,31,.92); }
         .starlite-menu__return svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .starlite-menu__heading { margin: 0 0 15px; font-size: 13px; letter-spacing: .18em; color: #a8c99f; text-transform: uppercase; }
+        .starlite-menu__return + .starlite-menu__heading {
+          min-height: 44px; padding-left: 50px; display: flex; align-items: center;
+        }
         .starlite-menu__modes { display: grid; gap: 10px; }
         .starlite-menu__button {
           width: 100%; min-height: 65px; padding: 11px 16px; display: grid; grid-template-columns: 1fr auto;
@@ -12731,6 +13137,47 @@
         .starlite-menu__identity select { cursor: pointer; }
         .starlite-menu__identity select option { color: #edf7e8; background: #172019; }
         .starlite-menu__identity small { color: #8fa68a; font-size: 10px; font-weight: 600; letter-spacing: .03em; }
+        .starlite-menu__faction-picker { border: 0; padding: 0; min-width: 0; }
+        .starlite-menu__faction-picker > span, .starlite-menu__faction-picker > legend {
+          padding: 0; color: #b6d9ae; font: inherit; letter-spacing: inherit;
+        }
+        .starlite-menu__faction-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+        .starlite-menu__faction-card {
+          position: relative; min-width: 0; min-height: 94px; padding: 10px 7px 8px; overflow: hidden;
+          display: grid; grid-template-rows: 42px auto auto; align-items: center; justify-items: center; gap: 2px;
+          border: 1px solid rgba(178,221,151,.25); border-radius: 11px; color: #edf7e8;
+          background: linear-gradient(155deg, rgba(35,52,38,.84), rgba(9,17,12,.9));
+          font: inherit; text-align: center; cursor: pointer;
+          transition: transform .14s ease, border-color .14s ease, background .14s ease, box-shadow .14s ease;
+        }
+        .starlite-menu__faction-card::after {
+          content: ''; position: absolute; inset: auto -18px -30px; height: 56px; opacity: .18;
+          border-radius: 50%; background: currentColor; filter: blur(14px); pointer-events: none;
+        }
+        .starlite-menu__faction-card:hover, .starlite-menu__faction-card:focus-visible {
+          outline: none; transform: translateY(-1px); border-color: #b8f288; box-shadow: 0 0 0 1px rgba(184,242,136,.16);
+        }
+        .starlite-menu__faction-card[aria-pressed="true"] {
+          border-color: #b8f288; background: linear-gradient(155deg, rgba(72,111,57,.9), rgba(15,30,18,.96));
+          box-shadow: inset 0 0 0 1px rgba(184,242,136,.22), 0 0 20px rgba(157,227,111,.13);
+        }
+        .starlite-menu__faction-card:disabled { cursor: default; opacity: .55; transform: none; }
+        .starlite-menu__faction-card[data-faction-choice="humans"] { color: #f1c76b; }
+        .starlite-menu__faction-card[data-faction-choice="insects"] { color: #a7ef74; }
+        .starlite-menu__faction-card[data-faction-choice="helias"] { color: #7de8ff; }
+        .starlite-menu__faction-card[data-faction-choice="random"] { color: #d2a8ff; }
+        .starlite-menu__faction-emblem {
+          width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid currentColor;
+          border-radius: 50%; background: rgba(4,10,8,.56); box-shadow: inset 0 0 14px color-mix(in srgb, currentColor 25%, transparent);
+          font: 900 19px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+        .starlite-menu__faction-card strong { max-width: 100%; color: #f2f8ef; font-size: 10px; letter-spacing: .08em; white-space: nowrap; }
+        .starlite-menu__faction-card small { max-width: 100%; color: #91a88d; font-size: 8px; line-height: 1.15; letter-spacing: .02em; }
+        @media (max-width: 560px) {
+          .starlite-menu__faction-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .starlite-menu__faction-card { min-height: 82px; grid-template-rows: 34px auto auto; }
+          .starlite-menu__faction-emblem { width: 32px; height: 32px; font-size: 15px; }
+        }
         .starlite-menu__branch-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
         .starlite-menu__branch-actions > :only-child,
         .starlite-menu__branch-actions > .starlite-hidden + .starlite-menu__secondary { grid-column: 1 / -1; }
@@ -12760,16 +13207,26 @@
         .starlite-menu__lobby-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
         .starlite-menu__lobby-controls > :only-child { grid-column: 1 / -1; }
         .starlite-menu__pvp-back { margin-top: 14px; width: 100%; }
-        .starlite-menu__panel[data-view="tag-lab"] {
+        .starlite-menu__panel[data-view="tag-lab"], .starlite-menu__panel[data-view="tag-shop"] {
           width: min(760px, 100%); max-height: calc(100vh - 190px); overflow-y: auto; overscroll-behavior: contain;
         }
         .starlite-menu__tag-lab { display: grid; grid-template-columns: minmax(190px, .78fr) minmax(280px, 1.22fr); gap: 16px; align-items: start; }
         .starlite-menu__tag-library, .starlite-menu__tag-editor { min-width: 0; display: grid; gap: 11px; }
+        .starlite-menu__tag-editor-head { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .starlite-menu__tag-section-label { color: #b6d9ae; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
         .starlite-menu__tag-list { display: grid; grid-template-columns: 1fr; gap: 7px; max-height: 220px; overflow-y: auto; padding-right: 3px; }
+        .starlite-menu__tag-owned-row { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) 27px; align-items: center; gap: 6px; }
         .starlite-menu__tag-owned { min-width: 0; padding: 6px; display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 8px; border: 1px solid rgba(204,232,190,.22); border-radius: 8px; color: #dcebd7; background: rgba(255,255,255,.035); cursor: pointer; text-align: left; }
         .starlite-menu__tag-owned:hover, .starlite-menu__tag-owned:focus-visible { outline: none; border-color: rgba(157,227,111,.72); }
         .starlite-menu__tag-owned[data-selected="true"] { border-color: #9de36f; background: rgba(157,227,111,.11); }
+        .starlite-menu__tag-delete {
+          width: 27px; height: 27px; display: grid; place-items: center; padding: 0;
+          border: 1px solid rgba(255,100,100,.58); border-radius: 7px; color: #ff8585;
+          background: rgba(92,19,24,.5); font: 950 17px/1 ui-monospace, monospace; cursor: pointer;
+        }
+        .starlite-menu__tag-delete:hover, .starlite-menu__tag-delete:focus-visible {
+          outline: 2px solid rgba(255,135,135,.55); outline-offset: 1px; color: #fff; background: rgba(175,38,48,.72);
+        }
         .starlite-menu__tag-owned canvas {
           width: 42px; height: 42px; image-rendering: pixelated; border: 1px solid rgba(255,255,255,.28);
           background-color: #fff;
@@ -12778,6 +13235,35 @@
         }
         .starlite-menu__tag-owned span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 750 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
         .starlite-menu__tag-empty { padding: 12px; border: 1px dashed rgba(204,232,190,.24); border-radius: 8px; color: #8fa68a; font-size: 11px; text-align: center; }
+        .starlite-menu__rewarded-overlay {
+          position: fixed; inset: 0; z-index: 40; padding: 20px; display: grid; place-items: center;
+          background: rgba(2,7,10,.86); backdrop-filter: blur(7px);
+        }
+        .starlite-menu__rewarded-dialog {
+          width: min(460px, 100%); padding: 22px; display: grid; gap: 13px;
+          border: 1px solid rgba(125,232,255,.48); border-radius: 14px;
+          background: linear-gradient(155deg, rgba(20,49,59,.98), rgba(6,15,21,.99));
+          box-shadow: 0 24px 70px rgba(0,0,0,.58); text-align: center;
+        }
+        .starlite-menu__rewarded-badge {
+          justify-self: center; padding: 4px 8px; border: 1px solid rgba(125,232,255,.42); border-radius: 999px;
+          color: #9cf2ff; background: rgba(125,232,255,.08); font: 800 9px ui-monospace, monospace; letter-spacing: .12em;
+        }
+        .starlite-menu__rewarded-dialog h3 { margin: 0; color: #effcff; font-size: 19px; letter-spacing: .04em; }
+        .starlite-menu__rewarded-dialog p { margin: 0; color: #b8cdd2; font-size: 12px; line-height: 1.55; }
+        .starlite-menu__rewarded-frame {
+          min-height: 145px; padding: 17px; display: grid; align-content: center; justify-items: center; gap: 9px;
+          border: 1px solid rgba(210,168,255,.34); border-radius: 11px; overflow: hidden;
+          background: radial-gradient(circle at 50% 35%, rgba(210,168,255,.2), transparent 58%), rgba(5,9,16,.8);
+        }
+        .starlite-menu__rewarded-frame strong { color: #e6d2ff; font-size: 11px; letter-spacing: .12em; }
+        .starlite-menu__rewarded-countdown { color: #fff; font: 900 38px ui-monospace, monospace; }
+        .starlite-menu__rewarded-frame small { color: #8f9eae; font-size: 9px; letter-spacing: .08em; }
+        .starlite-menu__rewarded-actions { display: grid; grid-template-columns: 1fr 1.25fr; gap: 9px; }
+        .starlite-menu__rewarded-actions .starlite-menu__secondary { min-height: 43px; }
+        .starlite-menu__rewarded-watch[data-ready="true"] {
+          border-color: rgba(157,227,111,.72); color: #eaffdf; background: rgba(62,105,48,.42);
+        }
         .starlite-menu__tag-canvas {
           display: block; width: min(320px, 100%); aspect-ratio: 1; margin: 0 auto; touch-action: none; image-rendering: pixelated; cursor: crosshair;
           border: 2px solid rgba(204,232,190,.52); border-radius: 9px; background-color: #fff;
@@ -12803,6 +13289,63 @@
         .starlite-menu__tag-save { border-color: rgba(157,227,111,.7); color: #dfffd0; }
         .starlite-menu__tag-save[data-active="true"] { border-color: #9de36f; color: #b8f288; background: rgba(157,227,111,.14); }
         .starlite-menu__tag-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+        .starlite-menu__new-tag {
+          border-color: #ffcf53; color: #191005;
+          background: linear-gradient(135deg, #ff6f61, #ffd34f 58%, #8df5ff);
+          box-shadow: 0 0 0 1px rgba(255,255,255,.28), 0 0 20px rgba(255,126,82,.28);
+          animation: starlite-new-tag-pop 1.65s ease-in-out infinite;
+        }
+        .starlite-menu__new-tag:hover, .starlite-menu__new-tag:focus-visible { color: #090704; filter: brightness(1.08) saturate(1.12); }
+        @keyframes starlite-new-tag-pop {
+          0%, 100% { transform: scale(1); box-shadow: 0 0 0 1px rgba(255,255,255,.28), 0 0 15px rgba(255,126,82,.22); }
+          50% { transform: scale(1.035); box-shadow: 0 0 0 2px rgba(255,255,255,.38), 0 0 27px rgba(255,203,70,.42); }
+        }
+        .starlite-menu__tag-teaser.starlite-menu__shop-teaser {
+          position: static; width: min(190px, 70%); min-height: 58px; margin: 0; padding: 9px 12px;
+          grid-template-columns: auto 1fr; justify-items: start; text-align: left;
+          transform: rotate(-1.5deg); animation: starlite-shop-wobble 8s ease-in-out infinite;
+          color: #231237; border-color: #3b1b57; background: linear-gradient(135deg, #f58cff, #a986ff 52%, #78e8ff);
+          box-shadow: 5px 6px 0 rgba(18,8,31,.4), inset 0 0 0 2px rgba(255,255,255,.28);
+        }
+        .starlite-menu__tag-teaser.starlite-menu__shop-teaser .starlite-menu__tag-teaser-mark { grid-row: 1 / span 2; border-radius: 50%; }
+        .starlite-menu__tag-teaser.starlite-menu__shop-teaser strong { font-size: 14px; }
+        .starlite-menu__tag-teaser.starlite-menu__shop-teaser small { font-size: 7px; }
+        @keyframes starlite-shop-wobble {
+          0%, 72%, 100% { transform: rotate(-1.5deg); }
+          77% { transform: rotate(1.5deg) scale(1.015); }
+          83% { transform: rotate(-2.7deg); }
+        }
+        .starlite-menu__shop-empty {
+          padding: 28px 18px; display: grid; justify-items: center; gap: 10px;
+          border: 1px dashed rgba(205,155,255,.45); border-radius: 13px;
+          color: #c8b6d9; background: rgba(111,52,139,.12); text-align: center;
+        }
+        .starlite-menu__shop-empty strong { color: #f5ddff; font-size: 15px; letter-spacing: .08em; }
+        .starlite-menu__shop-empty small { max-width: 490px; font-size: 11px; line-height: 1.55; }
+        .starlite-menu__tag-celebration {
+          position: fixed; inset: 0; z-index: 60; overflow: hidden; display: grid; place-items: center;
+          pointer-events: none; background: radial-gradient(circle at 50% 48%, rgba(157,227,111,.12), transparent 42%);
+        }
+        .starlite-menu__tag-celebration-message {
+          position: relative; z-index: 2; padding: 20px 26px; border: 2px solid rgba(255,255,255,.72); border-radius: 16px;
+          color: #12200e; background: linear-gradient(135deg, #fff0a4, #a7ef74 54%, #7de8ff);
+          box-shadow: 0 20px 55px rgba(0,0,0,.42); font-size: clamp(20px, 4vw, 34px); font-weight: 950;
+          letter-spacing: .025em; text-align: center; animation: starlite-celebration-message 2.45s ease both;
+        }
+        .starlite-menu__confetti-piece {
+          position: absolute; top: -10vh; left: var(--confetti-x); width: var(--confetti-w); height: var(--confetti-h);
+          border-radius: 2px; background: var(--confetti-color); opacity: .95;
+          transform: rotate(var(--confetti-rotate)); animation: starlite-confetti-fall var(--confetti-duration) cubic-bezier(.16,.72,.2,1) var(--confetti-delay) forwards;
+        }
+        @keyframes starlite-confetti-fall {
+          to { transform: translate(var(--confetti-drift), 118vh) rotate(calc(var(--confetti-rotate) + 760deg)); opacity: .9; }
+        }
+        @keyframes starlite-celebration-message {
+          0% { transform: scale(.55) rotate(-4deg); opacity: 0; }
+          14% { transform: scale(1.08) rotate(1deg); opacity: 1; }
+          24%, 78% { transform: scale(1) rotate(0); opacity: 1; }
+          100% { transform: scale(.94); opacity: 0; }
+        }
         .starlite-menu__top-actions {
           position: fixed; top: clamp(14px, 2.5vh, 28px); right: clamp(14px, 3vw, 34px); z-index: 4;
           display: flex; gap: 9px;
@@ -12860,12 +13403,50 @@
           display: grid; place-items: center; align-content: center; gap: 7px;
           border: 2px solid #14294a; border-radius: 10px; color: #dff7ff; background: linear-gradient(145deg, #315fa3, #58438e);
           box-shadow: -6px 8px 0 rgba(7,12,24,.4), inset 0 0 0 2px rgba(255,255,255,.2);
-          transform: rotate(6deg); transform-origin: 28% 88%; cursor: not-allowed;
+          transform: rotate(6deg); transform-origin: 28% 88%; cursor: pointer;
+          transition: transform .14s ease, filter .14s ease, box-shadow .14s ease;
         }
         .starlite-menu__tutorial-teaser strong { max-width: 126px; font-size: 15px; line-height: 1.08; letter-spacing: .06em; text-align: center; }
         .starlite-menu__tutorial-teaser small { font-size: 8px; font-weight: 850; letter-spacing: .12em; opacity: .78; text-align: center; }
         .starlite-menu__tutorial-teaser-mark { width: 38px; height: 38px; display: grid; place-items: center; border: 2px solid currentColor; border-radius: 50%; font: 950 21px ui-monospace, monospace; }
-        .starlite-menu__tutorial-teaser:disabled { opacity: .92; color: #e4f8ff; }
+        .starlite-menu__tutorial-teaser:hover, .starlite-menu__tutorial-teaser:focus-visible {
+          outline: 3px solid rgba(223,247,255,.72); outline-offset: 3px; filter: brightness(1.08) saturate(1.08); transform: rotate(2deg) scale(1.04);
+        }
+        .starlite-menu__panel[data-view="tutorials"] { width: min(900px, 100%); max-height: calc(100vh - 130px); overflow-y: auto; overscroll-behavior: contain; }
+        .starlite-menu__tutorial-copy { max-width: 680px; margin: -2px auto 17px; color: #aebfca; font-size: 12px; line-height: 1.55; text-align: center; }
+        .starlite-menu__tutorial-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+        .starlite-menu__tutorial-card {
+          position: relative; min-width: 0; padding: 10px; display: grid; gap: 9px; overflow: hidden;
+          border: 1px solid rgba(190,216,232,.28); border-radius: 15px; color: #eef8ff;
+          background: linear-gradient(155deg, rgba(27,42,54,.92), rgba(7,14,21,.96)); text-align: left; cursor: pointer;
+          box-shadow: inset 0 1px rgba(255,255,255,.05); transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+        }
+        .starlite-menu__tutorial-card:hover, .starlite-menu__tutorial-card:focus-visible {
+          outline: none; transform: translateY(-3px); border-color: rgba(156,242,255,.75); box-shadow: 0 14px 28px rgba(0,0,0,.25), inset 0 1px rgba(255,255,255,.08);
+        }
+        .starlite-menu__tutorial-card[aria-pressed="true"] {
+          border-color: #9cf2ff; box-shadow: 0 0 0 2px rgba(156,242,255,.19), 0 18px 35px rgba(0,0,0,.3);
+        }
+        .starlite-menu__tutorial-card[data-tutorial-faction="humans"] { --tutorial-accent: #f1c76b; }
+        .starlite-menu__tutorial-card[data-tutorial-faction="insects"] { --tutorial-accent: #a7ef74; }
+        .starlite-menu__tutorial-card[data-tutorial-faction="helias"] { --tutorial-accent: #7de8ff; }
+        .starlite-menu__tutorial-portrait {
+          position: relative; aspect-ratio: 4 / 3; overflow: hidden; border: 1px solid color-mix(in srgb, var(--tutorial-accent) 55%, transparent); border-radius: 11px;
+          background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--tutorial-accent) 18%, transparent), transparent 60%), rgba(2,7,12,.82);
+        }
+        .starlite-menu__tutorial-portrait canvas { display: block; width: 100%; height: 100%; }
+        .starlite-menu__tutorial-glb-label {
+          position: absolute; left: 8px; bottom: 7px; max-width: calc(100% - 16px); padding: 3px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+          border: 1px solid rgba(255,255,255,.16); border-radius: 999px; color: rgba(238,248,255,.72); background: rgba(1,5,9,.68);
+          font: 750 7px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .045em;
+        }
+        .starlite-menu__tutorial-card strong { color: #f4fbff; font-size: 16px; letter-spacing: .08em; text-align: center; }
+        .starlite-menu__tutorial-card small { min-height: 32px; color: #9fb1bc; font-size: 10px; line-height: 1.45; text-align: center; }
+        .starlite-menu__tutorial-status {
+          min-height: 45px; margin: 15px 0 0; padding: 10px 12px; display: grid; place-items: center;
+          border: 1px solid rgba(156,242,255,.18); border-radius: 10px; color: #cceaf1; background: rgba(25,67,78,.22);
+          font-size: 11px; line-height: 1.45; text-align: center;
+        }
         @keyframes starlite-tag-wobble {
           0%, 70%, 100% { transform: rotate(-7deg); }
           74% { transform: rotate(-11deg) translateY(-2px); }
@@ -12923,15 +13504,22 @@
           .starlite-menu__profile-card { grid-template-columns: 58px 1fr; }
           .starlite-menu__profile-avatar { width: 58px; height: 58px; }
           .starlite-menu__account-fields, .starlite-menu__account-actions { grid-template-columns: 1fr; }
-          .starlite-menu__panel[data-view="tag-lab"], .starlite-menu__panel[data-view="settings"], .starlite-menu__panel[data-view="player"] { max-height: calc(100vh - 20px); }
+          .starlite-menu__panel[data-view="tag-lab"], .starlite-menu__panel[data-view="tag-shop"], .starlite-menu__panel[data-view="settings"], .starlite-menu__panel[data-view="player"] { max-height: calc(100vh - 20px); }
           .starlite-menu__tag-lab { grid-template-columns: 1fr; }
+          .starlite-menu__tag-editor-head { align-items: stretch; }
+          .starlite-menu__shop-teaser { width: min(190px, 62%); }
+          .starlite-menu__tutorial-grid { grid-template-columns: 1fr; }
+          .starlite-menu__tutorial-card { grid-template-columns: minmax(120px, .82fr) minmax(0, 1fr); grid-template-rows: auto auto; align-items: center; }
+          .starlite-menu__tutorial-portrait { grid-row: 1 / span 2; }
+          .starlite-menu__tutorial-card strong, .starlite-menu__tutorial-card small { text-align: left; }
           .starlite-menu__tag-list { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }
           .starlite-menu__tag-owned { grid-template-columns: 38px 1fr; }
+          .starlite-menu__shop-teaser { margin: 0; grid-template-columns: auto 1fr; transform: rotate(-1deg); }
           .starlite-menu__tag-owned canvas { width: 38px; height: 38px; }
           .starlite-menu__tag-color-groups { grid-template-columns: 1fr; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser { transition: none; animation: none !important; }
+          .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser, .starlite-menu__new-tag, .starlite-menu__confetti-piece, .starlite-menu__tag-celebration-message { transition: none; animation: none !important; }
         }
       `;
       
@@ -13269,15 +13857,24 @@
                 </select>
                 <small>Changes computer reaction speed, scouting, attack tempo and starting resources.</small>
               </label>
-              <label class="starlite-menu__identity" data-solo-faction-wrap>
-                <span>YOUR FACTION</span>
-                <select data-solo-faction>
-                  <option value="humans" selected>HUMANS</option>
-                  <option value="insects">ZGLENGO</option>
-                  <option value="helias">THE HELIAS</option>
-                </select>
-                <small>Choose the faction you will command in this match.</small>
-              </label>
+              <fieldset class="starlite-menu__identity starlite-menu__faction-picker" data-solo-faction-wrap>
+                <legend>YOUR FACTION</legend>
+                <div class="starlite-menu__faction-grid" data-solo-faction role="group" aria-label="Choose your faction">
+                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="humans" aria-pressed="true">
+                    <span class="starlite-menu__faction-emblem" aria-hidden="true">H</span><strong>HUMANS</strong><small>ARMOR · INDUSTRY</small>
+                  </button>
+                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="insects" aria-pressed="false">
+                    <span class="starlite-menu__faction-emblem" aria-hidden="true">Z</span><strong>ZGLENGO</strong><small>BROOD · EVOLUTION</small>
+                  </button>
+                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="helias" aria-pressed="false">
+                    <span class="starlite-menu__faction-emblem" aria-hidden="true">Ψ</span><strong>THE HELIAS</strong><small>SHIELDS · WARP</small>
+                  </button>
+                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="random" aria-pressed="false">
+                    <span class="starlite-menu__faction-emblem" aria-hidden="true">?</span><strong>RANDOM</strong><small>REVEALED IN GAME</small>
+                  </button>
+                </div>
+                <small>Choose a faction block. Random is resolved once from the match seed.</small>
+              </fieldset>
               <div class="starlite-menu__modes" data-size-modes></div>
               <p class="starlite-menu__status" data-size-status role="status" aria-live="polite"></p>
               <div class="starlite-menu__branch-actions">
@@ -13290,15 +13887,24 @@
               <button class="starlite-menu__return" type="button" data-close-pvp aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading" data-pvp-heading>PVP relay match</h2>
               <p class="starlite-menu__pvp-copy" data-pvp-copy>The host creates a room code. Every player joins the same deterministic lockstep room.</p>
-              <label class="starlite-menu__identity" data-pvp-faction-wrap>
-                <span>YOUR FACTION</span>
-                <select data-pvp-faction>
-                  <option value="humans" selected>HUMANS</option>
-                  <option value="insects">ZGLENGO</option>
-                  <option value="helias">THE HELIAS</option>
-                </select>
+              <fieldset class="starlite-menu__identity starlite-menu__faction-picker" data-pvp-faction-wrap>
+                <legend>YOUR FACTION</legend>
+                <div class="starlite-menu__faction-grid" data-pvp-faction role="group" aria-label="Choose your multiplayer faction">
+                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="humans" aria-pressed="true">
+                    <span class="starlite-menu__faction-emblem" aria-hidden="true">H</span><strong>HUMANS</strong><small>ARMOR · INDUSTRY</small>
+                  </button>
+                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="insects" aria-pressed="false">
+                    <span class="starlite-menu__faction-emblem" aria-hidden="true">Z</span><strong>ZGLENGO</strong><small>BROOD · EVOLUTION</small>
+                  </button>
+                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="helias" aria-pressed="false">
+                    <span class="starlite-menu__faction-emblem" aria-hidden="true">Ψ</span><strong>THE HELIAS</strong><small>SHIELDS · WARP</small>
+                  </button>
+                  <button class="starlite-menu__faction-card" type="button" data-faction-choice="random" aria-pressed="false">
+                    <span class="starlite-menu__faction-emblem" aria-hidden="true">?</span><strong>RANDOM</strong><small>LOCKS A FACTION</small>
+                  </button>
+                </div>
                 <small>Changing faction in a connected lobby clears your ready status.</small>
-              </label>
+              </fieldset>
               <div class="starlite-menu__pvp-actions" data-pvp-actions>
                 <button class="starlite-menu__secondary" type="button" data-pvp-host>HOST</button>
                 <button class="starlite-menu__secondary" type="button" data-pvp-join>JOIN</button>
@@ -13317,22 +13923,23 @@
             <section class="starlite-menu__panel starlite-hidden" data-view="tag-lab">
               <button class="starlite-menu__return" type="button" data-close-tag-lab aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading">Ground tag lab</h2>
-              <p class="starlite-menu__pvp-copy">Start on a clean white canvas, choose visible background and pen colors, then save. Select any saved tag to edit it.</p>
+              <p class="starlite-menu__pvp-copy">Start on a clean canvas, choose background and pen colors, then save. Tags are named automatically.</p>
               <div class="starlite-menu__tag-lab">
                 <div class="starlite-menu__tag-library">
-                  <div class="starlite-menu__tag-section-label">SAVED TAGS · SELECT TO EDIT</div>
+                  <div class="starlite-menu__tag-section-label">SAVED TAGS · SELECT TO EDIT · × TO DELETE</div>
                   <div class="starlite-menu__tag-list" data-tag-list aria-label="Saved ground tags"></div>
-                  <label class="starlite-menu__identity" style="width:100%;margin:0">
-                    <span>TAG NAME</span>
-                    <input type="text" maxlength="20" autocomplete="off" spellcheck="false" value="NEW TAG" data-tag-name>
-                  </label>
                   <div class="starlite-menu__tag-actions">
-                    <button class="starlite-menu__secondary" type="button" data-new-tag>NEW WHITE</button>
+                    <button class="starlite-menu__secondary starlite-menu__new-tag" type="button" data-new-tag>NEW TAG</button>
                     <button class="starlite-menu__secondary starlite-menu__tag-save" type="button" data-save-tag>SAVE TAG</button>
-                    <button class="starlite-menu__secondary" type="button" data-delete-tag>DELETE</button>
                   </div>
                 </div>
                 <div class="starlite-menu__tag-editor">
+                  <div class="starlite-menu__tag-editor-head">
+                    <span class="starlite-menu__tag-section-label">EDITOR</span>
+                    <button class="starlite-menu__tag-teaser starlite-menu__shop-teaser" type="button" data-open-tag-shop aria-label="Open the tag shop">
+                      <span class="starlite-menu__tag-teaser-mark" aria-hidden="true">★</span><strong>THE SHOP</strong><small>PREMADE TAGS</small>
+                    </button>
+                  </div>
                   <canvas class="starlite-menu__tag-canvas" width="24" height="24" tabindex="0" data-tag-canvas aria-label="Ground tag drawing canvas"></canvas>
                   <div class="starlite-menu__tag-color-groups">
                     <section class="starlite-menu__tag-color-group" aria-label="Background colors">
@@ -13350,9 +13957,57 @@
                     <button class="starlite-menu__secondary starlite-menu__tag-tool" type="button" data-tag-eraser>ERASER</button>
                     <button class="starlite-menu__secondary" type="button" data-clear-tag>CLEAR PEN MARKS</button>
                   </div>
-                  <p class="starlite-menu__status" data-tag-status role="status" aria-live="polite">Blank white canvas ready. Draw, name, then select SAVE TAG.</p>
+                  <p class="starlite-menu__status" data-tag-status role="status" aria-live="polite">Blank canvas ready. Draw, then select SAVE TAG.</p>
                 </div>
               </div>
+            </section>
+            <section class="starlite-menu__panel starlite-hidden" data-view="tag-shop">
+              <button class="starlite-menu__return" type="button" data-close-tag-shop aria-label="Return to Tag Lab" title="Return to Tag Lab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
+              <h2 class="starlite-menu__heading">The shop</h2>
+              <p class="starlite-menu__pvp-copy">Premade tags will appear here. Each tag can be voluntarily unlocked by watching one rewarded advert.</p>
+              <div class="starlite-menu__shop-empty">
+                <span class="starlite-menu__tag-teaser-mark" aria-hidden="true">★</span>
+                <strong>SHOP COLLECTION COMING SOON</strong>
+                <small>No premade tags are bundled yet. This panel is ready for the tag packs you upload later, including one-ad unlock buttons and ownership checks.</small>
+              </div>
+            </section>
+            <div class="starlite-menu__rewarded-overlay starlite-hidden" data-rewarded-overlay role="dialog" aria-modal="true" aria-labelledby="starlite-rewarded-title">
+              <div class="starlite-menu__rewarded-dialog">
+                <span class="starlite-menu__rewarded-badge">VOLUNTARY REWARDED AD</span>
+                <h3 id="starlite-rewarded-title">Unlock one new ground tag</h3>
+                <p>Watch one short advert to save this new tag. Editing tags you already own remains free, and declining simply returns you to Tag Lab.</p>
+                <div class="starlite-menu__rewarded-frame starlite-hidden" data-rewarded-frame aria-live="polite">
+                  <strong>DEVELOPMENT AD PLACEHOLDER</strong>
+                  <span class="starlite-menu__rewarded-countdown" data-rewarded-countdown>8</span>
+                  <small>LOCAL TEST ONLY · THIS IMPRESSION EARNS NO REVENUE</small>
+                </div>
+                <p class="starlite-menu__status" data-rewarded-status role="status" aria-live="polite">Preparing rewarded advert…</p>
+                <div class="starlite-menu__rewarded-actions">
+                  <button class="starlite-menu__secondary" type="button" data-rewarded-cancel>NOT NOW</button>
+                  <button class="starlite-menu__secondary starlite-menu__rewarded-watch" type="button" data-rewarded-watch disabled>PREPARING AD…</button>
+                </div>
+              </div>
+            </div>
+            <div class="starlite-menu__tag-celebration starlite-hidden" data-tag-celebration aria-live="polite" aria-label="Tag saved celebration"></div>
+            <section class="starlite-menu__panel starlite-hidden" data-view="tutorials">
+              <button class="starlite-menu__return" type="button" data-close-tutorials aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
+              <h2 class="starlite-menu__heading">Choose a faction tutorial</h2>
+              <p class="starlite-menu__tutorial-copy">Select the faction you want to learn. Each portrait is generated from the faction's existing GLB asset.</p>
+              <div class="starlite-menu__tutorial-grid" role="group" aria-label="Faction tutorials">
+                <button class="starlite-menu__tutorial-card" type="button" data-tutorial-faction="humans" aria-pressed="false">
+                  <span class="starlite-menu__tutorial-portrait"><canvas data-tutorial-glb="./assets/default_commander.glb" aria-label="Human commander GLB portrait"></canvas><span class="starlite-menu__tutorial-glb-label">default_commander.glb</span></span>
+                  <strong>HUMANS</strong><small>Economy, builders, production queues and combined-arms control.</small>
+                </button>
+                <button class="starlite-menu__tutorial-card" type="button" data-tutorial-faction="insects" aria-pressed="false">
+                  <span class="starlite-menu__tutorial-portrait"><canvas data-tutorial-glb="./assets/insect.glb" aria-label="Zglengo GLB portrait"></canvas><span class="starlite-menu__tutorial-glb-label">insect.glb</span></span>
+                  <strong>ZGLENGO</strong><small>Creep, larvae, evolution, regeneration and swarm pressure.</small>
+                </button>
+                <button class="starlite-menu__tutorial-card" type="button" data-tutorial-faction="helias" aria-pressed="false">
+                  <span class="starlite-menu__tutorial-portrait"><canvas data-tutorial-glb="./helias.glb" aria-label="Helias GLB portrait"></canvas><span class="starlite-menu__tutorial-glb-label">helias.glb</span></span>
+                  <strong>THE HELIAS</strong><small>Power fields, shields, warp construction and energy technology.</small>
+                </button>
+              </div>
+              <p class="starlite-menu__tutorial-status" data-tutorial-status role="status" aria-live="polite">Choose one of the three faction tutorials.</p>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="player">
               <button class="starlite-menu__return" type="button" data-close-player aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
@@ -13418,8 +14073,8 @@
             <button class="starlite-menu__tag-teaser" type="button" data-open-tag-lab aria-label="Open Tag Lab">
               <span class="starlite-menu__tag-teaser-mark" aria-hidden="true">✎</span><strong>TAG LAB</strong><small>MAKE YOUR MARK</small>
             </button>
-            <button class="starlite-menu__tutorial-teaser" type="button" disabled aria-disabled="true" aria-label="Tutorials under construction">
-              <span class="starlite-menu__tutorial-teaser-mark" aria-hidden="true">?</span><strong>TUTORIALS</strong><small>UNDER CONSTRUCTION</small>
+            <button class="starlite-menu__tutorial-teaser" type="button" data-open-tutorials aria-label="Choose a faction tutorial">
+              <span class="starlite-menu__tutorial-teaser-mark" aria-hidden="true">?</span><strong>TUTORIALS</strong><small>CHOOSE A FACTION</small>
             </button>
             <footer class="starlite-menu__footer">Deterministic lockstep · WebSocket relay ready</footer>
           </main>`;
@@ -13432,9 +14087,15 @@
         const sizeView = root.querySelector('[data-view="sizes"]');
         const pvpView = root.querySelector('[data-view="pvp"]');
         const tagLabView = root.querySelector('[data-view="tag-lab"]');
+        const tagShopView = root.querySelector('[data-view="tag-shop"]');
+        const tutorialView = root.querySelector('[data-view="tutorials"]');
         const playerView = root.querySelector('[data-view="player"]');
         const settingsView = root.querySelector('[data-view="settings"]');
         const tagTeaser = root.querySelector('[data-open-tag-lab]');
+        const tutorialTeaser = root.querySelector('.starlite-menu__tutorial-teaser');
+        const tutorialStatus = root.querySelector('[data-tutorial-status]');
+        const tutorialCards = [...root.querySelectorAll('[data-tutorial-faction]')];
+        const tagCelebration = root.querySelector('[data-tag-celebration]');
         const status = categoryView.querySelector('.starlite-menu__status');
         const sizeHeading = root.querySelector('[data-size-heading]');
         const sizeCopy = root.querySelector('[data-size-copy]');
@@ -13443,7 +14104,7 @@
         const aiDifficultyWrap = root.querySelector('[data-ai-difficulty-wrap]');
         const aiDifficultySelect = root.querySelector('[data-ai-difficulty]');
         const soloFactionWrap = root.querySelector('[data-solo-faction-wrap]');
-        const soloFactionSelect = root.querySelector('[data-solo-faction]');
+        const soloFactionPicker = root.querySelector('[data-solo-faction]');
         const sandboxButton = root.querySelector('[data-computer-sandbox]');
         const insectPrototypeButton = root.querySelector('[data-insect-prototype]');
         const insectAIButton = root.querySelector('[data-insect-ai]');
@@ -13458,10 +14119,9 @@
         const pvpRoom = root.querySelector('[data-pvp-room]');
         const pvpRoomCode = root.querySelector('[data-pvp-room-code]');
         const pvpPlayers = root.querySelector('[data-pvp-players]');
-        const pvpFactionSelect = root.querySelector('[data-pvp-faction]');
+        const pvpFactionPicker = root.querySelector('[data-pvp-faction]');
         const pvpReadyButton = root.querySelector('[data-pvp-ready]');
         const pvpStartButton = root.querySelector('[data-pvp-start-host]');
-        const tagNameInput = root.querySelector('[data-tag-name]');
         const tagCanvas = root.querySelector('[data-tag-canvas]');
         const tagBackgroundInput = root.querySelector('[data-tag-background]');
         const tagBackgroundPalette = root.querySelector('[data-tag-background-palette]');
@@ -13471,6 +14131,12 @@
         const tagEraserButton = root.querySelector('[data-tag-eraser]');
         const tagSaveButton = root.querySelector('[data-save-tag]');
         const tagStatus = root.querySelector('[data-tag-status]');
+        const rewardedOverlay = root.querySelector('[data-rewarded-overlay]');
+        const rewardedStatus = root.querySelector('[data-rewarded-status]');
+        const rewardedWatchButton = root.querySelector('[data-rewarded-watch]');
+        const rewardedCancelButton = root.querySelector('[data-rewarded-cancel]');
+        const rewardedFrame = root.querySelector('[data-rewarded-frame]');
+        const rewardedCountdown = root.querySelector('[data-rewarded-countdown]');
         const keybindStatus = root.querySelector('[data-keybind-status]');
         const playerStatus = root.querySelector('[data-player-status]');
         const accountCard = root.querySelector('[data-account-card]');
@@ -13501,11 +14167,20 @@
         let tagDirty = false;
         let tagDrawing = false;
         let tagLastPixel = null;
+        let tagDraftRewardUnlocked = false;
+        let rewardedAdBusy = false;
+        let rewardedAdCancel = null;
         let activeView = categoryView;
         let utilityReturnView = categoryView;
         let accountUnsubscribe = null;
         let accountMode = 'sign-in';
+        let soloFactionChoice = 'humans';
+        let pvpFactionChoice = 'humans';
+        let pvpResolvedFaction = 'humans';
       
+        chooseSoloFaction(soloFactionChoice);
+        choosePvpFaction(pvpFactionChoice, { broadcast: false });
+
         function setAccountMode(mode) {
           accountMode = mode === 'sign-up' ? 'sign-up' : 'sign-in';
           for (const button of accountModeButtons) {
@@ -13526,6 +14201,38 @@
           scheduleAccountSync();
           return value;
         }
+
+        const MENU_FACTION_IDS = Object.freeze(['humans', 'insects', 'helias']);
+
+        function normalizeMenuFactionChoice(value) {
+          return String(value || '').toLowerCase() === 'random' ? 'random' : normalizeFactionId(value);
+        }
+
+        function concreteRandomFaction() {
+          return MENU_FACTION_IDS[createRandomSeed() % MENU_FACTION_IDS.length];
+        }
+
+        function setFactionPickerChoice(picker, choice, disabled = false) {
+          const normalized = normalizeMenuFactionChoice(choice);
+          for (const button of picker?.querySelectorAll('[data-faction-choice]') || []) {
+            button.setAttribute('aria-pressed', String(button.dataset.factionChoice === normalized));
+            button.disabled = !!disabled;
+          }
+          return normalized;
+        }
+
+        function chooseSoloFaction(choice) {
+          soloFactionChoice = setFactionPickerChoice(soloFactionPicker, choice);
+          return soloFactionChoice;
+        }
+
+        function choosePvpFaction(choice, { broadcast = true } = {}) {
+          pvpFactionChoice = normalizeMenuFactionChoice(choice);
+          pvpResolvedFaction = pvpFactionChoice === 'random' ? concreteRandomFaction() : normalizeFactionId(pvpFactionChoice);
+          setFactionPickerChoice(pvpFactionPicker, pvpFactionChoice, !!lobbySnapshot?.started);
+          if (broadcast && lobbySnapshot?.connected) setMultiplayerFaction(pvpResolvedFaction);
+          return pvpResolvedFaction;
+        }
       
         usernameInput.addEventListener('input', () => {
           storageSet(STORAGE_KEYS.username, sanitizeMenuUsername(usernameInput.value));
@@ -13536,10 +14243,12 @@
       
         function showOnly(view) {
           activeView = view || categoryView;
-          for (const candidate of [categoryView, onlineChoiceView, onlineView, sizeView, pvpView, tagLabView, playerView, settingsView]) {
+          for (const candidate of [categoryView, onlineChoiceView, onlineView, sizeView, pvpView, tagLabView, tagShopView, tutorialView, playerView, settingsView]) {
             candidate.classList.toggle('starlite-hidden', candidate !== activeView);
           }
-          tagTeaser.classList.toggle('starlite-hidden', activeView !== categoryView);
+          const onMainMenu = activeView === categoryView;
+          tagTeaser.classList.toggle('starlite-hidden', !onMainMenu);
+          tutorialTeaser?.classList.toggle('starlite-hidden', !onMainMenu);
         }
       
         function utilityReturnTarget() {
@@ -13670,9 +14379,12 @@
       
           const connected = !!snapshot?.connected;
           const assigned = !!snapshot?.localTeam;
-          const localFaction = normalizeFactionId(snapshot?.localFaction || pvpFactionSelect.value || 'humans');
-          pvpFactionSelect.value = localFaction;
-          pvpFactionSelect.disabled = !!snapshot?.started;
+          const localFaction = normalizeFactionId(snapshot?.localFaction || pvpResolvedFaction || 'humans');
+          if (pvpFactionChoice !== 'random' || pvpResolvedFaction !== localFaction) {
+            pvpFactionChoice = localFaction;
+            pvpResolvedFaction = localFaction;
+          }
+          setFactionPickerChoice(pvpFactionPicker, pvpFactionChoice, !!snapshot?.started);
           const lobbyMode = gameModeById(snapshot?.modeId);
           if (lobbyMode) {
             pvpHeading.textContent = `${lobbyMode.spawnCount}-PLAYER PVP LOBBY`;
@@ -13802,12 +14514,19 @@
           }
         }
       
+        function automaticGroundTagName(id = tagDraft.id) {
+          const existingIndex = tagDefinitions.findIndex(tag => tag.id === id);
+          if (existingIndex >= 0) return `TAG ${existingIndex + 1}`;
+          return `TAG ${Math.min(MAX_OWNED_GROUND_TAGS, tagDefinitions.length + 1)}`;
+        }
+
         function renderGroundTagLab() {
-          tagNameInput.value = tagDraft.name;
           syncTagBackgroundControls();
           setTagEraser(tagEraser);
           syncTagPenControls();
           tagSaveButton.dataset.active = String(tagDirty);
+          const existingDraft = tagDefinitions.some(tag => tag.id === tagDraft.id);
+          tagSaveButton.textContent = existingDraft || tagDraftRewardUnlocked ? 'SAVE TAG' : 'WATCH AD + SAVE';
           drawGroundTagCanvas(tagCanvas, tagDraft);
           tagList.replaceChildren();
           if (!tagDefinitions.length) {
@@ -13816,33 +14535,234 @@
             empty.textContent = 'No saved tags yet. Draw one and select SAVE TAG to unlock tags in-game.';
             tagList.appendChild(empty);
           }
-          for (const tag of tagDefinitions) {
+          for (let tagIndex = 0; tagIndex < tagDefinitions.length; tagIndex++) {
+            const tag = tagDefinitions[tagIndex];
+            const row = document.createElement('div');
+            row.className = 'starlite-menu__tag-owned-row';
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'starlite-menu__tag-owned';
             button.dataset.ownedTagId = tag.id;
             button.dataset.selected = String(tag.id === tagDraft.id);
+            button.setAttribute('aria-label', `Edit tag ${tagIndex + 1}`);
             const preview = document.createElement('canvas');
             preview.width = GROUND_TAG_PIXEL_SIZE;
             preview.height = GROUND_TAG_PIXEL_SIZE;
             drawGroundTagCanvas(preview, tag);
             const label = document.createElement('span');
-            label.textContent = tag.name;
+            label.textContent = `TAG ${tagIndex + 1}`;
             button.append(preview, label);
-            tagList.appendChild(button);
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'starlite-menu__tag-delete';
+            deleteButton.dataset.deleteOwnedTagId = tag.id;
+            deleteButton.setAttribute('aria-label', `Delete tag ${tagIndex + 1}`);
+            deleteButton.title = `Delete tag ${tagIndex + 1}`;
+            deleteButton.textContent = '×';
+            row.append(button, deleteButton);
+            tagList.appendChild(row);
           }
         }
       
-        function openBlankGroundTag(message = 'Blank white canvas ready. Draw, name, then select SAVE TAG.') {
+        function openBlankGroundTag(message = 'Blank canvas ready. Draw, then select SAVE TAG.') {
           tagDraft = blankGroundTag();
           tagSolidBackground = '#ffffff';
           tagPenInput.value = '#000000';
           tagDirty = false;
+          tagDraftRewardUnlocked = false;
           setTagEraser(false);
           renderGroundTagLab();
           tagStatus.textContent = message;
         }
       
+        const tutorialPreviewPromises = new Map();
+
+        function tutorialPreviewSpec(faction) {
+          if (faction === 'humans') return { accent: '#f1c76b', emblem: 'H', angle: -.34, tilt: -.08 };
+          if (faction === 'insects') return { accent: '#a7ef74', emblem: 'Z', angle: .52, tilt: -.16 };
+          return { accent: '#7de8ff', emblem: 'Ψ', angle: -.48, tilt: -.2 };
+        }
+
+        function resizeTutorialCanvas(canvas) {
+          const rect = canvas.getBoundingClientRect();
+          const scale = Math.max(1, Math.min(2, globalThis.devicePixelRatio || 1));
+          const width = Math.max(240, Math.round((rect.width || 260) * scale));
+          const height = Math.max(180, Math.round((rect.height || 195) * scale));
+          if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+          }
+          return { width, height };
+        }
+
+        function hexTutorialColor(value) {
+          const hex = String(value || '#7de8ff').replace('#', '');
+          const normalized = hex.length === 3 ? [...hex].map(part => part + part).join('') : hex.padEnd(6, 'f').slice(0, 6);
+          return [parseInt(normalized.slice(0, 2), 16), parseInt(normalized.slice(2, 4), 16), parseInt(normalized.slice(4, 6), 16)];
+        }
+
+        function drawTutorialPortraitFallback(canvas, faction, detail = 'GLB asset loads on the deployed game build') {
+          const { width, height } = resizeTutorialCanvas(canvas);
+          const context = canvas.getContext('2d');
+          const spec = tutorialPreviewSpec(faction);
+          const [red, green, blue] = hexTutorialColor(spec.accent);
+          context.clearRect(0, 0, width, height);
+          const background = context.createRadialGradient(width * .5, height * .42, 0, width * .5, height * .5, Math.max(width, height) * .7);
+          background.addColorStop(0, `rgba(${red},${green},${blue},.24)`);
+          background.addColorStop(.55, `rgba(${red},${green},${blue},.06)`);
+          background.addColorStop(1, 'rgba(1,5,9,.98)');
+          context.fillStyle = background;
+          context.fillRect(0, 0, width, height);
+          context.save();
+          context.translate(width / 2, height * .46);
+          context.strokeStyle = `rgba(${red},${green},${blue},.72)`;
+          context.lineWidth = Math.max(2, width * .008);
+          context.beginPath(); context.arc(0, 0, Math.min(width, height) * .23, 0, Math.PI * 2); context.stroke();
+          context.fillStyle = `rgba(${red},${green},${blue},.16)`;
+          context.beginPath(); context.arc(0, 0, Math.min(width, height) * .19, 0, Math.PI * 2); context.fill();
+          context.fillStyle = '#eef8ff';
+          context.font = `900 ${Math.round(Math.min(width, height) * .23)}px ui-monospace, monospace`;
+          context.textAlign = 'center'; context.textBaseline = 'middle';
+          context.fillText(spec.emblem, 0, 2);
+          context.restore();
+          context.fillStyle = 'rgba(220,235,242,.68)';
+          context.font = `700 ${Math.max(10, Math.round(width * .032))}px ui-monospace, monospace`;
+          context.textAlign = 'center'; context.textBaseline = 'alphabetic';
+          context.fillText(detail, width / 2, height - 18, width - 28);
+          canvas.dataset.glbLoaded = 'false';
+        }
+
+        function normalizedModelColor(values, index, component, fallback) {
+          if (!values) return fallback;
+          let value = Number(values[index * 4 + component]);
+          if (!Number.isFinite(value)) return fallback;
+          if (value > 1) value /= values.BYTES_PER_ELEMENT === 2 ? 65535 : 255;
+          return Math.max(0, Math.min(1, value));
+        }
+
+        function drawTutorialGLBModel(canvas, model, faction) {
+          const { width, height } = resizeTutorialCanvas(canvas);
+          const context = canvas.getContext('2d');
+          const positions = model?.positions;
+          if (!positions?.length) throw new Error('GLB has no drawable vertices');
+          const spec = tutorialPreviewSpec(faction);
+          const [accentRed, accentGreen, accentBlue] = hexTutorialColor(spec.accent);
+          let minX = Infinity, minY = Infinity, minZ = Infinity, maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+          for (let index = 0; index < positions.length; index += 3) {
+            minX = Math.min(minX, positions[index]); maxX = Math.max(maxX, positions[index]);
+            minY = Math.min(minY, positions[index + 1]); maxY = Math.max(maxY, positions[index + 1]);
+            minZ = Math.min(minZ, positions[index + 2]); maxZ = Math.max(maxZ, positions[index + 2]);
+          }
+          const centerX = (minX + maxX) / 2, centerY = (minY + maxY) / 2, centerZ = (minZ + maxZ) / 2;
+          const span = Math.max(.001, maxX - minX, maxY - minY, maxZ - minZ);
+          const vertexCount = positions.length / 3;
+          const transformed = new Float32Array(vertexCount * 5);
+          const yawCos = Math.cos(spec.angle), yawSin = Math.sin(spec.angle);
+          const tiltCos = Math.cos(spec.tilt), tiltSin = Math.sin(spec.tilt);
+          const fit = Math.min(width, height) * .72 / span;
+          for (let index = 0; index < vertexCount; index++) {
+            const x = positions[index * 3] - centerX;
+            const y = positions[index * 3 + 1] - centerY;
+            const z = positions[index * 3 + 2] - centerZ;
+            const yawX = x * yawCos + z * yawSin;
+            const yawZ = -x * yawSin + z * yawCos;
+            const tiltY = y * tiltCos - yawZ * tiltSin;
+            const tiltZ = y * tiltSin + yawZ * tiltCos;
+            const perspective = 1 / Math.max(.55, 1.08 - tiltZ / (span * 3.1));
+            transformed[index * 5] = width * .5 + yawX * fit * perspective;
+            transformed[index * 5 + 1] = height * .52 - tiltY * fit * perspective;
+            transformed[index * 5 + 2] = tiltZ;
+            transformed[index * 5 + 3] = yawX;
+            transformed[index * 5 + 4] = tiltY;
+          }
+          context.clearRect(0, 0, width, height);
+          const background = context.createRadialGradient(width * .5, height * .4, 0, width * .5, height * .5, Math.max(width, height) * .72);
+          background.addColorStop(0, `rgba(${accentRed},${accentGreen},${accentBlue},.2)`);
+          background.addColorStop(.55, `rgba(${accentRed},${accentGreen},${accentBlue},.045)`);
+          background.addColorStop(1, 'rgba(1,5,9,.98)');
+          context.fillStyle = background;
+          context.fillRect(0, 0, width, height);
+          const sourceIndices = model.indices;
+          const triangleCount = sourceIndices ? Math.floor(sourceIndices.length / 3) : Math.floor(vertexCount / 3);
+          const step = Math.max(1, Math.ceil(triangleCount / 4200));
+          const triangles = [];
+          const base = model.baseColor || [1, 1, 1, 1];
+          for (let triangle = 0; triangle < triangleCount; triangle += step) {
+            const a = sourceIndices ? Number(sourceIndices[triangle * 3]) : triangle * 3;
+            const b = sourceIndices ? Number(sourceIndices[triangle * 3 + 1]) : triangle * 3 + 1;
+            const c = sourceIndices ? Number(sourceIndices[triangle * 3 + 2]) : triangle * 3 + 2;
+            if (a >= vertexCount || b >= vertexCount || c >= vertexCount) continue;
+            const ax = transformed[a * 5 + 3], ay = transformed[a * 5 + 4], az = transformed[a * 5 + 2];
+            const bx = transformed[b * 5 + 3], by = transformed[b * 5 + 4], bz = transformed[b * 5 + 2];
+            const cx = transformed[c * 5 + 3], cy = transformed[c * 5 + 4], cz = transformed[c * 5 + 2];
+            const ux = bx - ax, uy = by - ay, uz = bz - az;
+            const vx = cx - ax, vy = cy - ay, vz = cz - az;
+            const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+            const normalLength = Math.hypot(nx, ny, nz) || 1;
+            const light = Math.max(.18, Math.min(1, .34 + (nx * .32 + ny * .72 + nz * .58) / normalLength * .66));
+            const red = ((normalizedModelColor(model.colors, a, 0, 1) + normalizedModelColor(model.colors, b, 0, 1) + normalizedModelColor(model.colors, c, 0, 1)) / 3) * (base[0] ?? 1);
+            const green = ((normalizedModelColor(model.colors, a, 1, 1) + normalizedModelColor(model.colors, b, 1, 1) + normalizedModelColor(model.colors, c, 1, 1)) / 3) * (base[1] ?? 1);
+            const blue = ((normalizedModelColor(model.colors, a, 2, 1) + normalizedModelColor(model.colors, b, 2, 1) + normalizedModelColor(model.colors, c, 2, 1)) / 3) * (base[2] ?? 1);
+            triangles.push({ a, b, c, depth: (az + bz + cz) / 3, red, green, blue, light });
+          }
+          triangles.sort((left, right) => left.depth - right.depth);
+          context.lineJoin = 'round';
+          for (const triangle of triangles) {
+            const ax = transformed[triangle.a * 5], ay = transformed[triangle.a * 5 + 1];
+            const bx = transformed[triangle.b * 5], by = transformed[triangle.b * 5 + 1];
+            const cx = transformed[triangle.c * 5], cy = transformed[triangle.c * 5 + 1];
+            const red = Math.round(Math.max(0, Math.min(255, triangle.red * triangle.light * 255)));
+            const green = Math.round(Math.max(0, Math.min(255, triangle.green * triangle.light * 255)));
+            const blue = Math.round(Math.max(0, Math.min(255, triangle.blue * triangle.light * 255)));
+            context.beginPath(); context.moveTo(ax, ay); context.lineTo(bx, by); context.lineTo(cx, cy); context.closePath();
+            context.fillStyle = `rgba(${red},${green},${blue},.96)`;
+            context.fill();
+          }
+          const vignette = context.createRadialGradient(width * .5, height * .48, Math.min(width, height) * .22, width * .5, height * .5, Math.max(width, height) * .72);
+          vignette.addColorStop(0, 'rgba(0,0,0,0)'); vignette.addColorStop(1, 'rgba(0,0,0,.48)');
+          context.fillStyle = vignette; context.fillRect(0, 0, width, height);
+          canvas.dataset.glbLoaded = 'true';
+        }
+
+        function ensureTutorialPortraits() {
+          for (const canvas of tutorialView.querySelectorAll('[data-tutorial-glb]')) {
+            const path = canvas.dataset.tutorialGlb;
+            const faction = canvas.closest('[data-tutorial-faction]')?.dataset.tutorialFaction || 'humans';
+            if (canvas.dataset.glbLoaded === 'true' || tutorialPreviewPromises.has(canvas)) continue;
+            drawTutorialPortraitFallback(canvas, faction, 'Loading GLB portrait…');
+            const promise = loadGLBModel(path)
+              .then(model => drawTutorialGLBModel(canvas, model, faction))
+              .catch(error => {
+                console.warn(`Tutorial portrait unavailable: ${path}`, error);
+                drawTutorialPortraitFallback(canvas, faction);
+              })
+              .finally(() => tutorialPreviewPromises.delete(canvas));
+            tutorialPreviewPromises.set(canvas, promise);
+          }
+        }
+
+        function chooseTutorialFaction(faction) {
+          for (const card of tutorialCards) card.setAttribute('aria-pressed', String(card.dataset.tutorialFaction === faction));
+          const copy = faction === 'humans'
+            ? 'Humans tutorial selected · economy, construction, production queues and combined-arms control.'
+            : faction === 'insects'
+              ? 'Zglengo tutorial selected · creep, larvae, evolution, regeneration and swarm control.'
+              : 'Helias tutorial selected · power fields, shields, warp construction and energy technology.';
+          tutorialStatus.textContent = `${copy} Tutorial mission content can be connected to this selection screen next.`;
+        }
+
+        function openTutorials() {
+          status.textContent = '';
+          showOnly(tutorialView);
+          ensureTutorialPortraits();
+          tutorialCards[0]?.focus();
+        }
+
+        function closeTutorials() {
+          showOnly(categoryView);
+          tutorialTeaser?.focus();
+        }
+
         function openTagLab() {
           status.textContent = '';
           tagDefinitions = loadGroundTagDefinitions();
@@ -13852,8 +14772,19 @@
         }
       
         function closeTagLab() {
+          if (rewardedAdCancel) rewardedAdCancel(false);
           showOnly(categoryView);
           root.querySelector('[data-open-tag-lab]')?.focus();
+        }
+
+        function openTagShop() {
+          showOnly(tagShopView);
+          root.querySelector('[data-close-tag-shop]')?.focus();
+        }
+
+        function closeTagShop() {
+          showOnly(tagLabView);
+          root.querySelector('[data-open-tag-shop]')?.focus();
         }
       
         function tagPixelFromEvent(event) {
@@ -13919,9 +14850,206 @@
           root.querySelector('[data-open-player]')?.focus();
         }
       
+        function closeRewardedAdDialog(result = false) {
+          rewardedOverlay.classList.add('starlite-hidden');
+          rewardedFrame.classList.add('starlite-hidden');
+          rewardedWatchButton.disabled = true;
+          rewardedWatchButton.dataset.ready = 'false';
+          rewardedWatchButton.textContent = 'PREPARING AD…';
+          rewardedCancelButton.disabled = false;
+          const cancel = rewardedAdCancel;
+          rewardedAdCancel = null;
+          rewardedAdBusy = false;
+          if (cancel) cancel(result);
+          tagSaveButton.focus();
+        }
+
+        function runDevelopmentRewardedPlaceholder(resolve) {
+          const config = rewardedAdConfiguration();
+          let secondsLeft = config.developmentSeconds;
+          let intervalId = 0;
+          rewardedFrame.classList.remove('starlite-hidden');
+          rewardedCountdown.textContent = String(secondsLeft);
+          rewardedWatchButton.disabled = true;
+          rewardedWatchButton.dataset.ready = 'false';
+          rewardedWatchButton.textContent = 'AD PLAYING…';
+          rewardedStatus.textContent = 'Development placeholder playing. Keep this dialog open to test the reward flow.';
+          const finish = result => {
+            globalThis.clearInterval(intervalId);
+            rewardedAdCancel = null;
+            rewardedAdBusy = false;
+            rewardedOverlay.classList.add('starlite-hidden');
+            rewardedFrame.classList.add('starlite-hidden');
+            resolve(result);
+          };
+          rewardedAdCancel = finish;
+          intervalId = globalThis.setInterval(() => {
+            secondsLeft--;
+            rewardedCountdown.textContent = String(Math.max(0, secondsLeft));
+            if (secondsLeft <= 0) finish(true);
+          }, 1000);
+        }
+
+        function requestRewardedTagUnlock() {
+          if (rewardedAdBusy) return Promise.resolve(false);
+          rewardedAdBusy = true;
+          rewardedOverlay.classList.remove('starlite-hidden');
+          rewardedFrame.classList.add('starlite-hidden');
+          rewardedStatus.textContent = 'Preparing a voluntary rewarded advert…';
+          rewardedWatchButton.disabled = true;
+          rewardedWatchButton.dataset.ready = 'false';
+          rewardedWatchButton.textContent = 'PREPARING AD…';
+          rewardedCancelButton.disabled = false;
+          rewardedWatchButton.focus();
+
+          return new Promise(resolve => {
+            let session = null;
+            let resolved = false;
+            const finish = result => {
+              if (resolved) return;
+              resolved = true;
+              rewardedAdCancel = null;
+              rewardedAdBusy = false;
+              rewardedOverlay.classList.add('starlite-hidden');
+              rewardedFrame.classList.add('starlite-hidden');
+              rewardedWatchButton.disabled = true;
+              rewardedWatchButton.dataset.ready = 'false';
+              rewardedCancelButton.disabled = false;
+              if (!result && session) session.cancel();
+              resolve(!!result);
+            };
+            rewardedAdCancel = finish;
+
+            rewardedCancelButton.onclick = () => finish(false);
+
+            const config = rewardedAdConfiguration();
+            if (isLocalRewardedAdEnvironment() && config.developmentPlaceholder) {
+              rewardedStatus.textContent = 'Local test mode is ready. This placeholder verifies the flow but earns no revenue.';
+              rewardedWatchButton.disabled = false;
+              rewardedWatchButton.dataset.ready = 'true';
+              rewardedWatchButton.textContent = 'WATCH TEST AD';
+              rewardedWatchButton.onclick = () => runDevelopmentRewardedPlaceholder(finish);
+              return;
+            }
+
+            prepareGoogleRewardedAd(message => { rewardedStatus.textContent = message; })
+              .then(preparedSession => {
+                if (resolved) { preparedSession.cancel(); return; }
+                session = preparedSession;
+                rewardedWatchButton.disabled = false;
+                rewardedWatchButton.dataset.ready = 'true';
+                rewardedWatchButton.textContent = 'WATCH AD TO UNLOCK';
+                rewardedWatchButton.onclick = async () => {
+                  rewardedWatchButton.disabled = true;
+                  rewardedWatchButton.dataset.ready = 'false';
+                  rewardedWatchButton.textContent = 'AD PLAYING…';
+                  rewardedCancelButton.disabled = true;
+                  const granted = await session.show();
+                  finish(granted);
+                };
+              })
+              .catch(error => {
+                if (resolved) return;
+                rewardedStatus.textContent = `${error?.message || 'Rewarded advert unavailable.'} No tag was unlocked.`;
+                rewardedWatchButton.disabled = true;
+                rewardedWatchButton.dataset.ready = 'false';
+                rewardedWatchButton.textContent = 'AD UNAVAILABLE';
+                rewardedCancelButton.textContent = 'CLOSE';
+              });
+          }).finally(() => {
+            rewardedCancelButton.textContent = 'NOT NOW';
+            rewardedWatchButton.onclick = null;
+            rewardedCancelButton.onclick = null;
+            tagSaveButton.focus();
+          });
+        }
+
+        function showTagSavedCelebration() {
+          tagCelebration.replaceChildren();
+          tagCelebration.classList.remove('starlite-hidden');
+          const message = document.createElement('div');
+          message.className = 'starlite-menu__tag-celebration-message';
+          message.textContent = 'Congratulations! Tag saved';
+          tagCelebration.appendChild(message);
+          const colors = ['#ff6b6b', '#ffd166', '#a7ef74', '#64d8ff', '#a878ff', '#ffffff', '#ff8de1'];
+          for (let index = 0; index < 72; index++) {
+            const piece = document.createElement('i');
+            piece.className = 'starlite-menu__confetti-piece';
+            piece.style.setProperty('--confetti-x', `${Math.random() * 100}%`);
+            piece.style.setProperty('--confetti-w', `${5 + Math.random() * 7}px`);
+            piece.style.setProperty('--confetti-h', `${8 + Math.random() * 11}px`);
+            piece.style.setProperty('--confetti-color', colors[index % colors.length]);
+            piece.style.setProperty('--confetti-rotate', `${Math.random() * 360}deg`);
+            piece.style.setProperty('--confetti-drift', `${-90 + Math.random() * 180}px`);
+            piece.style.setProperty('--confetti-duration', `${1.65 + Math.random() * .95}s`);
+            piece.style.setProperty('--confetti-delay', `${Math.random() * .35}s`);
+            tagCelebration.appendChild(piece);
+          }
+          globalThis.setTimeout(() => {
+            tagCelebration.classList.add('starlite-hidden');
+            tagCelebration.replaceChildren();
+          }, 2850);
+        }
+
+        function persistCurrentGroundTagDraft({ celebrate = false } = {}) {
+          tagDraft.name = automaticGroundTagName(tagDraft.id);
+          const normalizedDraft = normalizeGroundTagDefinition(tagDraft);
+          const nextDefinitions = tagDefinitions.map(tag => normalizeGroundTagDefinition(tag));
+          const index = nextDefinitions.findIndex(tag => tag.id === normalizedDraft.id);
+          if (index >= 0) nextDefinitions[index] = normalizedDraft;
+          else if (nextDefinitions.length < MAX_OWNED_GROUND_TAGS) nextDefinitions.push(normalizedDraft);
+          else {
+            tagStatus.textContent = `You can own up to ${MAX_OWNED_GROUND_TAGS} tags.`;
+            return false;
+          }
+          const persisted = persistGroundTagDefinitions(nextDefinitions);
+          if (!persisted) {
+            tagStatus.textContent = 'SAVE FAILED · browser storage is unavailable or full.';
+            tagSaveButton.dataset.active = 'true';
+            return false;
+          }
+          tagDefinitions = persisted;
+          tagDraft = normalizeGroundTagDefinition(tagDefinitions.find(tag => tag.id === normalizedDraft.id) || normalizedDraft);
+          tagDraftRewardUnlocked = true;
+          tagSolidBackground = tagDraft.background === TRANSPARENT_GROUND_TAG_COLOR ? tagSolidBackground : tagDraft.background;
+          tagDirty = false;
+          renderGroundTagLab();
+          tagStatus.textContent = 'Tag saved. It now appears in SAVED TAGS and in-game.';
+          if (celebrate) showTagSavedCelebration();
+          return true;
+        }
+
+        root.querySelector('[data-open-tutorials]').addEventListener('click', openTutorials);
+        root.querySelector('[data-close-tutorials]').addEventListener('click', closeTutorials);
+        tutorialView.addEventListener('click', event => {
+          const card = event.target.closest('[data-tutorial-faction]');
+          if (!card || !tutorialView.contains(card)) return;
+          chooseTutorialFaction(card.dataset.tutorialFaction);
+        });
         root.querySelector('[data-open-tag-lab]').addEventListener('click', openTagLab);
         root.querySelector('[data-close-tag-lab]').addEventListener('click', closeTagLab);
+        root.querySelector('[data-open-tag-shop]').addEventListener('click', openTagShop);
+        root.querySelector('[data-close-tag-shop]').addEventListener('click', closeTagShop);
         tagList.addEventListener('click', event => {
+          const deleteButton = event.target.closest('[data-delete-owned-tag-id]');
+          if (deleteButton && tagList.contains(deleteButton)) {
+            const deleteId = deleteButton.dataset.deleteOwnedTagId;
+            const deleteIndex = tagDefinitions.findIndex(tag => tag.id === deleteId);
+            if (deleteIndex < 0) return;
+            const nextDefinitions = tagDefinitions.filter(tag => tag.id !== deleteId);
+            const persisted = persistGroundTagDefinitions(nextDefinitions);
+            if (!persisted) {
+              tagStatus.textContent = 'DELETE FAILED · browser storage is unavailable.';
+              return;
+            }
+            tagDefinitions = persisted;
+            if (tagDraft.id === deleteId) openBlankGroundTag('Tag deleted. Blank canvas ready.');
+            else {
+              renderGroundTagLab();
+              tagStatus.textContent = `Tag ${deleteIndex + 1} deleted.`;
+            }
+            return;
+          }
           const button = event.target.closest('[data-owned-tag-id]');
           if (!button || !tagList.contains(button)) return;
           const selected = tagDefinitions.find(tag => tag.id === button.dataset.ownedTagId);
@@ -13931,12 +15059,13 @@
             return;
           }
           tagDraft = normalizeGroundTagDefinition(selected);
+          tagDraftRewardUnlocked = true;
           tagSolidBackground = tagDraft.background === TRANSPARENT_GROUND_TAG_COLOR ? '#ffffff' : tagDraft.background;
           setTagEraser(false);
           renderGroundTagLab();
-          tagStatus.textContent = `${tagDraft.name} opened for editing.`;
+          const openedIndex = tagDefinitions.findIndex(tag => tag.id === tagDraft.id);
+          tagStatus.textContent = `Tag ${openedIndex + 1} opened for editing.`;
         });
-        tagNameInput.addEventListener('input', () => setTagDirty('Name changed. Select SAVE TAG to keep the edit.'));
         function applyTagBackgroundColor(color) {
           if (color === TRANSPARENT_GROUND_TAG_COLOR) tagDraft.background = TRANSPARENT_GROUND_TAG_COLOR;
           else {
@@ -14005,47 +15134,24 @@
             tagStatus.textContent = `You can own up to ${MAX_OWNED_GROUND_TAGS} tags.`;
             return;
           }
-          openBlankGroundTag('New blank white tag ready. Draw it, then select SAVE TAG.');
-          tagNameInput.select();
+          openBlankGroundTag('New tag ready. Draw it, then select SAVE TAG.');
+          tagCanvas.focus();
         });
-        root.querySelector('[data-save-tag]').addEventListener('click', () => {
-          tagDraft.name = tagNameInput.value;
-          const normalizedDraft = normalizeGroundTagDefinition(tagDraft);
-          const nextDefinitions = tagDefinitions.map(tag => normalizeGroundTagDefinition(tag));
-          const index = nextDefinitions.findIndex(tag => tag.id === normalizedDraft.id);
-          if (index >= 0) nextDefinitions[index] = normalizedDraft;
-          else if (nextDefinitions.length < MAX_OWNED_GROUND_TAGS) nextDefinitions.push(normalizedDraft);
-          else {
-            tagStatus.textContent = `You can own up to ${MAX_OWNED_GROUND_TAGS} tags.`;
-            return;
-          }
-          const persisted = persistGroundTagDefinitions(nextDefinitions);
-          if (!persisted) {
-            tagStatus.textContent = 'SAVE FAILED · browser storage is unavailable or full.';
-            tagSaveButton.dataset.active = 'true';
-            return;
-          }
-          tagDefinitions = persisted;
-          tagDraft = normalizeGroundTagDefinition(tagDefinitions.find(tag => tag.id === normalizedDraft.id) || normalizedDraft);
-          tagSolidBackground = tagDraft.background === TRANSPARENT_GROUND_TAG_COLOR ? tagSolidBackground : tagDraft.background;
-          tagDirty = false;
-          renderGroundTagLab();
-          tagStatus.textContent = `${tagDraft.name} saved. It now appears in SAVED TAGS and in-game.`;
-        });
-        root.querySelector('[data-delete-tag]').addEventListener('click', () => {
+        root.querySelector('[data-save-tag]').addEventListener('click', async () => {
+          if (rewardedAdBusy) return;
           const existing = tagDefinitions.some(tag => tag.id === tagDraft.id);
-          if (!existing) {
-            openBlankGroundTag('Unsaved draft cleared. Blank white canvas ready.');
-            return;
+          let rewardJustGranted = false;
+          if (!existing && !tagDraftRewardUnlocked) {
+            const granted = await requestRewardedTagUnlock();
+            if (!granted) {
+              tagStatus.textContent = 'New tag not saved. The voluntary advert was declined, unavailable, or not completed.';
+              return;
+            }
+            tagDraftRewardUnlocked = true;
+            rewardJustGranted = true;
+            tagStatus.textContent = 'Advert completed. Saving your unlocked tag…';
           }
-          const nextDefinitions = tagDefinitions.filter(tag => tag.id !== tagDraft.id);
-          const persisted = persistGroundTagDefinitions(nextDefinitions);
-          if (!persisted) {
-            tagStatus.textContent = 'DELETE FAILED · browser storage is unavailable.';
-            return;
-          }
-          tagDefinitions = persisted;
-          openBlankGroundTag('Tag deleted. Blank white canvas ready; saved tags remain listed.');
+          persistCurrentGroundTagDraft({ celebrate: rewardJustGranted });
         });
         root.querySelector('[data-open-settings]').addEventListener('click', openSettings);
         root.querySelector('[data-open-player]').addEventListener('click', openPlayer);
@@ -14186,7 +15292,7 @@
               modeId: selectedPvpMode.id,
               seed: role === 'host' ? createRandomSeed() : undefined,
               username: commanderName,
-              faction: normalizeFactionId(pvpFactionSelect.value),
+              faction: pvpResolvedFaction,
               publicLobby: role === 'host' && !!publicLobby,
               onLobbyUpdate: renderPvpLobby,
               onDisconnect: message => { if (!lobbyFinishing) pvpStatus.textContent = message; }
@@ -14216,6 +15322,17 @@
             });
           }
       
+          soloFactionPicker.addEventListener('click', event => {
+            const button = event.target.closest('[data-faction-choice]');
+            if (!button || !soloFactionPicker.contains(button)) return;
+            chooseSoloFaction(button.dataset.factionChoice);
+          });
+          pvpFactionPicker.addEventListener('click', event => {
+            const button = event.target.closest('[data-faction-choice]');
+            if (!button || !pvpFactionPicker.contains(button) || button.disabled) return;
+            choosePvpFaction(button.dataset.factionChoice);
+          });
+
           for (const button of root.querySelectorAll('[data-category]')) {
             button.addEventListener('click', () => {
               if (button.dataset.category === 'online') openOnlineChoice();
@@ -14234,13 +15351,13 @@
             else finish({
               ...mode,
               aiDifficulty: aiDifficultySelect.value || 'normal',
-              playerFaction: normalizeFactionId(soloFactionSelect.value),
-              computerFaction: 'humans'
+              playerFaction: soloFactionChoice,
+              computerFaction: 'random'
             });
           });
           sandboxButton.addEventListener('click', () => finish({
             ...GAME_MODES.sandbox,
-            playerFaction: normalizeFactionId(soloFactionSelect.value),
+            playerFaction: soloFactionChoice,
             computerFaction: 'humans'
           }));
           insectPrototypeButton.addEventListener('click', () => finish({ ...GAME_MODES.insectPrototype, aiDifficulty: aiDifficultySelect.value || 'normal' }));
@@ -14286,11 +15403,9 @@
             }
             beginPvpConnection('join', code);
           });
-          pvpFactionSelect.addEventListener('change', () => {
-            const faction = normalizeFactionId(pvpFactionSelect.value);
-            pvpFactionSelect.value = faction;
-            if (lobbySnapshot?.connected) setMultiplayerFaction(faction);
-          });
+          // Faction-card clicks are handled above. Random resolves to one concrete
+          // faction before it is sent to the relay, so the multiplayer protocol and
+          // lobby roster continue to carry only authoritative faction IDs.
           pvpReadyButton.addEventListener('click', () => {
             if (!lobbySnapshot?.connected) return;
             setMultiplayerReady(!lobbySnapshot.localReady);
@@ -16483,7 +17598,7 @@
     Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep1["canvas"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep1["state"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "BUILDING_GLB_HOLDERS", { enumerable: true, get: () => BUILDING_GLB_HOLDERS }); Object.defineProperty(__exports, "BUILDING_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => BUILDING_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "DEFAULT_GLB_HOLDER", { enumerable: true, get: () => DEFAULT_GLB_HOLDER }); Object.defineProperty(__exports, "DEFAULT_PORTRAIT_GLB", { enumerable: true, get: () => DEFAULT_PORTRAIT_GLB }); Object.defineProperty(__exports, "GENERIC_GLB_HOLDER", { enumerable: true, get: () => GENERIC_GLB_HOLDER }); Object.defineProperty(__exports, "MAX_UNIT_PORTRAIT_LEVEL", { enumerable: true, get: () => MAX_UNIT_PORTRAIT_LEVEL }); Object.defineProperty(__exports, "PORTRAIT_ROTATION_SECONDS", { enumerable: true, get: () => PORTRAIT_ROTATION_SECONDS }); Object.defineProperty(__exports, "UNIT_GLB_HOLDERS", { enumerable: true, get: () => UNIT_GLB_HOLDERS }); Object.defineProperty(__exports, "UNIT_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => UNIT_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "hideGLBPortrait", { enumerable: true, get: () => hideGLBPortrait }); Object.defineProperty(__exports, "holderForPortraitSubject", { enumerable: true, get: () => holderForPortraitSubject }); Object.defineProperty(__exports, "loadGLBForHolder", { enumerable: true, get: () => loadGLBForHolder }); Object.defineProperty(__exports, "parseGLB", { enumerable: true, get: () => parseGLB }); Object.defineProperty(__exports, "portraitRendererStatus", { enumerable: true, get: () => portraitRendererStatus }); Object.defineProperty(__exports, "syncGLBPortrait", { enumerable: true, get: () => syncGLBPortrait });
+      Object.defineProperty(__exports, "BUILDING_GLB_HOLDERS", { enumerable: true, get: () => BUILDING_GLB_HOLDERS }); Object.defineProperty(__exports, "BUILDING_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => BUILDING_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "DEFAULT_GLB_HOLDER", { enumerable: true, get: () => DEFAULT_GLB_HOLDER }); Object.defineProperty(__exports, "DEFAULT_PORTRAIT_GLB", { enumerable: true, get: () => DEFAULT_PORTRAIT_GLB }); Object.defineProperty(__exports, "GENERIC_GLB_HOLDER", { enumerable: true, get: () => GENERIC_GLB_HOLDER }); Object.defineProperty(__exports, "MAX_UNIT_PORTRAIT_LEVEL", { enumerable: true, get: () => MAX_UNIT_PORTRAIT_LEVEL }); Object.defineProperty(__exports, "PORTRAIT_ROTATION_SECONDS", { enumerable: true, get: () => PORTRAIT_ROTATION_SECONDS }); Object.defineProperty(__exports, "UNIT_GLB_HOLDERS", { enumerable: true, get: () => UNIT_GLB_HOLDERS }); Object.defineProperty(__exports, "UNIT_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => UNIT_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "hideGLBPortrait", { enumerable: true, get: () => hideGLBPortrait }); Object.defineProperty(__exports, "holderForPortraitSubject", { enumerable: true, get: () => holderForPortraitSubject }); Object.defineProperty(__exports, "loadGLBForHolder", { enumerable: true, get: () => loadGLBForHolder }); Object.defineProperty(__exports, "loadGLBModel", { enumerable: true, get: () => loadGLBModel }); Object.defineProperty(__exports, "parseGLB", { enumerable: true, get: () => parseGLB }); Object.defineProperty(__exports, "portraitRendererStatus", { enumerable: true, get: () => portraitRendererStatus }); Object.defineProperty(__exports, "syncGLBPortrait", { enumerable: true, get: () => syncGLBPortrait });
       // Simplified GLB portrait viewport for the command console.
       // Uses lightweight category-based placeholders and per-category camera framing.
       
@@ -16696,6 +17811,12 @@
       }
       
       function holderForPortraitSubject(subject) {
+        // Helias gameplay uses one authoritative commander portrait. Prioritize the
+        // active command faction before looking at the selected entity so clicking
+        // an enemy, neutral object, placement ghost, or mixed group never replaces
+        // helias.glb while the local commander is playing Helias.
+        const commandTeam = state.activeCommandTeam || subject?.team || 'player';
+        if (teamFactionId(commandTeam, state.teamFactions) === 'helias') return HELIAS_GLB_HOLDER;
         if (!subject) return DEFAULT_GLB_HOLDER;
         if (teamFactionId(subject.team, state.teamFactions) === 'insects') return INSECT_GLB_HOLDER;
         if (teamFactionId(subject.team, state.teamFactions) === 'helias') return HELIAS_GLB_HOLDER;
@@ -17027,6 +18148,10 @@
         renderer.loadedGLB = glbPath;
       }
       
+      function loadGLBModel(glbPath) {
+        return loadPortraitModel(String(glbPath || DEFAULT_PORTRAIT_GLB_PATH));
+      }
+
       function loadPortraitModel(glbPath) {
         let shared = modelCache.get(glbPath);
         if (shared) return shared;
@@ -18182,10 +19307,12 @@
       function openConstructionMenu(s, screenPt) {
         const d = BUILDING_DATA[s.type];
         const label = factionStructureLabel(s.type, s.team, state.teamFactions);
-        const organic = teamFactionId(s.team, state.teamFactions) === 'insects';
+        const faction = teamFactionId(s.team, state.teamFactions);
+        const organic = faction === 'insects';
+        const helia = faction === 'helias';
         openMenu(screenPt, `${label} SITE`, [{
-          label: s.constructionStarted ? (organic ? 'GROWING' : 'CONSTRUCTING') : 'AWAITING BUILDER',
-          sub: () => s.constructionStarted ? `${Math.ceil(Math.max(0, s.buildTimeLeft || 0))}s remaining` : 'forager en route',
+          label: s.constructionStarted ? (organic ? 'GESTATING' : helia ? 'WARPING IN' : 'CONSTRUCTING') : 'AWAITING BUILDER',
+          sub: () => s.constructionStarted ? `${Math.ceil(Math.max(0, s.buildTimeLeft || 0))}s remaining` : `${organic ? 'drone' : helia ? 'probe' : 'forager'} en route`,
           tone: 'info', enabled: false, action: () => {}
         }], false, { liveRefresh: false, contextBound: true, contextType: 'constructionSite', contextId: s.id });
       }
@@ -18363,7 +19490,7 @@
       }
       function heliaStructurePoweredForMenu(structure) {
         if (!structure || teamFactionId(structure.team, state.teamFactions) !== 'helias') return true;
-        if (!['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasRoboticsFacility', 'heliasStargate'].includes(structure.type)) return true;
+        if (!['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate'].includes(structure.type)) return true;
         const radius = BUILDING_DATA.heliasPylon?.powerRadius || 182;
         const margin = Math.hypot((structure.w || 0) / 2, (structure.h || 0) / 2) * .28;
         return structures.some(pylon =>
@@ -18406,6 +19533,18 @@
               afterQueue: () => openHeliasStructureMenu(s, screenPt)
             });
           }
+        } else if (s.type === 'heliasTurret') {
+          const powered = heliaStructurePoweredForMenu(s);
+          items.push({
+            label: powered ? 'PHOTON MATRIX ONLINE' : 'PHOTON MATRIX OFFLINE',
+            sub: powered ? 'Pylon field stable · automatic targeting is active' : 'restore an operational Pylon field to reactivate the cannon',
+            tone: powered ? 'support' : 'warning', enabled: false, action: () => {}
+          });
+          items.push({
+            label: 'OMNI-TARGET PHOTON LENS',
+            sub: `${Math.round(s.damage)} damage · ${Math.round(s.range)} range · attacks land and air`,
+            tone: 'defense', enabled: false, action: () => {}
+          });
         }
         if (items.length) openMenu(screenPt, factionStructureLabel(s.type, s.team, state.teamFactions), items, true);
       }
@@ -18747,7 +19886,7 @@
         if (['spawningNest', 'evolutionPit', 'spitterDen', 'carapaceWarren', 'airSpire', 'creepTumor', 'thornmawCrawler', 'skysporeSentinel'].includes(structure.type)) {
           openInsectStructureMenu(structure, state.mouse); return true;
         }
-        if (['heliasPylon', 'heliasCyberCore', 'heliasForge'].includes(structure.type)) { openHeliasStructureMenu(structure, state.mouse); return true; }
+        if (['heliasPylon', 'heliasCyberCore', 'heliasForge', 'heliasTurret'].includes(structure.type)) { openHeliasStructureMenu(structure, state.mouse); return true; }
         if (structure.type === 'minersHut') { openMinersHutMenu(structure, state.mouse); return true; }
         if (structure.type === 'housing') { openHousingMenu(structure, state.mouse); return true; }
         if (structure.type === 'researchFacility') { openResearchFacilityMenu(structure, state.mouse); return true; }
@@ -21011,6 +22150,77 @@ function drawHeliasTechStructure(s, x, y, team, light, flash, label, variant = '
   drawStructureLabel(label, s, y, '#efe1a2', 8);
 }
 
+
+function drawHeliasTurretStructure(s, x, y, team, light, flash) {
+  const powered = heliaStructurePoweredForMenu(s);
+  const pulse = .68 + Math.sin(state.elapsed * 4.2 + s.id * .31) * .2;
+  const angle = Number.isFinite(s.barrelAngle) ? s.barrelAngle : -Math.PI / 2;
+  const kick = Math.min(3.5, Math.max(0, s.recoil || 0) * 24);
+
+  if (!s.underConstruction) {
+    ctx.save();
+    ctx.globalAlpha = powered ? .18 : .07;
+    ctx.strokeStyle = powered ? '#8fe8ff' : '#6d7688';
+    ctx.lineWidth = 1.2 / cam.zoom;
+    ctx.setLineDash([7 / cam.zoom, 5 / cam.zoom]);
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.range, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  drawBuildingShadow(x - 4, y + 8, s.w + 8, s.h - 5);
+  ctx.save();
+  ctx.globalAlpha = powered ? 1 : .48;
+
+  // Broad circular golden pedestal with four stabilizing Protoss fins.
+  ctx.fillStyle = '#090d16';
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 6, 21, 15, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = flash ? '#ffffff' : '#6d531d';
+  ctx.lineWidth = 7 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 4, 17, 12, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = flash ? '#ffffff' : '#d2ad50';
+  ctx.lineWidth = 2 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 4, 20, 15, 0, 0, Math.PI * 2); ctx.stroke();
+  for (let i = 0; i < 4; i++) {
+    const a = Math.PI / 4 + i * Math.PI / 2;
+    const fx = s.x + Math.cos(a) * 15;
+    const fy = s.y + 5 + Math.sin(a) * 11;
+    ctx.save(); ctx.translate(fx, fy); ctx.rotate(a);
+    ctx.fillStyle = flash ? '#ffffff' : '#a77d2c';
+    ctx.beginPath(); ctx.moveTo(-4, -5); ctx.lineTo(11, 0); ctx.lineTo(-4, 5); ctx.lineTo(-1, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#86e8ff'; ctx.fillRect(2, -1, 6, 2);
+    ctx.restore();
+  }
+
+  // Rotating three-pronged focusing crown around a floating cyan photon crystal.
+  ctx.translate(s.x, s.y - 1);
+  ctx.rotate(angle);
+  for (let i = 0; i < 3; i++) {
+    ctx.save(); ctx.rotate(i * Math.PI * 2 / 3);
+    ctx.fillStyle = flash ? '#ffffff' : '#c59a3f';
+    ctx.beginPath(); ctx.moveTo(5, -4); ctx.lineTo(18 - kick, 0); ctx.lineTo(5, 4); ctx.lineTo(9, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#f3df91'; ctx.fillRect(8, -1, Math.max(3, 7 - kick), 2);
+    ctx.restore();
+  }
+  ctx.rotate(-angle);
+
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = powered ? .35 + pulse * .22 : .12;
+  ctx.fillStyle = '#36c8ef';
+  ctx.beginPath(); ctx.arc(0, 0, 10 + pulse * 1.5, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = powered ? .9 : .35;
+  ctx.fillStyle = '#9bf2ff';
+  ctx.beginPath();
+  ctx.moveTo(0, -10 + kick * .5); ctx.lineTo(7, 0); ctx.lineTo(0, 10 - kick * .5); ctx.lineTo(-7, 0); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#f5feff';
+  ctx.beginPath(); ctx.arc(-2, -3, 2.4, 0, Math.PI * 2); ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.restore();
+
+  if (!powered && !s.underConstruction) drawText('UNPOWERED', s.x, y - 10, 7, '#8a93a5', 'center');
+  drawStructureLabel('PHOTON CANNON', s, y, powered ? '#9eeeff' : '#8a93a5', 8);
+}
+
 function drawHQStructure(s, x, y, team, light, flash) {
   if (teamFactionId(s.team, state.teamFactions) === 'helias') {
     // Visually larger than its gameplay footprint: a layered golden pyramid with
@@ -21965,6 +23175,127 @@ function drawStructureUpgradeDetails(s, x, y, team) {
         ctx.restore();
       }
 
+
+      function structureConstructionProgress(s) {
+        if (!s?.constructionStarted || !(s.buildTime > 0)) return 0;
+        return clamp(1 - Math.max(0, s.buildTimeLeft || 0) / s.buildTime, 0, 1);
+      }
+
+      function drawHeliasConstructionOrb(s, x, y, team, light, flash) {
+        const progress = structureConstructionProgress(s);
+        const pulse = .72 + Math.sin(state.elapsed * 5.4 + s.id * .41) * .18;
+        const footprintRadius = Math.max(12, Math.min(38, Math.max(s.w, s.h) * .48));
+        const radius = 6 + footprintRadius * (.12 + progress * .82);
+        drawBuildingShadow(s.x - radius * .78, s.y + radius * .4, radius * 1.56, radius * .72);
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.globalCompositeOperation = 'lighter';
+        const gradient = ctx.createRadialGradient(-radius * .18, -radius * .22, 1, 0, 0, radius * 1.2);
+        gradient.addColorStop(0, 'rgba(242,254,255,.98)');
+        gradient.addColorStop(.2, 'rgba(135,236,255,.92)');
+        gradient.addColorStop(.58, 'rgba(38,153,231,.52)');
+        gradient.addColorStop(1, 'rgba(38,98,210,0)');
+        ctx.globalAlpha = .72 + pulse * .16;
+        ctx.fillStyle = gradient;
+        ctx.beginPath(); ctx.arc(0, 0, radius * 1.2, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = .9;
+        ctx.fillStyle = '#9eeeff';
+        ctx.beginPath(); ctx.arc(0, 0, radius * .58, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = .72;
+        ctx.fillStyle = '#3056c8';
+        ctx.beginPath(); ctx.arc(radius * .08, radius * .08, radius * .38, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = .96;
+        ctx.fillStyle = '#f4feff';
+        ctx.beginPath(); ctx.arc(-radius * .2, -radius * .23, Math.max(1.5, radius * .12), 0, Math.PI * 2); ctx.fill();
+
+        // Counter-rotating phase rings and orbiting shards communicate warp assembly.
+        ctx.globalAlpha = .72;
+        ctx.strokeStyle = '#b9f6ff'; ctx.lineWidth = 1.5 / cam.zoom;
+        ctx.save(); ctx.rotate(state.elapsed * .9 + s.id * .07);
+        ctx.beginPath(); ctx.ellipse(0, 0, radius * 1.05, radius * .42, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+        ctx.strokeStyle = '#d9c06c';
+        ctx.save(); ctx.rotate(-state.elapsed * .62 - s.id * .11);
+        ctx.beginPath(); ctx.ellipse(0, 0, radius * .5, radius * 1.08, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+        for (let i = 0; i < 6; i++) {
+          const a = state.elapsed * (i % 2 ? -.85 : .75) + i * Math.PI / 3 + s.id * .13;
+          const orbit = radius * (1.05 + (i % 2) * .18);
+          const px = Math.cos(a) * orbit;
+          const py = Math.sin(a) * orbit * .62;
+          ctx.save(); ctx.translate(px, py); ctx.rotate(a);
+          ctx.fillStyle = i % 2 ? '#f0d37b' : '#8cecff';
+          ctx.beginPath(); ctx.moveTo(-2, -4); ctx.lineTo(3, 0); ctx.lineTo(-2, 4); ctx.closePath(); ctx.fill();
+          ctx.restore();
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.restore();
+      }
+
+      function drawInsectConstructionBubo(s, x, y, team, light, flash) {
+        const progress = structureConstructionProgress(s);
+        const pulse = .72 + Math.sin(state.elapsed * 4.8 + s.id * .37) * .2;
+        const scale = .3 + progress * .7;
+        const rx = Math.max(10, s.w * .43);
+        const ry = Math.max(9, s.h * .39);
+        drawBuildingShadow(s.x - rx * scale, s.y + ry * scale * .3, rx * 2 * scale, ry * .8 * scale);
+        ctx.save();
+        ctx.translate(s.x, s.y + 3);
+        ctx.scale(scale, scale);
+
+        // Rooting tendrils spread first, then a swollen translucent bubo grows over them.
+        ctx.strokeStyle = '#3a1834';
+        ctx.lineWidth = 5 / cam.zoom;
+        for (let i = 0; i < 7; i++) {
+          const a = i * Math.PI * 2 / 7 + s.id * .09;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a) * rx * .35, Math.sin(a) * ry * .28);
+          ctx.quadraticCurveTo(Math.cos(a + .18) * rx * .82, Math.sin(a + .18) * ry * .74, Math.cos(a) * rx * 1.12, Math.sin(a) * ry * .9);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = '#261020';
+        ctx.beginPath(); ctx.ellipse(0, 3, rx * 1.02, ry * .94, 0, 0, Math.PI * 2); ctx.fill();
+        const flesh = ctx.createRadialGradient(-rx * .24, -ry * .34, 2, 0, 0, rx * 1.1);
+        flesh.addColorStop(0, 'rgba(232,142,193,.95)');
+        flesh.addColorStop(.34, 'rgba(151,65,119,.98)');
+        flesh.addColorStop(.72, 'rgba(89,36,79,.98)');
+        flesh.addColorStop(1, 'rgba(45,17,42,.98)');
+        ctx.fillStyle = flesh;
+        ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+
+        // Uneven satellite pustules keep the silhouette organic rather than spherical.
+        for (let i = 0; i < 8; i++) {
+          const a = i * Math.PI * 2 / 8 + .28;
+          const lobeRx = rx * (.17 + (i % 3) * .025);
+          const lobeRy = ry * (.2 + ((i + 1) % 3) * .025);
+          ctx.fillStyle = i % 2 ? '#71315f' : '#8d426f';
+          ctx.beginPath();
+          ctx.ellipse(Math.cos(a) * rx * .72, Math.sin(a) * ry * .66, lobeRx, lobeRy, a, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.globalAlpha = .5 + pulse * .32;
+        ctx.fillStyle = '#b8ff63';
+        ctx.beginPath(); ctx.ellipse(-rx * .12, -ry * .12, rx * .26, ry * .22, -.2, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = .9;
+        ctx.fillStyle = '#e4ffc1';
+        ctx.beginPath(); ctx.ellipse(-rx * .2, -ry * .22, rx * .08, ry * .07, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Veins throb outward from the nutrient core as gestation advances.
+        ctx.strokeStyle = 'rgba(202,255,128,.55)';
+        ctx.lineWidth = 1.4 / cam.zoom;
+        for (let i = 0; i < 6; i++) {
+          const a = i * Math.PI / 3 + .16;
+          ctx.beginPath();
+          ctx.moveTo(-rx * .08, -ry * .08);
+          ctx.quadraticCurveTo(Math.cos(a + .3) * rx * .42, Math.sin(a + .3) * ry * .36, Math.cos(a) * rx * .78, Math.sin(a) * ry * .68);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
       function drawStructure(s) {
   if (s.hp <= 0) return;
   if (!isLocallyVisibleToTeam(activeCommandTeam(), s.x, s.y) && s.team !== activeCommandTeam()) return;
@@ -21998,10 +23329,15 @@ function drawStructureUpgradeDetails(s, x, y, team) {
     ctx.restore();
   }
 
-  const pendingOrganicDrone = s.underConstruction && !s.constructionStarted && teamFactionId(s.team, state.teamFactions) === 'insects';
-  if (s.underConstruction) ctx.globalAlpha = s.constructionStarted ? .7 : pendingOrganicDrone ? .82 : .46;
+  const constructionFaction = s.underConstruction ? teamFactionId(s.team, state.teamFactions) : null;
+  const heliasConstruction = s.underConstruction && constructionFaction === 'helias';
+  const insectConstruction = s.underConstruction && s.constructionStarted && constructionFaction === 'insects';
+  const pendingOrganicDrone = s.underConstruction && !s.constructionStarted && constructionFaction === 'insects';
+  if (s.underConstruction && !heliasConstruction && !insectConstruction) ctx.globalAlpha = s.constructionStarted ? .7 : pendingOrganicDrone ? .82 : .46;
 
-  if (pendingOrganicDrone) {
+  if (heliasConstruction) drawHeliasConstructionOrb(s, x, y, team, light, flash);
+  else if (insectConstruction) drawInsectConstructionBubo(s, x, y, team, light, flash);
+  else if (pendingOrganicDrone) {
     ctx.save();
     ctx.strokeStyle = '#b8ff63';
     ctx.lineWidth = 2 / cam.zoom;
@@ -22023,6 +23359,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
   else if (s.type === 'heliasGateway') drawHeliasGatewayStructure(s, x, y, team, light, flash);
   else if (s.type === 'heliasCyberCore') drawHeliasCyberCoreStructure(s, x, y, team, light, flash);
   else if (s.type === 'heliasForge') drawHeliasTechStructure(s, x, y, team, light, flash, 'FORGE', 'forge');
+  else if (s.type === 'heliasTurret') drawHeliasTurretStructure(s, x, y, team, light, flash);
   else if (s.type === 'heliasRoboticsFacility') drawHeliasTechStructure(s, x, y, team, light, flash, 'ROBOTICS', 'robotics');
   else if (s.type === 'heliasStargate') drawHeliasTechStructure(s, x, y, team, light, flash, 'STARGATE', 'stargate');
   else if (s.type === 'hq') drawHQStructure(s, x, y, team, light, flash);
@@ -22047,23 +23384,39 @@ function drawStructureUpgradeDetails(s, x, y, team) {
   // Construction, ownership, selection, work and health overlays are intentionally
   // unchanged so the visual redesign cannot alter interaction or simulation state.
   if (s.underConstruction) {
-    const d = BUILDING_DATA[s.type];
     const constructionLabel = factionStructureLabel(s.type, s.team, state.teamFactions);
-    const progress = s.constructionStarted ? clamp(1 - s.buildTimeLeft / s.buildTime, 0, 1) : 0;
-    ctx.strokeStyle = COLORS.warn;
-    ctx.lineWidth = 2 / cam.zoom;
-    ctx.strokeRect(x - 3, y - 3, s.w + 6, s.h + 6);
-    ctx.lineWidth = 1 / cam.zoom;
-    ctx.beginPath();
-    ctx.moveTo(x - 3, y - 3); ctx.lineTo(x + s.w + 3, y + s.h + 3);
-    ctx.moveTo(x + s.w + 3, y - 3); ctx.lineTo(x - 3, y + s.h + 3);
-    ctx.stroke();
+    const progress = structureConstructionProgress(s);
+    const faction = teamFactionId(s.team, state.teamFactions);
+    const factionAnimation = faction === 'helias' || faction === 'insects';
+    const accent = faction === 'helias' ? '#9eeeff' : faction === 'insects' ? '#b8ff63' : COLORS.warn;
+    if (!factionAnimation) {
+      ctx.strokeStyle = COLORS.warn;
+      ctx.lineWidth = 2 / cam.zoom;
+      ctx.strokeRect(x - 3, y - 3, s.w + 6, s.h + 6);
+      ctx.lineWidth = 1 / cam.zoom;
+      ctx.beginPath();
+      ctx.moveTo(x - 3, y - 3); ctx.lineTo(x + s.w + 3, y + s.h + 3);
+      ctx.moveTo(x + s.w + 3, y - 3); ctx.lineTo(x - 3, y + s.h + 3);
+      ctx.stroke();
+    } else {
+      const ringRadius = Math.max(15, Math.min(42, Math.max(s.w, s.h) * (.24 + progress * .42)));
+      ctx.save();
+      ctx.globalAlpha = .62;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.5 / cam.zoom;
+      ctx.beginPath(); ctx.arc(s.x, s.y, ringRadius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress); ctx.stroke();
+      ctx.restore();
+    }
     ctx.fillStyle = '#0e141c';
     ctx.fillRect(x, y + s.h + 6, s.w, 5);
-    ctx.fillStyle = COLORS.warn;
+    ctx.fillStyle = accent;
     ctx.fillRect(x + 1, y + s.h + 7, Math.floor((s.w - 2) * progress), 3);
-    const organic = teamFactionId(s.team, state.teamFactions) === 'insects';
-    drawText(s.constructionStarted ? `${constructionLabel} · ${Math.ceil(s.buildTimeLeft)}s` : `${constructionLabel} · ${organic ? 'DRONE' : 'FORAGER'}`, s.x, y - 16, 9, COLORS.warn, 'center');
+    const workerLabel = faction === 'insects' ? 'DRONE' : faction === 'helias' ? 'PROBE' : 'FORAGER';
+    const phaseLabel = faction === 'insects' ? 'GESTATING' : faction === 'helias' ? 'WARPING' : 'BUILDING';
+    drawText(
+      s.constructionStarted ? `${constructionLabel} · ${phaseLabel} · ${Math.ceil(s.buildTimeLeft)}s` : `${constructionLabel} · ${workerLabel}`,
+      s.x, y - 16, 9, accent, 'center'
+    );
   }
 
   if (s.team === activeCommandTeam() &&
