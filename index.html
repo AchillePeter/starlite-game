@@ -13495,7 +13495,7 @@
       const MENU_CSS = `
         #starlite-menu {
           position: fixed; inset: 0; z-index: 10000; overflow: hidden;
-          color: #edf7e8; background: #263f26;
+          color: #edf7e8; background: #172b1d;
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
         #starlite-menu * { box-sizing: border-box; }
@@ -13503,28 +13503,41 @@
         .starlite-menu__shade {
           position: absolute; inset: 0;
           background:
-            radial-gradient(circle at 50% 42%, rgba(17, 30, 20, .1), rgba(7, 12, 9, .66) 72%),
-            linear-gradient(90deg, rgba(6, 12, 8, .42), transparent 35%, transparent 65%, rgba(6, 12, 8, .42));
+            linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px),
+            radial-gradient(ellipse at 50% 47%, rgba(6, 12, 8, .16) 0 26%, rgba(5, 10, 7, .58) 71%),
+            linear-gradient(90deg, rgba(4, 9, 6, .5), transparent 28%, transparent 72%, rgba(4, 9, 6, .5));
+          background-size: 4px 4px, 4px 4px, auto, auto;
+          image-rendering: pixelated;
         }
         .starlite-menu__layout {
           position: relative; width: min(940px, calc(100% - 32px)); min-height: 100%;
           margin: 0 auto; padding: clamp(22px, 6vh, 66px) 0 28px;
           display: grid; align-content: center; justify-items: center;
         }
-        .starlite-menu__brand { text-align: center; margin: 0 0 22px; filter: drop-shadow(0 5px 0 rgba(0,0,0,.32)); }
+        .starlite-menu__brand { text-align: center; margin: 0 0 22px; filter: drop-shadow(0 5px 0 rgba(0,0,0,.32)); image-rendering: pixelated; }
         .starlite-menu__eyebrow { margin: 0 0 3px; color: #b6d9ae; font-size: 11px; font-weight: 800; letter-spacing: .34em; text-transform: uppercase; }
         .starlite-menu__title {
           margin: 0; font-size: clamp(52px, 10vw, 102px); font-weight: 950; line-height: .9;
           letter-spacing: -.075em; color: #f4ffe9;
-          text-shadow: 0 3px 0 #47633d, 0 8px 28px rgba(0,0,0,.48);
+          font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+          text-shadow: 0 2px 0 #172619, 2px 0 0 #172619, -2px 0 0 #172619, 0 5px 0 #47633d, 0 10px 30px rgba(0,0,0,.52);
         }
         .starlite-menu__title span { color: #a7ef74; }
         .starlite-menu__panel {
           position: relative; width: min(620px, 100%); padding: clamp(18px, 4vw, 30px);
-          border: 1px solid rgba(212, 245, 191, .3); border-radius: 18px;
-          background: linear-gradient(155deg, rgba(21, 31, 25, .95), rgba(11, 17, 14, .93));
-          box-shadow: 0 24px 65px rgba(0,0,0,.48), inset 0 1px rgba(255,255,255,.06);
-          backdrop-filter: blur(12px);
+          border: 2px solid rgba(212, 245, 191, .28); border-radius: 12px;
+          background:
+            linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+            linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px),
+            linear-gradient(155deg, rgba(24, 35, 27, .965), rgba(9, 16, 12, .95));
+          background-size: 8px 8px, 8px 8px, auto;
+          box-shadow: 0 6px 0 rgba(4,9,6,.5), 0 24px 65px rgba(0,0,0,.48), inset 0 0 0 1px rgba(0,0,0,.48), inset 0 1px rgba(255,255,255,.06);
+          backdrop-filter: blur(8px);
+        }
+        .starlite-menu__panel::after {
+          content: ""; position: absolute; inset: 7px; z-index: -1; pointer-events: none;
+          border: 1px solid rgba(167,239,116,.08); border-radius: 7px;
         }
         .starlite-menu__return {
           position: absolute; top: 14px; left: 14px; z-index: 6;
@@ -14097,184 +14110,398 @@
         document.head.appendChild(style);
       }
       
-      function createGrassPattern() {
-        const tile = document.createElement('canvas');
-        tile.width = tile.height = 220;
-        const g = tile.getContext('2d');
-        g.fillStyle = '#47663f';
-        g.fillRect(0, 0, tile.width, tile.height);
-        for (let i = 0; i < 320; i++) {
-          const x = Math.random() * tile.width, y = Math.random() * tile.height;
-          const length = 2 + Math.random() * 6;
-          g.strokeStyle = Math.random() < .5 ? 'rgba(181,220,139,.16)' : 'rgba(20,47,24,.2)';
-          g.lineWidth = Math.random() < .8 ? 1 : 2;
-          g.beginPath(); g.moveTo(x, y); g.lineTo(x + (Math.random() - .5) * 2, y - length); g.stroke();
-        }
-        for (let i = 0; i < 16; i++) {
-          g.fillStyle = Math.random() < .5 ? 'rgba(86,124,68,.28)' : 'rgba(40,82,42,.2)';
-          g.beginPath(); g.ellipse(Math.random() * 220, Math.random() * 220, 10 + Math.random() * 24, 5 + Math.random() * 13, Math.random() * Math.PI, 0, Math.PI * 2); g.fill();
-        }
-        return tile;
+      function menuTerrainHash(x, y, seed = 0) {
+        let value = Math.imul((x | 0) ^ 0x45d9f3b, 0x45d9f3b) ^ Math.imul((y | 0) + seed, 0x27d4eb2d);
+        value ^= value >>> 16;
+        value = Math.imul(value, 0x7feb352d);
+        value ^= value >>> 15;
+        return (value >>> 0) / 4294967295;
       }
-      
+
       function startMenuBackdrop(canvas) {
         const ctx = canvas.getContext('2d', { alpha: false });
-        const grassTile = createGrassPattern();
+        const terrainCanvas = document.createElement('canvas');
+        const terrainCtx = terrainCanvas.getContext('2d', { alpha: false });
         const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        const TILE_SIZE = 32;
         let width = 1, height = 1, dpr = 1, frameId = 0, stopped = false, last = performance.now();
-        const teamColors = ['#c9e7be', '#f08e82', '#f4cf72', '#c89bff'];
-        const unitSpecs = Object.freeze([
-          { type: 'forager', family: 'troop', speed: [15, 24], scale: [.72, .92] },
-          { type: 'infantry', family: 'troop', speed: [18, 29], scale: [.78, 1.02] },
-          { type: 'assault', family: 'troop', speed: [14, 23], scale: [.82, 1.05] },
-          { type: 'mortar', family: 'troop', speed: [11, 18], scale: [.9, 1.12] },
-          { type: 'jeep', family: 'vehicle', speed: [24, 38], scale: [.82, 1.08] },
-          { type: 'armoredJeep', family: 'vehicle', speed: [20, 32], scale: [.9, 1.14] },
-          { type: 'forceFieldTruck', family: 'vehicle', speed: [16, 25], scale: [.92, 1.16] },
-          { type: 'titanTank', family: 'tank', speed: [10, 18], scale: [.9, 1.14] },
-          { type: 'mecha', family: 'mecha', speed: [10, 17], scale: [.84, 1.08] },
-          { type: 'helicopter', family: 'rotor', speed: [28, 44], scale: [.82, 1.08] },
-          { type: 'doubleChopper', family: 'rotor', speed: [25, 40], scale: [.92, 1.15] },
-          { type: 'antiAirFighter', family: 'plane', speed: [34, 52], scale: [.82, 1.06] },
-          { type: 'bomber', family: 'plane', speed: [27, 42], scale: [.98, 1.2] }
-        ]);
+        let terrainSignature = '';
         const units = [];
-      
+        const ambientShots = [];
+        const factionPalettes = Object.freeze({
+          humans: Object.freeze({ body: '#b6d7ac', light: '#9cf2ff', dark: '#24372a', accent: '#f4c679' }),
+          insects: Object.freeze({ body: '#87bd57', light: '#d9ff8b', dark: '#213118', accent: '#9bff5f' }),
+          helias: Object.freeze({ body: '#e7be62', light: '#7de8ff', dark: '#4a341c', accent: '#b99cff' })
+        });
+        const unitSpecs = Object.freeze([
+          { type: 'forager', faction: 'humans', family: 'humanTroop', speed: [11, 18], scale: [.72, .9] },
+          { type: 'infantry', faction: 'humans', family: 'humanTroop', speed: [15, 24], scale: [.78, 1] },
+          { type: 'jeep', faction: 'humans', family: 'humanVehicle', speed: [20, 31], scale: [.82, 1.05] },
+          { type: 'mecha', faction: 'humans', family: 'humanMecha', speed: [9, 15], scale: [.84, 1.05] },
+          { type: 'insectSwarmling', faction: 'insects', family: 'insectGround', speed: [17, 28], scale: [.76, .96] },
+          { type: 'insectSpitter', faction: 'insects', family: 'insectGround', speed: [12, 20], scale: [.88, 1.08] },
+          { type: 'insectWasp', faction: 'insects', family: 'insectAir', speed: [25, 38], scale: [.82, 1.06] },
+          { type: 'heliasVanguard', faction: 'helias', family: 'heliasGround', speed: [14, 23], scale: [.82, 1.02] },
+          { type: 'heliasImmortal', faction: 'helias', family: 'heliasWalker', speed: [9, 15], scale: [.9, 1.12] },
+          { type: 'heliasPhoenix', faction: 'helias', family: 'heliasAir', speed: [29, 43], scale: [.82, 1.06] },
+          { type: 'heliasVoidRay', faction: 'helias', family: 'heliasAir', speed: [20, 31], scale: [.92, 1.14] }
+        ]);
+
         function randBetween(a, b) { return a + Math.random() * (b - a); }
-      
+
+        function terrainKindAt(tileX, tileY) {
+          const px = (tileX * TILE_SIZE + TILE_SIZE * .5) / Math.max(1, width);
+          const py = (tileY * TILE_SIZE + TILE_SIZE * .5) / Math.max(1, height);
+          const safe = Math.pow((px - .5) / .28, 2) + Math.pow((py - .49) / .35, 2) < 1;
+          const water = Math.pow((px - .88) / .19, 2) + Math.pow((py - .81) / .22, 2) < 1;
+          const creep = Math.pow((px - .91) / .2, 2) + Math.pow((py - .47) / .3, 2) < 1;
+          const rock = Math.pow((px - .1) / .19, 2) + Math.pow((py - .2) / .23, 2) < 1;
+          const pathCenter = .72 - px * .28 + Math.sin(px * 8) * .035;
+          const path = Math.abs(py - pathCenter) < .065;
+          if (safe) return path ? 'dirt' : 'grass';
+          if (water) return 'water';
+          if (creep) return 'creep';
+          if (rock) return 'rock';
+          if (path) return 'dirt';
+          return 'grass';
+        }
+
+        function drawPixelCluster(g, x, y, color, pixels) {
+          g.fillStyle = color;
+          for (const [ox, oy, w = 2, h = 2] of pixels) g.fillRect(Math.round(x + ox), Math.round(y + oy), w, h);
+        }
+
+        function drawTerrainTile(g, tileX, tileY, kind) {
+          const x = tileX * TILE_SIZE, y = tileY * TILE_SIZE;
+          const variation = menuTerrainHash(tileX, tileY, 17);
+          if (kind === 'grass') {
+            const colors = ['#365b38', '#3e633d', '#456d42', '#315334'];
+            g.fillStyle = colors[Math.floor(variation * colors.length) % colors.length];
+            g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            for (let index = 0; index < 7; index++) {
+              const hx = menuTerrainHash(tileX * 13 + index, tileY * 7, 31);
+              const hy = menuTerrainHash(tileX * 5, tileY * 17 + index, 47);
+              g.fillStyle = index % 2 ? 'rgba(133,177,91,.23)' : 'rgba(15,46,24,.25)';
+              g.fillRect(x + 3 + Math.floor(hx * 26), y + 4 + Math.floor(hy * 24), 2, 4 + (index % 3));
+            }
+          } else if (kind === 'dirt') {
+            g.fillStyle = variation > .5 ? '#756244' : '#6b593e';
+            g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            for (let index = 0; index < 6; index++) {
+              const hx = menuTerrainHash(tileX * 19 + index, tileY * 3, 71);
+              const hy = menuTerrainHash(tileX * 11, tileY * 23 + index, 83);
+              g.fillStyle = index % 2 ? 'rgba(177,145,91,.24)' : 'rgba(49,39,27,.28)';
+              g.fillRect(x + 3 + Math.floor(hx * 25), y + 3 + Math.floor(hy * 25), 3 + index % 3, 2);
+            }
+          } else if (kind === 'water') {
+            g.fillStyle = variation > .5 ? '#234d58' : '#1d4652';
+            g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            g.fillStyle = 'rgba(104,190,199,.24)';
+            g.fillRect(x + 3, y + 7 + Math.floor(variation * 10), 13, 2);
+            g.fillRect(x + 17, y + 20 - Math.floor(variation * 7), 11, 2);
+            g.fillStyle = 'rgba(8,31,40,.32)';
+            g.fillRect(x + 8, y + 26, 17, 2);
+          } else if (kind === 'creep') {
+            g.fillStyle = variation > .5 ? '#563b62' : '#4b3458';
+            g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            g.fillStyle = 'rgba(174,101,193,.22)';
+            g.fillRect(x + 4, y + 5, 7, 3);
+            g.fillRect(x + 18, y + 20, 9, 3);
+            g.fillStyle = 'rgba(39,18,48,.35)';
+            g.fillRect(x + 12, y + 12, 4, 4);
+            g.fillRect(x + 26, y + 7, 3, 6);
+          } else {
+            g.fillStyle = variation > .52 ? '#4a5350' : '#414b48';
+            g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            g.fillStyle = 'rgba(151,164,155,.16)';
+            g.fillRect(x + 3, y + 3, 19, 3);
+            g.fillRect(x + 18, y + 18, 11, 3);
+            g.fillStyle = 'rgba(22,31,28,.3)';
+            g.fillRect(x + 7, y + 12, 15, 3);
+            g.fillRect(x + 4, y + 27, 20, 2);
+          }
+          g.strokeStyle = 'rgba(4,12,7,.13)';
+          g.lineWidth = 1;
+          g.strokeRect(x + .5, y + .5, TILE_SIZE - 1, TILE_SIZE - 1);
+        }
+
+        function drawMineralPatch(g, x, y, scale = 1) {
+          g.save();
+          g.translate(x, y); g.scale(scale, scale);
+          g.fillStyle = 'rgba(0,0,0,.26)'; g.fillRect(-26, 10, 52, 8);
+          const crystals = [[-18, 2, 9, 23], [-6, -4, 10, 30], [8, 1, 10, 24], [19, 7, 7, 17]];
+          for (const [cx, cy, cw, ch] of crystals) {
+            g.fillStyle = '#61bad2';
+            g.beginPath(); g.moveTo(cx, cy - ch / 2); g.lineTo(cx + cw / 2, cy); g.lineTo(cx + cw / 3, cy + ch / 2); g.lineTo(cx - cw / 3, cy + ch / 2); g.lineTo(cx - cw / 2, cy); g.closePath(); g.fill();
+            g.fillStyle = '#a4f2ff'; g.fillRect(cx - 1, cy - ch / 2 + 4, 2, Math.max(4, ch - 10));
+            g.strokeStyle = '#183c48'; g.lineWidth = 2; g.stroke();
+          }
+          g.restore();
+        }
+
+        function drawRockCluster(g, x, y, scale = 1) {
+          g.save(); g.translate(x, y); g.scale(scale, scale);
+          g.fillStyle = 'rgba(0,0,0,.24)'; g.beginPath(); g.ellipse(0, 13, 35, 9, 0, 0, Math.PI * 2); g.fill();
+          for (const rock of [[-18, 3, 17, 13], [3, -1, 24, 18], [21, 7, 13, 10]]) {
+            g.fillStyle = '#65706b'; g.fillRect(rock[0] - rock[2] / 2, rock[1] - rock[3] / 2, rock[2], rock[3]);
+            g.fillStyle = '#87928b'; g.fillRect(rock[0] - rock[2] / 2 + 3, rock[1] - rock[3] / 2 + 2, rock[2] - 7, 3);
+            g.strokeStyle = '#2b3430'; g.lineWidth = 2; g.strokeRect(rock[0] - rock[2] / 2, rock[1] - rock[3] / 2, rock[2], rock[3]);
+          }
+          g.restore();
+        }
+
+        function rebuildTerrain() {
+          terrainCanvas.width = Math.max(1, Math.round(width * dpr));
+          terrainCanvas.height = Math.max(1, Math.round(height * dpr));
+          terrainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          terrainCtx.imageSmoothingEnabled = false;
+          const columns = Math.ceil(width / TILE_SIZE), rows = Math.ceil(height / TILE_SIZE);
+          for (let tileY = 0; tileY < rows; tileY++) {
+            for (let tileX = 0; tileX < columns; tileX++) drawTerrainTile(terrainCtx, tileX, tileY, terrainKindAt(tileX, tileY));
+          }
+          drawRockCluster(terrainCtx, width * .09, height * .2, 1.15);
+          drawRockCluster(terrainCtx, width * .17, height * .12, .72);
+          drawMineralPatch(terrainCtx, width * .12, height * .78, 1.05);
+          drawMineralPatch(terrainCtx, width * .2, height * .84, .76);
+          drawPixelCluster(terrainCtx, width * .74, height * .86, '#2d7563', [[-18,0,9,4],[-6,-5,12,7],[8,2,13,5],[22,-3,7,6]]);
+          terrainCtx.fillStyle = 'rgba(7,18,11,.18)';
+          terrainCtx.fillRect(0, 0, width, height);
+        }
+
         function resize() {
           const rect = canvas.getBoundingClientRect();
           width = Math.max(1, rect.width); height = Math.max(1, rect.height);
           dpr = Math.min(2, window.devicePixelRatio || 1);
           canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.imageSmoothingEnabled = false;
+          const nextSignature = `${Math.round(width)}x${Math.round(height)}@${dpr}`;
+          if (terrainSignature !== nextSignature) {
+            terrainSignature = nextSignature;
+            rebuildTerrain();
+          }
         }
-      
-        function spawnUnit(initial = false) {
+
+        function spawnUnit(initial = false, forcedFaction = null) {
+          let candidates = unitSpecs;
+          if (forcedFaction) candidates = unitSpecs.filter(spec => spec.faction === forcedFaction);
+          const spec = candidates[(Math.random() * candidates.length) | 0];
           const side = Math.random() < .5 ? -1 : 1;
-          const spec = unitSpecs[(Math.random() * unitSpecs.length) | 0];
-          const heading = side > 0 ? randBetween(-.3, .3) : Math.PI + randBetween(-.3, .3);
+          const lowerLane = Math.random() < .55;
+          const y = lowerLane ? randBetween(height * .66, height * .92) : randBetween(height * .08, height * .32);
+          const heading = side > 0 ? randBetween(-.12, .12) : Math.PI + randBetween(-.12, .12);
           units.push({
-            x: initial ? Math.random() * width : (side > 0 ? -70 : width + 70),
-            y: 36 + Math.random() * Math.max(90, height - 72),
+            x: initial ? Math.random() * width : side > 0 ? -80 : width + 80,
+            y,
             heading,
             speed: reducedMotion ? 0 : randBetween(spec.speed[0], spec.speed[1]),
             type: spec.type,
             family: spec.family,
+            faction: spec.faction,
             size: randBetween(spec.scale[0], spec.scale[1]),
-            color: teamColors[(Math.random() * teamColors.length) | 0],
             phase: Math.random() * Math.PI * 2,
-            alpha: randBetween(.25, .48)
+            alpha: randBetween(.43, .68),
+            shotClock: randBetween(2.5, 8)
           });
         }
-      
-        function drawTroop(unit) {
-          ctx.beginPath(); ctx.arc(3, -5, unit.type === 'forager' ? 3.5 : 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+        function drawHumanTroop(unit, palette) {
+          ctx.beginPath(); ctx.arc(2, -6, unit.type === 'forager' ? 3.5 : 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(0, -1); ctx.lineTo(-2, 8); ctx.lineTo(-7, 13); ctx.moveTo(-1, 8); ctx.lineTo(4, 13); ctx.stroke();
           if (unit.type === 'forager') {
-            ctx.fillStyle = '#384c39'; ctx.fillRect(-6, -1, 5, 8); ctx.strokeRect(-6, -1, 5, 8);
-            ctx.beginPath(); ctx.moveTo(1, 1); ctx.lineTo(8, 5); ctx.stroke();
-          } else if (unit.type === 'mortar') {
-            ctx.beginPath(); ctx.moveTo(0, 2); ctx.lineTo(10, 8); ctx.moveTo(8, 8); ctx.lineTo(14, 2); ctx.stroke();
-            ctx.beginPath(); ctx.arc(14, 1, 3, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = palette.dark; ctx.fillRect(-7, -1, 6, 8); ctx.strokeRect(-7, -1, 6, 8);
+            ctx.beginPath(); ctx.moveTo(1, 1); ctx.lineTo(9, 5); ctx.stroke();
           } else {
-            const gunLength = unit.type === 'assault' ? 15 : 10;
-            ctx.beginPath(); ctx.moveTo(0, 1); ctx.lineTo(gunLength, -2); ctx.stroke();
-            if (unit.type === 'assault') { ctx.fillStyle = '#26372a'; ctx.fillRect(-5, 0, 5, 7); }
+            ctx.beginPath(); ctx.moveTo(0, 1); ctx.lineTo(12, -2); ctx.stroke();
           }
         }
-      
-        function drawVehicle(unit) {
-          const armored = unit.type !== 'jeep';
+
+        function drawHumanVehicle(unit, palette) {
           ctx.fillRect(-14, -7, 28, 14); ctx.strokeRect(-14, -7, 28, 14);
-          ctx.fillStyle = '#26372a'; ctx.fillRect(-7, -10, armored ? 14 : 10, 8);
-          ctx.strokeStyle = unit.color; ctx.strokeRect(-7, -10, armored ? 14 : 10, 8);
-          if (unit.type === 'forceFieldTruck') {
-            ctx.strokeStyle = '#9cf2ff'; ctx.beginPath(); ctx.arc(2, -3, 9, Math.PI, Math.PI * 2); ctx.stroke();
-          } else {
-            ctx.strokeStyle = unit.color; ctx.beginPath(); ctx.moveTo(2, -7); ctx.lineTo(armored ? 18 : 15, -11); ctx.stroke();
-          }
-          ctx.fillStyle = '#111713'; ctx.fillRect(-11, 7, 7, 4); ctx.fillRect(5, 7, 7, 4);
+          ctx.fillStyle = palette.dark; ctx.fillRect(-7, -10, 12, 8); ctx.strokeRect(-7, -10, 12, 8);
+          ctx.strokeStyle = palette.accent; ctx.beginPath(); ctx.moveTo(2, -7); ctx.lineTo(17, -11); ctx.stroke();
+          ctx.fillStyle = '#121914'; ctx.fillRect(-11, 7, 7, 4); ctx.fillRect(5, 7, 7, 4);
         }
-      
-        function drawTank(unit) {
-          ctx.fillRect(-17, -8, 34, 16); ctx.strokeRect(-17, -8, 34, 16);
-          ctx.fillStyle = '#28372c'; ctx.fillRect(-10, -11, 20, 12); ctx.strokeRect(-10, -11, 20, 12);
-          ctx.strokeStyle = unit.color; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(3, -6); ctx.lineTo(23, -10); ctx.stroke();
-          ctx.fillStyle = '#101511'; ctx.fillRect(-15, 8, 30, 4);
-        }
-      
-        function drawMecha(unit) {
+
+        function drawHumanMecha(palette) {
           ctx.fillRect(-8, -13, 16, 18); ctx.strokeRect(-8, -13, 16, 18);
           ctx.beginPath(); ctx.moveTo(-5, 5); ctx.lineTo(-10, 15); ctx.moveTo(5, 5); ctx.lineTo(10, 15); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(-8, -8); ctx.lineTo(-17, 0); ctx.moveTo(8, -8); ctx.lineTo(17, -2); ctx.stroke();
-          ctx.fillStyle = '#9cf2ff'; ctx.fillRect(-4, -9, 8, 3);
+          ctx.fillStyle = palette.light; ctx.fillRect(-4, -9, 8, 3);
         }
-      
-        function drawRotor(unit, time) {
-          ctx.beginPath(); ctx.ellipse(0, 0, unit.type === 'doubleChopper' ? 18 : 15, 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-          ctx.fillRect(-14, -3, 5, 13); ctx.strokeRect(-14, -3, 5, 13);
-          ctx.strokeStyle = '#dcebd6'; ctx.lineWidth = 1.4;
-          const sweep = Math.sin(time * .02 + unit.phase) * 4;
-          ctx.beginPath(); ctx.moveTo(-25, -9 + sweep); ctx.lineTo(25, 9 - sweep); ctx.moveTo(-25, 9 - sweep); ctx.lineTo(25, -9 + sweep); ctx.stroke();
-          if (unit.type === 'doubleChopper') { ctx.beginPath(); ctx.moveTo(-18, 0); ctx.lineTo(-31, -8); ctx.moveTo(18, 0); ctx.lineTo(31, 8); ctx.stroke(); }
-        }
-      
-        function drawPlane(unit) {
-          const bomber = unit.type === 'bomber';
-          ctx.beginPath();
-          ctx.moveTo(20, 0); ctx.lineTo(-13, bomber ? -10 : -7); ctx.lineTo(-5, -2); ctx.lineTo(-19, -3); ctx.lineTo(-20, 3); ctx.lineTo(-5, 2); ctx.lineTo(-13, bomber ? 10 : 7); ctx.closePath();
-          ctx.fill(); ctx.stroke();
-          ctx.fillStyle = '#9cf2ff'; ctx.fillRect(2, -2, 6, 4);
-        }
-      
-        function drawUnit(unit, time) {
-          const air = unit.family === 'rotor' || unit.family === 'plane';
-          const bob = Math.sin(time * .006 + unit.phase);
-          ctx.save();
-          ctx.translate(unit.x, unit.y + bob * (air ? 2.3 : .7));
-          ctx.rotate(unit.heading); ctx.scale(unit.size, unit.size); ctx.globalAlpha = unit.alpha;
-          ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(-3, air ? 10 : 8, air ? 18 : (unit.family === 'troop' ? 7 : 16), 4, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = unit.color; ctx.strokeStyle = '#182319'; ctx.lineWidth = 2;
-          if (unit.family === 'troop') drawTroop(unit);
-          else if (unit.family === 'vehicle') drawVehicle(unit);
-          else if (unit.family === 'tank') drawTank(unit);
-          else if (unit.family === 'mecha') drawMecha(unit);
-          else if (unit.family === 'rotor') drawRotor(unit, time);
-          else drawPlane(unit);
+
+        function drawInsectGround(unit, palette, time) {
+          const spitter = unit.type === 'insectSpitter';
+          const pulse = 1 + Math.sin(time * .008 + unit.phase) * .08;
+          ctx.save(); ctx.scale(pulse, 1);
+          ctx.beginPath(); ctx.ellipse(-1, 0, spitter ? 12 : 9, spitter ? 7 : 5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-6, -3); ctx.lineTo(-15, -10); ctx.moveTo(-4, 3); ctx.lineTo(-15, 10); ctx.moveTo(5, -3); ctx.lineTo(14, -9); ctx.moveTo(6, 3); ctx.lineTo(15, 9); ctx.stroke();
+          ctx.fillStyle = palette.light; ctx.fillRect(spitter ? 7 : 4, -2, spitter ? 8 : 5, 4);
+          if (spitter) { ctx.fillStyle = '#563b62'; ctx.beginPath(); ctx.arc(-5, -5, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
           ctx.restore();
         }
-      
+
+        function drawInsectAir(palette, time, phase) {
+          const wing = 9 + Math.sin(time * .018 + phase) * 3;
+          ctx.beginPath(); ctx.ellipse(0, 0, 11, 5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.strokeStyle = palette.light; ctx.beginPath(); ctx.moveTo(-4, -1); ctx.lineTo(-14, -wing); ctx.moveTo(-4, 1); ctx.lineTo(-14, wing); ctx.moveTo(4, -1); ctx.lineTo(14, -wing); ctx.moveTo(4, 1); ctx.lineTo(14, wing); ctx.stroke();
+          ctx.fillStyle = palette.accent; ctx.fillRect(7, -2, 6, 4);
+        }
+
+        function drawHeliasGround(unit, palette) {
+          ctx.fillStyle = palette.body;
+          ctx.beginPath(); ctx.moveTo(11, 0); ctx.lineTo(1, -9); ctx.lineTo(-8, -5); ctx.lineTo(-10, 6); ctx.lineTo(1, 10); ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = palette.light; ctx.beginPath(); ctx.arc(1, 0, 4, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = palette.light; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(7, -4); ctx.lineTo(17, -12); ctx.moveTo(7, 4); ctx.lineTo(17, 12); ctx.stroke();
+        }
+
+        function drawHeliasWalker(palette) {
+          ctx.fillStyle = palette.body;
+          ctx.beginPath(); ctx.ellipse(0, -3, 13, 9, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.strokeStyle = palette.dark; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(-8, 3); ctx.lineTo(-15, 13); ctx.moveTo(8, 3); ctx.lineTo(15, 13); ctx.moveTo(-3, 5); ctx.lineTo(-5, 16); ctx.moveTo(3, 5); ctx.lineTo(5, 16); ctx.stroke();
+          ctx.fillStyle = palette.light; ctx.beginPath(); ctx.arc(0, -4, 4, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = palette.accent; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(7, -6); ctx.lineTo(20, -9); ctx.moveTo(7, 1); ctx.lineTo(20, 5); ctx.stroke();
+        }
+
+        function drawHeliasAir(unit, palette, time) {
+          const voidRay = unit.type === 'heliasVoidRay';
+          ctx.fillStyle = palette.body;
+          if (voidRay) {
+            ctx.beginPath(); ctx.moveTo(19, 0); ctx.lineTo(-7, -12); ctx.lineTo(-2, -4); ctx.lineTo(-17, 0); ctx.lineTo(-2, 4); ctx.lineTo(-7, 12); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.strokeStyle = palette.accent; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-8, -9); ctx.lineTo(12, -3); ctx.moveTo(-8, 9); ctx.lineTo(12, 3); ctx.stroke();
+          } else {
+            ctx.beginPath(); ctx.moveTo(17, 0); ctx.quadraticCurveTo(0, -14, -15, -7); ctx.lineTo(-4, 0); ctx.lineTo(-15, 7); ctx.quadraticCurveTo(0, 14, 17, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+          }
+          ctx.fillStyle = palette.light; ctx.beginPath(); ctx.arc(3, 0, 4 + Math.sin(time * .008 + unit.phase), 0, Math.PI * 2); ctx.fill();
+        }
+
+        function drawUnit(unit, time) {
+          const palette = factionPalettes[unit.faction];
+          const air = unit.family === 'insectAir' || unit.family === 'heliasAir';
+          const bob = Math.sin(time * .006 + unit.phase);
+          ctx.save();
+          ctx.translate(unit.x, unit.y + bob * (air ? 2.4 : .7));
+          ctx.rotate(unit.heading); ctx.scale(unit.size, unit.size); ctx.globalAlpha = unit.alpha;
+          ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(-3, air ? 11 : 8, air ? 17 : unit.family.includes('Ground') || unit.family.includes('Troop') ? 8 : 15, 4, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = palette.body; ctx.strokeStyle = '#172119'; ctx.lineWidth = 2;
+          if (unit.family === 'humanTroop') drawHumanTroop(unit, palette);
+          else if (unit.family === 'humanVehicle') drawHumanVehicle(unit, palette);
+          else if (unit.family === 'humanMecha') drawHumanMecha(palette);
+          else if (unit.family === 'insectGround') drawInsectGround(unit, palette, time);
+          else if (unit.family === 'insectAir') drawInsectAir(palette, time, unit.phase);
+          else if (unit.family === 'heliasGround') drawHeliasGround(unit, palette);
+          else if (unit.family === 'heliasWalker') drawHeliasWalker(palette);
+          else drawHeliasAir(unit, palette, time);
+          if (unit.faction === 'helias') {
+            ctx.globalAlpha = unit.alpha * .35;
+            ctx.strokeStyle = palette.light; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.ellipse(0, 0, air ? 22 : 17, air ? 11 : 15, 0, 0, Math.PI * 2); ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        function drawHumanHQ(x, y, time) {
+          ctx.save(); ctx.translate(x, y); ctx.globalAlpha = .72;
+          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(-42, 24, 84, 12);
+          ctx.fillStyle = '#7b8d7f'; ctx.strokeStyle = '#172119'; ctx.lineWidth = 3;
+          ctx.fillRect(-35, -22, 70, 48); ctx.strokeRect(-35, -22, 70, 48);
+          ctx.fillStyle = '#53655a'; ctx.fillRect(-24, -33, 48, 16); ctx.strokeRect(-24, -33, 48, 16);
+          ctx.fillStyle = '#9cf2ff'; ctx.fillRect(-19, -7, 38, 8);
+          ctx.fillStyle = '#f4c679'; ctx.fillRect(-29, 12, 12, 6); ctx.fillRect(17, 12, 12, 6);
+          ctx.fillStyle = `rgba(156,242,255,${.16 + Math.sin(time * .003) * .05})`; ctx.fillRect(-45, -38, 90, 72);
+          ctx.restore();
+        }
+
+        function drawBroodHive(x, y, time) {
+          ctx.save(); ctx.translate(x, y); ctx.globalAlpha = .72;
+          const pulse = 1 + Math.sin(time * .004) * .05; ctx.scale(pulse, pulse);
+          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 23, 43, 12, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#6f4a75'; ctx.strokeStyle = '#23152a'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.ellipse(0, 0, 32, 28, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#8cbc52';
+          for (const [ox, oy, r] of [[-18,-12,8],[16,-9,7],[-7,7,10],[18,11,6]]) { ctx.beginPath(); ctx.arc(ox, oy, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+          ctx.strokeStyle = '#9bff5f'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(-25, 13); ctx.lineTo(-45, 30); ctx.moveTo(24, 13); ctx.lineTo(45, 30); ctx.moveTo(-6, 23); ctx.lineTo(-10, 42); ctx.stroke();
+          ctx.restore();
+        }
+
+        function drawHeliasPylon(x, y, time) {
+          ctx.save(); ctx.translate(x, y); ctx.globalAlpha = .76;
+          const glow = .55 + Math.sin(time * .004) * .12;
+          ctx.fillStyle = `rgba(125,232,255,${.08 + glow * .05})`; ctx.beginPath(); ctx.arc(0, 0, 66, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#d8b75d'; ctx.strokeStyle = '#3c2c19'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(0, -38); ctx.lineTo(17, -6); ctx.lineTo(11, 25); ctx.lineTo(0, 35); ctx.lineTo(-11, 25); ctx.lineTo(-17, -6); ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#7de8ff'; ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(9, -4); ctx.lineTo(0, 17); ctx.lineTo(-9, -4); ctx.closePath(); ctx.fill();
+          ctx.strokeStyle = `rgba(125,232,255,${glow})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 44, time * .001, time * .001 + Math.PI * 1.35); ctx.stroke();
+          ctx.restore();
+        }
+
+        function drawAmbientShot(shot, dt) {
+          shot.life -= dt;
+          shot.x += shot.vx * dt; shot.y += shot.vy * dt;
+          ctx.globalAlpha = Math.max(0, shot.life / shot.maxLife) * .65;
+          ctx.fillStyle = shot.color; ctx.fillRect(Math.round(shot.x), Math.round(shot.y), shot.size, shot.size);
+          ctx.globalAlpha = 1;
+        }
+
+        function maybeFireAmbientShot(unit, dt) {
+          if (reducedMotion) return;
+          unit.shotClock -= dt;
+          if (unit.shotClock > 0 || Math.random() > .04) return;
+          unit.shotClock = randBetween(4, 9);
+          const palette = factionPalettes[unit.faction];
+          ambientShots.push({
+            x: unit.x + Math.cos(unit.heading) * 16,
+            y: unit.y + Math.sin(unit.heading) * 16,
+            vx: Math.cos(unit.heading) * 72,
+            vy: Math.sin(unit.heading) * 72,
+            life: .42,
+            maxLife: .42,
+            color: unit.faction === 'insects' ? palette.accent : palette.light,
+            size: unit.faction === 'helias' ? 3 : 2
+          });
+          if (ambientShots.length > 28) ambientShots.shift();
+        }
+
         function draw(now) {
           if (stopped) return;
           const dt = Math.min(.05, (now - last) / 1000); last = now;
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          const pattern = ctx.createPattern(grassTile, 'repeat');
-          ctx.fillStyle = pattern || '#47663f'; ctx.fillRect(0, 0, width, height);
-          const glow = ctx.createRadialGradient(width * .5, height * .38, 20, width * .5, height * .38, Math.max(width, height) * .72);
-          glow.addColorStop(0, 'rgba(156,195,117,.17)'); glow.addColorStop(1, 'rgba(13,34,19,.18)');
-          ctx.fillStyle = glow; ctx.fillRect(0, 0, width, height);
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(terrainCanvas, 0, 0, width, height);
+          drawHumanHQ(width * .09, height * .73, now);
+          drawBroodHive(width * .91, height * .49, now);
+          drawHeliasPylon(width * .82, height * .17, now);
           for (let index = units.length - 1; index >= 0; index--) {
             const unit = units[index];
             unit.x += Math.cos(unit.heading) * unit.speed * dt;
             unit.y += Math.sin(unit.heading) * unit.speed * dt;
             drawUnit(unit, now);
-            if (unit.x < -100 || unit.x > width + 100 || unit.y < -100 || unit.y > height + 100) units.splice(index, 1);
+            maybeFireAmbientShot(unit, dt);
+            if (unit.x < -110 || unit.x > width + 110 || unit.y < -110 || unit.y > height + 110) units.splice(index, 1);
           }
-          const targetCount = Math.max(8, Math.min(16, Math.round(width / 105)));
-          if (units.length < targetCount && Math.random() < dt * 2.2) spawnUnit(false);
+          for (let index = ambientShots.length - 1; index >= 0; index--) {
+            drawAmbientShot(ambientShots[index], dt);
+            if (ambientShots[index].life <= 0) ambientShots.splice(index, 1);
+          }
+          const targetCount = Math.max(12, Math.min(22, Math.round(width / 72)));
+          if (units.length < targetCount && Math.random() < dt * 3.2) spawnUnit(false);
           frameId = requestAnimationFrame(draw);
         }
-      
+
         resize();
-        for (let index = 0; index < 12; index++) spawnUnit(true);
+        for (const faction of ['humans', 'insects', 'helias']) {
+          for (let index = 0; index < 5; index++) spawnUnit(true, faction);
+        }
         window.addEventListener('resize', resize);
         frameId = requestAnimationFrame(draw);
         return () => {
           stopped = true; cancelAnimationFrame(frameId); window.removeEventListener('resize', resize);
         };
       }
-      
+
       const GAME_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       
       function normalizeMenuGameCode(value) {
