@@ -23,7 +23,7 @@
       history.replaceState(null, '', `${url.pathname}${query ? `?${query}` : ''}${url.hash}`);
     })();
   </script>
-  <title>StarLite II — Helias Fleet Update</title>
+  <title>StarLite II — Extended Faction Tutorials</title>
   <script>
     // StarLite voluntary rewarded-ad configuration.
     // Production: set enabled=true and replace adUnitPath with the rewarded web
@@ -12002,7 +12002,7 @@
   __define("main.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("multiplayer.js"); const __dep7 = __require("syncChecksum.js"); const __dep8 = __require("economy.js"); const __dep9 = __require("menu.js"); const __dep10 = __require("rendering.js"); const __dep11 = __require("state.js"); const __dep12 = __require("terrain.js"); const __dep13 = __require("workerBridge.js");
-    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "getCombatSyncState", { enumerable: true, get: () => __dep1["getCombatSyncState"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep2["UNIT_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep2["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "DEFAULT_FACTION_ID", { enumerable: true, get: () => __dep2["DEFAULT_FACTION_ID"] }); Object.defineProperty(__imports, "factionStartingUnits", { enumerable: true, get: () => __dep2["factionStartingUnits"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep2["normalizeFactionId"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep2["teamFactionId"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep3["getRandomState"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep4["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep4["setPathingSyncState"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep5["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep5["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep5["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep5["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep6["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep6["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep6["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep6["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep6["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep6["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep7["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep7["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep8["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep8["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep8["teamEconomyState"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep8["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep8["productionTechLevel"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep8["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep9["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep10["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep10["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep11["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep11["addStructure"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep11["getNextEntityId"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep11["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep11["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep11["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep11["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep11["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep11["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep11["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep11["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep11["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep11["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep11["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep11["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep11["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep11["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep11["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep12["generateTerrain"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep12["isBlocked"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep12["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep12["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep12["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep13["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep13["setDeterministicLockstepMode"] });
+    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "getCombatSyncState", { enumerable: true, get: () => __dep1["getCombatSyncState"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep2["UNIT_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep2["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "DEFAULT_FACTION_ID", { enumerable: true, get: () => __dep2["DEFAULT_FACTION_ID"] }); Object.defineProperty(__imports, "factionStartingUnits", { enumerable: true, get: () => __dep2["factionStartingUnits"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep2["normalizeFactionId"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep2["teamFactionId"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep3["getRandomState"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep4["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep4["setPathingSyncState"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep5["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep5["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep5["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep5["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep6["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep6["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep6["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep6["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep6["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep6["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep7["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep7["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep8["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep8["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep8["teamEconomyState"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep8["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep8["productionTechLevel"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep8["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep8["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep8["insectUpgradeOrders"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep8["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep8["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep9["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep10["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep10["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep11["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep11["addStructure"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep11["getNextEntityId"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep11["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep11["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep11["cam"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep11["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep11["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep11["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep11["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep11["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep11["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep11["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep11["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep11["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep11["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep11["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep11["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep12["generateTerrain"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep12["isBlocked"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep12["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep12["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep12["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep13["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep13["setDeterministicLockstepMode"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeGameMode", { enumerable: true, get: () => activeGameMode }); Object.defineProperty(__exports, "bootstrapWorld", { enumerable: true, get: () => bootstrapWorld }); Object.defineProperty(__exports, "competitiveSpawnLayout", { enumerable: true, get: () => competitiveSpawnLayout }); Object.defineProperty(__exports, "enemyHQ", { enumerable: true, get: () => enemyHQ }); Object.defineProperty(__exports, "enemyHQs", { enumerable: true, get: () => enemyHQs }); Object.defineProperty(__exports, "getActiveTeams", { enumerable: true, get: () => getActiveTeams }); Object.defineProperty(__exports, "getHQForTeam", { enumerable: true, get: () => getHQForTeam }); Object.defineProperty(__exports, "getLivingHQs", { enumerable: true, get: () => getLivingHQs }); Object.defineProperty(__exports, "getNearestHostileHQ", { enumerable: true, get: () => getNearestHostileHQ }); Object.defineProperty(__exports, "matchSeedForMode", { enumerable: true, get: () => matchSeedForMode }); Object.defineProperty(__exports, "normalizedGameCode", { enumerable: true, get: () => normalizedGameCode }); Object.defineProperty(__exports, "playerHQ", { enumerable: true, get: () => playerHQ }); Object.defineProperty(__exports, "setLocalCommandTeam", { enumerable: true, get: () => setLocalCommandTeam }); Object.defineProperty(__exports, "startStarLite", { enumerable: true, get: () => startStarLite });
@@ -12468,9 +12468,9 @@
         state.eliminatedTeams = new Set();
         state.settingsOpen = false;
         const tutorialResources = tutorialFaction === 'helias'
-          ? { minerals: 950, gas: 320 }
+          ? { minerals: 2100, gas: 1250 }
           : tutorialFaction === 'insects'
-            ? { minerals: 800, gas: 240 }
+            ? { minerals: 2000, gas: 1100 }
             : { minerals: 1400, gas: 650 };
         state.minerals = sandbox ? 50000 : tutorialFaction ? tutorialResources.minerals : 200;
         state.gas = sandbox ? 50000 : tutorialFaction ? tutorialResources.gas : 120;
@@ -12700,6 +12700,50 @@
               waiting: remaining => `The Spawning Nest bubo is growing · ${remaining}s remaining. The Drone has become part of the organism.`
             })
           ]),
+          advancedSequence: Object.freeze([
+            Object.freeze({
+              kind: 'hiveEvolution', targetLevel: 2, facilityType: 'hq',
+              title: 'A brood does not build tiers. It evolves them.',
+              copy: 'Evolving the Brood Hive changes the entire organism. A Greater Hive unlocks deeper biological organs, stronger strains and the morph paths that let existing creatures become something deadlier.',
+              objective: 'Select the BROOD HIVE and choose EVOLVE TO GREATER HIVE.',
+              waiting: remaining => `The Hive is rewriting itself · ${remaining}s remaining. Production pauses while the core organism evolves.`
+            }),
+            Object.freeze({
+              kind: 'build', type: 'evolutionPit', name: 'EVOLUTION PIT',
+              title: 'Grow an Evolution Pit — the brood’s memory.',
+              copy: 'The Evolution Pit stores adaptations for the whole swarm. Research completed here affects existing organisms and every creature grown later.',
+              objective: 'Select a Drone and grow an EVOLUTION PIT entirely on creep.',
+              waiting: remaining => `Evolution Pit gestation underway · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'insectUpgrade', upgradeId: 'serratedMandibles1', branch: 'serratedMandibles', targetLevel: 1, facilityType: 'evolutionPit',
+              title: 'Teach every claw to cut deeper.',
+              copy: 'Serrated Mandibles is a brood-wide weapon adaptation. It improves Swarmlings and their Burstling morphs already alive, then passes the trait to future spawn.',
+              objective: 'Select the EVOLUTION PIT and research SERRATED MANDIBLES I.',
+              waiting: remaining => `Serrated Mandibles adaptation spreading · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'morphUnit', sourceType: 'insectSwarmling', toType: 'insectBurstling',
+              title: 'Do not replace a useful creature. Rewrite it.',
+              copy: 'Zglengo morphing converts a unit already on the field into a specialised strain. Burstlings sacrifice themselves in a violent ground explosion, ideal for breaking packed formations.',
+              objective: 'Select one SWARMLING, open its evolution command and MORPH BURSTLING.',
+              waiting: remaining => `The Swarmling is sealed inside a vulnerable cocoon · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'build', type: 'spitterDen', name: 'SPITTER DEN',
+              title: 'Add range to the swarm.',
+              copy: 'A swarm made from only one strain is easy to counter. The Spitter Den unlocks corrosive ranged organisms that can attack before your melee brood reaches the target.',
+              objective: 'Select a Drone and grow a SPITTER DEN on creep.',
+              waiting: remaining => `Spitter Den gestation underway · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'trainUnit', unitType: 'insectSpitter', unitName: 'SPITTER', producerType: 'hq',
+              title: 'Grow a second troop type.',
+              copy: 'Spitters fight from behind Swarmlings. Use the fast brood to surround enemies while corrosive volleys land safely from the rear.',
+              objective: 'Select the BROOD HIVE and grow one SPITTER from a larva.',
+              waiting: remaining => `A Spitter cocoon is gestating · ${remaining}s remaining.`
+            })
+          ]),
           intros: Object.freeze([
             Object.freeze({ title: 'Awaken, young brood.', copy: 'The Zglengo are not an army assembled in factories. They are a living ecosystem: Drones become organs, Hives generate larvae, and specialised creatures are grown exactly when the swarm needs them.' }),
             Object.freeze({ title: 'The ground itself is part of the brood.', copy: 'Creep spreads from Hives and Tumors. It permits organic construction, accelerates ground organisms and strengthens their regeneration. Expand the creep and the battlefield becomes yours.' }),
@@ -12716,7 +12760,7 @@
           moveCopy: 'Zglengo units are strongest when they surround targets and reinforce one another. Ground organisms also travel faster across your creep, so fight from the territory you have infected whenever possible.',
           moveObjective: 'Select the new Swarmlings and right-click a nearby point to move the brood away from the Hive.',
           combatCopy: 'Swarmlings are fast contact fighters. Right-click a target to collapse the brood around it; concentrating many small attackers quickly overwhelms isolated enemies.',
-          completionCopy: 'You grew a living tech organ, spent Hive larvae, moved a brood and consumed a hostile wave. The enemy colony still survives across the map.'
+          completionCopy: 'You grew living technology, evolved the Hive, spread a brood-wide weapon adaptation, morphed an existing creature, added a ranged strain and consumed a hostile wave. The enemy colony still survives across the map.'
         }),
         helias: Object.freeze({
           faction: 'helias', speaker: 'Helias executor', accent: '#7de8ff', softAccent: '#b9f7ff',
@@ -12738,6 +12782,50 @@
               waiting: remaining => `Gateway warp-in underway · ${remaining}s remaining. It must remain powered by the Pylon.`
             })
           ]),
+          advancedSequence: Object.freeze([
+            Object.freeze({
+              kind: 'build', type: 'heliasCyberCore', name: 'CYBERNETICS CORE',
+              title: 'Connect the Gateway to the deeper lattice.',
+              copy: 'The Cybernetics Core unlocks advanced energy weapons and becomes the foundation for Forge, Robotics and Stargate technology. Like the Gateway, it must stay inside Pylon power.',
+              objective: 'Select a Luminant and warp in a CYBERNETICS CORE inside the power field.',
+              waiting: remaining => `Cybernetics Core warp-in underway · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'trainUnit', unitType: 'heliasLancer', unitName: 'RIFT LANCER', producerType: 'heliasGateway',
+              title: 'Add a ranged precision unit.',
+              copy: 'Rift Lancers fire from behind Sunblades. Their role is not to absorb the first impact; it is to remove dangerous targets while the frontline holds.',
+              objective: 'Select the powered GATEWAY and warp in one RIFT LANCER.',
+              waiting: remaining => `Rift Lancer warp sequence · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'productionUpgrade', structureType: 'heliasGateway', targetLevel: 2, facilityType: 'heliasGateway', matchLabel: 'GATEWAY',
+              title: 'Upgrade the entire Gateway matrix.',
+              copy: 'Helias facility research applies to every Gateway you own, including future ones. Level 2 unlocks the Prism Warden support pattern without stopping normal unit production.',
+              objective: 'Select the GATEWAY and choose UPGRADE ALL GATEWAY BUILDINGS · L1 → L2.',
+              waiting: remaining => `Gateway matrix research underway · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'trainUnit', unitType: 'heliasSentry', unitName: 'PRISM WARDEN', producerType: 'heliasGateway',
+              title: 'Warp a support specialist.',
+              copy: 'Prism Wardens add ranged pressure and battlefield control. Helias armies become powerful through complementary roles, not by massing one expensive unit.',
+              objective: 'Select the upgraded GATEWAY and warp in one PRISM WARDEN.',
+              waiting: remaining => `Prism Warden warp sequence · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'build', type: 'heliasForge', name: 'FORGE',
+              title: 'Build the instrument that improves every warrior.',
+              copy: 'The Forge researches universal Helias adaptations. One completed project improves troops already deployed and every unit warped in afterward.',
+              objective: 'Select a Luminant and warp in a FORGE inside Pylon power.',
+              waiting: remaining => `Forge warp-in underway · ${remaining}s remaining.`
+            }),
+            Object.freeze({
+              kind: 'heliasForgeUpgrade', upgradeId: 'heliasForgeShield', branch: 'shield', facilityType: 'heliasForge',
+              title: 'Strengthen the shield lattice.',
+              copy: 'Plasma Shields increases every Helias personal shield and grants protection to Luminants. It rewards the faction’s signature rhythm: engage, withdraw, recharge, return.',
+              objective: 'Select the FORGE and research PLASMA SHIELDS.',
+              waiting: remaining => `Plasma Shield harmonics calibrating · ${remaining}s remaining.`
+            })
+          ]),
           intros: Object.freeze([
             Object.freeze({ title: 'The Helias network acknowledges you.', copy: 'The Helias field fewer warriors than their rivals, but every unit combines disciplined movement, precise weapons and a regenerating energy shield. Preserve each warrior and strike where the enemy is weakest.' }),
             Object.freeze({ title: 'Power precedes form.', copy: 'Pylons project the energy grid used by Helias production and technology. Structures arrive through growing warp orbs, while shields recover after a unit escapes incoming fire.' }),
@@ -12754,7 +12842,7 @@
           moveCopy: 'Right-click the ground to reposition. Pull wounded Helias units out of danger, allow their shields to recharge, then return them to the fight instead of trading them away.',
           moveObjective: 'Select the new Sunblade and right-click a nearby point to move it away from the Gateway.',
           combatCopy: 'Helias armies reward concentrated, deliberate attacks. Right-click an enemy to focus it down, then withdraw damaged warriors long enough for their shields to regenerate.',
-          completionCopy: 'You established the power lattice, warped a powered production facility, deployed a shielded warrior and defeated a live attack. The rival base remains across the map.'
+          completionCopy: 'You established the power lattice, unlocked advanced technology, combined three troop roles, upgraded the Gateway network, strengthened every personal shield and defeated a live attack. The rival base remains across the map.'
         })
       });
 
@@ -12945,6 +13033,15 @@
         if (!target) { openFactionTutorialCombatObjective(); return; }
         factionTutorial.step = FACTION_TUTORIAL_STEPS.ADVANCED;
         factionTutorial.advancedIndex = index;
+        factionTutorial.advancedUnitBaseline = target.kind === 'trainUnit'
+          ? units.filter(unit => unit.hp > 0 && unit.team === 'player' && unit.type === target.unitType).length
+          : null;
+        factionTutorial.advancedTargetBaseline = target.kind === 'morphUnit'
+          ? units.filter(unit => unit.hp > 0 && unit.team === 'player' && unit.type === target.toType).length
+          : null;
+        factionTutorial.advancedMorphSourceId = target.kind === 'morphUnit'
+          ? (units.find(unit => unit.hp > 0 && unit.team === 'player' && unit.type === target.sourceType && !unit.morphJob)?.id || null)
+          : null;
         setFactionTutorialMessage({
           title: target.title,
           copy: target.copy,
@@ -13002,21 +13099,57 @@
       function tutorialAdvancedArrowTarget(target) {
         if (!target) return null;
         if (target.kind === 'build') return tutorialBuildArrowTarget(target);
-        const facility = tutorialStructure(target.facilityType);
+        if (target.kind === 'hiveEvolution') {
+          if (!playerHQ) return null;
+          if (!state.selectedStructures?.has(playerHQ.id)) return { point: tutorialCanvasPoint(playerHQ.x, playerHQ.y), label: 'SELECT HIVE' };
+          const commandPoint = tutorialCommandPoint(item => item.command?.type === 'upgradeProduction' && item.command?.producerId === playerHQ.id);
+          return commandPoint ? { point: commandPoint, label: 'EVOLVE' } : { point: tutorialCanvasPoint(playerHQ.x, playerHQ.y), label: 'EVOLVE' };
+        }
+        if (target.kind === 'morphUnit') {
+          const source = units.find(unit => unit.id === factionTutorial.advancedMorphSourceId && unit.hp > 0) ||
+            units.find(unit => unit.hp > 0 && unit.team === 'player' && unit.type === target.sourceType);
+          if (!source) return null;
+          if (source.morphJob?.toType === target.toType) return { point: tutorialCanvasPoint(source.x, source.y), label: 'MORPHING' };
+          if (!state.selected?.has(source.id)) return { point: tutorialCanvasPoint(source.x, source.y), label: 'SELECT' };
+          const commandPoint = tutorialCommandPoint(item => item.command?.type === 'morphUnit' && item.command?.toType === target.toType);
+          return commandPoint ? { point: commandPoint, label: 'MORPH' } : { point: tutorialCanvasPoint(source.x, source.y), label: 'EVOLVE' };
+        }
+        if (target.kind === 'trainUnit') {
+          const producer = target.producerType === 'hq' ? playerHQ : tutorialStructure(target.producerType);
+          if (!producer) return null;
+          const selected = target.producerType === 'hq'
+            ? state.selectedStructures?.has(playerHQ?.id)
+            : tutorialSelectedStructure(target.producerType);
+          if (!selected) return { point: tutorialCanvasPoint(producer.x, producer.y), label: 'SELECT' };
+          const commandPoint = tutorialCommandPoint(item => item.command?.type === 'produce' && item.command?.unitType === target.unitType);
+          return commandPoint ? { point: commandPoint, label: 'TRAIN' } : { point: tutorialCanvasPoint(producer.x, producer.y), label: 'PRODUCE' };
+        }
+        const facility = target.facilityType === 'hq' ? playerHQ : tutorialStructure(target.facilityType);
         if (!facility) return null;
-        if (!tutorialSelectedStructure(target.facilityType)) return { point: tutorialCanvasPoint(facility.x, facility.y), label: 'SELECT' };
+        const facilitySelected = target.facilityType === 'hq'
+          ? state.selectedStructures?.has(playerHQ?.id)
+          : tutorialSelectedStructure(target.facilityType);
+        if (!facilitySelected) return { point: tutorialCanvasPoint(facility.x, facility.y), label: 'SELECT' };
         if (target.kind === 'productionUpgrade') {
+          const expectedLabel = String(target.matchLabel || target.structureType || '').replace(/^helias/i, '').toUpperCase();
           const commandPoint = tutorialCommandPoint(item => item.command?.type === 'upgradeProduction' &&
-            String(item.label || '').toUpperCase().includes(String(target.structureType || '').toUpperCase()));
+            (item.command?.producerId === facility.id || String(item.label || '').toUpperCase().includes(expectedLabel)));
           return commandPoint ? { point: commandPoint, label: 'UPGRADE' } : { point: tutorialCanvasPoint(facility.x, facility.y), label: 'RESEARCH' };
         }
         if (target.kind === 'unitUpgrade') {
           const title = String(state.commandMenu?.title || '').toUpperCase();
           let commandPoint = null;
           if (title.includes('UNIT TYPES')) commandPoint = tutorialCommandPoint(item => String(item.label || '').toUpperCase().startsWith('INFANTRY'));
-          else if (title.includes('INFANTRY')) commandPoint = tutorialCommandPoint(item => item.command?.type === 'upgradeUnit' && item.command?.unitType === target.unitType);
           else commandPoint = tutorialCommandPoint(item => item.command?.type === 'upgradeUnit' && item.command?.unitType === target.unitType);
           return commandPoint ? { point: commandPoint, label: 'UPGRADE' } : { point: tutorialCanvasPoint(facility.x, facility.y), label: 'OPEN LAB' };
+        }
+        if (target.kind === 'insectUpgrade') {
+          const commandPoint = tutorialCommandPoint(item => item.command?.type === 'researchInsectUpgrade' && item.command?.upgradeId === target.upgradeId);
+          return commandPoint ? { point: commandPoint, label: 'ADAPT' } : { point: tutorialCanvasPoint(facility.x, facility.y), label: 'RESEARCH' };
+        }
+        if (target.kind === 'heliasForgeUpgrade') {
+          const commandPoint = tutorialCommandPoint(item => item.command?.type === 'upgradeUnit' && item.command?.unitType === target.upgradeId);
+          return commandPoint ? { point: commandPoint, label: 'RESEARCH' } : { point: tutorialCanvasPoint(facility.x, facility.y), label: 'FORGE' };
         }
         return null;
       }
@@ -13170,6 +13303,15 @@
         state.tutorialComplete = true;
       }
 
+      function removeFactionTutorialPresentation() {
+        const tutorial = factionTutorial;
+        if (!tutorial) return;
+        tutorial.ui?.arrowRoot?.remove();
+        tutorial.ui?.root?.remove();
+        factionTutorial = null;
+        state.tutorialMode = null;
+      }
+
       function completeFactionTutorial() {
         if (!factionTutorial || factionTutorial.step === FACTION_TUTORIAL_STEPS.COMPLETE) return;
         const config = factionTutorial.config;
@@ -13184,7 +13326,7 @@
             label: 'CONTINUE BATTLE',
             onClick: () => {
               resumeTutorialComputerAI();
-              factionTutorial.ui.root.hidden = true;
+              removeFactionTutorialPresentation();
             }
           }
         });
@@ -13255,6 +13397,42 @@
               const lab = tutorialStructure(target.facilityType);
               const order = [lab?.labJob, ...(Array.isArray(lab?.labQueue) ? lab.labQueue : [])]
                 .find(job => job?.unitType === target.unitType && (job.upgradeLevel || 1) >= target.targetLevel);
+              if (order?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(order.timeLeft)));
+            }
+          } else if (target.kind === 'hiveEvolution') {
+            complete = (playerHQ?.level || 1) >= target.targetLevel;
+            if (!complete && playerHQ?.hiveEvolutionJob?.timeLeft > 0 && target.waiting) {
+              factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(playerHQ.hiveEvolutionJob.timeLeft)));
+            }
+          } else if (target.kind === 'insectUpgrade') {
+            complete = completedInsectUpgradeLevel(target.branch, 'player') >= target.targetLevel;
+            if (!complete) {
+              const organ = tutorialStructure(target.facilityType);
+              const order = insectUpgradeOrders(organ).find(job => job?.upgradeId === target.upgradeId);
+              if (order?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(order.timeLeft)));
+            }
+          } else if (target.kind === 'morphUnit') {
+            const targetCount = units.filter(unit => unit.hp > 0 && unit.team === 'player' && unit.type === target.toType).length;
+            complete = targetCount > (factionTutorial.advancedTargetBaseline || 0);
+            if (!complete) {
+              const source = units.find(unit => unit.id === factionTutorial.advancedMorphSourceId && unit.hp > 0);
+              if (source?.morphJob?.toType === target.toType && source.morphJob.timeLeft > 0 && target.waiting) {
+                factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(source.morphJob.timeLeft)));
+              }
+            }
+          } else if (target.kind === 'trainUnit') {
+            const currentCount = units.filter(unit => unit.hp > 0 && unit.team === 'player' && unit.type === target.unitType).length;
+            complete = currentCount > (factionTutorial.advancedUnitBaseline || 0);
+            if (!complete) {
+              const producer = target.producerType === 'hq' ? playerHQ : tutorialStructure(target.producerType);
+              const order = producer?.queue?.find(job => job?.type === target.unitType);
+              if (order?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(order.timeLeft)));
+            }
+          } else if (target.kind === 'heliasForgeUpgrade') {
+            complete = !!heliasForgeRegistry('player')[target.branch];
+            if (!complete) {
+              const forge = tutorialStructure(target.facilityType);
+              const order = heliasForgeUpgradeOrders(forge).find(job => job?.upgradeId === target.upgradeId);
               if (order?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(order.timeLeft)));
             }
           }
@@ -13452,6 +13630,20 @@
       
       let menuOpen = false;
       let activeMenuPromise = null;
+      const NEW_PLAYER_PROMPT_SESSION_KEY = 'starlite.newPlayerPromptSeen.v1';
+      let newPlayerPromptFallbackPending = true;
+
+      function consumeNewPlayerPromptForSession() {
+        const windowMarker = 'starlite-new-player-prompt-seen-v1';
+        let seen = false;
+        try { seen = window.sessionStorage.getItem(NEW_PLAYER_PROMPT_SESSION_KEY) === '1'; } catch {}
+        try { seen ||= String(window.name || '').includes(windowMarker); } catch {}
+        if (seen || !newPlayerPromptFallbackPending) return false;
+        try { window.sessionStorage.setItem(NEW_PLAYER_PROMPT_SESSION_KEY, '1'); } catch {}
+        try { window.name = `${String(window.name || '')}${window.name ? '|' : ''}${windowMarker}`; } catch {}
+        newPlayerPromptFallbackPending = false;
+        return true;
+      }
       
       function storageGet(key) {
         try { return window.localStorage.getItem(key); }
@@ -15127,6 +15319,7 @@
       async function createMainMenu() {
         await waitForDocument();
         ensureMenuStyles();
+        const showNewPlayerPrompt = consumeNewPlayerPromptForSession();
         menuOpen = true;
         document.documentElement.dataset.starliteMenuOpen = 'true';
         const previousOverflow = document.body.style.overflow;
@@ -15479,7 +15672,7 @@
               <p class="starlite-menu__info-consent-status" data-menu-consent-status role="status" aria-live="polite"></p>
             </section>
           </div>
-          <div class="starlite-menu__welcome-gate" data-new-player-prompt role="dialog" aria-modal="true" aria-labelledby="starlite-new-player-title" aria-describedby="starlite-new-player-copy">
+          <div class="starlite-menu__welcome-gate${showNewPlayerPrompt ? '' : ' starlite-hidden'}" data-new-player-prompt role="dialog" aria-modal="true" aria-hidden="${showNewPlayerPrompt ? 'false' : 'true'}" aria-labelledby="starlite-new-player-title" aria-describedby="starlite-new-player-copy">
             <section class="starlite-menu__welcome-card">
               <h2 id="starlite-new-player-title">New to StarLite II?</h2>
               <p id="starlite-new-player-copy">Learn the basics in a short guided battle.</p>
@@ -17021,7 +17214,7 @@
             newPlayerPrompt?.remove();
             root.querySelector('[data-category="computer"]')?.focus();
           });
-          requestAnimationFrame(() => startHumanTutorialButton?.focus());
+          if (showNewPlayerPrompt) requestAnimationFrame(() => startHumanTutorialButton?.focus());
 
           tutorialView.addEventListener('click', event => {
             const card = event.target.closest('[data-tutorial-faction]');
@@ -25257,6 +25450,43 @@ function drawStructureUpgradeDetails(s, x, y, team) {
       function fortressActiveVisual(u) {
         return u.type === 'titanTank' && u.fortressMode && (u.fortressLock || 0) >= 1;
       }
+
+      // Renderer-local Celestial Ark helpers. The combat module has its own
+      // deterministic helpers, but module closures intentionally do not leak into
+      // the renderer. Keeping a render-only copy avoids a global dependency while
+      // preserving the same three-drone figure-eight choreography.
+      function renderCelestialArkDronesEngaged(carrier, target = carrier?.target) {
+        if (!carrier || !target || target.hp <= 0 || target.team === carrier.team) return false;
+        const targetRadius = target.radius || Math.max(target.w || 0, target.h || 0) * .28 || 8;
+        const range = Number.isFinite(carrier.range) ? carrier.range : (UNIT_DATA.heliasCarrier.range || 0);
+        return Math.max(0, Math.hypot(carrier.x - target.x, carrier.y - target.y) - targetRadius) <= range + 22;
+      }
+
+      function renderCelestialArkDronePosition(carrier, index, target = carrier?.target) {
+        const droneCount = Math.max(1, Math.min(3, UNIT_DATA.heliasCarrier.interceptors || 3));
+        const phase = state.elapsed * 3.35 + carrier.id * .37 + index * Math.PI * 2 / droneCount;
+        if (renderCelestialArkDronesEngaged(carrier, target)) {
+          const targetRadius = target.radius || Math.max(target.w || 0, target.h || 0) * .28 || 8;
+          const loopRadius = Math.max(22, targetRadius + 20);
+          const axis = Math.atan2(target.y - carrier.y, target.x - carrier.x);
+          const across = Math.sin(phase) * loopRadius * 1.12;
+          const along = Math.sin(phase * 2) * loopRadius * .56;
+          const acrossVelocity = Math.cos(phase) * loopRadius * 1.12;
+          const alongVelocity = Math.cos(phase * 2) * loopRadius * 1.12;
+          const x = target.x + Math.cos(axis) * along - Math.sin(axis) * across;
+          const y = target.y + Math.sin(axis) * along + Math.cos(axis) * across;
+          const vx = Math.cos(axis) * alongVelocity - Math.sin(axis) * acrossVelocity;
+          const vy = Math.sin(axis) * alongVelocity + Math.cos(axis) * acrossVelocity;
+          return { x, y, heading: Math.atan2(vy, vx), engaged: true };
+        }
+        const orbit = state.elapsed * 1.65 + carrier.id * .37 + index * Math.PI * 2 / droneCount;
+        return {
+          x: carrier.x + Math.cos(orbit) * 30,
+          y: carrier.y + Math.sin(orbit) * 18,
+          heading: orbit + Math.PI / 2,
+          engaged: false
+        };
+      }
       
       function drawUnit(u) {
         if (u.hp <= 0) return;
@@ -27007,10 +27237,10 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           // in combat they leave the hull and fly synchronized figure-eight loops
           // around the selected enemy while their miniature laser emitters pulse.
           const droneCount = Math.min(3, UNIT_DATA.heliasCarrier.interceptors || 3);
-          const engagedTarget = celestialArkDronesEngaged(u, u.target) ? u.target : null;
+          const engagedTarget = renderCelestialArkDronesEngaged(u, u.target) ? u.target : null;
           const cosHeading = Math.cos(u.heading), sinHeading = Math.sin(u.heading);
           for (let index = 0; index < droneCount; index++) {
-            const drone = celestialArkDronePosition(u, index, engagedTarget);
+            const drone = renderCelestialArkDronePosition(u, index, engagedTarget);
             let dx, dy, droneHeading;
             if (drone.engaged) {
               const relativeX = drone.x - u.x;
