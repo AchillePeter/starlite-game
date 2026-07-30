@@ -6712,6 +6712,24 @@
         }
         return lines.slice(0, maxLines);
       }
+
+      function wrappedDescription(text, maxWidth, size, weight = 650) {
+        const words = String(text || '').split(/\s+/).filter(Boolean);
+        const lines = [];
+        let current = '';
+        setFont(size, weight);
+        for (const word of words) {
+          const candidate = current ? `${current} ${word}` : word;
+          if (!current || ctx.measureText(candidate).width <= maxWidth) {
+            current = candidate;
+          } else {
+            lines.push(current);
+            current = word;
+          }
+        }
+        if (current) lines.push(current);
+        return lines;
+      }
       
       const BUILDING_BUTTON_ICONS = Object.freeze({
         barracks: [
@@ -6879,6 +6897,7 @@
         const enabled = menuItemEnabled(item);
         const hovered = pointInRect(state.mouse, rect);
         const selectedPlacement = !!item.placementType && state.placingBuildingType === item.placementType;
+        const constructionCard = !!item.placementType || state.commandMenu?.constructionCards === true;
         const tone = menuToneFor(item);
         ctx.save();
         ctx.globalAlpha = enabled ? 1 : .46;
@@ -6890,12 +6909,12 @@
         ctx.fillStyle = tone.accent;
         ctx.fillRect(rect.x, rect.y, compact ? 3 : 4, rect.h);
         ctx.restore();
-      
+
         const iconSpace = drawBuildingButtonIcon(item, rect, compact, tone, enabled);
         const padX = compact ? 5 : 8;
-        const fontSize = compact ? 8 : rect.w < 120 ? 9 : 10;
+        const fontSize = constructionCard ? (compact ? 9 : rect.w < 145 ? 10 : 11) : (compact ? 8 : rect.w < 120 ? 9 : 10);
         const labelMaxW = Math.max(8, rect.w - padX * 2 - iconSpace);
-        const labelLines = wrappedLabel(item.label, labelMaxW, fontSize, rect.h >= 40 ? 2 : 1);
+        const labelLines = wrappedLabel(item.label, labelMaxW, fontSize, constructionCard && rect.h >= 52 ? 3 : rect.h >= 40 ? 2 : 1);
         const labelColor = enabled ? tone.label : '#697486';
         labelLines.forEach((line, index) => {
           drawConsoleText(line, rect.x + padX, rect.y + (compact ? 4 : 6) + index * (fontSize + 2), fontSize, labelColor, 'left', labelMaxW, 800);
@@ -6905,25 +6924,40 @@
         const labelBottom = rect.y + (compact ? 4 : 6) + labelLines.length * (fontSize + 2) - 1;
         const detailLines = actionDetailLines(item);
         if (detailLines.length) {
-          const detailSize = compact ? 6 : 8;
-          const detailLineH = detailSize + 4;
+          const detailSize = constructionCard ? (compact ? 7 : 9) : (compact ? 6 : 8);
+          const detailLineH = detailSize + (constructionCard ? 3 : 4);
           const detailTop = labelBottom + (compact ? 2 : 4);
           const detailBottom = rect.y + rect.h - (hasCost ? costStripH + 2 : 3);
           const maxLines = Math.max(0, Math.floor((detailBottom - detailTop) / detailLineH));
-          detailLines.slice(0, maxLines).forEach((line, index) => {
+          const wrapped = [];
+          for (const line of detailLines) {
+            wrapped.push(...wrappedDescription(line, rect.w - padX * 2, detailSize, 650));
+          }
+          wrapped.slice(0, maxLines).forEach((line, index) => {
             const color = index === 0 ? (enabled ? tone.accent : '#657083') : (enabled ? '#c1cbdb' : '#535d6c');
-            drawConsoleText(line, rect.x + padX, detailTop + index * detailLineH, detailSize, color, 'left', rect.w - padX * 2, index === 0 ? 800 : 600);
+            // wrappedDescription guarantees that each line fits, so no ellipsis or
+            // description truncation is introduced by drawConsoleText.
+            drawConsoleText(line, rect.x + padX, detailTop + index * detailLineH, detailSize, color, 'left', Infinity, index === 0 ? 800 : 650);
           });
         } else {
           const subY = rect.y + rect.h - (hasCost ? costStripH + (compact ? 8 : 10) : (compact ? 11 : 14));
           const sub = actionSecondaryText(item);
           if (sub && (!compact || !hasCost) && subY > labelBottom) {
-            drawConsoleText(sub, rect.x + padX, subY, compact ? 7 : 8, enabled ? '#c1cbdb' : '#535d6c', 'left', rect.w - padX * 2, 600);
+            if (constructionCard) {
+              const subSize = compact ? 7 : 9;
+              const lines = wrappedDescription(sub, rect.w - padX * 2, subSize, 650);
+              const lineH = subSize + 3;
+              const available = Math.max(1, Math.floor((subY - labelBottom + lineH) / lineH));
+              lines.slice(0, available).forEach((line, index) =>
+                drawConsoleText(line, rect.x + padX, labelBottom + 3 + index * lineH, subSize, enabled ? '#c1cbdb' : '#535d6c', 'left', Infinity, 650));
+            } else {
+              drawConsoleText(sub, rect.x + padX, subY, compact ? 7 : 8, enabled ? '#c1cbdb' : '#535d6c', 'left', rect.w - padX * 2, 600);
+            }
           }
         }
         drawActionCost(item, rect, compact, enabled);
       }
-      
+
       function drawEmptyActionGrid(zone, top, bottom, compact, columns = ACTION_COLUMNS, rows = ACTION_ROWS) {
         const gap = compact ? 2 : 4;
         const gridW = zone.w - 12;
@@ -6947,7 +6981,9 @@
         state.commandNavRects = [];
       
         const menu = state.commandMenu;
-        const grid = commandGridSpec(menu);
+        const grid = menu?.constructionCards && compact
+          ? { columns: 1, rows: 1, perPage: 1 }
+          : commandGridSpec(menu);
         const pageCount = Math.max(1, Math.ceil((menu?.items.length || 0) / grid.perPage));
         state.commandPage = clamp(state.commandPage || 0, 0, pageCount - 1);
         const headerH = compact ? 17 : 23;
@@ -12842,7 +12878,11 @@
       
         resize();
         window.addEventListener('resize', resize);
-        cam.zoom = clamp(1, minZoom, maxZoom);
+        // Begin closer to the command core so the opening view immediately reads
+        // as a base rather than a distant strategic overview. Compact screens use a
+        // slightly softer zoom to preserve enough surrounding construction space.
+        const openingZoom = VIEW_W < 700 || VIEW_H < 430 ? 1.2 : 1.38;
+        cam.zoom = clamp(openingZoom, minZoom, maxZoom);
         const activeHQ = getHQForTeam(state.activeCommandTeam) || playerHQ;
         centerCamOn(activeHQ.x, activeHQ.y);
         recomputeVisibility();
@@ -22202,9 +22242,9 @@
           const cost = buildingCostFor(type, activeCommandTeam());
           return {
             label: `${state.placingBuildingType === type ? 'PLACING' : 'BUILD'} ${d.label}`,
-            sub: typeof purpose === 'function'
-              ? () => `${cost.costM}M ${cost.costG}G · ${d.buildTime}s · ${purpose()}`
-              : `${cost.costM}M ${cost.costG}G · ${d.buildTime}s · ${purpose}`,
+            details: typeof purpose === 'function'
+              ? () => [`${d.buildTime}s construction`, purpose()]
+              : [`${d.buildTime}s construction`, purpose],
             tone,
             costM: cost.costM,
             costG: cost.costG,
@@ -22236,7 +22276,11 @@
         }
         const placing = BUILDING_DATA[state.placingBuildingType];
         const factionName = teamFactionId(team, state.teamFactions) === 'insects' ? 'ZGLENGO BROOD' : teamFactionId(team, state.teamFactions) === 'helias' ? 'HELIAS WARP CONSTRUCTION' : 'CONSTRUCTION';
-        openMenu(state.mouse, placing ? `PLACE ${placing.label} · CLICK MAP` : factionName, items, true);
+        openMenu(state.mouse, placing ? `PLACE ${placing.label} · CLICK MAP` : factionName, items, true, {
+          columns: 2,
+          rows: 2,
+          constructionCards: true
+        });
       }
       
       
@@ -23597,6 +23641,42 @@
         ctx.fillRect(Math.round(cx + 1), Math.round(tipY + 3), 1, Math.max(1, Math.min(4, baseY - tipY - 5)));
       }
 
+      function worldPointerPosition() {
+        if (!state.mouse || state.mouse.x < 0 || state.mouse.y < 0 ||
+            state.mouse.x >= VIEW_W || state.mouse.y >= VIEW_H ||
+            isCommandConsolePoint(state.mouse)) return null;
+        return screenToWorld(state.mouse.x, state.mouse.y);
+      }
+
+      function resourceDetailsVisible(node) {
+        if (!node) return false;
+        const contextualSelection = state.commandMenu?.contextType === 'gasLeak' &&
+          state.commandMenu?.contextId === node.id;
+        const extractorSelection = structures.some(structure =>
+          structure.hp > 0 && structure.resourceNodeId === node.id &&
+          state.selectedStructures.has(structure.id));
+        if (contextualSelection || extractorSelection) return true;
+        const pointer = worldPointerPosition();
+        if (!pointer) return false;
+        const radiusX = node.type === 'gas' ? 27 : 24;
+        const radiusY = node.type === 'gas' ? 31 : 27;
+        const dx = (pointer.x - node.x) / radiusX;
+        const dy = (pointer.y - node.y) / radiusY;
+        return dx * dx + dy * dy <= 1;
+      }
+
+      function structureDetailsVisible(structure) {
+        if (!structure) return false;
+        if (state.selectedStructures.has(structure.id)) return true;
+        const pointer = worldPointerPosition();
+        if (!pointer) return false;
+        const pad = Math.max(5, 7 / cam.zoom);
+        return pointer.x >= structure.x - structure.w / 2 - pad &&
+          pointer.x <= structure.x + structure.w / 2 + pad &&
+          pointer.y >= structure.y - structure.h / 2 - pad &&
+          pointer.y <= structure.y + structure.h / 2 + pad;
+      }
+
       function drawNode(n) {
         const tx = clamp(Math.floor(n.x / TILE), 0, COLS - 1);
         const ty = clamp(Math.floor(n.y / TILE), 0, ROWS - 1);
@@ -23789,11 +23869,13 @@
           ctx.globalAlpha = 1;
           ctx.fillStyle = '#0e141c'; ctx.fillRect(-16, 18, 32, 4);
           ctx.fillStyle = color; ctx.fillRect(-16, 18, Math.floor(32 * frac), 4);
-          drawText(`+${n.yieldPerTrip}${n.type === 'mineral' ? 'M' : 'G'}`, 0, 24, 8, color, 'center');
-          if (n.type === 'gas' && !gasExtractorFor(n, false)) {
-            const pulse = .65 + Math.sin(state.elapsed * 4 + n.id) * .2;
-            ctx.globalAlpha = pulse;
-            drawText('NEEDS EXTRACTOR', 0, 34, 8, COLORS.warn, 'center');
+          if (resourceDetailsVisible(n)) {
+            drawText(`+${n.yieldPerTrip}${n.type === 'mineral' ? 'M' : 'G'}`, 0, 24, 8, color, 'center');
+            if (n.type === 'gas' && !gasExtractorFor(n, false)) {
+              const pulse = .65 + Math.sin(state.elapsed * 4 + n.id) * .2;
+              ctx.globalAlpha = pulse;
+              drawText('NEEDS EXTRACTOR', 0, 34, 8, COLORS.warn, 'center');
+            }
           }
         }
         ctx.restore();
@@ -24020,7 +24102,9 @@ function drawCargoPod(x, y, w, h, team, light) {
 }
 
 function drawStructureLabel(text, s, y, color, size = 9) {
-  if (!s.underConstruction) drawText(text, s.x, y + s.h + 5, size, color, 'center');
+  if (!s.underConstruction && structureDetailsVisible(s)) {
+    drawText(text, s.x, y + s.h + 5, size, color, 'center');
+  }
 }
 
 function drawInsectHiveStructure(s, x, y, team, light, flash) {
@@ -29318,51 +29402,56 @@ function drawStructureUpgradeDetails(s, x, y, team) {
         drawText(`CPU ${livingComputerTeams.size}/${computerTeams.length}`, 406, 44, 12, computerTeams[0] ? colorForTeam(computerTeams[0], 'light') : COLORS.muted);
         drawText(`${Math.floor(state.elapsed / 60).toString().padStart(2, '0')}:${Math.floor(state.elapsed % 60).toString().padStart(2, '0')}`, 406, 68, 12, COLORS.muted);
       
-        // Production queue.
-        drawQueueStrip(12, 108, Math.min(488, VIEW_W - 24));
-      
-        drawTopNotices();
+        // Short notifications live below the resource/stat bars instead of
+        // covering them. The production queue flows beneath whichever notices are
+        // currently visible.
+        const noticeHeight = drawTopNotices(108);
+        drawQueueStrip(12, 108 + noticeHeight, Math.min(488, VIEW_W - 24));
       }
       
-      function drawTopNotices() {
+      function drawTopNotices(baseY = 108) {
         const hasMessage = state.messageTimer > 0 && !!state.message;
         const messageIsWarning = hasMessage && (state.messageColor === COLORS.warn || state.messageColor === COLORS.bad);
         const showMessage = hasMessage && (!messageIsWarning || state.warningsEnabled !== false);
-      
+        let occupied = 0;
+
         if (showMessage) {
           const alpha = clamp(state.messageTimer / .35, 0, 1);
           const margin = 12;
-          const messageW = Math.min(messageIsWarning ? 640 : 430, VIEW_W - margin * 2);
-          const messageH = messageIsWarning ? 42 : 32;
+          const messageW = Math.min(messageIsWarning ? 560 : 420, VIEW_W - margin * 2);
+          const messageH = messageIsWarning ? 36 : 30;
           const messageX = Math.round((VIEW_W - messageW) / 2);
-          const messageY = 12;
+          const messageY = baseY;
           ctx.save();
           ctx.globalAlpha = alpha;
           drawPanel(messageX, messageY, messageW, messageH,
-            messageIsWarning ? 'rgba(66,24,22,.97)' : 'rgba(18,24,33,.94)');
-          ctx.strokeStyle = messageIsWarning ? (state.messageColor || COLORS.warn) : 'rgba(112,136,166,.8)';
-          ctx.lineWidth = messageIsWarning ? 3 : 1;
+            messageIsWarning ? 'rgba(66,24,22,.95)' : 'rgba(18,24,33,.92)');
+          ctx.strokeStyle = messageIsWarning ? (state.messageColor || COLORS.warn) : 'rgba(112,136,166,.72)';
+          ctx.lineWidth = messageIsWarning ? 2 : 1;
           ctx.strokeRect(messageX + 1.5, messageY + 1.5, messageW - 3, messageH - 3);
-          drawText(messageIsWarning ? `WARNING · ${state.message}` : state.message,
+          drawConsoleText(messageIsWarning ? `WARNING · ${state.message}` : state.message,
             messageX + messageW / 2,
-            messageY + (messageIsWarning ? 12 : 9),
-            messageIsWarning ? 14 : 13,
+            messageY + (messageIsWarning ? 9 : 7),
+            messageIsWarning ? 12 : 11,
             messageIsWarning ? '#fff1dc' : (state.messageColor || COLORS.text),
-            'center');
+            'center', messageW - 24, 800);
           ctx.restore();
+          occupied = messageH + 6;
         }
-      
+
         if (state.multiplayerStatus) {
-          const statusW = Math.min(430, VIEW_W - 24);
+          const statusW = Math.min(420, VIEW_W - 24);
           const statusX = Math.round((VIEW_W - statusW) / 2);
-          const statusY = showMessage ? (messageIsWarning ? 60 : 50) : 12;
-          drawPanel(statusX, statusY, statusW, 34,
-            state.multiplayerPaused ? 'rgba(65,18,24,.96)' : 'rgba(18,42,52,.94)');
-          drawText(state.multiplayerStatus, statusX + statusW / 2, statusY + 9, 12,
-            state.multiplayerPaused ? COLORS.bad : '#7de8ff', 'center');
+          const statusY = baseY + occupied;
+          drawPanel(statusX, statusY, statusW, 30,
+            state.multiplayerPaused ? 'rgba(65,18,24,.95)' : 'rgba(18,42,52,.92)');
+          drawConsoleText(state.multiplayerStatus, statusX + statusW / 2, statusY + 7, 11,
+            state.multiplayerPaused ? COLORS.bad : '#7de8ff', 'center', statusW - 20, 800);
+          occupied += 36;
         }
+        return occupied;
       }
-      
+
       function drawGameOver() {
         if (!state.gameOver) return;
         const winner = state.winnerTeam && state.winnerTeam !== activeCommandTeam() ? teamLabel(state.winnerTeam) : null;
