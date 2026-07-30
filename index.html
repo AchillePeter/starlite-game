@@ -2445,6 +2445,38 @@
       // Combat, movement, visibility
       // ---------------------------------------------------------------------------
       function isAlive(e) { return e && e.hp > 0; }
+
+      function celestialArkDronesEngaged(carrier, target = carrier?.target) {
+        if (!carrier || !isAlive(target) || target.team === carrier.team) return false;
+        const targetRadius = target.radius || Math.max(target.w || 0, target.h || 0) * .28 || 8;
+        return Math.max(0, dist(carrier, target) - targetRadius) <= unitAttackRange(carrier) + 22;
+      }
+
+      function celestialArkDronePosition(carrier, index, target = carrier?.target) {
+        const droneCount = Math.max(1, Math.min(3, UNIT_DATA.heliasCarrier.interceptors || 3));
+        const phase = state.elapsed * 3.35 + carrier.id * .37 + index * Math.PI * 2 / droneCount;
+        if (celestialArkDronesEngaged(carrier, target)) {
+          const targetRadius = target.radius || Math.max(target.w || 0, target.h || 0) * .28 || 8;
+          const loopRadius = Math.max(22, targetRadius + 20);
+          const axis = Math.atan2(target.y - carrier.y, target.x - carrier.x);
+          const across = Math.sin(phase) * loopRadius * 1.12;
+          const along = Math.sin(phase * 2) * loopRadius * .56;
+          const acrossVelocity = Math.cos(phase) * loopRadius * 1.12;
+          const alongVelocity = Math.cos(phase * 2) * loopRadius * 1.12;
+          const x = target.x + Math.cos(axis) * along - Math.sin(axis) * across;
+          const y = target.y + Math.sin(axis) * along + Math.cos(axis) * across;
+          const vx = Math.cos(axis) * alongVelocity - Math.sin(axis) * acrossVelocity;
+          const vy = Math.sin(axis) * alongVelocity + Math.cos(axis) * acrossVelocity;
+          return { x, y, heading: Math.atan2(vy, vx), engaged: true };
+        }
+        const orbit = state.elapsed * 1.65 + carrier.id * .37 + index * Math.PI * 2 / droneCount;
+        return {
+          x: carrier.x + Math.cos(orbit) * 30,
+          y: carrier.y + Math.sin(orbit) * 18,
+          heading: orbit + Math.PI / 2,
+          engaged: false
+        };
+      }
       
       const ENGINEER_TURRET_TYPES = new Set(['turret', 'antiAirTurret']);
       
@@ -3119,16 +3151,24 @@
             angle: u.heading, color: '#8deaff', radius: 15, intensity: 1.8, life: .15
           });
         } else if (u.type === 'heliasCarrier') {
-          u.attackAnim = .34;
-          const interceptorCount = Math.min(3, UNIT_DATA.heliasCarrier.interceptors || 3);
-          for (let index = 0; index < interceptorCount; index++) {
-            const side = (index - (interceptorCount - 1) / 2) * 10;
-            fireProjectile(u, target, u.damage / interceptorCount, {
-              speed: 640 + index * 25, color: index === 1 ? '#eafcff' : '#8deaff', trailColor: '#d8fbff',
-              radius: 3.1, length: 19, style: 'energy', recoil: .04, muzzleScale: .78,
-              muzzleOffset: u.radius + 5, muzzleSideOffset: side, intensity: 1.05,
-              zigzagAmplitude: 4 + index, zigzagFrequency: 18 + index * 2
+          // The Celestial Ark is an unarmed command vessel. All of its damage is
+          // emitted by the three attack drones currently looping around the target.
+          u.attackAnim = .46;
+          u.recoil = 0;
+          const droneCount = Math.min(3, UNIT_DATA.heliasCarrier.interceptors || 3);
+          for (let index = 0; index < droneCount; index++) {
+            const drone = celestialArkDronePosition(u, index, target);
+            const laserColor = index === 1 ? '#effcff' : '#8deaff';
+            addEffect('beam', {
+              source: { x: drone.x, y: drone.y, heading: drone.heading }, target,
+              color: laserColor, innerColor: '#ffffff', width: 1.55,
+              life: .16, max: .16
             });
+            addEffect('muzzleRing', {
+              x: drone.x, y: drone.y, angle: drone.heading, color: laserColor,
+              radius: 4.5, intensity: .72, life: .11
+            });
+            damage(target, u.damage / droneCount, u);
           }
         } else if (u.type === 'heliasPhoenix') {
           u.attackAnim = .18;
@@ -7380,15 +7420,15 @@
         insectBroodCarrier: { label: 'BROOD CARRIER', costM: 365, costG: 350, hp: 470, speed: 68, damage: 28, range: 170, cooldown: .78, sight: 240, radius: 20, buildTime: 0, pop: 5, tier: 3, splash: 18 },
         insectBroodTitan: { label: 'BROOD TITAN', costM: 430, costG: 360, hp: 960, speed: 24, damage: 98, range: 28, cooldown: 1.82, sight: 215, radius: 21, buildTime: 25, pop: 7, tier: 3, splash: 58, requiresHiveLevel: 3 },
         insectOverlord: { label: 'OVERLORD', costM: 100, costG: 0, hp: 210, speed: 34, damage: 0, range: 0, cooldown: 1, sight: 210, radius: 17, buildTime: 9, pop: 0, tier: 0, supply: 8 },
-        heliasVanguard: { label: 'ZEALOT', costM: 100, costG: 0, hp: 140, speed: 72, damage: 18, range: 20, cooldown: .7, sight: 145, radius: 9, buildTime: 8, pop: 2, tier: 1, shieldHp: 50, shieldRegen: 10, shieldDelay: 2.8 },
-        heliasLancer: { label: 'STALKER', costM: 125, costG: 50, hp: 160, speed: 64, damage: 23, range: 130, cooldown: .9, sight: 178, radius: 10, buildTime: 10, pop: 2, tier: 2, shieldHp: 80, shieldRegen: 11, shieldDelay: 2.9 },
-        heliasSentry: { label: 'SENTRY', costM: 100, costG: 100, hp: 100, speed: 58, damage: 12, range: 118, cooldown: 1.02, sight: 170, radius: 10, buildTime: 10, pop: 2, tier: 2, shieldHp: 70, shieldRegen: 12, shieldDelay: 2.7 },
-        heliasColossus: { label: 'COLOSSUS', costM: 300, costG: 200, hp: 420, speed: 38, damage: 72, range: 205, cooldown: 1.42, sight: 245, radius: 20, buildTime: 23, pop: 6, tier: 3, splash: 34, shieldHp: 150, shieldRegen: 9, shieldDelay: 3.2 },
-        heliasObserver: { label: 'OBSERVER', costM: 25, costG: 75, hp: 40, speed: 94, damage: 0, range: 0, cooldown: 1, sight: 305, radius: 11, buildTime: 8, pop: 1, tier: 2, shieldHp: 40, shieldRegen: 10, shieldDelay: 2.5, detector: true },
-        heliasImmortal: { label: 'IMMORTAL', costM: 275, costG: 100, hp: 300, speed: 42, damage: 58, range: 132, cooldown: 1.28, sight: 195, radius: 18, buildTime: 18, pop: 4, tier: 2, splash: 18, shieldHp: 100, shieldRegen: 9, shieldDelay: 3.1 },
-        heliasCarrier: { label: 'CARRIER', costM: 350, costG: 250, hp: 520, speed: 52, damage: 48, range: 188, cooldown: 1.18, sight: 265, radius: 24, buildTime: 28, pop: 6, tier: 3, shieldHp: 220, shieldRegen: 10, shieldDelay: 3.2, interceptors: 3 },
-        heliasPhoenix: { label: 'PHOENIX', costM: 150, costG: 100, hp: 180, speed: 148, damage: 20, range: 158, cooldown: .62, sight: 240, radius: 17, buildTime: 15, pop: 2, tier: 2, shieldHp: 80, shieldRegen: 12, shieldDelay: 2.7 },
-        heliasVoidRay: { label: 'VOID RAY', costM: 250, costG: 150, hp: 280, speed: 78, damage: 9, range: 168, cooldown: .24, sight: 235, radius: 20, buildTime: 22, pop: 4, tier: 2, shieldHp: 120, shieldRegen: 10, shieldDelay: 3 }
+        heliasVanguard: { label: 'SUNBLADE', costM: 100, costG: 0, hp: 140, speed: 72, damage: 18, range: 20, cooldown: .7, sight: 145, radius: 9, buildTime: 8, pop: 2, tier: 1, shieldHp: 50, shieldRegen: 10, shieldDelay: 2.8 },
+        heliasLancer: { label: 'RIFT LANCER', costM: 125, costG: 50, hp: 160, speed: 64, damage: 23, range: 130, cooldown: .9, sight: 178, radius: 10, buildTime: 10, pop: 2, tier: 2, shieldHp: 80, shieldRegen: 11, shieldDelay: 2.9 },
+        heliasSentry: { label: 'PRISM WARDEN', costM: 100, costG: 100, hp: 100, speed: 58, damage: 12, range: 118, cooldown: 1.02, sight: 170, radius: 10, buildTime: 10, pop: 2, tier: 2, shieldHp: 70, shieldRegen: 12, shieldDelay: 2.7 },
+        heliasColossus: { label: 'SKYSTRIDER', costM: 300, costG: 200, hp: 420, speed: 38, damage: 72, range: 205, cooldown: 1.42, sight: 245, radius: 20, buildTime: 23, pop: 6, tier: 3, splash: 34, shieldHp: 150, shieldRegen: 9, shieldDelay: 3.2 },
+        heliasObserver: { label: 'VEIL EYE', costM: 25, costG: 75, hp: 40, speed: 94, damage: 0, range: 0, cooldown: 1, sight: 305, radius: 11, buildTime: 8, pop: 1, tier: 2, shieldHp: 40, shieldRegen: 10, shieldDelay: 2.5, detector: true },
+        heliasImmortal: { label: 'BULWARK', costM: 275, costG: 100, hp: 300, speed: 42, damage: 58, range: 132, cooldown: 1.28, sight: 195, radius: 18, buildTime: 18, pop: 4, tier: 2, splash: 18, shieldHp: 100, shieldRegen: 9, shieldDelay: 3.1 },
+        heliasCarrier: { label: 'CELESTIAL ARK', costM: 350, costG: 250, hp: 520, speed: 52, damage: 48, range: 188, cooldown: 1.18, sight: 265, radius: 24, buildTime: 28, pop: 6, tier: 3, shieldHp: 220, shieldRegen: 10, shieldDelay: 3.2, interceptors: 3 },
+        heliasPhoenix: { label: 'AURORA WING', costM: 150, costG: 100, hp: 180, speed: 148, damage: 20, range: 158, cooldown: .62, sight: 240, radius: 17, buildTime: 15, pop: 2, tier: 2, shieldHp: 80, shieldRegen: 12, shieldDelay: 2.7 },
+        heliasVoidRay: { label: 'NULL SPEAR', costM: 250, costG: 150, hp: 280, speed: 78, damage: 9, range: 168, cooldown: .24, sight: 235, radius: 20, buildTime: 22, pop: 4, tier: 2, shieldHp: 120, shieldRegen: 10, shieldDelay: 3 }
       };
       
       // These families drive footprints, tracks and ambient vehicle effects. Body
@@ -7781,19 +7821,19 @@
         heliasGateway: {
           maxLevel: 2,
           upgrades: {
-            2: { costM: 125, costG: 100, time: 12, unlock: 'SENTRY WARP MATRIX' }
+            2: { costM: 125, costG: 100, time: 12, unlock: 'PRISM WARDEN MATRIX' }
           }
         },
         heliasRoboticsFacility: {
           maxLevel: 2,
           upgrades: {
-            2: { costM: 250, costG: 200, time: 18, unlock: 'COLOSSUS ASSEMBLY' }
+            2: { costM: 250, costG: 200, time: 18, unlock: 'SKYSTRIDER ASSEMBLY' }
           }
         },
         heliasStargate: {
           maxLevel: 2,
           upgrades: {
-            2: { costM: 250, costG: 200, time: 18, unlock: 'CARRIER · 3 INTERCEPTORS' }
+            2: { costM: 250, costG: 200, time: 18, unlock: 'CELESTIAL ARK · 3 ATTACK DRONES' }
           }
         }
       };
@@ -7959,20 +7999,20 @@
           buildMenu: Object.freeze([
             Object.freeze({ type: 'heliasPylon', purpose: '+8 population · projects a power field for nearby Helias structures', tone: 'economy' }),
             Object.freeze({ type: 'heliasGateway', purpose: 'warps in frontline Helias infantry · requires Pylon power', tone: 'military' }),
-            Object.freeze({ type: 'heliasCyberCore', purpose: 'unlocks Stalkers and advanced Helias technology · requires Gateway and Pylon power', tone: 'research', unique: true, requires: ['heliasGateway'] }),
+            Object.freeze({ type: 'heliasCyberCore', purpose: 'unlocks Rift Lancers and advanced Helias technology · requires Gateway and Pylon power', tone: 'research', unique: true, requires: ['heliasGateway'] }),
             Object.freeze({ type: 'heliasForge', purpose: 'global Helias shield, movement and weapon upgrades · requires Cybernetics Core and Pylon power', tone: 'research', unique: true, requires: ['heliasCyberCore'] }),
             Object.freeze({ type: 'heliasTurret', purpose: 'powered photon defence · attacks land and air · requires Forge and Pylon power', tone: 'defense', requires: ['heliasForge'] }),
-            Object.freeze({ type: 'heliasRoboticsFacility', purpose: 'Observers and Immortals · facility upgrade unlocks Colossus · requires Cybernetics Core and Pylon power', tone: 'military', unique: true, requires: ['heliasCyberCore'] }),
-            Object.freeze({ type: 'heliasStargate', purpose: 'Phoenix and Void Ray · Stargate upgrade unlocks Carrier with 3 interceptors', tone: 'military', unique: true, requires: ['heliasCyberCore'] })
+            Object.freeze({ type: 'heliasRoboticsFacility', purpose: 'Veil Eyes and Bulwarks · facility upgrade unlocks Skystrider · requires Cybernetics Core and Pylon power', tone: 'military', unique: true, requires: ['heliasCyberCore'] }),
+            Object.freeze({ type: 'heliasStargate', purpose: 'Aurora Wings and Null Spears · Stargate upgrade unlocks Celestial Ark with 3 attack drones', tone: 'military', unique: true, requires: ['heliasCyberCore'] })
           ]),
           structureLabels: Object.freeze({
             hq: 'NEXUS', gasExtractor: 'ASSIMILATOR', heliasPylon: 'PYLON', heliasGateway: 'GATEWAY',
             heliasCyberCore: 'CYBERNETICS CORE', heliasForge: 'FORGE', heliasTurret: 'PHOTON CANNON', heliasRoboticsFacility: 'ROBOTICS FACILITY', heliasStargate: 'STARGATE'
           }),
           unitLabels: Object.freeze({
-            forager: 'PROBE', heliasVanguard: 'ZEALOT', heliasLancer: 'STALKER',
-            heliasSentry: 'SENTRY', heliasObserver: 'OBSERVER', heliasImmortal: 'IMMORTAL',
-            heliasColossus: 'COLOSSUS', heliasPhoenix: 'PHOENIX', heliasVoidRay: 'VOID RAY', heliasCarrier: 'CARRIER'
+            forager: 'LUMINANT', heliasVanguard: 'SUNBLADE', heliasLancer: 'RIFT LANCER',
+            heliasSentry: 'PRISM WARDEN', heliasObserver: 'VEIL EYE', heliasImmortal: 'BULWARK',
+            heliasColossus: 'SKYSTRIDER', heliasPhoenix: 'AURORA WING', heliasVoidRay: 'NULL SPEAR', heliasCarrier: 'CELESTIAL ARK'
           })
         })
       });
@@ -9785,7 +9825,7 @@
       const HELIAS_FORGE_UPGRADES = Object.freeze({
         heliasForgeShield: Object.freeze({
           id: 'heliasForgeShield', branch: 'shield', label: 'PLASMA SHIELDS',
-          costM: 175, costG: 175, time: 18, effect: '+25% personal shields; Probes gain 25 shields'
+          costM: 175, costG: 175, time: 18, effect: '+25% personal shields; Luminants gain 25 shields'
         }),
         heliasForgeSpeed: Object.freeze({
           id: 'heliasForgeSpeed', branch: 'speed', label: 'GRAVITIC MOBILITY',
@@ -12680,21 +12720,21 @@
         }),
         helias: Object.freeze({
           faction: 'helias', speaker: 'Helias executor', accent: '#7de8ff', softAccent: '#b9f7ff',
-          hqName: 'NEXUS', workerName: 'PROBE', unitType: 'heliasVanguard', unitName: 'ZEALOT',
+          hqName: 'NEXUS', workerName: 'LUMINANT', unitType: 'heliasVanguard', unitName: 'SUNBLADE',
           producerType: 'heliasGateway', producerName: 'GATEWAY',
           buildSequence: Object.freeze([
             Object.freeze({
               type: 'heliasPylon', name: 'PYLON',
               title: 'Establish a power field.',
               copy: 'Helias technology is projected through Pylons. Each Pylon increases population capacity and creates a field that powers nearby production, research and defensive structures.',
-              objective: 'Select a Probe, choose PYLON and warp it in near the Nexus.',
+              objective: 'Select a Luminant, choose PYLON and warp it in near the Nexus.',
               waiting: remaining => `The Pylon energy orb is stabilising · ${remaining}s remaining.`
             }),
             Object.freeze({
               type: 'heliasGateway', name: 'GATEWAY',
               title: 'Warp production inside the field.',
               copy: 'Advanced Helias structures must remain inside a Pylon field. A powered Gateway converts stored energy into frontline warriors; an unpowered facility becomes inactive.',
-              objective: 'With a Probe selected, place a GATEWAY inside the visible Pylon power field and wait for the warp orb to complete.',
+              objective: 'With a Luminant selected, place a GATEWAY inside the visible Pylon power field and wait for the warp orb to complete.',
               waiting: remaining => `Gateway warp-in underway · ${remaining}s remaining. It must remain powered by the Pylon.`
             })
           ]),
@@ -12705,14 +12745,14 @@
             Object.freeze({ title: 'The lattice is under pressure.', copy: 'A hostile force has entered this sector. Establish power, warp defenders and move with purpose.' })
           ]),
           selectTitle: 'Begin with the Nexus.',
-          selectCopy: 'The Nexus anchors the Helias base, receives resources, creates Probes and can accelerate production with Chrono Boost once your network expands.',
+          selectCopy: 'The Nexus anchors the Helias base, receives resources, creates Luminants and can accelerate production with Chrono Boost once your network expands.',
           selectObjective: 'Select the Nexus by left-clicking the central Helias structure.',
           trainTitle: 'Warp in a shielded frontline.',
-          trainCopy: 'A powered Gateway warps Helias infantry into battle. Zealots are durable contact fighters whose personal shields regenerate after they avoid damage for a short time.',
-          trainObjective: 'Select the powered Gateway and warp in one ZEALOT.',
+          trainCopy: 'A powered Gateway warps Helias infantry into battle. Sunblades are durable contact fighters whose personal shields regenerate after they avoid damage for a short time.',
+          trainObjective: 'Select the powered Gateway and warp in one SUNBLADE.',
           moveTitle: 'Preserve shields through positioning.',
           moveCopy: 'Right-click the ground to reposition. Pull wounded Helias units out of danger, allow their shields to recharge, then return them to the fight instead of trading them away.',
-          moveObjective: 'Select the new Zealot and right-click a nearby point to move it away from the Gateway.',
+          moveObjective: 'Select the new Sunblade and right-click a nearby point to move it away from the Gateway.',
           combatCopy: 'Helias armies reward concentrated, deliberate attacks. Right-click an enemy to focus it down, then withdraw damaged warriors long enough for their shields to regenerate.',
           completionCopy: 'You established the power lattice, warped a powered production facility, deployed a shielded warrior and defeated a live attack. The rival base remains across the map.'
         })
@@ -13424,7 +13464,7 @@
       }
       
       const DEFAULT_USERNAME = 'Commander';
-      const COMPUTER_MODE_KEYS = Object.freeze(['duel', 'threeWay', 'fourWay']);
+      const COMPUTER_MODE_KEYS = Object.freeze(['duel', 'threeWay', 'fourWay', 'sandbox']);
       const PVP_MODE_KEYS = Object.freeze(['pvp', 'pvp3', 'pvp4']);
       const MENU_VOLUME_STORAGE_KEY = 'starlite.volume.v1';
       const GOOGLE_PUBLISHER_TAG_URL = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
@@ -15167,7 +15207,7 @@
               <h2 class="starlite-menu__heading" data-size-heading>Vs. computer</h2>
               <div class="starlite-menu__computer-setup" data-computer-setup>
                 <div class="starlite-menu__computer-summary" data-computer-summary>
-                  <button class="starlite-menu__selection-card starlite-menu__selection-card--faction" type="button" data-computer-open-faction aria-label="Change selected faction" title="Change faction">
+                  <button class="starlite-menu__selection-card starlite-menu__selection-card--faction" type="button" data-computer-open-faction aria-label="Cycle selected faction" title="Click to cycle faction">
                     <span class="starlite-menu__selection-kicker">SELECTED FACTION</span>
                     <span class="starlite-menu__selection-portrait" data-computer-faction-portrait>
                       <canvas data-menu-glb="./assets/default_commander.glb" data-menu-fallback-glb="./default_commander.glb" data-menu-faction="humans" aria-label="Selected Human faction GLB portrait"></canvas>
@@ -15177,7 +15217,7 @@
                     <small data-computer-faction-copy>Armor · industry · combined arms</small>
                     <span class="starlite-menu__selection-change">SELECT TO CHANGE</span>
                   </button>
-                  <button class="starlite-menu__selection-card starlite-menu__selection-card--mode" type="button" data-computer-open-mode aria-label="Change selected match mode" title="Change match mode">
+                  <button class="starlite-menu__selection-card starlite-menu__selection-card--mode" type="button" data-computer-open-mode aria-label="Cycle selected match mode" title="Click to cycle match mode">
                     <span class="starlite-menu__selection-kicker">SELECTED MODE</span>
                     <span class="starlite-menu__mode-formation" data-computer-mode-formation aria-hidden="true"><i></i><b></b></span>
                     <strong data-computer-mode-label>1v1</strong>
@@ -15208,6 +15248,7 @@
                     <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="duel" aria-pressed="true"><strong>1v1</strong><small>ONE COMPUTER OPPONENT</small></button>
                     <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="threeWay" aria-pressed="false"><strong>1v1v1</strong><small>TWO COMPUTER OPPONENTS</small></button>
                     <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="fourWay" aria-pressed="false"><strong>1v1v1v1</strong><small>THREE COMPUTER OPPONENTS</small></button>
+                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="sandbox" aria-pressed="false"><strong>SANDBOX</strong><small>FULL TECH · ABUNDANT RESOURCES</small></button>
                   </div>
                 </div>
                 <button class="starlite-menu__computer-start" type="button" data-computer-start>START GAME</button>
@@ -15986,9 +16027,23 @@
         }
       
         function modeMenuPresentation(key = selectedComputerModeKey) {
+          if (key === 'sandbox') return { label: 'SANDBOX', copy: 'Full technology and abundant resources.', count: 4 };
           if (key === 'threeWay') return { label: '1v1v1', copy: 'Three commanders in a free-for-all.', count: 3 };
           if (key === 'fourWay') return { label: '1v1v1v1', copy: 'Four commanders in a free-for-all.', count: 4 };
           return { label: '1v1', copy: 'You versus one computer commander.', count: 2 };
+        }
+
+        function cycleComputerFaction() {
+          const choices = ['humans', 'insects', 'helias', 'random'];
+          const index = Math.max(0, choices.indexOf(soloFactionChoice));
+          chooseSoloFaction(choices[(index + 1) % choices.length]);
+          ensureMenuFactionPortraits(computerSetup);
+        }
+
+        function cycleComputerMode() {
+          const index = Math.max(0, COMPUTER_MODE_KEYS.indexOf(selectedComputerModeKey));
+          selectedComputerModeKey = COMPUTER_MODE_KEYS[(index + 1) % COMPUTER_MODE_KEYS.length];
+          syncComputerModeSummary();
         }
 
         function syncComputerModeSummary() {
@@ -17040,8 +17095,8 @@
             chooseSoloFaction(button.dataset.factionChoice);
             closeComputerPicker();
           });
-          root.querySelector('[data-computer-open-faction]').addEventListener('click', () => openComputerPicker('faction'));
-          root.querySelector('[data-computer-open-mode]').addEventListener('click', () => openComputerPicker('mode'));
+          root.querySelector('[data-computer-open-faction]').addEventListener('click', cycleComputerFaction);
+          root.querySelector('[data-computer-open-mode]').addEventListener('click', cycleComputerMode);
           computerModeOptions.addEventListener('click', event => {
             const button = event.target.closest('[data-computer-mode-choice]');
             if (!button || !computerModeOptions.contains(button)) return;
@@ -21059,7 +21114,7 @@
         const helia = faction === 'helias';
         openMenu(screenPt, `${label} SITE`, [{
           label: s.constructionStarted ? (organic ? 'GESTATING' : helia ? 'WARPING IN' : 'CONSTRUCTING') : 'AWAITING BUILDER',
-          sub: () => s.constructionStarted ? `${Math.ceil(Math.max(0, s.buildTimeLeft || 0))}s remaining` : `${organic ? 'drone' : helia ? 'probe' : 'forager'} en route`,
+          sub: () => s.constructionStarted ? `${Math.ceil(Math.max(0, s.buildTimeLeft || 0))}s remaining` : `${organic ? 'drone' : helia ? 'luminant' : 'forager'} en route`,
           tone: 'info', enabled: false, action: () => {}
         }], false, { liveRefresh: false, contextBound: true, contextType: 'constructionSite', contextId: s.id });
       }
@@ -21255,7 +21310,7 @@
         } else if (s.type === 'heliasCyberCore') {
           const powered = heliaStructurePoweredForMenu(s);
           items.push({ label: powered ? 'POWERED' : 'UNPOWERED', sub: powered ? 'Pylon field stable · Helias technology is operational' : 'restore an operational Pylon field to reactivate this structure', tone: powered ? 'support' : 'warning', enabled: false, action: () => {} });
-          items.push({ label: 'STALKER TECHNOLOGY UNLOCKED', sub: 'Sentries now require the dedicated Gateway warp-matrix upgrade', tone: 'research', enabled: false, action: () => {} });
+          items.push({ label: 'RIFT LANCER TECHNOLOGY UNLOCKED', sub: 'Prism Wardens now require the dedicated Gateway warp-matrix upgrade', tone: 'research', enabled: false, action: () => {} });
           items.push({ label: 'ADVANCED TECHNOLOGY FOUNDATION', sub: 'required before constructing a Forge, Robotics Facility or Stargate', tone: 'info', enabled: false, action: () => {} });
         } else if (s.type === 'heliasForge') {
           const powered = heliaStructurePoweredForMenu(s);
@@ -25158,7 +25213,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
     ctx.fillRect(x, y + s.h + 6, s.w, 5);
     ctx.fillStyle = accent;
     ctx.fillRect(x + 1, y + s.h + 7, Math.floor((s.w - 2) * progress), 3);
-    const workerLabel = faction === 'insects' ? 'DRONE' : faction === 'helias' ? 'PROBE' : 'FORAGER';
+    const workerLabel = faction === 'insects' ? 'DRONE' : faction === 'helias' ? 'LUMINANT' : 'FORAGER';
     const phaseLabel = faction === 'insects' ? 'GESTATING' : faction === 'helias' ? 'WARPING' : 'BUILDING';
     drawText(
       s.constructionStarted ? `${constructionLabel} · ${phaseLabel} · ${Math.ceil(s.buildTimeLeft)}s` : `${constructionLabel} · ${workerLabel}`,
@@ -26900,7 +26955,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           const kick = (u.recoil || 0) * 10;
           ctx.globalAlpha = .14; ctx.fillStyle = '#8deaff'; ctx.beginPath(); ctx.ellipse(-2, 17, 19, 6, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
           ctx.strokeStyle = '#05080d'; ctx.lineWidth = 2.7 / cam.zoom;
-          // Four towering articulated legs give the unit its unmistakable Colossus profile.
+          // Four towering articulated legs give the Skystrider its unmistakable profile.
           for (const side of [-1, 1]) {
             for (const fore of [-1, 1]) {
               const hipX = fore * 7, hipY = side * 8;
@@ -26948,16 +27003,35 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
           ctx.strokeStyle = '#e2d18c'; ctx.lineWidth = 1.4 / cam.zoom;
           for (const side of [-1, 1]) { ctx.beginPath(); ctx.moveTo(-14, side * 8); ctx.lineTo(-4, side * 16); ctx.lineTo(13, side * 6); ctx.stroke(); }
-          // Exactly three lightweight interceptors orbit the hull; they are visual/weapon emitters, not full units.
+          // Exactly three lightweight attack drones. At rest they orbit the Ark;
+          // in combat they leave the hull and fly synchronized figure-eight loops
+          // around the selected enemy while their miniature laser emitters pulse.
           const droneCount = Math.min(3, UNIT_DATA.heliasCarrier.interceptors || 3);
+          const engagedTarget = celestialArkDronesEngaged(u, u.target) ? u.target : null;
+          const cosHeading = Math.cos(u.heading), sinHeading = Math.sin(u.heading);
           for (let index = 0; index < droneCount; index++) {
-            const a = state.elapsed * 1.65 + u.id * .37 + index * Math.PI * 2 / droneCount;
-            const dx = Math.cos(a) * 30;
-            const dy = Math.sin(a) * 18;
-            ctx.save(); ctx.translate(dx, dy); ctx.rotate(a + Math.PI / 2);
-            ctx.fillStyle = '#05080d'; ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(-4, -4); ctx.lineTo(-2, 0); ctx.lineTo(-4, 4); ctx.closePath(); ctx.fill();
-            ctx.fillStyle = '#d3b25f'; ctx.beginPath(); ctx.moveTo(4, 0); ctx.lineTo(-3, -2.5); ctx.lineTo(-1, 0); ctx.lineTo(-3, 2.5); ctx.closePath(); ctx.fill();
-            ctx.fillStyle = '#aef5ff'; ctx.fillRect(2, -1, 4, 2);
+            const drone = celestialArkDronePosition(u, index, engagedTarget);
+            let dx, dy, droneHeading;
+            if (drone.engaged) {
+              const relativeX = drone.x - u.x;
+              const relativeY = drone.y - (u.y + hover);
+              dx = cosHeading * relativeX + sinHeading * relativeY;
+              dy = -sinHeading * relativeX + cosHeading * relativeY - bob;
+              droneHeading = drone.heading - u.heading;
+            } else {
+              dx = drone.x - u.x;
+              dy = drone.y - u.y;
+              droneHeading = drone.heading - u.heading;
+            }
+            const firing = drone.engaged && (u.attackAnim || 0) > 0;
+            ctx.save(); ctx.translate(dx, dy); ctx.rotate(droneHeading);
+            ctx.globalAlpha = drone.engaged ? 1 : .92;
+            ctx.fillStyle = '#05080d'; ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(-4, -4.5); ctx.lineTo(-1.5, 0); ctx.lineTo(-4, 4.5); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#d3b25f'; ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(-3, -2.7); ctx.lineTo(-.7, 0); ctx.lineTo(-3, 2.7); ctx.closePath(); ctx.fill();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.shadowColor = '#8deaff'; ctx.shadowBlur = firing ? 12 : 6;
+            ctx.fillStyle = firing ? '#ffffff' : '#aef5ff'; ctx.fillRect(2, -1.15, firing ? 6 : 4, 2.3);
+            ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
             ctx.restore();
           }
         } else if (u.type === 'heliasObserver') {
@@ -26971,7 +27045,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
           ctx.globalAlpha = shimmer;
           ctx.strokeStyle = '#05080d'; ctx.lineWidth = 2.1 / cam.zoom;
 
-          // Four swept sensor vanes make the unit read as an Observer at a glance.
+          // Four swept sensor vanes make the Veil Eye readable at a glance.
           ctx.fillStyle = '#05080d';
           for (const side of [-1, 1]) {
             ctx.beginPath();
