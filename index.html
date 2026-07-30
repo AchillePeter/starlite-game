@@ -550,7 +550,7 @@
   __define("ai.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("main.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("state.js"); const __dep6 = __require("terrain.js"); const __dep7 = __require("workerBridge.js");
-    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "INSECT_HIVE_EVOLUTION", { enumerable: true, get: () => __dep0["INSECT_HIVE_EVOLUTION"] }); Object.defineProperty(__imports, "INSECT_UNIT_MORPHS", { enumerable: true, get: () => __dep0["INSECT_UNIT_MORPHS"] }); Object.defineProperty(__imports, "INSECT_UPGRADES", { enumerable: true, get: () => __dep0["INSECT_UPGRADES"] }); Object.defineProperty(__imports, "factionBuildMenuEntries", { enumerable: true, get: () => __dep0["factionBuildMenuEntries"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep0["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep0["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => __dep0["ENEMY_UPGRADE_PLAN"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep0["rotateOffset"] }); Object.defineProperty(__imports, "teamColor", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep0["teamLabel"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep1["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep1["assignHarvest"] }); Object.defineProperty(__imports, "beginProductionTechJob", { enumerable: true, get: () => __dep1["beginProductionTechJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep1["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep1["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep1["placeCreepTumor"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep1["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "insectHiveLarvae", { enumerable: true, get: () => __dep1["insectHiveLarvae"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep1["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep1["nearestResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep1["queueUnit"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep1["startProductionUpgrade"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep1["startInsectUpgrade"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep1["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep1["insectUpgradeOrders"] }); Object.defineProperty(__imports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => __dep1["insectUpgradeRequirementStatus"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep1["startUnitMorph"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep1["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep1["productionTechLevel"] }); Object.defineProperty(__imports, "teamPopulationCap", { enumerable: true, get: () => __dep1["teamPopulationCap"] }); Object.defineProperty(__imports, "teamPopulationUsed", { enumerable: true, get: () => __dep1["teamPopulationUsed"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep1["unitBuildTimeFor"] }); Object.defineProperty(__imports, "getHQForTeam", { enumerable: true, get: () => __dep2["getHQForTeam"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep2["getLivingHQs"] }); Object.defineProperty(__imports, "getNearestHostileHQ", { enumerable: true, get: () => __dep2["getNearestHostileHQ"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep3["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep4["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep4["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep5["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep5["addUnit"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep5["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep5["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep5["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep5["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep5["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep6["isBlocked"] }); Object.defineProperty(__imports, "requestAIAnalysis", { enumerable: true, get: () => __dep7["requestAIAnalysis"] });
+    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "INSECT_HIVE_EVOLUTION", { enumerable: true, get: () => __dep0["INSECT_HIVE_EVOLUTION"] }); Object.defineProperty(__imports, "INSECT_UNIT_MORPHS", { enumerable: true, get: () => __dep0["INSECT_UNIT_MORPHS"] }); Object.defineProperty(__imports, "INSECT_UPGRADES", { enumerable: true, get: () => __dep0["INSECT_UPGRADES"] }); Object.defineProperty(__imports, "factionBuildMenuEntries", { enumerable: true, get: () => __dep0["factionBuildMenuEntries"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep0["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep0["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "ENEMY_UPGRADE_PLAN", { enumerable: true, get: () => __dep0["ENEMY_UPGRADE_PLAN"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep0["rotateOffset"] }); Object.defineProperty(__imports, "teamColor", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep0["teamLabel"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep1["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "assignBuildJob", { enumerable: true, get: () => __dep1["assignBuildJob"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep1["assignHarvest"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep1["buildingCostFor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep1["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep1["fieldHasResources"] }); Object.defineProperty(__imports, "nearestAvailableForager", { enumerable: true, get: () => __dep1["nearestAvailableForager"] }); Object.defineProperty(__imports, "beginProductionTechJob", { enumerable: true, get: () => __dep1["beginProductionTechJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep1["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep1["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep1["placeCreepTumor"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep1["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "insectHiveLarvae", { enumerable: true, get: () => __dep1["insectHiveLarvae"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep1["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep1["nearestResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep1["queueUnit"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep1["startProductionUpgrade"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep1["startInsectUpgrade"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep1["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep1["insectUpgradeOrders"] }); Object.defineProperty(__imports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => __dep1["insectUpgradeRequirementStatus"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep1["startUnitMorph"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep1["startUnitUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep1["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "HELIAS_FORGE_UPGRADES", { enumerable: true, get: () => __dep1["HELIAS_FORGE_UPGRADES"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep1["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep1["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep1["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep1["productionTechLevel"] }); Object.defineProperty(__imports, "teamPopulationCap", { enumerable: true, get: () => __dep1["teamPopulationCap"] }); Object.defineProperty(__imports, "teamPopulationUsed", { enumerable: true, get: () => __dep1["teamPopulationUsed"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep1["unitBuildTimeFor"] }); Object.defineProperty(__imports, "getHQForTeam", { enumerable: true, get: () => __dep2["getHQForTeam"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep2["getLivingHQs"] }); Object.defineProperty(__imports, "getNearestHostileHQ", { enumerable: true, get: () => __dep2["getNearestHostileHQ"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep3["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep4["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep4["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep5["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep5["addUnit"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep5["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep5["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep5["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep5["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep5["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep6["isBlocked"] }); Object.defineProperty(__imports, "requestAIAnalysis", { enumerable: true, get: () => __dep7["requestAIAnalysis"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeComputerTeams", { enumerable: true, get: () => activeComputerTeams }); Object.defineProperty(__exports, "computerAIState", { enumerable: true, get: () => computerAIState }); Object.defineProperty(__exports, "computerBuildPosition", { enumerable: true, get: () => computerBuildPosition }); Object.defineProperty(__exports, "createComputerAIState", { enumerable: true, get: () => createComputerAIState }); Object.defineProperty(__exports, "initializeComputerAIs", { enumerable: true, get: () => initializeComputerAIs }); Object.defineProperty(__exports, "launchComputerWave", { enumerable: true, get: () => launchComputerWave }); Object.defineProperty(__exports, "queueComputerProduction", { enumerable: true, get: () => queueComputerProduction }); Object.defineProperty(__exports, "startComputerBuilding", { enumerable: true, get: () => startComputerBuilding }); Object.defineProperty(__exports, "updateComputerAI", { enumerable: true, get: () => updateComputerAI }); Object.defineProperty(__exports, "updateComputerAIs", { enumerable: true, get: () => updateComputerAIs }); Object.defineProperty(__exports, "updateEnemyAI", { enumerable: true, get: () => updateEnemyAI });
@@ -709,25 +709,43 @@
           decisionInterval: 1.45,
           maneuverClock: 1.35,
           scoutClock: 1.35,
-          interval: 1.35,
-          resources: .75,
-          skipAttackWaveChance: .35
+          interval: 1.28,
+          skipAttackWaveChance: .34,
+          workerTarget: .82,
+          expansionWorkersPerBase: 14,
+          expansionEarliest: 170,
+          productionBurst: 1,
+          attackStrength: .78,
+          defenderReserve: 5,
+          rebuildClock: 1.35
         }),
         normal: Object.freeze({
           decisionInterval: 1,
           maneuverClock: 1,
           scoutClock: 1,
           interval: 1,
-          resources: 1,
-          skipAttackWaveChance: 0
+          skipAttackWaveChance: .08,
+          workerTarget: 1,
+          expansionWorkersPerBase: 12,
+          expansionEarliest: 125,
+          productionBurst: 2,
+          attackStrength: 1,
+          defenderReserve: 3,
+          rebuildClock: 1
         }),
         hard: Object.freeze({
           decisionInterval: .72,
           maneuverClock: .78,
           scoutClock: .8,
           interval: .78,
-          resources: 1.35,
-          skipAttackWaveChance: 0
+          skipAttackWaveChance: 0,
+          workerTarget: 1.12,
+          expansionWorkersPerBase: 10,
+          expansionEarliest: 90,
+          productionBurst: 3,
+          attackStrength: 1.22,
+          defenderReserve: 2,
+          rebuildClock: .72
         })
       });
       
@@ -744,34 +762,42 @@
       function scaledAIClock(ai, field, value) {
         return value * aiDifficultyProfile(ai)[field];
       }
-      
       function createComputerAIState(team, index = 0, difficulty = 'normal') {
         const normalizedDifficulty = normalizeAIDifficulty(difficulty);
         const profile = aiDifficultyProfile(normalizedDifficulty);
-        const interval = 48 * profile.interval;
+        const interval = 52 * profile.interval;
         return {
           team,
           active: true,
           difficulty: normalizedDifficulty,
-          clock: (74 + index * 8) * profile.interval,
+          clock: (82 + index * 9) * profile.interval,
           interval,
           wave: 0,
-          minerals: Math.round(250 * profile.resources),
-          gas: Math.round(120 * profile.resources),
+          // Mirrored from teamEconomyState for UI/debug compatibility only. All
+          // spending and income now pass through the real harvested-resource wallet.
+          minerals: 200,
+          gas: 120,
           incomeClock: 0,
           decisionAccumulator: 0,
           decisionInterval: rand(.25, .5) * profile.decisionInterval,
           buildIndex: 0,
           upgradeIndex: 0,
-          productionClock: 16 + index * 2.5,
+          productionClock: 4 + index * 1.2,
           organicBuildClock: 18 + index * 6,
           organicBuildCount: 0,
           maneuverClock: (4 + index * 1.5) * profile.maneuverClock,
           scoutClock: (24 + index * 7) * profile.scoutClock,
+          workerClock: .8 + index * .2,
+          gasBuildClock: 9 + index,
+          populationClock: 2 + index * .3,
+          expansionClock: 18 + index * 5,
+          rebuildClock: 2 + index * .4,
+          researchClock: 10 + index * 2,
           patrolStep: index * 2,
           attackTargetCursor: index,
           lastTargetTeam: null,
-          insectWalletInitialized: false,
+          lastAttackAt: -Infinity,
+          insectWalletInitialized: true,
           insectTechClock: 1.5 + index * .4,
           insectMorphClock: 18 + index * 3,
           insectPulseClock: 7 + index,
@@ -825,27 +851,27 @@
           y: clamp(hq.y + offset.y, data.h / 2 + 8, WORLD_H - data.h / 2 - 8)
         };
       }
-      
       function startComputerBuilding(team, plan) {
         const ai = computerAIState(team);
         const hq = getHQForTeam(team);
         const data = BUILDING_DATA[plan?.type];
-        const position = computerBuildPosition(hq, plan);
-        if (!ai || !hq || hq.hp <= 0 || !data || !position || ai.minerals < data.costM || ai.gas < data.costG) return false;
-        ai.minerals -= data.costM;
-        ai.gas -= data.costG;
-        const initialHp = Math.max(1, Math.ceil(data.hp * .14));
-        const structure = addStructure(plan.type, team, position.x, position.y, {
-          hp: initialHp,
-          underConstruction: true,
-          constructionStarted: true,
-          buildTime: data.buildTime,
-          buildTimeLeft: data.buildTime,
-          constructionGrantedHp: initialHp,
-          level: Math.max(1, Math.trunc(plan.level || 1)),
-          aiBase: true,
-          aiOrganic: !!plan.organic
+        const position = Number.isFinite(plan?.x) && Number.isFinite(plan?.y)
+          ? { x: plan.x, y: plan.y }
+          : computerBuildPosition(hq, plan);
+        const wallet = ai && aiWallet(team, ai);
+        const cost = data ? buildingCostFor(plan.type, team) : null;
+        if (!ai || !hq || hq.hp <= 0 || !data || !position || !wallet || !cost ||
+            wallet.minerals < cost.costM || wallet.gas < cost.costG) return false;
+        const builder = nearestAvailableForager(position, team);
+        if (!builder) return false;
+        const structure = constructBuilding(plan.type, position, team, {
+          ignoreExploration: true,
+          builderIds: [builder.id]
         });
+        if (!structure) return false;
+        structure.aiBase = true;
+        structure.aiOrganic = !!plan.organic;
+        if (Number.isFinite(plan.level) && plan.level > 1) structure.level = Math.max(1, Math.trunc(plan.level));
         if (aiDecisionEntityCache) {
           if (!aiDecisionEntityCache.structuresByTeam.has(team)) aiDecisionEntityCache.structuresByTeam.set(team, []);
           aiDecisionEntityCache.structuresByTeam.get(team).push(structure);
@@ -854,6 +880,7 @@
           activeWorkerAnalysis.buildingCounts ||= Object.create(null);
           activeWorkerAnalysis.buildingCounts[plan.type] = (activeWorkerAnalysis.buildingCounts[plan.type] || 0) + 1;
         }
+        aiWallet(team, ai);
         return true;
       }
       
@@ -902,6 +929,409 @@
         }
         return choices[choices.length - 1] || null;
       }
+
+      const AI_HELIAS_EXPANSION_COST = Object.freeze({ costM: 375, costG: 100, buildTime: 17 });
+      const HUMAN_AI_UNIT_UPGRADE_PLAN = Object.freeze([
+        Object.freeze({ at: 205, type: 'infantry', level: 1 }),
+        Object.freeze({ at: 275, type: 'assault', level: 1 }),
+        Object.freeze({ at: 345, type: 'jeep', level: 1 }),
+        Object.freeze({ at: 430, type: 'infantry', level: 2 }),
+        Object.freeze({ at: 505, type: 'heavy', level: 1 })
+      ]);
+      const HELIAS_AI_FORGE_PLAN = Object.freeze([
+        Object.freeze({ at: 170, id: 'heliasForgeShield' }),
+        Object.freeze({ at: 245, id: 'heliasForgeDamage' }),
+        Object.freeze({ at: 325, id: 'heliasForgeSpeed' })
+      ]);
+
+      function aiWallet(team, ai = computerAIState(team)) {
+        const wallet = teamEconomyState(team);
+        if (ai) {
+          ai.minerals = Number(wallet.minerals) || 0;
+          ai.gas = Number(wallet.gas) || 0;
+        }
+        return wallet;
+      }
+
+      function aiForagerCount(team, includeQueued = true) {
+        let count = 0;
+        for (const unit of aiTeamUnits(team)) if (unit.hp > 0 && unit.type === 'forager') count++;
+        if (includeQueued) {
+          for (const structure of aiTeamStructures(team)) {
+            if (structure.hp <= 0) continue;
+            for (const item of structure.queue || []) if (item.type === 'forager') count++;
+          }
+        }
+        return count;
+      }
+
+      function aiResourceDropoffs(team, operationalOnly = true) {
+        return aiTeamStructures(team).filter(structure => structure.hp > 0 &&
+          (!operationalOnly || !structure.underConstruction) &&
+          (structure.type === 'hq' || structure.type === 'broodHive' || structure.type === 'minersHut'));
+      }
+
+      function aiFieldResourceAmount(field, type = null) {
+        if (!field) return 0;
+        const ids = new Set(field.nodeIds || []);
+        let total = 0;
+        for (const node of resourceNodes) {
+          if (!ids.has(node.id) || node.depleted || (type && node.type !== type)) continue;
+          total += Math.max(0, Number(node.amount) || 0);
+        }
+        return total;
+      }
+
+      function aiFieldResourceCapacity(field, type = null) {
+        if (!field) return 0;
+        const ids = new Set(field.nodeIds || []);
+        let total = 0;
+        for (const node of resourceNodes) {
+          if (!ids.has(node.id) || (type && node.type !== type)) continue;
+          total += Math.max(0, Number(node.capacity) || Number(node.amount) || 0);
+        }
+        return total;
+      }
+
+      function aiFieldDropoff(team, field, operationalOnly = false) {
+        if (!field) return null;
+        return aiTeamStructures(team).find(structure => structure.hp > 0 &&
+          (!operationalOnly || !structure.underConstruction) &&
+          (structure.type === 'hq' || structure.type === 'broodHive' || structure.type === 'minersHut') &&
+          (structure.resourceFieldId === field.id || Math.hypot(structure.x - field.x, structure.y - field.y) <= field.buildRadius));
+      }
+
+      function aiOwnedResourceFields(team) {
+        return resourceFields.filter(field => aiFieldDropoff(team, field, true) && fieldHasResources(field));
+      }
+
+      function aiDesiredWorkerCount(team, ai) {
+        const bases = Math.max(1, aiResourceDropoffs(team, true).length);
+        const profile = aiDifficultyProfile(ai);
+        const elapsedBonus = Math.min(6, Math.floor(state.elapsed / 150) * 2);
+        return Math.min(44, Math.max(8, Math.floor((12 + bases * 6 + elapsedBonus) * profile.workerTarget)));
+      }
+
+      function aiDesiredGasWorkers(team) {
+        const workers = aiTeamUnits(team).filter(unit => unit.hp > 0 && unit.type === 'forager' && unit.job !== 'build');
+        const extractors = aiTeamStructures(team).filter(structure =>
+          structure.type === 'gasExtractor' && structure.hp > 0 && !structure.underConstruction).length;
+        if (!extractors || workers.length <= 5) return 0;
+        const wallet = teamEconomyState(team);
+        let target = Math.min(extractors * 3, Math.max(0, workers.length - 4));
+        if (state.elapsed < 90) target = Math.min(target, 2);
+        if ((wallet.gas || 0) > (wallet.minerals || 0) * .85 + 180) target = Math.max(0, target - extractors);
+        return target;
+      }
+
+      function assignAIWorkers(team) {
+        const workers = aiTeamUnits(team)
+          .filter(unit => unit.type === 'forager' && unit.hp > 0 && !unit.morphJob && unit.job !== 'build')
+          .sort((a, b) => a.id - b.id);
+        if (!workers.length) return false;
+        const gasTarget = aiDesiredGasWorkers(team);
+        let gasWorkers = workers.filter(worker => worker.job === 'harvest' && worker.harvestNode?.type === 'gas' && !worker.harvestNode.depleted).length;
+
+        if (gasWorkers > gasTarget) {
+          const excess = workers.filter(worker => worker.job === 'harvest' && worker.harvestNode?.type === 'gas')
+            .sort((a, b) => (a.carrying || 0) - (b.carrying || 0) || b.id - a.id);
+          for (const worker of excess) {
+            if (gasWorkers <= gasTarget) break;
+            const mineral = nearestResource(worker, 'mineral');
+            if (mineral && assignHarvest(worker, mineral)) gasWorkers--;
+          }
+        }
+        if (gasWorkers < gasTarget) {
+          const candidates = workers.filter(worker => !(worker.job === 'harvest' && worker.harvestNode?.type === 'gas' && !worker.harvestNode.depleted))
+            .sort((a, b) => {
+              const aIdle = a.job !== 'harvest' || !a.harvestNode || a.harvestNode.depleted ? 0 : 1;
+              const bIdle = b.job !== 'harvest' || !b.harvestNode || b.harvestNode.depleted ? 0 : 1;
+              return aIdle - bIdle || (a.carrying || 0) - (b.carrying || 0) || a.id - b.id;
+            });
+          for (const worker of candidates) {
+            if (gasWorkers >= gasTarget) break;
+            const gas = nearestResource(worker, 'gas');
+            if (gas?.type === 'gas' && assignHarvest(worker, gas)) gasWorkers++;
+          }
+        }
+        for (const worker of workers) {
+          if (worker.job === 'harvest' && worker.harvestNode && !worker.harvestNode.depleted) continue;
+          const preference = gasWorkers < gasTarget ? 'gas' : 'mineral';
+          const node = nearestResource(worker, preference) || nearestResource(worker, 'mineral');
+          if (node && assignHarvest(worker, node) && node.type === 'gas') gasWorkers++;
+        }
+        return true;
+      }
+
+      function queueAIWorker(team, ai) {
+        if (isInsectComputerTeam(team) || aiForagerCount(team, true) >= aiDesiredWorkerCount(team, ai)) return false;
+        const producers = aiTeamStructures(team)
+          .filter(structure => structure.hp > 0 && !structure.underConstruction &&
+            (structure.type === 'hq' || structure.type === 'minersHut') &&
+            (structure.queue || []).length < 2)
+          .sort((a, b) => (a.queue?.length || 0) - (b.queue?.length || 0) || a.id - b.id);
+        for (const producer of producers) if (queueUnit('forager', producer)) return true;
+        return false;
+      }
+
+      function aiGasExtractorCount(team) {
+        return aiTeamStructures(team).filter(structure => structure.type === 'gasExtractor' && structure.hp > 0).length;
+      }
+
+      function startAIGasExtractor(team) {
+        const wallet = aiWallet(team);
+        const cost = BUILDING_DATA.gasExtractor;
+        if (!cost || wallet.minerals < cost.costM || aiForagerCount(team, false) <= 4) return false;
+        const desired = state.elapsed >= 260
+          ? Math.min(4, Math.max(1, aiResourceDropoffs(team, true).length * 2))
+          : state.elapsed >= 42 ? Math.min(2, Math.max(1, aiResourceDropoffs(team, true).length)) : 0;
+        if (aiGasExtractorCount(team) >= desired) return false;
+        const dropoffs = aiResourceDropoffs(team, true);
+        const candidates = resourceNodes.filter(node => {
+          if (node.type !== 'gas' || node.depleted) return false;
+          if (aiTeamStructures(team).some(structure => structure.type === 'gasExtractor' && structure.hp > 0 && structure.resourceNodeId === node.id)) return false;
+          const field = resourceFields.find(candidate => candidate.id === node.fieldId);
+          return !!field && !!aiFieldDropoff(team, field, true);
+        }).sort((a, b) => {
+          const nearest = node => dropoffs.reduce((best, dropoff) => Math.min(best, Math.hypot(node.x - dropoff.x, node.y - dropoff.y)), Infinity);
+          return nearest(a) - nearest(b) || a.id - b.id;
+        });
+        for (const node of candidates) if (constructGasExtractor(node, team, { ignoreExploration: true })) return true;
+        return false;
+      }
+
+      function aiChooseExpansionField(team) {
+        const ownBases = aiResourceDropoffs(team, true);
+        if (!ownBases.length) return null;
+        const hostileHQs = getLivingHQs(team);
+        return resourceFields
+          .filter(field => !fieldHasDropoff(field) && fieldHasResources(field) && aiFieldResourceAmount(field, 'mineral') > 0)
+          .map(field => {
+            const ownDistance = ownBases.reduce((best, base) => Math.min(best, Math.hypot(field.x - base.x, field.y - base.y)), Infinity);
+            const hostileDistance = hostileHQs.reduce((best, hq) => Math.min(best, Math.hypot(field.x - hq.x, field.y - hq.y)), Infinity);
+            const dangerPenalty = hostileDistance < 380 ? (380 - hostileDistance) * 3 : 0;
+            return { field, score: ownDistance + dangerPenalty - aiFieldResourceAmount(field, 'mineral') * .012 };
+          })
+          .filter(row => Number.isFinite(row.score))
+          .sort((a, b) => a.score - b.score || a.field.id - b.field.id)[0]?.field || null;
+      }
+
+      function aiExpansionSiteOpen(x, y, width = 60, height = 52) {
+        const halfW = width / 2 + 8, halfH = height / 2 + 8;
+        if (x < halfW || y < halfH || x > WORLD_W - halfW || y > WORLD_H - halfH) return false;
+        for (const [ox, oy] of [[0, 0], [-halfW, -halfH], [halfW, -halfH], [-halfW, halfH], [halfW, halfH]]) {
+          if (isBlocked(x + ox, y + oy)) return false;
+        }
+        for (const structure of structures) {
+          if (structure.hp <= 0) continue;
+          if (Math.abs(structure.x - x) < halfW + (structure.w || 42) / 2 + 14 &&
+              Math.abs(structure.y - y) < halfH + (structure.h || 38) / 2 + 14) return false;
+        }
+        return true;
+      }
+
+      function buildHeliasExpansionNexus(team, field) {
+        const ai = computerAIState(team);
+        const wallet = aiWallet(team, ai);
+        if (!field || fieldHasDropoff(field) || wallet.minerals < AI_HELIAS_EXPANSION_COST.costM ||
+            wallet.gas < AI_HELIAS_EXPANSION_COST.costG || !aiExpansionSiteOpen(field.x, field.y)) return false;
+        const builder = nearestAvailableForager(field, team);
+        if (!builder) return false;
+        wallet.minerals -= AI_HELIAS_EXPANSION_COST.costM;
+        wallet.gas -= AI_HELIAS_EXPANSION_COST.costG;
+        const maxHp = 900;
+        const initialHp = Math.max(1, Math.ceil(maxHp * .14));
+        const nexus = addStructure('hq', team, field.x, field.y, {
+          hp: initialHp,
+          underConstruction: true,
+          constructionStarted: false,
+          buildTime: AI_HELIAS_EXPANSION_COST.buildTime,
+          buildTimeLeft: AI_HELIAS_EXPANSION_COST.buildTime,
+          constructionGrantedHp: initialHp,
+          assignmentRetry: .8,
+          resourceFieldId: field.id,
+          purchaseCostM: AI_HELIAS_EXPANSION_COST.costM,
+          purchaseCostG: AI_HELIAS_EXPANSION_COST.costG,
+          aiBase: true,
+          aiExpansion: true
+        });
+        assignBuildJob(builder, nexus);
+        aiWallet(team, ai);
+        return true;
+      }
+
+      function startAIExpansion(team, ai) {
+        const profile = aiDifficultyProfile(ai);
+        if (state.elapsed < profile.expansionEarliest || aiForagerCount(team, false) <= 8) return false;
+        const bases = aiResourceDropoffs(team, true);
+        const plannedBases = aiResourceDropoffs(team, false).length;
+        const maxBases = state.elapsed >= 430 ? 3 : state.elapsed >= 205 ? 2 : 1;
+        if (plannedBases >= maxBases) return false;
+        const workers = aiForagerCount(team, false);
+        const startingFields = aiOwnedResourceFields(team);
+        const depleted = startingFields.some(field => {
+          const capacity = aiFieldResourceCapacity(field, 'mineral');
+          return capacity > 0 && aiFieldResourceAmount(field, 'mineral') / capacity < .27;
+        });
+        if (!depleted && workers < Math.max(9, bases.length * profile.expansionWorkersPerBase)) return false;
+        const field = aiChooseExpansionField(team);
+        if (!field) return false;
+        const faction = teamFactionId(team, state.teamFactions);
+        let site = null;
+        if (faction === 'humans') site = constructBuilding('minersHut', field, team, { ignoreExploration: true });
+        else if (faction === 'insects') site = constructBuilding('broodHive', field, team, { ignoreExploration: true, allowAnyDrone: true });
+        else if (faction === 'helias') return buildHeliasExpansionNexus(team, field);
+        if (!site) return false;
+        site.resourceFieldId = field.id;
+        site.aiBase = true;
+        site.aiExpansion = true;
+        return true;
+      }
+
+      function findAIDynamicBuildPoint(team, type) {
+        const data = BUILDING_DATA[type];
+        const hq = getHQForTeam(team);
+        if (!data || !hq) return null;
+        const faction = teamFactionId(team, state.teamFactions);
+        let anchors = [hq];
+        if (faction === 'helias' && type !== 'heliasPylon') {
+          const pylons = aiTeamStructures(team).filter(structure => structure.type === 'heliasPylon' && structure.hp > 0 && !structure.underConstruction);
+          if (pylons.length) anchors = pylons;
+        } else {
+          const dropoffs = aiResourceDropoffs(team, true);
+          if (dropoffs.length) anchors = dropoffs;
+        }
+        for (let attempt = 0; attempt < 56; attempt++) {
+          const anchor = anchors[attempt % anchors.length];
+          const radius = faction === 'helias' && type !== 'heliasPylon' ? rand(58, 132) : rand(78, 190);
+          const angle = (hq.inwardAngle || 0) + attempt * 2.399963229728653 + rand(-.18, .18);
+          const x = clamp(anchor.x + Math.cos(angle) * radius, data.w / 2 + 10, WORLD_W - data.w / 2 - 10);
+          const y = clamp(anchor.y + Math.sin(angle) * radius, data.h / 2 + 10, WORLD_H - data.h / 2 - 10);
+          if (computerBuildSiteOpen(type, x, y)) return { x, y };
+        }
+        return null;
+      }
+
+      function updateAIPopulationInfrastructure(team, ai, dt) {
+        if (isInsectComputerTeam(team)) return false;
+        ai.populationClock -= dt;
+        if (ai.populationClock > 0) return false;
+        ai.populationClock = rand(2.2, 4.2);
+        const used = teamPopulationUsed(team), cap = teamPopulationCap(team);
+        if (cap - used > 5 && used / Math.max(1, cap) < .82) return false;
+        const type = isHeliasComputerTeam(team) ? 'heliasPylon' : 'housing';
+        if (aiTeamStructures(team).some(structure => structure.type === type && structure.hp > 0 && structure.underConstruction)) return false;
+        const point = findAIDynamicBuildPoint(team, type);
+        return !!point && startComputerBuilding(team, { type, x: point.x, y: point.y, organic: true });
+      }
+
+      function updatePlannedConstruction(team, plans, dt) {
+        const ai = computerAIState(team);
+        if (!ai) return false;
+        ai.rebuildClock -= dt;
+        if (ai.rebuildClock > 0) return false;
+        ai.rebuildClock = rand(2.5, 4.2) * aiDifficultyProfile(ai).rebuildClock;
+        let built = false;
+        const occurrence = new Map();
+        let fulfilled = 0;
+        for (const plan of plans) {
+          if (state.elapsed < plan.at) break;
+          const goal = (occurrence.get(plan.type) || 0) + 1;
+          occurrence.set(plan.type, goal);
+          const actual = aiTeamStructures(team).filter(structure => structure.type === plan.type && structure.hp > 0).length;
+          if (actual >= goal) {
+            fulfilled++;
+            continue;
+          }
+          built = startComputerBuilding(team, plan);
+          break;
+        }
+        ai.buildIndex = fulfilled;
+        return built;
+      }
+
+      function updateAIEconomy(team, ai, dt) {
+        aiWallet(team, ai);
+        ai.workerClock -= dt;
+        if (ai.workerClock <= 0) {
+          assignAIWorkers(team);
+          if (!isInsectComputerTeam(team)) queueAIWorker(team, ai);
+          ai.workerClock = rand(1.1, 2.1) * aiDifficultyProfile(ai).decisionInterval;
+        }
+        ai.gasBuildClock -= dt;
+        if (ai.gasBuildClock <= 0) {
+          startAIGasExtractor(team);
+          ai.gasBuildClock = rand(6.5, 10.5);
+        }
+        ai.expansionClock -= dt;
+        if (ai.expansionClock <= 0) {
+          startAIExpansion(team, ai);
+          ai.expansionClock = rand(10, 16);
+        }
+        aiWallet(team, ai);
+      }
+
+      function updateHumanAIUnitResearch(team, dt) {
+        const ai = computerAIState(team);
+        if (!ai) return false;
+        ai.researchClock -= dt;
+        if (ai.researchClock > 0) return false;
+        ai.researchClock = rand(6, 10);
+        const laboratory = aiTeamStructures(team).find(structure => structure.type === 'laboratory' && structure.hp > 0 && !structure.underConstruction);
+        if (!laboratory) return false;
+        for (const plan of HUMAN_AI_UNIT_UPGRADE_PLAN) {
+          if (state.elapsed < plan.at || completedUnitUpgradeLevel(plan.type, team) >= plan.level) continue;
+          return startUnitUpgrade(plan.type, laboratory, plan.level);
+        }
+        return false;
+      }
+
+      function updateHeliasForgeResearch(team, dt) {
+        const ai = computerAIState(team);
+        if (!ai) return false;
+        ai.researchClock -= dt;
+        if (ai.researchClock > 0) return false;
+        ai.researchClock = rand(6, 10);
+        const forge = aiTeamStructures(team).find(structure => structure.type === 'heliasForge' && structure.hp > 0 && !structure.underConstruction);
+        if (!forge) return false;
+        const registry = heliasForgeRegistry(team);
+        const orders = heliasForgeUpgradeOrders(forge);
+        for (const plan of HELIAS_AI_FORGE_PLAN) {
+          const spec = HELIAS_FORGE_UPGRADES[plan.id];
+          if (!spec || state.elapsed < plan.at || registry[spec.branch] || orders.some(job => job.upgradeId === plan.id)) continue;
+          return startUnitUpgrade(plan.id, forge);
+        }
+        return false;
+      }
+
+      function scheduleNextAIAttack(ai, success) {
+        const profile = aiDifficultyProfile(ai);
+        const base = Math.max(28, 58 - ai.wave * 1.35);
+        ai.interval = base * profile.interval;
+        ai.clock = success ? ai.interval * rand(.78, 1.28) : rand(8, 14) * profile.interval;
+      }
+
+      function updateAIAttacks(team, ai, dt, noun = 'wave') {
+        ai.clock -= dt;
+        if (ai.clock > 0) return false;
+        const profile = aiDifficultyProfile(ai);
+        if (profile.skipAttackWaveChance > 0 && random() < profile.skipAttackWaveChance) {
+          scheduleNextAIAttack(ai, true);
+          return false;
+        }
+        const nextWave = ai.wave + 1;
+        const sent = launchComputerWave(team, nextWave);
+        if (sent <= 0) {
+          scheduleNextAIAttack(ai, false);
+          return false;
+        }
+        ai.wave = nextWave;
+        ai.lastAttackAt = state.elapsed;
+        scheduleNextAIAttack(ai, true);
+        toast(`${teamLabel(team)} ${noun} ${ai.wave}: ${sent} trained unit${sent === 1 ? '' : 's'} mobilized.`, teamColor(team));
+        return true;
+      }
+
       
       const INSECT_AI_TECH_PLAN = Object.freeze([
         Object.freeze({ at: 12, type: 'spawningNest' }),
@@ -1027,17 +1457,10 @@
         }
         return count;
       }
-
       function insectAIWallet(team, ai) {
-        const wallet = teamEconomyState(team);
-        if (!ai.insectWalletInitialized) {
-          wallet.minerals = Math.max(Number(wallet.minerals) || 0, Number(ai.minerals) || 0);
-          wallet.gas = Math.max(Number(wallet.gas) || 0, Number(ai.gas) || 0);
-          ai.insectWalletInitialized = true;
-        }
-        ai.minerals = wallet.minerals;
-        ai.gas = wallet.gas;
-        return wallet;
+        if (!ai) return teamEconomyState(team);
+        ai.insectWalletInitialized = true;
+        return aiWallet(team, ai);
       }
 
       function insectAIAssignIdleDrones(team) {
@@ -1174,17 +1597,12 @@
         }
         return false;
       }
-
       function updateInsectAITech(team, dt) {
         const ai = computerAIState(team);
         if (!ai) return;
         ai.insectTechClock -= dt;
         if (ai.insectTechClock > 0) return;
         ai.insectTechClock = rand(2.2, 3.8);
-
-        if (state.elapsed >= 24 && insectAIStructureCount(team, 'gasExtractor') < 1) {
-          if (startInsectAIGasExtractor(team)) return;
-        }
 
         for (const plan of INSECT_AI_TECH_PLAN) {
           if (state.elapsed < plan.at || insectAIStructureCount(team, plan.type) > 0) continue;
@@ -1197,12 +1615,7 @@
           ((hive.level || 1) === 1 && state.elapsed >= 66 && hasOperationalTeamStructure('spawningNest', team) ||
            (hive.level || 1) === 2 && state.elapsed >= 218 && hasOperationalTeamStructure('evolutionPit', team)));
         if (evolvable && startProductionUpgrade(evolvable, null)) return;
-        if (updateInsectAIResearch(team)) return;
-
-        const desiredHives = state.elapsed >= 355 ? 3 : state.elapsed >= 170 ? 2 : 1;
-        if (hives.length + insectAIStructureCount(team, 'broodHive') - hives.filter(hive => hive.type === 'broodHive').length < desiredHives) {
-          startInsectAIBuilding(team, 'broodHive');
-        }
+        updateInsectAIResearch(team);
       }
 
       function insectAIEvolutionPending(team) {
@@ -1382,26 +1795,23 @@
         if (insectAIStructureCount(team, 'skysporeSentinel') < airGoal && startInsectAIBuilding(team, 'skysporeSentinel')) return true;
         return false;
       }
-
       function updateInsectComputerAI(team, dt) {
         const ai = computerAIState(team);
         const hq = getHQForTeam(team);
         if (!ai || !ai.active || !hq || hq.hp <= 0) return;
-        const wallet = insectAIWallet(team, ai);
-        ai.incomeClock += dt;
-        while (ai.incomeClock >= 1) {
-          ai.incomeClock -= 1;
-          wallet.minerals += 7;
-          wallet.gas += 2;
-        }
-
+        updateAIEconomy(team, ai, dt);
         insectAIAssignIdleDrones(team);
         updateInsectAITech(team, dt);
 
         ai.productionClock -= dt;
         if (ai.productionClock <= 0) {
-          const queued = queueInsectAIProduction(team);
-          ai.productionClock = queued ? rand(2.4, 4.2) : rand(1.5, 2.5);
+          const profile = aiDifficultyProfile(ai);
+          let queued = 0;
+          for (let index = 0; index < profile.productionBurst + 1; index++) {
+            if (!queueInsectAIProduction(team)) break;
+            queued++;
+          }
+          ai.productionClock = queued ? rand(1.7, 3.1) : rand(1.4, 2.4);
         }
 
         updateInsectAIMorphing(team, dt);
@@ -1409,27 +1819,8 @@
         updateInsectAITumors(team, dt);
         updateInsectAIDefenses(team, dt);
         updateComputerManeuvers(team, dt);
-
-        ai.clock -= dt;
-        if (ai.clock <= 0) {
-          const profile = aiDifficultyProfile(ai);
-          if (profile.skipAttackWaveChance > 0 && random() < profile.skipAttackWaveChance) {
-            ai.clock = ai.interval;
-          } else {
-            const nextWave = ai.wave + 1;
-            const sent = launchComputerWave(team, nextWave);
-            if (sent > 0) {
-              ai.wave = nextWave;
-              ai.interval = Math.max(27, 44 - ai.wave * 1.2) * profile.interval;
-              ai.clock = ai.interval;
-              toast(`${teamLabel(team)} swarm ${ai.wave}: ${sent} organism${sent === 1 ? '' : 's'} mobilized.`, teamColor(team));
-            } else {
-              ai.clock = scaledAIClock(ai, 'interval', 9);
-            }
-          }
-        }
-        ai.minerals = wallet.minerals;
-        ai.gas = wallet.gas;
+        updateAIAttacks(team, ai, dt, 'swarm');
+        aiWallet(team, ai);
       }
 
       function chooseOrganicBuilding(team) {
@@ -1517,35 +1908,24 @@
           ai.organicBuildClock = rand(8, 14);
         }
       }
-      
       function updateComputerUpgradePlan(team) {
         const ai = computerAIState(team);
         const plan = ai && ENEMY_UPGRADE_PLAN[ai.upgradeIndex];
-        if (!ai || !plan || state.elapsed < plan.at) return;
+        if (!ai || !plan || state.elapsed < plan.at) return false;
         const teamStructures = aiTeamStructures(team);
         const researchFacility = teamStructures.find(structure =>
-          structure.type === 'researchFacility' && !structure.underConstruction
-        );
-        if (!researchFacility) return;
+          structure.type === 'researchFacility' && structure.hp > 0 && !structure.underConstruction);
+        if (!researchFacility) return false;
         const producer = teamStructures.find(structure =>
-          structure.type === plan.type && !structure.underConstruction
-        );
-        if (!producer) {
-          if (state.elapsed > plan.at + 45) ai.upgradeIndex++;
-          return;
-        }
+          structure.type === plan.type && structure.hp > 0 && !structure.underConstruction);
+        if (!producer) return false;
         if (productionTechLevel(team, plan.type) >= plan.toLevel) {
           ai.upgradeIndex++;
-          return;
+          return true;
         }
-        if (productionTechJob(team, plan.type)) return;
-        const spec = PRODUCTION_TECH[plan.type]?.upgrades?.[plan.toLevel];
-        if (!spec || ai.minerals < spec.costM || ai.gas < spec.costG) return;
-        ai.minerals -= spec.costM;
-        ai.gas -= spec.costG;
-        beginProductionTechJob(team, plan.type, plan.toLevel, spec);
+        if (productionTechJob(team, plan.type)) return false;
+        return startProductionUpgrade(producer, researchFacility);
       }
-      
       function updateHeliasComputerUpgradePlan(team) {
         const ai = computerAIState(team);
         if (!ai) return false;
@@ -1553,153 +1933,110 @@
           if (state.elapsed < plan.at || productionTechLevel(team, plan.type) >= plan.toLevel) continue;
           if (productionTechJob(team, plan.type)) return false;
           const producer = aiTeamStructures(team).find(structure =>
-            structure.type === plan.type && structure.hp > 0 && !structure.underConstruction
-          );
-          const spec = PRODUCTION_TECH[plan.type]?.upgrades?.[plan.toLevel];
-          if (!producer || !spec || ai.minerals < spec.costM || ai.gas < spec.costG) return false;
-          ai.minerals -= spec.costM;
-          ai.gas -= spec.costG;
-          beginProductionTechJob(team, plan.type, plan.toLevel, spec);
-          return true;
+            structure.type === plan.type && structure.hp > 0 && !structure.underConstruction);
+          if (!producer) return false;
+          return startProductionUpgrade(producer, null);
         }
         return false;
       }
-
       function queueHeliasComputerProduction(team) {
         const ai = computerAIState(team);
         if (!ai) return false;
+        const wallet = aiWallet(team, ai);
         const candidates = [];
         const living = aiTeamUnits(team);
-        const count = type => living.reduce((total, unit) => total + (unit.hp > 0 && unit.type === type ? 1 : 0), 0);
+        const queuedCount = type => aiTeamStructures(team).reduce((sum, structure) =>
+          sum + (structure.queue || []).filter(item => item.type === type).length, 0);
+        const count = type => living.reduce((total, unit) => total + (unit.hp > 0 && unit.type === type ? 1 : 0), 0) + queuedCount(type);
+        const hostileAir = units.filter(unit => unit.hp > 0 && unit.team !== team && isAirUnit(unit)).length;
         const addCandidate = (producer, type, weight) => {
           const data = UNIT_DATA[type];
-          if (!data || ai.minerals < data.costM || ai.gas < data.costG) return;
+          if (!data || wallet.minerals < data.costM || wallet.gas < data.costG) return;
           if (teamPopulationUsed(team) + (data.pop ?? 1) > teamPopulationCap(team)) return;
           candidates.push({ producer, type, weight: weight / (1 + (producer.queue?.length || 0) * 2) });
         };
 
         for (const producer of aiTeamStructures(team)) {
-          if (producer.hp <= 0 || producer.underConstruction || producer.upgradeJob || (producer.queue?.length || 0) >= 2) continue;
+          if (producer.hp <= 0 || producer.underConstruction || producer.upgradeJob || (producer.queue?.length || 0) >= 3) continue;
           if (producer.type === 'heliasGateway') {
             addCandidate(producer, 'heliasVanguard', 6.2);
-            if (hasOperationalTeamStructure('heliasCyberCore', team)) addCandidate(producer, 'heliasLancer', 4.1);
+            if (hasOperationalTeamStructure('heliasCyberCore', team)) addCandidate(producer, 'heliasLancer', 4.1 + hostileAir * .12);
             if (productionTechLevel(team, 'heliasGateway') >= 2) addCandidate(producer, 'heliasSentry', 2.0);
           } else if (producer.type === 'heliasRoboticsFacility') {
-            if (count('heliasObserver') < 2) addCandidate(producer, 'heliasObserver', 1.6);
-            addCandidate(producer, 'heliasImmortal', 2.6);
-            if (productionTechLevel(team, 'heliasRoboticsFacility') >= 2) addCandidate(producer, 'heliasColossus', .75);
+            if (count('heliasObserver') < 2) addCandidate(producer, 'heliasObserver', 1.8);
+            addCandidate(producer, 'heliasImmortal', 2.8);
+            if (productionTechLevel(team, 'heliasRoboticsFacility') >= 2) addCandidate(producer, 'heliasColossus', .8);
           } else if (producer.type === 'heliasStargate') {
-            addCandidate(producer, 'heliasPhoenix', 2.2);
-            addCandidate(producer, 'heliasVoidRay', 1.8);
-            if (productionTechLevel(team, 'heliasStargate') >= 2) addCandidate(producer, 'heliasCarrier', .48);
+            addCandidate(producer, 'heliasPhoenix', 2.0 + hostileAir * .2);
+            addCandidate(producer, 'heliasVoidRay', 1.9);
+            if (productionTechLevel(team, 'heliasStargate') >= 2) addCandidate(producer, 'heliasCarrier', .5);
           }
         }
-        if (!candidates.length) return false;
-        const totalWeight = candidates.reduce((sum, candidate) => sum + candidate.weight, 0);
-        let roll = rand(0, totalWeight);
-        let choice = candidates[candidates.length - 1];
-        for (const candidate of candidates) {
-          roll -= candidate.weight;
-          if (roll <= 0) { choice = candidate; break; }
-        }
-        const data = UNIT_DATA[choice.type];
-        ai.minerals -= data.costM;
-        ai.gas -= data.costG;
-        const buildTime = unitBuildTimeFor(choice.type, choice.producer);
-        choice.producer.queue.push({ type: choice.type, timeLeft: buildTime, total: buildTime });
-        return true;
+        const choice = weightedComputerChoice(candidates);
+        return !!choice && queueUnit(choice.type, choice.producer);
       }
-
       function updateHeliasComputerAI(team, dt) {
         const ai = computerAIState(team);
         const hq = getHQForTeam(team);
         if (!ai || !ai.active || !hq || hq.hp <= 0) return;
-
-        ai.incomeClock += dt;
-        while (ai.incomeClock >= 1) {
-          ai.incomeClock -= 1;
-          ai.minerals += 8;
-          ai.gas += 4;
-        }
-
-        const nextBuilding = HELIAS_AI_BUILD_PLAN[ai.buildIndex];
-        if (nextBuilding && state.elapsed >= nextBuilding.at && startComputerBuilding(team, nextBuilding)) ai.buildIndex++;
+        updateAIEconomy(team, ai, dt);
+        updatePlannedConstruction(team, HELIAS_AI_BUILD_PLAN, dt);
+        updateAIPopulationInfrastructure(team, ai, dt);
         updateHeliasComputerUpgradePlan(team);
+        updateHeliasForgeResearch(team, dt);
 
         ai.productionClock -= dt;
         if (ai.productionClock <= 0) {
-          const queued = queueHeliasComputerProduction(team);
-          ai.productionClock = queued ? rand(8.5, 12.5) : 4.5;
+          const profile = aiDifficultyProfile(ai);
+          let queued = 0;
+          for (let index = 0; index < profile.productionBurst; index++) {
+            if (!queueHeliasComputerProduction(team)) break;
+            queued++;
+          }
+          ai.productionClock = queued ? rand(2.1, 3.8) : rand(2.8, 4.8);
         }
 
         updateComputerManeuvers(team, dt);
-        ai.clock -= dt;
-        if (ai.clock <= 0) {
-          const profile = aiDifficultyProfile(ai);
-          if (profile.skipAttackWaveChance > 0 && random() < profile.skipAttackWaveChance) {
-            ai.clock = ai.interval;
-            return;
-          }
-          const nextWave = ai.wave + 1;
-          const sent = launchComputerWave(team, nextWave);
-          if (sent > 0) {
-            ai.wave = nextWave;
-            ai.interval = Math.max(32, 48 - ai.wave * 1.35) * profile.interval;
-            ai.clock = ai.interval;
-            toast(`${teamLabel(team)} wave ${ai.wave}: ${sent} unit${sent === 1 ? '' : 's'} mobilized.`, teamColor(team));
-          } else {
-            ai.clock = scaledAIClock(ai, 'interval', 12);
-          }
-        }
+        updateAIAttacks(team, ai, dt, 'wave');
+        aiWallet(team, ai);
       }
-
       function queueComputerProduction(team) {
         const ai = computerAIState(team);
         if (!ai) return false;
+        const wallet = aiWallet(team, ai);
         const candidates = [];
+        const hostileAir = units.filter(unit => unit.hp > 0 && unit.team !== team && isAirUnit(unit)).length;
+        const hostileGround = units.filter(unit => unit.hp > 0 && unit.team !== team && !isAirUnit(unit) && (UNIT_DATA[unit.type]?.damage || 0) > 0).length;
         const addCandidate = (producer, type, weight) => {
           const data = UNIT_DATA[type];
-          if (!data || ai.minerals < data.costM || ai.gas < data.costG) return;
+          if (!data || wallet.minerals < data.costM || wallet.gas < data.costG) return;
           if (teamPopulationUsed(team) + (data.pop ?? 1) > teamPopulationCap(team)) return;
-          candidates.push({ producer, type, weight: weight / (1 + producer.queue.length * 2) });
+          candidates.push({ producer, type, weight: weight / (1 + (producer.queue?.length || 0) * 2) });
         };
-      
+
         for (const producer of aiTeamStructures(team)) {
-          if (producer.underConstruction || producer.upgradeJob || producer.queue.length >= 2) continue;
+          if (producer.hp <= 0 || producer.underConstruction || producer.upgradeJob || (producer.queue?.length || 0) >= 3) continue;
           if (producer.type === 'barracks') {
             addCandidate(producer, 'infantry', 6);
-            if ((producer.level || 1) >= 2 && state.elapsed >= 120) addCandidate(producer, 'assault', 3);
-            if ((producer.level || 1) >= 3 && state.elapsed >= 260) addCandidate(producer, 'mortar', .8);
-            if ((producer.level || 1) >= 4 && state.elapsed >= 390) addCandidate(producer, 'mecha', .38);
+            if ((producer.level || 1) >= 2 && state.elapsed >= 120) addCandidate(producer, 'assault', 3.2 + hostileAir * .08);
+            if ((producer.level || 1) >= 3 && state.elapsed >= 260) addCandidate(producer, 'mortar', 1 + hostileGround * .025);
+            if ((producer.level || 1) >= 4 && state.elapsed >= 390) addCandidate(producer, 'mecha', .42);
           } else if (producer.type === 'garage') {
             addCandidate(producer, 'jeep', 4);
-            if ((producer.level || 1) >= 2 && state.elapsed >= 185) addCandidate(producer, 'armoredJeep', 2.2);
-            if ((producer.level || 1) >= 3 && state.elapsed >= 225) addCandidate(producer, 'heavy', 1.2);
-            if ((producer.level || 1) >= 4 && state.elapsed >= 355) addCandidate(producer, 'titanTank', .42);
+            if ((producer.level || 1) >= 2 && state.elapsed >= 185) addCandidate(producer, 'armoredJeep', 2.3);
+            if ((producer.level || 1) >= 3 && state.elapsed >= 225) addCandidate(producer, 'heavy', 1.3 + hostileGround * .02);
+            if ((producer.level || 1) >= 4 && state.elapsed >= 355) addCandidate(producer, 'titanTank', .46);
           } else if (producer.type === 'airBay') {
             addCandidate(producer, 'helicopter', 1.7);
-            if ((producer.level || 1) >= 2 && state.elapsed >= 230) addCandidate(producer, 'doubleChopper', .9);
-            if ((producer.level || 1) >= 3 && state.elapsed >= 325) addCandidate(producer, 'antiAirFighter', .7);
-            if ((producer.level || 1) >= 4 && state.elapsed >= 410) addCandidate(producer, 'bomber', .28);
+            if ((producer.level || 1) >= 2 && state.elapsed >= 230) addCandidate(producer, 'doubleChopper', .95);
+            if ((producer.level || 1) >= 3 && state.elapsed >= 325) addCandidate(producer, 'antiAirFighter', .75 + hostileAir * .18);
+            if ((producer.level || 1) >= 4 && state.elapsed >= 410) addCandidate(producer, 'bomber', .3);
           } else if (producer.type === 'supportCamp') {
-            addCandidate(producer, 'healer', 1.25);
+            addCandidate(producer, 'healer', 1.35);
           }
         }
-      
-        if (!candidates.length) return false;
-        const totalWeight = candidates.reduce((sum, candidate) => sum + candidate.weight, 0);
-        let roll = rand(0, totalWeight);
-        let choice = candidates[candidates.length - 1];
-        for (const candidate of candidates) {
-          roll -= candidate.weight;
-          if (roll <= 0) { choice = candidate; break; }
-        }
-        const data = UNIT_DATA[choice.type];
-        ai.minerals -= data.costM;
-        ai.gas -= data.costG;
-        const buildTime = unitBuildTimeFor(choice.type, choice.producer);
-        choice.producer.queue.push({ type: choice.type, timeLeft: buildTime, total: buildTime });
-        return true;
+        const choice = weightedComputerChoice(candidates);
+        return !!choice && queueUnit(choice.type, choice.producer);
       }
       
       function chooseComputerAttackTarget(team, ai, origin = null) {
@@ -1864,62 +2201,31 @@
           }
         }
       }
-      
       function launchComputerWave(team, waveNumber) {
         const hq = getHQForTeam(team);
         const ai = computerAIState(team);
         const targetHQ = hq && ai && chooseComputerAttackTarget(team, ai, hq);
         if (!hq || hq.hp <= 0 || !targetHQ) return 0;
-        // Patrolling and scouting troops still belong to the reserve and can be
-        // folded into the next attack wave instead of being stranded near the base.
-        let reserve = [];
-        let firstAir = null;
-        if (activeWorkerAnalysis?.team === team) {
-          reserve = workerAnalysisUnits(activeWorkerAnalysis.reserveIds);
-          firstAir = aiDecisionEntityCache?.unitById?.get(activeWorkerAnalysis.firstAirReserveId) || null;
-        } else {
-          for (const unit of aiTeamUnits(team)) {
-            if (!unit.aiReserve || unit.morphJob) continue;
-            reserve.push(unit);
-            if (!firstAir && isAirUnit(unit)) firstAir = unit;
-          }
-        }
-        const size = isInsectComputerTeam(team)
-          ? Math.min(12, 4 + Math.floor((waveNumber - 1) / 2))
-          : isHeliasComputerTeam(team)
-            ? Math.min(7, 3 + Math.floor((waveNumber - 1) / 3))
-            : Math.min(5, 2 + Math.floor((waveNumber - 1) / 3));
-        const includesAirTest = waveNumber % 3 === 0;
-      
-        if (includesAirTest && !firstAir && !isInsectComputerTeam(team) && !isHeliasComputerTeam(team)) {
-          // Preserve the original periodic anti-air test contact, but create it for
-          // the specific CPU and send it toward that CPU's current rival.
-          const launchSite = aiTeamStructures(team).find(structure =>
-            structure.type === 'airBay' && !structure.underConstruction
-          ) || hq;
-          const angle = Math.atan2(targetHQ.y - launchSite.y, targetHQ.x - launchSite.x);
-          const clearance = Math.max(launchSite.w || 60, launchSite.h || 52) / 2 + UNIT_DATA.helicopter.radius + 16;
-          const helicopter = addUnit(
-            'helicopter',
-            team,
-            clamp(launchSite.x + Math.cos(angle) * clearance, 12, WORLD_W - 12),
-            clamp(launchSite.y + Math.sin(angle) * clearance, 12, WORLD_H - 12),
-            { static: true, aiReserve: true, command: 'defend' }
-          );
-          helicopter.destination = { x: helicopter.x, y: helicopter.y };
-          helicopter.guardPoint = { ...helicopter.destination };
-          reserve.push(helicopter);
-          firstAir = helicopter;
-        }
-      
-        const groundReserve = [];
-        for (const unit of reserve) if (!isAirUnit(unit)) groundReserve.push(unit);
+        const profile = aiDifficultyProfile(ai);
+        const reserve = aiTeamUnits(team)
+          .filter(unit => unit.hp > 0 && unit.aiReserve && !unit.morphJob && unit.type !== 'forager' && unit.type !== 'insectQueen')
+          .sort((a, b) => a.id - b.id);
+        const attackers = reserve.filter(unit => (UNIT_DATA[unit.type]?.damage || unit.damage || 0) > 0);
+        const supports = reserve.filter(unit => (UNIT_DATA[unit.type]?.damage || unit.damage || 0) <= 0 && (unit.heal || UNIT_DATA[unit.type]?.heal || 0) > 0);
+        const factionBase = isInsectComputerTeam(team) ? 4 : 3;
+        const maximum = isInsectComputerTeam(team) ? 16 : isHeliasComputerTeam(team) ? 10 : 11;
+        const desired = Math.min(maximum, Math.max(factionBase,
+          Math.round((factionBase + waveNumber * 1.05) * profile.attackStrength * rand(.82, 1.2))));
+        const sendable = Math.max(0, attackers.length - profile.defenderReserve);
+        if (sendable < Math.max(2, Math.min(factionBase, desired))) return 0;
+        const attackCount = Math.min(desired, sendable);
+        const offset = attackers.length ? Math.floor(rand(0, attackers.length)) : 0;
         const chosen = [];
-        if (includesAirTest && firstAir) chosen.push(firstAir);
-        const groundLimit = includesAirTest ? Math.max(0, size - chosen.length) : size;
-        for (let index = 0; index < groundReserve.length && index < groundLimit; index++) chosen.push(groundReserve[index]);
+        for (let index = 0; index < attackCount; index++) chosen.push(attackers[(offset + index) % attackers.length]);
+        const supportCount = Math.min(supports.length, Math.floor(chosen.length / 5));
+        for (let index = 0; index < supportCount; index++) chosen.push(supports[index]);
         if (!chosen.length) return 0;
-      
+
         const spread = 30;
         const columns = Math.ceil(Math.sqrt(chosen.length));
         const rows = Math.ceil(chosen.length / columns);
@@ -1946,7 +2252,6 @@
         requestSharedGroupRoute(chosen, targetHQ);
         return chosen.length;
       }
-      
       function updateComputerAI(team, dt) {
         const ai = computerAIState(team);
         const hq = getHQForTeam(team);
@@ -1959,45 +2264,28 @@
           updateHeliasComputerAI(team, dt);
           return;
         }
-      
-        ai.incomeClock += dt;
-        while (ai.incomeClock >= 1) {
-          ai.incomeClock -= 1;
-          ai.minerals += 8;
-          ai.gas += 3;
-        }
-      
-        const nextBuilding = ENEMY_BUILD_PLAN[ai.buildIndex];
-        if (nextBuilding && state.elapsed >= nextBuilding.at && startComputerBuilding(team, nextBuilding)) ai.buildIndex++;
+
+        updateAIEconomy(team, ai, dt);
+        updatePlannedConstruction(team, ENEMY_BUILD_PLAN, dt);
+        updateAIPopulationInfrastructure(team, ai, dt);
         updateComputerUpgradePlan(team);
+        updateHumanAIUnitResearch(team, dt);
         updateOrganicConstruction(team, dt);
-      
+
         ai.productionClock -= dt;
         if (ai.productionClock <= 0) {
-          const queued = queueComputerProduction(team);
-          ai.productionClock = queued ? rand(13, 17) : 7;
-        }
-      
-        updateComputerManeuvers(team, dt);
-      
-        ai.clock -= dt;
-        if (ai.clock <= 0) {
           const profile = aiDifficultyProfile(ai);
-          if (profile.skipAttackWaveChance > 0 && random() < profile.skipAttackWaveChance) {
-            ai.clock = ai.interval;
-            return;
+          let queued = 0;
+          for (let index = 0; index < profile.productionBurst; index++) {
+            if (!queueComputerProduction(team)) break;
+            queued++;
           }
-          const nextWave = ai.wave + 1;
-          const sent = launchComputerWave(team, nextWave);
-          if (sent > 0) {
-            ai.wave = nextWave;
-            ai.interval = Math.max(32, 48 - ai.wave * 1.35) * profile.interval;
-            ai.clock = ai.interval;
-            toast(`${teamLabel(team)} wave ${ai.wave}: ${sent} unit${sent === 1 ? '' : 's'} mobilized.`, teamColor(team));
-          } else {
-            ai.clock = scaledAIClock(ai, 'interval', 12);
-          }
+          ai.productionClock = queued ? rand(2.1, 3.8) : rand(2.8, 4.8);
         }
+
+        updateComputerManeuvers(team, dt);
+        updateAIAttacks(team, ai, dt, 'wave');
+        aiWallet(team, ai);
       }
       
       function updateComputerAIs(dt) {
@@ -12533,10 +12821,9 @@
         }
         if (!sandbox) {
           for (const hq of enemyHQs) {
-            if (teamFactionId(hq.team, state.teamFactions) !== 'insects') {
-              addComputerDefenders(hq);
-              continue;
-            }
+            const wallet = teamEconomyState(hq.team);
+            wallet.minerals = 200;
+            wallet.gas = 120;
             const setup = factionStartingUnits(hq.team, state.teamFactions);
             for (const group of setup) {
               for (let index = 0; index < group.count; index++) {
@@ -15451,7 +15738,7 @@
                 <div class="starlite-menu__modes" data-size-modes></div>
               </div>
               <label class="starlite-menu__identity starlite-hidden" data-ai-difficulty-wrap>
-                <span>AI DIFFICULTY</span><select data-ai-difficulty><option value="normal" selected>NORMAL</option></select>
+                <span>AI DIFFICULTY</span><select data-ai-difficulty><option value="easy">EASY</option><option value="normal" selected>NORMAL</option><option value="hard">HARD</option></select>
               </label>
               <p class="starlite-menu__status" data-size-status role="status" aria-live="polite"></p>
               <div class="starlite-hidden" aria-hidden="true">
