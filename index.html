@@ -24295,29 +24295,95 @@ function drawHeliasPylonStructure(s, x, y, team, light, flash) {
 }
 
 function drawHeliasGatewayStructure(s, x, y, team, light, flash) {
-  drawBuildingShadow(x - 3, y + 9, s.w + 6, s.h - 7);
-  drawClippedPlate(x - 2, y + 10, s.w + 4, s.h - 10, 8, flash ? '#ffffff' : '#5f4a1c', '#13171f');
-  drawClippedPlate(x + 1, y + 14, s.w - 2, s.h - 18, 7, flash ? '#ffffff' : '#b58b32', '#1a1f28');
-  drawClippedPlate(x + 4, y + 18, 12, s.h - 22, 4, flash ? '#ffffff' : '#7a5c24', '#0d1118');
-  drawClippedPlate(x + s.w - 16, y + 18, 12, s.h - 22, 4, flash ? '#ffffff' : '#7a5c24', '#0d1118');
-  ctx.fillStyle = '#0a0d17';
-  ctx.beginPath(); ctx.ellipse(s.x, y + 26, 13, 11, 0, 0, Math.PI * 2); ctx.fill();
-  const orbPulse = .62 + Math.sin(state.elapsed * 2.8 + s.id * .09) * .18;
-  ctx.strokeStyle = '#7cdfff'; ctx.lineWidth = 1.6 / cam.zoom;
-  ctx.beginPath(); ctx.ellipse(s.x, y + 26, 16, 13, 0, 0, Math.PI * 2); ctx.stroke();
-  ctx.globalAlpha = .32 + orbPulse * .18;
-  ctx.fillStyle = '#0e1020';
-  ctx.beginPath(); ctx.ellipse(s.x, y + 26, 11, 9, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.globalAlpha = .75 + orbPulse * .2;
-  ctx.fillStyle = '#7cdfff';
-  ctx.beginPath(); ctx.arc(s.x - 3, y + 23, 2.5, 0, Math.PI * 2); ctx.fill();
+  // Infantry warp shrine: a split golden arch makes the production role legible,
+  // while the animated aperture reads as the point where troops materialize.
+  const cy = y + s.h * .55;
+  const pulse = .62 + Math.sin(state.elapsed * 3.35 + s.id * .13) * .22;
+  const techLevel = typeof productionTechLevel === 'function'
+    ? productionTechLevel(s.team, s.type)
+    : Math.max(1, Math.trunc(s.level || 1));
+
+  drawBuildingShadow(x - 5, y + 9, s.w + 10, s.h - 6);
+  ctx.save();
+
+  // Octagonal foundation with a broad front ramp.
+  drawClippedPlate(x - 3, y + 13, s.w + 6, s.h - 13, 9, flash ? '#ffffff' : '#4b3915', '#0b1018');
+  drawClippedPlate(x + 3, y + 18, s.w - 6, s.h - 22, 7, flash ? '#ffffff' : '#947027', '#151b25');
+  ctx.fillStyle = flash ? '#ffffff' : '#d2ae54';
+  ctx.beginPath();
+  ctx.moveTo(s.x - 16, y + s.h - 5); ctx.lineTo(s.x + 16, y + s.h - 5);
+  ctx.lineTo(s.x + 10, y + s.h + 1); ctx.lineTo(s.x - 10, y + s.h + 1);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#8fe8ff';
+  ctx.fillRect(s.x - 8, y + s.h - 5, 16, 2);
+
+  // Twin crescent pylons form the unmistakable Gateway arch.
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.translate(s.x + side * 17, cy - 2);
+    ctx.scale(side, 1);
+    ctx.fillStyle = '#080d16';
+    ctx.beginPath();
+    ctx.moveTo(-2, 17); ctx.quadraticCurveTo(-8, -1, 3, -19);
+    ctx.lineTo(12, -12); ctx.quadraticCurveTo(4, -1, 9, 14);
+    ctx.lineTo(3, 20); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = flash ? '#ffffff' : '#c49a3d';
+    ctx.beginPath();
+    ctx.moveTo(1, 15); ctx.quadraticCurveTo(-4, -1, 5, -16);
+    ctx.lineTo(10, -11); ctx.quadraticCurveTo(4, 0, 8, 12);
+    ctx.lineTo(3, 17); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#f2dd8a'; ctx.lineWidth = 1.2 / cam.zoom;
+    ctx.beginPath(); ctx.moveTo(3, 12); ctx.quadraticCurveTo(0, -1, 7, -12); ctx.stroke();
+    ctx.fillStyle = '#8fe8ff';
+    ctx.beginPath(); ctx.ellipse(6, -7, 1.8, 5.5, -.25, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  // Deep blue warp aperture with rotating phase bands and inward-flowing motes.
+  ctx.fillStyle = '#030711';
+  ctx.beginPath(); ctx.ellipse(s.x, cy, 15, 18, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = .18 + pulse * .18;
+  ctx.fillStyle = '#2cc9ef';
+  ctx.beginPath(); ctx.ellipse(s.x, cy, 12 + pulse * 1.2, 15 + pulse * 1.6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = .88;
+  ctx.strokeStyle = '#a9f4ff'; ctx.lineWidth = 1.6 / cam.zoom;
+  for (let i = 0; i < 3; i++) {
+    const phase = state.elapsed * (1.15 + i * .12) + s.id * .07 + i * 2.1;
+    ctx.beginPath();
+    ctx.ellipse(s.x, cy, 10 + i * 2.5, 14 - i * 1.5, phase, phase + .25, phase + Math.PI * 1.16);
+    ctx.stroke();
+  }
+  for (let i = 0; i < 6; i++) {
+    const a = state.elapsed * 1.35 + s.id * .11 + i * Math.PI / 3;
+    const r = 9 + (i % 2) * 5;
+    ctx.fillStyle = i % 2 ? '#e8fdff' : '#67dcff';
+    ctx.beginPath(); ctx.arc(s.x + Math.cos(a) * r, cy + Math.sin(a) * r * 1.2, 1.4, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = 1;
-  drawGlowStrip(s.x - 18, y + 16, 10, 3, s.id * .17, '#d3b259', '#fff2a8');
-  drawGlowStrip(s.x + 8, y + 16, 10, 3, s.id * .17 + 1.2, '#d3b259', '#fff2a8');
-  drawTeamPanel(x + 5, y + s.h - 8, 8, 4, team, light);
-  drawTeamPanel(x + s.w - 13, y + s.h - 8, 8, 4, team, light);
+
+  // Level-two matrix adds visible secondary emitters rather than a generic badge.
+  if (techLevel >= 2) {
+    ctx.save(); ctx.translate(s.x, cy); ctx.rotate(-state.elapsed * .42 - s.id * .05);
+    ctx.strokeStyle = '#f1d77d'; ctx.lineWidth = 1.4 / cam.zoom;
+    ctx.setLineDash([4 / cam.zoom, 3 / cam.zoom]);
+    ctx.beginPath(); ctx.ellipse(0, 0, 25, 20, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]); ctx.restore();
+    for (const side of [-1, 1]) {
+      ctx.fillStyle = '#0a1019';
+      ctx.beginPath(); ctx.arc(s.x + side * 23, cy + 13, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#bff7ff';
+      ctx.beginPath(); ctx.arc(s.x + side * 23, cy + 13, 2.2 + pulse, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  drawTeamPanel(x + 4, y + s.h - 9, 9, 4, team, light);
+  drawTeamPanel(x + s.w - 13, y + s.h - 9, 9, 4, team, light);
+  ctx.restore();
   drawStructureLabel('GATEWAY', s, y, '#efe1a2');
 }
+
 
 
 function drawHeliasAssimilatorStructure(s, x, y, team, light, flash) {
@@ -24410,6 +24476,182 @@ function drawHeliasCyberCoreStructure(s, x, y, team, light, flash) {
   drawTeamPanel(x + s.w - 14, y + s.h - 8, 9, 4, team, light);
   drawGlowStrip(s.x - 14, y + s.h - 12, 28, 3, s.id * .14, '#d2af58', '#fff0aa');
   drawStructureLabel('CYBER CORE', s, y, '#efe1a2', 8);
+}
+
+
+function drawHeliasRoboticsFacilityStructure(s, x, y, team, light, flash) {
+  // Mechanical fabrication hall: an open assembly cradle, moving gantry and twin
+  // articulated arms visually communicate walkers and robotic support production.
+  const cy = y + s.h * .57;
+  const pulse = .58 + Math.sin(state.elapsed * 4.1 + s.id * .23) * .2;
+  const armPhase = Math.sin(state.elapsed * 1.7 + s.id * .17);
+  const techLevel = typeof productionTechLevel === 'function'
+    ? productionTechLevel(s.team, s.type)
+    : Math.max(1, Math.trunc(s.level || 1));
+
+  drawBuildingShadow(x - 6, y + 10, s.w + 12, s.h - 6);
+  ctx.save();
+  drawClippedPlate(x - 4, y + 12, s.w + 8, s.h - 13, 9, flash ? '#ffffff' : '#493816', '#0a0f17');
+
+  // U-shaped factory hull leaves the central fabrication floor visible.
+  for (const side of [-1, 1]) {
+    const px = side < 0 ? x + 1 : x + s.w - 19;
+    drawClippedPlate(px, y + 16, 18, s.h - 21, 5, flash ? '#ffffff' : '#b58b32', '#161c26');
+    ctx.fillStyle = '#0d1420';
+    ctx.fillRect(px + 5, y + 22, 8, s.h - 34);
+    drawGlowStrip(px + 5, y + 24, 8, 3, s.id * .15 + side, '#7bdfff', '#e4fcff');
+  }
+  drawClippedPlate(s.x - 15, y + 12, 30, 12, 5, flash ? '#ffffff' : '#d0ab50', '#18202b');
+
+  // Central production track and luminous walker chassis under assembly.
+  ctx.fillStyle = '#050a12';
+  ctx.beginPath(); ctx.ellipse(s.x, cy + 3, 16, 12, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#6edcff'; ctx.lineWidth = 1.2 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(s.x, cy + 3, 19, 14, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = '#273342';
+  ctx.fillRect(s.x - 11, cy + 9, 22, 4);
+  for (let i = -2; i <= 2; i++) {
+    ctx.fillStyle = i % 2 ? '#9eeeff' : '#6a7787';
+    ctx.fillRect(s.x + i * 4 - 1, cy + 10, 2, 2);
+  }
+  ctx.save(); ctx.translate(s.x, cy + 1);
+  ctx.fillStyle = flash ? '#ffffff' : '#c59a3e';
+  ctx.beginPath(); ctx.moveTo(-7, 5); ctx.lineTo(-5, -5); ctx.lineTo(0, -9); ctx.lineTo(5, -5); ctx.lineTo(7, 5); ctx.lineTo(2, 8); ctx.lineTo(-2, 8); ctx.closePath(); ctx.fill();
+  ctx.globalAlpha = .55 + pulse * .35;
+  ctx.fillStyle = '#8fe8ff'; ctx.fillRect(-2, -6, 4, 10);
+  ctx.globalAlpha = 1; ctx.restore();
+
+  // Articulated fabrication arms repeatedly close around the chassis.
+  for (const side of [-1, 1]) {
+    const shoulderX = s.x + side * 19;
+    const shoulderY = cy - 6;
+    const elbowX = s.x + side * (13 + armPhase * 2.5);
+    const elbowY = cy - 1 - Math.abs(armPhase) * 3;
+    const clawX = s.x + side * 8;
+    const clawY = cy + 3;
+    ctx.strokeStyle = flash ? '#ffffff' : '#d0aa4c';
+    ctx.lineWidth = 4 / cam.zoom; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(shoulderX, shoulderY); ctx.lineTo(elbowX, elbowY); ctx.lineTo(clawX, clawY); ctx.stroke();
+    ctx.fillStyle = '#0b111b';
+    ctx.beginPath(); ctx.arc(shoulderX, shoulderY, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#8fe8ff'; ctx.lineWidth = 1.2 / cam.zoom; ctx.stroke();
+    ctx.fillStyle = '#f0dc8c';
+    ctx.beginPath(); ctx.arc(elbowX, elbowY, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#aef2ff'; ctx.lineWidth = 1.3 / cam.zoom;
+    ctx.beginPath(); ctx.moveTo(clawX, clawY); ctx.lineTo(clawX + side * 4, clawY - 3); ctx.moveTo(clawX, clawY); ctx.lineTo(clawX + side * 4, clawY + 3); ctx.stroke();
+  }
+  ctx.lineCap = 'butt';
+
+  // Rear gantry scans the assembly floor.
+  ctx.strokeStyle = '#e3c66f'; ctx.lineWidth = 2 / cam.zoom;
+  ctx.beginPath(); ctx.moveTo(s.x - 18, y + 20); ctx.lineTo(s.x - 18, y + 9); ctx.lineTo(s.x + 18, y + 9); ctx.lineTo(s.x + 18, y + 20); ctx.stroke();
+  const scanX = s.x + Math.sin(state.elapsed * 1.2 + s.id) * 13;
+  ctx.globalAlpha = .35 + pulse * .22;
+  ctx.strokeStyle = '#77e3ff'; ctx.lineWidth = 2 / cam.zoom;
+  ctx.beginPath(); ctx.moveTo(scanX, y + 11); ctx.lineTo(scanX, cy + 8); ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  if (techLevel >= 2) {
+    // Colossus-grade upgrade adds heavy side assembly pods and a second scan rail.
+    for (const side of [-1, 1]) {
+      ctx.fillStyle = '#101722';
+      ctx.beginPath(); ctx.ellipse(s.x + side * 24, cy + 9, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#e0bd60'; ctx.lineWidth = 2 / cam.zoom; ctx.stroke();
+      ctx.fillStyle = '#8fe8ff'; ctx.fillRect(s.x + side * 24 - 1, cy + 4, 2, 9);
+    }
+    ctx.strokeStyle = '#8fe8ff'; ctx.lineWidth = 1 / cam.zoom;
+    ctx.beginPath(); ctx.moveTo(s.x - 14, y + 14); ctx.lineTo(s.x + 14, y + 14); ctx.stroke();
+  }
+
+  drawTeamPanel(x + 4, y + s.h - 9, 9, 4, team, light);
+  drawTeamPanel(x + s.w - 13, y + s.h - 9, 9, 4, team, light);
+  ctx.restore();
+  drawStructureLabel('ROBOTICS FACILITY', s, y, '#efe1a2', 8);
+}
+
+function drawHeliasStargateStructure(s, x, y, team, light, flash) {
+  // Air-production portal: a broad radial launch frame around a star-filled aperture
+  // reads as an orbital dock rather than another enclosed ground factory.
+  const cy = y + s.h * .54;
+  const pulse = .6 + Math.sin(state.elapsed * 3.2 + s.id * .19) * .22;
+  const techLevel = typeof productionTechLevel === 'function'
+    ? productionTechLevel(s.team, s.type)
+    : Math.max(1, Math.trunc(s.level || 1));
+
+  drawBuildingShadow(x - 7, y + 8, s.w + 14, s.h - 3);
+  ctx.save();
+
+  // Dark circular launch basin and four long golden flight prongs.
+  ctx.fillStyle = '#070b13';
+  ctx.beginPath(); ctx.ellipse(s.x, cy + 2, 27, 20, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = flash ? '#ffffff' : '#75591f'; ctx.lineWidth = 6 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(s.x, cy + 2, 24, 17, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = '#e1c266'; ctx.lineWidth = 1.5 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(s.x, cy + 2, 28, 21, 0, 0, Math.PI * 2); ctx.stroke();
+
+  for (let i = 0; i < 4; i++) {
+    const a = Math.PI / 4 + i * Math.PI / 2;
+    ctx.save(); ctx.translate(s.x + Math.cos(a) * 19, cy + 2 + Math.sin(a) * 14); ctx.rotate(a);
+    ctx.fillStyle = '#080d16';
+    ctx.beginPath(); ctx.moveTo(-7, -7); ctx.lineTo(24, 0); ctx.lineTo(-7, 7); ctx.lineTo(-1, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = flash ? '#ffffff' : '#be9137';
+    ctx.beginPath(); ctx.moveTo(-5, -5); ctx.lineTo(20, 0); ctx.lineTo(-5, 5); ctx.lineTo(1, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#f0dc8b';
+    ctx.beginPath(); ctx.moveTo(0, -2); ctx.lineTo(15, 0); ctx.lineTo(0, 2); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#8fe8ff'; ctx.fillRect(6, -1, 8, 2);
+    ctx.restore();
+  }
+
+  // Central starfield portal with counter-rotating launch rings.
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = .2 + pulse * .2;
+  ctx.fillStyle = '#2abfe8';
+  ctx.beginPath(); ctx.ellipse(s.x, cy + 2, 18 + pulse * 1.5, 13 + pulse, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = .92;
+  ctx.save(); ctx.translate(s.x, cy + 2); ctx.rotate(state.elapsed * .42 + s.id * .07);
+  ctx.strokeStyle = '#b9f7ff'; ctx.lineWidth = 1.5 / cam.zoom;
+  ctx.beginPath(); ctx.ellipse(0, 0, 20, 8, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.rotate(-state.elapsed * .93 - s.id * .11);
+  ctx.strokeStyle = '#79dcff';
+  ctx.beginPath(); ctx.ellipse(0, 0, 9, 17, 0, 0, Math.PI * 2); ctx.stroke();
+  for (let i = 0; i < 8; i++) {
+    const a = i * Math.PI / 4 + state.elapsed * .55;
+    const r = 7 + (i % 3) * 3;
+    ctx.fillStyle = i % 2 ? '#ffffff' : '#86eaff';
+    ctx.beginPath(); ctx.arc(Math.cos(a) * r, Math.sin(a) * r * .7, i % 3 === 0 ? 1.4 : .9, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+
+  // A tiny docked craft follows the launch ring, making the air role obvious.
+  const shipA = -state.elapsed * .68 - s.id * .09;
+  const shipX = s.x + Math.cos(shipA) * 20;
+  const shipY = cy + 2 + Math.sin(shipA) * 14;
+  ctx.save(); ctx.translate(shipX, shipY); ctx.rotate(shipA + Math.PI / 2);
+  ctx.fillStyle = '#e2c56e';
+  ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(5, 4); ctx.lineTo(0, 2); ctx.lineTo(-5, 4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#8fe8ff'; ctx.fillRect(-1, -2, 2, 4); ctx.restore();
+
+  if (techLevel >= 2) {
+    // Capital-ship calibration adds an outer segmented orbit and four dock beacons.
+    ctx.save(); ctx.translate(s.x, cy + 2); ctx.rotate(state.elapsed * .23 + s.id * .03);
+    ctx.strokeStyle = '#f0d77d'; ctx.lineWidth = 1.4 / cam.zoom;
+    ctx.setLineDash([5 / cam.zoom, 4 / cam.zoom]);
+    ctx.beginPath(); ctx.ellipse(0, 0, 31, 23, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]); ctx.restore();
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI / 2;
+      const bx = s.x + Math.cos(a) * 28;
+      const by = cy + 2 + Math.sin(a) * 21;
+      ctx.fillStyle = '#09101a'; ctx.beginPath(); ctx.arc(bx, by, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#c8f8ff'; ctx.beginPath(); ctx.arc(bx, by, 1.8 + pulse * .7, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  drawTeamPanel(x + 4, y + s.h - 8, 9, 4, team, light);
+  drawTeamPanel(x + s.w - 13, y + s.h - 8, 9, 4, team, light);
+  ctx.restore();
+  drawStructureLabel('STARGATE', s, y, '#9eeeff', 8);
 }
 
 function drawHeliasTechStructure(s, x, y, team, light, flash, label, variant = 'core') {
@@ -25642,8 +25884,8 @@ function drawStructureUpgradeDetails(s, x, y, team) {
   else if (s.type === 'heliasCyberCore') drawHeliasCyberCoreStructure(s, x, y, team, light, flash);
   else if (s.type === 'heliasForge') drawHeliasTechStructure(s, x, y, team, light, flash, 'FORGE', 'forge');
   else if (s.type === 'heliasTurret') drawHeliasTurretStructure(s, x, y, team, light, flash);
-  else if (s.type === 'heliasRoboticsFacility') drawHeliasTechStructure(s, x, y, team, light, flash, 'ROBOTICS', 'robotics');
-  else if (s.type === 'heliasStargate') drawHeliasTechStructure(s, x, y, team, light, flash, 'STARGATE', 'stargate');
+  else if (s.type === 'heliasRoboticsFacility') drawHeliasRoboticsFacilityStructure(s, x, y, team, light, flash);
+  else if (s.type === 'heliasStargate') drawHeliasStargateStructure(s, x, y, team, light, flash);
   else if (s.type === 'hq') drawHQStructure(s, x, y, team, light, flash);
   else if (s.type === 'turret') drawGroundTurretStructure(s, x, y, team, light, flash);
   else if (s.type === 'antiAirTurret') drawAntiAirTurretStructure(s, x, y, team, light, flash);
