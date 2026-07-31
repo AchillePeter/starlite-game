@@ -5254,6 +5254,11 @@
       function handleHQDestroyed(hq, attacker) {
         state.eliminatedTeams ||= new Set();
         if (state.eliminatedTeams.has(hq.team)) return;
+        const replacement = getLivingHQs().find(candidate => candidate.team === hq.team && candidate.id !== hq.id);
+        if (replacement) {
+          toast(`${teamLabel(hq.team)} Nexus destroyed · another Nexus remains operational.`, colorForTeam(hq.team, 'light'));
+          return;
+        }
         state.eliminatedTeams.add(hq.team);
         if (state.computerAIs?.[hq.team]) state.computerAIs[hq.team].active = false;
       
@@ -7880,6 +7885,7 @@
       
       const TURRET = { label: 'TURRET', costM: 70, costG: 40, hp: 260, sight: 150, range: 148, damage: 12, cooldown: .7, w: 30, h: 30, buildTime: 6 };
       const BUILDING_DATA = {
+        hq: { label: 'HQ', costM: 400, costG: 0, hp: 900, sight: 170, w: 60, h: 52, buildTime: 17 },
         turret: TURRET,
         antiAirTurret: { label: 'ANTI-AIR TURRET', costM: 115, costG: 90, hp: 300, sight: 230, range: 205, damage: 42, cooldown: 1.1, w: 34, h: 34, buildTime: 8 },
         radarTurret: { label: 'RADAR TURRET', costM: 130, costG: 115, hp: 280, sight: 105, radarRange: 760, w: 34, h: 34, buildTime: 8 },
@@ -8342,6 +8348,7 @@
             heliasCarrier: Object.freeze(['heliasStargate'])
           }),
           buildMenu: Object.freeze([
+            Object.freeze({ type: 'hq', purpose: 'resource drop-off and Luminant production · establishes an additional base', tone: 'economy' }),
             Object.freeze({ type: 'heliasPylon', purpose: '+8 population · projects a power field for nearby Helias structures', tone: 'economy' }),
             Object.freeze({ type: 'heliasGateway', purpose: 'warps in frontline Helias infantry · requires Pylon power', tone: 'military' }),
             Object.freeze({ type: 'heliasCyberCore', purpose: 'unlocks Rift Lancers and advanced Helias technology · requires Gateway and Pylon power', tone: 'research', unique: true, requires: ['heliasGateway'] }),
@@ -8669,7 +8676,7 @@
     Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "ADRENALINE_COOLDOWN", { enumerable: true, get: () => __dep1["ADRENALINE_COOLDOWN"] }); Object.defineProperty(__imports, "ADRENALINE_DURATION", { enumerable: true, get: () => __dep1["ADRENALINE_DURATION"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BASE_POP_CAP", { enumerable: true, get: () => __dep1["BASE_POP_CAP"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "INSECT_HIVE_EVOLUTION", { enumerable: true, get: () => __dep1["INSECT_HIVE_EVOLUTION"] }); Object.defineProperty(__imports, "INSECT_UNIT_MORPHS", { enumerable: true, get: () => __dep1["INSECT_UNIT_MORPHS"] }); Object.defineProperty(__imports, "INSECT_UPGRADES", { enumerable: true, get: () => __dep1["INSECT_UPGRADES"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_COST_MULTIPLIER", { enumerable: true, get: () => __dep1["HOUSING_COST_MULTIPLIER"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "SIMILAR_RESOURCE_DISTANCE", { enumerable: true, get: () => __dep1["SIMILAR_RESOURCE_DISTANCE"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "dist", { enumerable: true, get: () => __dep1["dist"] }); Object.defineProperty(__imports, "isAirUnitType", { enumerable: true, get: () => __dep1["isAirUnitType"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep1["isComputerTeam"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "isResourceHarvesterType", { enumerable: true, get: () => __dep1["isResourceHarvesterType"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamColor", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "factionBuildMenuEntries", { enumerable: true, get: () => __dep1["factionBuildMenuEntries"] }); Object.defineProperty(__imports, "factionCanUseBuilding", { enumerable: true, get: () => __dep1["factionCanUseBuilding"] }); Object.defineProperty(__imports, "factionCanUseUnit", { enumerable: true, get: () => __dep1["factionCanUseUnit"] }); Object.defineProperty(__imports, "factionProductionTypes", { enumerable: true, get: () => __dep1["factionProductionTypes"] }); Object.defineProperty(__imports, "factionUnitRequirements", { enumerable: true, get: () => __dep1["factionUnitRequirements"] }); Object.defineProperty(__imports, "insectHiveEvolutionSpec", { enumerable: true, get: () => __dep1["insectHiveEvolutionSpec"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep1["insectHiveTierLabel"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep1["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep1["factionUnitLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep2["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep2["random"] }); Object.defineProperty(__imports, "getNearestHostileHQ", { enumerable: true, get: () => __dep3["getNearestHostileHQ"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep4["addStructure"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep4["addUnit"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep4["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep4["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep4["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep4["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep4["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep5["isBlocked"] }); Object.defineProperty(__imports, "nearestOpenTile", { enumerable: true, get: () => __dep5["nearestOpenTile"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep5["terrain"] });
 
     with (__imports) {
-      Object.defineProperty(__exports, "MAX_LEVEL", { enumerable: true, get: () => MAX_LEVEL }); Object.defineProperty(__exports, "HELIAS_FORGE_UPGRADES", { enumerable: true, get: () => HELIAS_FORGE_UPGRADES }); Object.defineProperty(__exports, "heliasForgeRegistry", { enumerable: true, get: () => heliasForgeRegistry }); Object.defineProperty(__exports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => heliasForgeUpgradeOrders }); Object.defineProperty(__exports, "activateAdrenalineRush", { enumerable: true, get: () => activateAdrenalineRush }); Object.defineProperty(__exports, "adrenalineMenuItem", { enumerable: true, get: () => adrenalineMenuItem }); Object.defineProperty(__exports, "applyUnitUpgradeEffect", { enumerable: true, get: () => applyUnitUpgradeEffect }); Object.defineProperty(__exports, "applyCompletedInsectUpgradesToUnit", { enumerable: true, get: () => applyCompletedInsectUpgradesToUnit }); Object.defineProperty(__exports, "applyCompletedHeliasForgeUpgradesToUnit", { enumerable: true, get: () => applyCompletedHeliasForgeUpgradesToUnit }); Object.defineProperty(__exports, "assignBuildJob", { enumerable: true, get: () => assignBuildJob }); Object.defineProperty(__exports, "assignHarvest", { enumerable: true, get: () => assignHarvest }); Object.defineProperty(__exports, "beginProductionTechJob", { enumerable: true, get: () => beginProductionTechJob }); Object.defineProperty(__exports, "buildingCostFor", { enumerable: true, get: () => buildingCostFor }); Object.defineProperty(__exports, "buildingSellValue", { enumerable: true, get: () => buildingSellValue }); Object.defineProperty(__exports, "canAfford", { enumerable: true, get: () => canAfford }); Object.defineProperty(__exports, "cancelLaboratoryUpgrade", { enumerable: true, get: () => cancelLaboratoryUpgrade }); Object.defineProperty(__exports, "cancelMinersHutConversion", { enumerable: true, get: () => cancelMinersHutConversion }); Object.defineProperty(__exports, "cancelProductionItem", { enumerable: true, get: () => cancelProductionItem }); Object.defineProperty(__exports, "cancelFacilityResearchJob", { enumerable: true, get: () => cancelFacilityResearchJob }); Object.defineProperty(__exports, "cancelStructureUpgrade", { enumerable: true, get: () => cancelStructureUpgrade }); Object.defineProperty(__exports, "cancelTurretTechUpgrade", { enumerable: true, get: () => cancelTurretTechUpgrade }); Object.defineProperty(__exports, "clearBuildJob", { enumerable: true, get: () => clearBuildJob }); Object.defineProperty(__exports, "completeMinersHutConversion", { enumerable: true, get: () => completeMinersHutConversion }); Object.defineProperty(__exports, "completedUnitUpgradeLevel", { enumerable: true, get: () => completedUnitUpgradeLevel }); Object.defineProperty(__exports, "completedInsectUpgradeLevel", { enumerable: true, get: () => completedInsectUpgradeLevel }); Object.defineProperty(__exports, "committedInsectUpgradeLevel", { enumerable: true, get: () => committedInsectUpgradeLevel }); Object.defineProperty(__exports, "creditTeamResources", { enumerable: true, get: () => creditTeamResources }); Object.defineProperty(__exports, "constructBuilding", { enumerable: true, get: () => constructBuilding }); Object.defineProperty(__exports, "constructGasExtractor", { enumerable: true, get: () => constructGasExtractor }); Object.defineProperty(__exports, "creepTumorPlacementStatus", { enumerable: true, get: () => creepTumorPlacementStatus }); Object.defineProperty(__exports, "creepTumorCreepRadius", { enumerable: true, get: () => creepTumorCreepRadius }); Object.defineProperty(__exports, "placeCreepTumor", { enumerable: true, get: () => placeCreepTumor }); Object.defineProperty(__exports, "commandQueenInject", { enumerable: true, get: () => commandQueenInject }); Object.defineProperty(__exports, "activateQueenRegenerativePulse", { enumerable: true, get: () => activateQueenRegenerativePulse }); Object.defineProperty(__exports, "setQueenInjectAutocast", { enumerable: true, get: () => setQueenInjectAutocast }); Object.defineProperty(__exports, "unitMorphOptions", { enumerable: true, get: () => unitMorphOptions }); Object.defineProperty(__exports, "unitMorphRequirementStatus", { enumerable: true, get: () => unitMorphRequirementStatus }); Object.defineProperty(__exports, "startUnitMorph", { enumerable: true, get: () => startUnitMorph }); Object.defineProperty(__exports, "cancelUnitMorph", { enumerable: true, get: () => cancelUnitMorph }); Object.defineProperty(__exports, "updateUnitMorph", { enumerable: true, get: () => updateUnitMorph }); Object.defineProperty(__exports, "enemyPopulationCap", { enumerable: true, get: () => enemyPopulationCap }); Object.defineProperty(__exports, "enemyPopulationUsed", { enumerable: true, get: () => enemyPopulationUsed }); Object.defineProperty(__exports, "fieldHasDropoff", { enumerable: true, get: () => fieldHasDropoff }); Object.defineProperty(__exports, "fieldHasResources", { enumerable: true, get: () => fieldHasResources }); Object.defineProperty(__exports, "gasExtractionReady", { enumerable: true, get: () => gasExtractionReady }); Object.defineProperty(__exports, "gasExtractorFor", { enumerable: true, get: () => gasExtractorFor }); Object.defineProperty(__exports, "hasOperationalPlayerStructure", { enumerable: true, get: () => hasOperationalPlayerStructure }); Object.defineProperty(__exports, "hasOperationalTeamStructure", { enumerable: true, get: () => hasOperationalTeamStructure }); Object.defineProperty(__exports, "hasPlayerStructure", { enumerable: true, get: () => hasPlayerStructure }); Object.defineProperty(__exports, "hasTeamStructure", { enumerable: true, get: () => hasTeamStructure }); Object.defineProperty(__exports, "housingCapacity", { enumerable: true, get: () => housingCapacity }); Object.defineProperty(__exports, "incomeRates", { enumerable: true, get: () => incomeRates }); Object.defineProperty(__exports, "insectHiveLarvae", { enumerable: true, get: () => insectHiveLarvae }); Object.defineProperty(__exports, "insectUpgradeOrders", { enumerable: true, get: () => insectUpgradeOrders }); Object.defineProperty(__exports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => insectUpgradeRequirementStatus }); Object.defineProperty(__exports, "isPointOnInsectCreep", { enumerable: true, get: () => isPointOnInsectCreep }); Object.defineProperty(__exports, "isHarvestableResource", { enumerable: true, get: () => isHarvestableResource }); Object.defineProperty(__exports, "isProductionBuilding", { enumerable: true, get: () => isProductionBuilding }); Object.defineProperty(__exports, "isResourceDropoff", { enumerable: true, get: () => isResourceDropoff }); Object.defineProperty(__exports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => LAB_UPGRADE_QUEUE_LIMIT }); Object.defineProperty(__exports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => labCommittedUnitUpgradeLevel }); Object.defineProperty(__exports, "labUpgradeForJob", { enumerable: true, get: () => labUpgradeForJob }); Object.defineProperty(__exports, "labUpgradeOrders", { enumerable: true, get: () => labUpgradeOrders }); Object.defineProperty(__exports, "minersHutOptionAvailableAt", { enumerable: true, get: () => minersHutOptionAvailableAt }); Object.defineProperty(__exports, "nearestAvailableForager", { enumerable: true, get: () => nearestAvailableForager }); Object.defineProperty(__exports, "nearestDropoff", { enumerable: true, get: () => nearestDropoff }); Object.defineProperty(__exports, "nearestResource", { enumerable: true, get: () => nearestResource }); Object.defineProperty(__exports, "playerCreatableUnitTypes", { enumerable: true, get: () => playerCreatableUnitTypes }); Object.defineProperty(__exports, "populationCap", { enumerable: true, get: () => populationCap }); Object.defineProperty(__exports, "populationUsed", { enumerable: true, get: () => populationUsed }); Object.defineProperty(__exports, "productionTechJob", { enumerable: true, get: () => productionTechJob }); Object.defineProperty(__exports, "productionTechLevel", { enumerable: true, get: () => productionTechLevel }); Object.defineProperty(__exports, "productionTechPeers", { enumerable: true, get: () => productionTechPeers }); Object.defineProperty(__exports, "productionTypesFor", { enumerable: true, get: () => productionTypesFor }); Object.defineProperty(__exports, "queueUnit", { enumerable: true, get: () => queueUnit }); Object.defineProperty(__exports, "queueUnitAcross", { enumerable: true, get: () => queueUnitAcross }); Object.defineProperty(__exports, "resourceDropoffForNode", { enumerable: true, get: () => resourceDropoffForNode }); Object.defineProperty(__exports, "resolveBuildingPlacement", { enumerable: true, get: () => resolveBuildingPlacement }); Object.defineProperty(__exports, "resourceDropoffMultiplier", { enumerable: true, get: () => resourceDropoffMultiplier }); Object.defineProperty(__exports, "sellBuilding", { enumerable: true, get: () => sellBuilding }); Object.defineProperty(__exports, "resumeForaging", { enumerable: true, get: () => resumeForaging }); Object.defineProperty(__exports, "roboMinerCapacity", { enumerable: true, get: () => roboMinerCapacity }); Object.defineProperty(__exports, "roboMinerCommitted", { enumerable: true, get: () => roboMinerCommitted }); Object.defineProperty(__exports, "startMinersHutConversion", { enumerable: true, get: () => startMinersHutConversion }); Object.defineProperty(__exports, "startProductionUpgrade", { enumerable: true, get: () => startProductionUpgrade }); Object.defineProperty(__exports, "startGatewayTransformation", { enumerable: true, get: () => startGatewayTransformation }); Object.defineProperty(__exports, "gatewayTransformReady", { enumerable: true, get: () => gatewayTransformReady }); Object.defineProperty(__exports, "warpTechnologyResearched", { enumerable: true, get: () => warpTechnologyResearched }); Object.defineProperty(__exports, "startInsectUpgrade", { enumerable: true, get: () => startInsectUpgrade }); Object.defineProperty(__exports, "startTurretTechUpgrade", { enumerable: true, get: () => startTurretTechUpgrade }); Object.defineProperty(__exports, "startUnitUpgrade", { enumerable: true, get: () => startUnitUpgrade }); Object.defineProperty(__exports, "structureHasCancelableUpgrade", { enumerable: true, get: () => structureHasCancelableUpgrade }); Object.defineProperty(__exports, "structureLabel", { enumerable: true, get: () => structureLabel }); Object.defineProperty(__exports, "teamEconomyState", { enumerable: true, get: () => teamEconomyState }); Object.defineProperty(__exports, "teamPopulationCap", { enumerable: true, get: () => teamPopulationCap }); Object.defineProperty(__exports, "teamPopulationUsed", { enumerable: true, get: () => teamPopulationUsed }); Object.defineProperty(__exports, "toast", { enumerable: true, get: () => toast }); Object.defineProperty(__exports, "turretTechLevelFor", { enumerable: true, get: () => turretTechLevelFor }); Object.defineProperty(__exports, "unitBuildTimeFor", { enumerable: true, get: () => unitBuildTimeFor }); Object.defineProperty(__exports, "updateProduction", { enumerable: true, get: () => updateProduction }); Object.defineProperty(__exports, "upgradeCost", { enumerable: true, get: () => upgradeCost }); Object.defineProperty(__exports, "upgradeHousing", { enumerable: true, get: () => upgradeHousing }); Object.defineProperty(__exports, "upgradeStructure", { enumerable: true, get: () => upgradeStructure });
+      Object.defineProperty(__exports, "MAX_LEVEL", { enumerable: true, get: () => MAX_LEVEL }); Object.defineProperty(__exports, "HELIAS_FORGE_UPGRADES", { enumerable: true, get: () => HELIAS_FORGE_UPGRADES }); Object.defineProperty(__exports, "heliasForgeRegistry", { enumerable: true, get: () => heliasForgeRegistry }); Object.defineProperty(__exports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => heliasForgeUpgradeOrders }); Object.defineProperty(__exports, "activateAdrenalineRush", { enumerable: true, get: () => activateAdrenalineRush }); Object.defineProperty(__exports, "adrenalineMenuItem", { enumerable: true, get: () => adrenalineMenuItem }); Object.defineProperty(__exports, "applyUnitUpgradeEffect", { enumerable: true, get: () => applyUnitUpgradeEffect }); Object.defineProperty(__exports, "applyCompletedInsectUpgradesToUnit", { enumerable: true, get: () => applyCompletedInsectUpgradesToUnit }); Object.defineProperty(__exports, "applyCompletedHeliasForgeUpgradesToUnit", { enumerable: true, get: () => applyCompletedHeliasForgeUpgradesToUnit }); Object.defineProperty(__exports, "assignBuildJob", { enumerable: true, get: () => assignBuildJob }); Object.defineProperty(__exports, "assignHarvest", { enumerable: true, get: () => assignHarvest }); Object.defineProperty(__exports, "beginProductionTechJob", { enumerable: true, get: () => beginProductionTechJob }); Object.defineProperty(__exports, "buildingCostFor", { enumerable: true, get: () => buildingCostFor }); Object.defineProperty(__exports, "buildingSellValue", { enumerable: true, get: () => buildingSellValue }); Object.defineProperty(__exports, "canAfford", { enumerable: true, get: () => canAfford }); Object.defineProperty(__exports, "cancelLaboratoryUpgrade", { enumerable: true, get: () => cancelLaboratoryUpgrade }); Object.defineProperty(__exports, "cancelMinersHutConversion", { enumerable: true, get: () => cancelMinersHutConversion }); Object.defineProperty(__exports, "cancelProductionItem", { enumerable: true, get: () => cancelProductionItem }); Object.defineProperty(__exports, "cancelFacilityResearchJob", { enumerable: true, get: () => cancelFacilityResearchJob }); Object.defineProperty(__exports, "cancelStructureUpgrade", { enumerable: true, get: () => cancelStructureUpgrade }); Object.defineProperty(__exports, "cancelTurretTechUpgrade", { enumerable: true, get: () => cancelTurretTechUpgrade }); Object.defineProperty(__exports, "clearBuildJob", { enumerable: true, get: () => clearBuildJob }); Object.defineProperty(__exports, "completeMinersHutConversion", { enumerable: true, get: () => completeMinersHutConversion }); Object.defineProperty(__exports, "completedUnitUpgradeLevel", { enumerable: true, get: () => completedUnitUpgradeLevel }); Object.defineProperty(__exports, "completedInsectUpgradeLevel", { enumerable: true, get: () => completedInsectUpgradeLevel }); Object.defineProperty(__exports, "committedInsectUpgradeLevel", { enumerable: true, get: () => committedInsectUpgradeLevel }); Object.defineProperty(__exports, "creditTeamResources", { enumerable: true, get: () => creditTeamResources }); Object.defineProperty(__exports, "constructBuilding", { enumerable: true, get: () => constructBuilding }); Object.defineProperty(__exports, "constructGasExtractor", { enumerable: true, get: () => constructGasExtractor }); Object.defineProperty(__exports, "creepTumorPlacementStatus", { enumerable: true, get: () => creepTumorPlacementStatus }); Object.defineProperty(__exports, "creepTumorCreepRadius", { enumerable: true, get: () => creepTumorCreepRadius }); Object.defineProperty(__exports, "placeCreepTumor", { enumerable: true, get: () => placeCreepTumor }); Object.defineProperty(__exports, "commandQueenInject", { enumerable: true, get: () => commandQueenInject }); Object.defineProperty(__exports, "activateQueenRegenerativePulse", { enumerable: true, get: () => activateQueenRegenerativePulse }); Object.defineProperty(__exports, "setQueenInjectAutocast", { enumerable: true, get: () => setQueenInjectAutocast }); Object.defineProperty(__exports, "unitMorphOptions", { enumerable: true, get: () => unitMorphOptions }); Object.defineProperty(__exports, "unitMorphRequirementStatus", { enumerable: true, get: () => unitMorphRequirementStatus }); Object.defineProperty(__exports, "startUnitMorph", { enumerable: true, get: () => startUnitMorph }); Object.defineProperty(__exports, "cancelUnitMorph", { enumerable: true, get: () => cancelUnitMorph }); Object.defineProperty(__exports, "updateUnitMorph", { enumerable: true, get: () => updateUnitMorph }); Object.defineProperty(__exports, "enemyPopulationCap", { enumerable: true, get: () => enemyPopulationCap }); Object.defineProperty(__exports, "enemyPopulationUsed", { enumerable: true, get: () => enemyPopulationUsed }); Object.defineProperty(__exports, "fieldHasDropoff", { enumerable: true, get: () => fieldHasDropoff }); Object.defineProperty(__exports, "fieldHasResources", { enumerable: true, get: () => fieldHasResources }); Object.defineProperty(__exports, "gasExtractionReady", { enumerable: true, get: () => gasExtractionReady }); Object.defineProperty(__exports, "gasExtractorFor", { enumerable: true, get: () => gasExtractorFor }); Object.defineProperty(__exports, "hasOperationalPlayerStructure", { enumerable: true, get: () => hasOperationalPlayerStructure }); Object.defineProperty(__exports, "hasOperationalTeamStructure", { enumerable: true, get: () => hasOperationalTeamStructure }); Object.defineProperty(__exports, "hasPlayerStructure", { enumerable: true, get: () => hasPlayerStructure }); Object.defineProperty(__exports, "hasTeamStructure", { enumerable: true, get: () => hasTeamStructure }); Object.defineProperty(__exports, "housingCapacity", { enumerable: true, get: () => housingCapacity }); Object.defineProperty(__exports, "incomeRates", { enumerable: true, get: () => incomeRates }); Object.defineProperty(__exports, "insectHiveLarvae", { enumerable: true, get: () => insectHiveLarvae }); Object.defineProperty(__exports, "insectUpgradeOrders", { enumerable: true, get: () => insectUpgradeOrders }); Object.defineProperty(__exports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => insectUpgradeRequirementStatus }); Object.defineProperty(__exports, "isPointOnInsectCreep", { enumerable: true, get: () => isPointOnInsectCreep }); Object.defineProperty(__exports, "isHarvestableResource", { enumerable: true, get: () => isHarvestableResource }); Object.defineProperty(__exports, "isProductionBuilding", { enumerable: true, get: () => isProductionBuilding }); Object.defineProperty(__exports, "isResourceDropoff", { enumerable: true, get: () => isResourceDropoff }); Object.defineProperty(__exports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => LAB_UPGRADE_QUEUE_LIMIT }); Object.defineProperty(__exports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => labCommittedUnitUpgradeLevel }); Object.defineProperty(__exports, "labUpgradeForJob", { enumerable: true, get: () => labUpgradeForJob }); Object.defineProperty(__exports, "labUpgradeOrders", { enumerable: true, get: () => labUpgradeOrders }); Object.defineProperty(__exports, "minersHutOptionAvailableAt", { enumerable: true, get: () => minersHutOptionAvailableAt }); Object.defineProperty(__exports, "nearestAvailableForager", { enumerable: true, get: () => nearestAvailableForager }); Object.defineProperty(__exports, "nearestDropoff", { enumerable: true, get: () => nearestDropoff }); Object.defineProperty(__exports, "nearestResource", { enumerable: true, get: () => nearestResource }); Object.defineProperty(__exports, "playerCreatableUnitTypes", { enumerable: true, get: () => playerCreatableUnitTypes }); Object.defineProperty(__exports, "populationCap", { enumerable: true, get: () => populationCap }); Object.defineProperty(__exports, "populationUsed", { enumerable: true, get: () => populationUsed }); Object.defineProperty(__exports, "productionTechJob", { enumerable: true, get: () => productionTechJob }); Object.defineProperty(__exports, "productionTechLevel", { enumerable: true, get: () => productionTechLevel }); Object.defineProperty(__exports, "productionTechPeers", { enumerable: true, get: () => productionTechPeers }); Object.defineProperty(__exports, "productionTypesFor", { enumerable: true, get: () => productionTypesFor }); Object.defineProperty(__exports, "queueUnit", { enumerable: true, get: () => queueUnit }); Object.defineProperty(__exports, "queueUnitAcross", { enumerable: true, get: () => queueUnitAcross }); Object.defineProperty(__exports, "queueWarpInAcross", { enumerable: true, get: () => queueWarpInAcross }); Object.defineProperty(__exports, "resourceDropoffForNode", { enumerable: true, get: () => resourceDropoffForNode }); Object.defineProperty(__exports, "resolveBuildingPlacement", { enumerable: true, get: () => resolveBuildingPlacement }); Object.defineProperty(__exports, "resourceDropoffMultiplier", { enumerable: true, get: () => resourceDropoffMultiplier }); Object.defineProperty(__exports, "sellBuilding", { enumerable: true, get: () => sellBuilding }); Object.defineProperty(__exports, "resumeForaging", { enumerable: true, get: () => resumeForaging }); Object.defineProperty(__exports, "roboMinerCapacity", { enumerable: true, get: () => roboMinerCapacity }); Object.defineProperty(__exports, "roboMinerCommitted", { enumerable: true, get: () => roboMinerCommitted }); Object.defineProperty(__exports, "startMinersHutConversion", { enumerable: true, get: () => startMinersHutConversion }); Object.defineProperty(__exports, "startProductionUpgrade", { enumerable: true, get: () => startProductionUpgrade }); Object.defineProperty(__exports, "startGatewayTransformation", { enumerable: true, get: () => startGatewayTransformation }); Object.defineProperty(__exports, "gatewayTransformReady", { enumerable: true, get: () => gatewayTransformReady }); Object.defineProperty(__exports, "warpGateReady", { enumerable: true, get: () => warpGateReady }); Object.defineProperty(__exports, "warpGateCooldownFor", { enumerable: true, get: () => warpGateCooldownFor }); Object.defineProperty(__exports, "warpTechnologyResearched", { enumerable: true, get: () => warpTechnologyResearched }); Object.defineProperty(__exports, "startInsectUpgrade", { enumerable: true, get: () => startInsectUpgrade }); Object.defineProperty(__exports, "startTurretTechUpgrade", { enumerable: true, get: () => startTurretTechUpgrade }); Object.defineProperty(__exports, "startUnitUpgrade", { enumerable: true, get: () => startUnitUpgrade }); Object.defineProperty(__exports, "structureHasCancelableUpgrade", { enumerable: true, get: () => structureHasCancelableUpgrade }); Object.defineProperty(__exports, "structureLabel", { enumerable: true, get: () => structureLabel }); Object.defineProperty(__exports, "teamEconomyState", { enumerable: true, get: () => teamEconomyState }); Object.defineProperty(__exports, "teamPopulationCap", { enumerable: true, get: () => teamPopulationCap }); Object.defineProperty(__exports, "teamPopulationUsed", { enumerable: true, get: () => teamPopulationUsed }); Object.defineProperty(__exports, "toast", { enumerable: true, get: () => toast }); Object.defineProperty(__exports, "turretTechLevelFor", { enumerable: true, get: () => turretTechLevelFor }); Object.defineProperty(__exports, "unitBuildTimeFor", { enumerable: true, get: () => unitBuildTimeFor }); Object.defineProperty(__exports, "updateProduction", { enumerable: true, get: () => updateProduction }); Object.defineProperty(__exports, "upgradeCost", { enumerable: true, get: () => upgradeCost }); Object.defineProperty(__exports, "upgradeHousing", { enumerable: true, get: () => upgradeHousing }); Object.defineProperty(__exports, "upgradeStructure", { enumerable: true, get: () => upgradeStructure });
       // Harvesting, construction, production, research, upgrades, and related queues.
       // Extracted from the original single-file build; gameplay logic is intentionally unchanged.
       
@@ -8745,10 +8752,24 @@
       }
 
       const HELIAS_WARP_GATE_TRANSFORM_TIME = 5;
-      const HELIAS_WARP_GATE_TIME_MULTIPLIER = .45;
+      const HELIAS_WARP_IN_TIME = 3;
 
       function warpTechnologyResearched(team = 'player') {
         return productionTechLevel(team, 'heliasGateway') >= 2;
+      }
+
+      function warpGateCooldownFor(type, gateway = null) {
+        const base = UNIT_DATA[type]?.buildTime || 1;
+        const level = productionTechLevel(gateway?.team || 'player', 'heliasGateway');
+        const multiplier = PRODUCTION_TECH.heliasGateway?.upgrades?.[level]?.productionTimeMultiplier || 1;
+        return Math.max(1, Math.round(base * multiplier * 10) / 10);
+      }
+
+      function warpGateReady(gateway, type = null) {
+        if (!gateway || gateway.type !== 'heliasGateway' || !gateway.warpGate || gateway.hp <= 0 || gateway.underConstruction) return false;
+        if (gateway.gatewayTransformJob || gateway.warpInJob || (gateway.warpGateCooldownLeft || 0) > 0) return false;
+        if (!heliaStructurePowered(gateway)) return false;
+        return !type || productionTypesFor(gateway).includes(type);
       }
 
       function gatewayTransformReady(gateway, toWarpGate = true) {
@@ -8756,7 +8777,7 @@
         if (!isHeliasTeam(gateway.team) || gateway.gatewayTransformJob) return false;
         if (!!gateway.warpGate === !!toWarpGate) return false;
         if (toWarpGate && !warpTechnologyResearched(gateway.team)) return false;
-        if (!heliaStructurePowered(gateway) || gateway.queue?.length) return false;
+        if (!heliaStructurePowered(gateway) || gateway.queue?.length || gateway.warpInJob || (gateway.warpGateCooldownLeft || 0) > 0) return false;
         return true;
       }
 
@@ -8775,8 +8796,8 @@
           toast('The Gateway is unpowered. Restore a nearby Pylon before transforming.', COLORS.warn, gateway.team);
           return false;
         }
-        if (gateway.queue?.length) {
-          toast('Finish or cancel the production queue before transforming this Gateway.', COLORS.warn, gateway.team);
+        if (gateway.queue?.length || gateway.warpInJob || (gateway.warpGateCooldownLeft || 0) > 0) {
+          toast('Finish the active queue, warp-in or cooldown before changing this Gateway configuration.', COLORS.warn, gateway.team);
           return false;
         }
         gateway.gatewayTransformJob = {
@@ -8793,6 +8814,8 @@
         if (!gateway || !job) return false;
         gateway.warpGate = !!job.toWarpGate;
         gateway.gatewayTransformJob = null;
+        gateway.warpInJob = null;
+        gateway.warpGateCooldownLeft = 0;
         burst(gateway.x, gateway.y, gateway.warpGate ? '#c8fbff' : '#f2d77d', 28, true);
         toast(`${gateway.warpGate ? 'WARP GATE' : 'GATEWAY'} configuration complete.`, COLORS.good, gateway.team);
         if (state.localCommandTeams?.includes(gateway.team)) state.requestBuildMenu = true;
@@ -8800,7 +8823,7 @@
       }
 
       function productionQueueLimit(producer) {
-        if (producer?.type === 'heliasGateway' && producer.warpGate) return 1;
+        if (producer?.type === 'heliasGateway' && producer.warpGate) return 0;
         return isInsectHive(producer) ? 12 : 6;
       }
 
@@ -9381,11 +9404,14 @@
         }, 0);
         const queued = structures.reduce((sum, s) => {
           if (s.team !== team || s.hp <= 0) return sum;
-          return sum + s.queue.reduce((qSum, item) => {
+          const queuedPop = s.queue.reduce((qSum, item) => {
             const data = UNIT_DATA[item.type];
             const count = Math.max(1, Math.trunc(item.spawnCount || data?.spawnCount || 1));
             return qSum + (data?.pop ?? 1) * count;
           }, 0);
+          const warpData = s.warpInJob ? UNIT_DATA[s.warpInJob.type] : null;
+          const warpCount = s.warpInJob ? Math.max(1, Math.trunc(s.warpInJob.spawnCount || warpData?.spawnCount || 1)) : 0;
+          return sum + queuedPop + (warpData?.pop ?? 1) * warpCount;
         }, 0);
         return living + queued;
       }
@@ -10463,10 +10489,7 @@
         const rapidGestation = isInsectHive(producer) && completedInsectUpgradeLevel('rapidGestation', producer.team) >= 1
           ? (INSECT_UPGRADES.rapidGestation.productionTimeMultiplier || 1)
           : 1;
-        const warpGateMultiplier = producer?.type === 'heliasGateway' && producer.warpGate
-          ? HELIAS_WARP_GATE_TIME_MULTIPLIER
-          : 1;
-        return Math.max(1, Math.round(base * humanMultiplier * rapidGestation * warpGateMultiplier * 10) / 10);
+        return Math.max(1, Math.round(base * humanMultiplier * rapidGestation * 10) / 10);
       }
       
       function playerCreatableUnitTypes(team = 'player') {
@@ -10538,9 +10561,111 @@
       }
       
       // Queue a unit at the building that is able to produce it.
+      function warpInPlacementError(team, type, point) {
+        const data = UNIT_DATA[type];
+        if (!data || !point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) return 'Choose a warp-in point on the battlefield.';
+        const tx = clamp(Math.floor(point.x / TILE), 0, COLS - 1);
+        const ty = clamp(Math.floor(point.y / TILE), 0, ROWS - 1);
+        const cx = tx * TILE + TILE / 2;
+        const cy = ty * TILE + TILE / 2;
+        if (terrain[ty][tx] !== 0) return 'Warp-ins require open ground.';
+        if (!pointHasHeliasPower(team, cx, cy)) return 'Warp-ins must be placed inside an operational Pylon power field.';
+        const radius = Math.max(6, data.radius || 8);
+        for (const structure of structures) {
+          if (structure.hp <= 0) continue;
+          if (Math.abs(structure.x - cx) < (structure.w || 40) / 2 + radius + 3 &&
+              Math.abs(structure.y - cy) < (structure.h || 38) / 2 + radius + 3) return 'That warp-in point is occupied by a structure.';
+        }
+        if (!isAirUnitType(type)) {
+          for (const unit of units) {
+            if (unit.hp <= 0 || isAirUnitType(unit.type)) continue;
+            if (Math.hypot(unit.x - cx, unit.y - cy) < (unit.radius || 8) + radius + 3) return 'That warp-in point is occupied by a ground unit.';
+          }
+        }
+        return null;
+      }
+
+      function resolveWarpInPoint(team, type, point, maximumRadius = 4) {
+        if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) return null;
+        const originTx = clamp(Math.floor(point.x / TILE), 0, COLS - 1);
+        const originTy = clamp(Math.floor(point.y / TILE), 0, ROWS - 1);
+        for (let radius = 0; radius <= maximumRadius; radius++) {
+          for (let oy = -radius; oy <= radius; oy++) {
+            for (let ox = -radius; ox <= radius; ox++) {
+              if (Math.max(Math.abs(ox), Math.abs(oy)) !== radius) continue;
+              const tx = clamp(originTx + ox, 0, COLS - 1);
+              const ty = clamp(originTy + oy, 0, ROWS - 1);
+              const candidate = { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 };
+              if (!warpInPlacementError(team, type, candidate)) return candidate;
+            }
+          }
+        }
+        return null;
+      }
+
+      function queueWarpInAcross(type, gateways, point, team = gateways?.find(Boolean)?.team || 'player') {
+        if (state.gameOver) return false;
+        const data = UNIT_DATA[type];
+        const group = [...new Map((gateways || []).filter(Boolean).map(gateway => [gateway.id, gateway])).values()]
+          .filter(gateway => gateway.team === team && gateway.type === 'heliasGateway' && gateway.warpGate && gateway.hp > 0 && !gateway.underConstruction)
+          .sort((a, b) => a.id - b.id);
+        if (!data || !group.length || !factionCanUseUnit(team, type, state.teamFactions)) {
+          toast('No selected Warp Gate can deploy that unit.', COLORS.warn, team);
+          return false;
+        }
+        if (!unitPrerequisitesMet(type, team)) {
+          toast('A prerequisite Helias structure is required before this unit can warp in.', COLORS.warn, team);
+          return false;
+        }
+        const ready = group.filter(gateway => warpGateReady(gateway, type));
+        if (!ready.length) {
+          toast('Every selected Warp Gate is unpowered, materialising a unit or recharging.', COLORS.warn, team);
+          return false;
+        }
+        const spawnCount = Math.max(1, Math.trunc(data.spawnCount || 1));
+        if (teamPopulationUsed(team) + (data.pop ?? 1) * spawnCount > teamPopulationCap(team)) {
+          toast('Population cap reached — warp in another Pylon.', COLORS.warn, team);
+          return false;
+        }
+        if (!canAfford(data.costM, data.costG, team)) {
+          toast('Not enough resources.', COLORS.bad, team);
+          return false;
+        }
+        const warpPoint = resolveWarpInPoint(team, type, point);
+        if (!warpPoint) {
+          toast(warpInPlacementError(team, type, point) || 'No open powered warp-in point is available nearby.', COLORS.warn, team);
+          return false;
+        }
+        const key = `warp:${type}:${group.map(gateway => gateway.id).join(',')}`;
+        const start = (state.productionRoundRobin[key] || 0) % group.length;
+        let gateway = null;
+        for (let offset = 0; offset < group.length; offset++) {
+          const candidate = group[(start + offset) % group.length];
+          if (ready.includes(candidate)) { gateway = candidate; break; }
+        }
+        if (!gateway) return false;
+        pay(data.costM, data.costG, team);
+        gateway.warpInJob = {
+          type, point: warpPoint, timeLeft: HELIAS_WARP_IN_TIME, total: HELIAS_WARP_IN_TIME,
+          costM: data.costM, costG: data.costG, spawnCount
+        };
+        gateway.warpGateCooldownLeft = warpGateCooldownFor(type, gateway);
+        state.productionRoundRobin[key] = (group.indexOf(gateway) + 1) % group.length;
+        addEffect('muzzleRing', { x: warpPoint.x, y: warpPoint.y, angle: 0, color: '#bff7ff', radius: 20, intensity: 1.9, life: .5 });
+        burst(warpPoint.x, warpPoint.y, '#9eeeff', 22, true, { shape: 'spark', lifeMin: .12, lifeMax: .55, sizeMin: 1, sizeMax: 4, speedMin: 22, speedMax: 105, alpha: .95 });
+        toast(`${factionUnitLabel(type, team, state.teamFactions)} materialising (${HELIAS_WARP_IN_TIME}s) · Warp Gate cooldown ${Math.ceil(gateway.warpGateCooldownLeft)}s.`, COLORS.good, team);
+        return true;
+      }
+
       function queueUnit(type, producer) {
         if (state.gameOver) return false;
         const d = UNIT_DATA[type];
+        if (producer?.type === 'heliasGateway' && producer.warpGate) {
+          const preferred = producer.spawnFlag && pointHasHeliasPower(producer.team, producer.spawnFlag.x, producer.spawnFlag.y)
+            ? producer.spawnFlag
+            : { x: producer.x, y: producer.y };
+          return queueWarpInAcross(type, [producer], preferred, producer.team);
+        }
         if (producer && !heliaStructurePowered(producer)) {
           toast(`${factionStructureLabel(producer.type, producer.team, state.teamFactions)} is unpowered. Restore a nearby Pylon before warping units.`, COLORS.warn, producer.team);
           return false;
@@ -10623,7 +10748,11 @@
         const group = [...new Map((producers || []).filter(Boolean).map(s => [s.id, s])).values()]
           .filter(s => s.team === team && s.hp > 0 && !s.underConstruction)
           .sort((a, b) => a.id - b.id);
-        const eligible = group.filter(s => !s.conversionJob && productionTypesFor(s).includes(type));
+        if (group.length && group.every(s => s.type === 'heliasGateway' && s.warpGate)) {
+          const anchor = group.find(s => s.spawnFlag && pointHasHeliasPower(team, s.spawnFlag.x, s.spawnFlag.y))?.spawnFlag || group[0];
+          return queueWarpInAcross(type, group, anchor, team);
+        }
+        const eligible = group.filter(s => !s.warpGate && !s.conversionJob && productionTypesFor(s).includes(type));
         if (!eligible.length) {
           toast('None of the selected buildings can train this unit yet.', COLORS.warn);
           return false;
@@ -10747,6 +10876,12 @@
           refundG += item.costG ?? data.costG ?? 0;
         }
         if (Array.isArray(s.queue)) s.queue.length = 0;
+        if (s.warpInJob) {
+          refundM += s.warpInJob.costM || 0;
+          refundG += s.warpInJob.costG || 0;
+          s.warpInJob = null;
+          s.warpGateCooldownLeft = 0;
+        }
       
         if (s.hiveEvolutionJob) {
           refundM += s.hiveEvolutionJob.costM || 0;
@@ -10869,10 +11004,16 @@
         const clearance = Math.max(producer.w, producer.h) / 2 + UNIT_DATA[type].radius + 14;
         let sx = clamp(producer.x + Math.cos(angle) * clearance, 12, WORLD_W - 12);
         let sy = clamp(producer.y + Math.sin(angle) * clearance, 12, WORLD_H - 12);
-        const warpGateDeployment = producer.type === 'heliasGateway' && producer.warpGate;
-        const poweredRally = warpGateDeployment && producer.spawnFlag &&
+        const explicitWarpPoint = options.spawnPoint && Number.isFinite(options.spawnPoint.x) && Number.isFinite(options.spawnPoint.y)
+          ? options.spawnPoint
+          : null;
+        const warpGateDeployment = options.warpGateDeployment === true || (producer.type === 'heliasGateway' && producer.warpGate);
+        const poweredRally = !explicitWarpPoint && warpGateDeployment && producer.spawnFlag &&
           pointHasHeliasPower(team, producer.spawnFlag.x, producer.spawnFlag.y);
-        if (poweredRally) {
+        if (explicitWarpPoint) {
+          sx = clamp(explicitWarpPoint.x, 12, WORLD_W - 12);
+          sy = clamp(explicitWarpPoint.y, 12, WORLD_H - 12);
+        } else if (poweredRally) {
           sx = clamp(producer.spawnFlag.x + rand(-8, 8), 12, WORLD_W - 12);
           sy = clamp(producer.spawnFlag.y + rand(-8, 8), 12, WORLD_H - 12);
         }
@@ -10911,7 +11052,16 @@
           u.guardPoint = { ...u.destination };
           return;
         }
-        const rally = producer.spawnFlag;
+        if (warpGateDeployment && explicitWarpPoint) {
+          u.command = 'defend';
+          u.destination = { x: sx, y: sy };
+          u.guardPoint = { ...u.destination };
+          u.movementOrderActive = false;
+          u.movePriorityUntil = state.elapsed + 1;
+          if (announce) toast(`${readyLabel} warped in at the powered field.`, COLORS.good, team);
+          return;
+        }
+        const rally = options.ignoreRally ? null : producer.spawnFlag;
         if (isResourceHarvesterType(type)) {
           state.foragerDispatchCount++;
           const preferredResource = state.foragerDispatchCount % 3 === 0 ? 'gas' : 'mineral';
@@ -10951,9 +11101,28 @@
         updateInsectMacro(dt);
         for (const gateway of structures) {
           if (gateway.type !== 'heliasGateway' || gateway.hp <= 0 || gateway.underConstruction) continue;
+          if (!heliaStructurePowered(gateway)) continue;
+          const gatewayDt = dt * ((gateway.chronoBoostTimeLeft || 0) > 0 ? HELIAS_CHRONO_MULTIPLIER : 1);
+          if ((gateway.warpGateCooldownLeft || 0) > 0) {
+            gateway.warpGateCooldownLeft = Math.max(0, gateway.warpGateCooldownLeft - gatewayDt);
+          }
+          if (gateway.warpInJob) {
+            gateway.warpInJob.timeLeft = Math.max(0, gateway.warpInJob.timeLeft - gatewayDt);
+            if (gateway.warpInJob.timeLeft <= 0) {
+              const completed = gateway.warpInJob;
+              gateway.warpInJob = null;
+              const count = Math.max(1, Math.trunc(completed.spawnCount || UNIT_DATA[completed.type]?.spawnCount || 1));
+              for (let index = 0; index < count; index++) {
+                finishUnit(completed.type, gateway, {
+                  announce: index === count - 1, batchCount: count,
+                  spawnPoint: completed.point, warpGateDeployment: true, ignoreRally: true
+                });
+              }
+            }
+            continue;
+          }
           if (gateway.gatewayTransformJob) {
-            if (!heliaStructurePowered(gateway)) continue;
-            gateway.gatewayTransformJob.timeLeft = Math.max(0, gateway.gatewayTransformJob.timeLeft - dt);
+            gateway.gatewayTransformJob.timeLeft = Math.max(0, gateway.gatewayTransformJob.timeLeft - gatewayDt);
             if (gateway.gatewayTransformJob.timeLeft <= 0) completeGatewayTransformation(gateway);
             continue;
           }
@@ -11043,6 +11212,7 @@
         }
         for (const producer of structures) {
           if (producer.hp <= 0 || producer.underConstruction || !isProductionBuilding(producer) || !heliaStructurePowered(producer)) continue;
+          if (producer.type === 'heliasGateway' && producer.warpGate) continue;
           if (producer.conversionJob || producer.hiveEvolutionJob || producer.gatewayTransformJob) continue;
           if (!producer.queue.length) continue;
           const productionDt = dt * ((producer.chronoBoostTimeLeft || 0) > 0 ? HELIAS_CHRONO_MULTIPLIER : 1);
@@ -11326,7 +11496,7 @@
       
         pay(cost.costM, cost.costG, team);
         const initialHp = Math.max(1, Math.ceil(d.hp * .14));
-        const field = type === 'minersHut' ? resourceFieldAt(cx, cy) : null;
+        const field = type === 'minersHut' || type === 'hq' || type === 'broodHive' ? resourceFieldAt(cx, cy) : null;
         const site = addStructure(type, team, cx, cy, {
           hp: initialHp,
           underConstruction: true,
@@ -11417,7 +11587,7 @@
   __define("input.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("menu.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("pathing.js"); const __dep6 = __require("commandPanel.js"); const __dep7 = __require("rendering.js"); const __dep8 = __require("state.js"); const __dep9 = __require("terrain.js");
-    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => __dep1["MAX_GROUND_TAGS_PER_TEAM"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep2["placeCreepTumor"] }); Object.defineProperty(__imports, "commandQueenInject", { enumerable: true, get: () => __dep2["commandQueenInject"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep2["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "setQueenInjectAutocast", { enumerable: true, get: () => __dep2["setQueenInjectAutocast"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep2["startUnitMorph"] }); Object.defineProperty(__imports, "cancelUnitMorph", { enumerable: true, get: () => __dep2["cancelUnitMorph"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startGatewayTransformation", { enumerable: true, get: () => __dep2["startGatewayTransformation"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep2["startInsectUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openInsectStructureMenu", { enumerable: true, get: () => __dep7["openInsectStructureMenu"] }); Object.defineProperty(__imports, "openHeliasStructureMenu", { enumerable: true, get: () => __dep7["openHeliasStructureMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep9["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep9["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] });
+    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => __dep1["MAX_GROUND_TAGS_PER_TEAM"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep2["placeCreepTumor"] }); Object.defineProperty(__imports, "commandQueenInject", { enumerable: true, get: () => __dep2["commandQueenInject"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep2["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "setQueenInjectAutocast", { enumerable: true, get: () => __dep2["setQueenInjectAutocast"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep2["startUnitMorph"] }); Object.defineProperty(__imports, "cancelUnitMorph", { enumerable: true, get: () => __dep2["cancelUnitMorph"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "queueWarpInAcross", { enumerable: true, get: () => __dep2["queueWarpInAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startGatewayTransformation", { enumerable: true, get: () => __dep2["startGatewayTransformation"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep2["startInsectUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openInsectStructureMenu", { enumerable: true, get: () => __dep7["openInsectStructureMenu"] }); Object.defineProperty(__imports, "openHeliasStructureMenu", { enumerable: true, get: () => __dep7["openHeliasStructureMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep9["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep9["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activateNextQueuedUnitOrder", { enumerable: true, get: () => activateNextQueuedUnitOrder }); Object.defineProperty(__exports, "applyGameCommand", { enumerable: true, get: () => applyGameCommand }); Object.defineProperty(__exports, "canAttackTarget", { enumerable: true, get: () => canAttackTarget }); Object.defineProperty(__exports, "clearSelection", { enumerable: true, get: () => clearSelection }); Object.defineProperty(__exports, "commandUnits", { enumerable: true, get: () => commandUnits }); Object.defineProperty(__exports, "selectedUnits", { enumerable: true, get: () => selectedUnits }); Object.defineProperty(__exports, "updateCamera", { enumerable: true, get: () => updateCamera });
@@ -11891,6 +12061,12 @@
               ? queueUnitAcross(command.unitType, producers, command.team)
               : !!queueUnit(command.unitType, producers[0]);
           }
+          case 'warpIn': {
+            const gateways = (command.gatewayIds || [])
+              .map(id => structures.find(structure => structure.id === id))
+              .filter(structure => structure?.team === command.team && structure.type === 'heliasGateway' && structure.warpGate && structure.hp > 0);
+            return !!queueWarpInAcross(command.unitType, gateways, command.point, command.team);
+          }
           case 'upgradeTurret': {
             const structure = structures.find(candidate => candidate.id === command.structureId && candidate.team === command.team);
             return !!upgradeStructure(structure);
@@ -12039,7 +12215,7 @@
         }
       
         if (state.placingSpawnFlag) {
-          setSpawnFlag(p);
+          setSpawnFlag(p, !!evt.shiftKey);
           return;
         }
       
@@ -12277,7 +12453,8 @@
           return;
         }
         if (state.placingSpawnFlag) {
-          setSpawnFlag(w);
+          if (String(state.spawnFlagMode || '').startsWith('warpIn:')) centerCamOn(w.x, w.y);
+          else setSpawnFlag(w);
           return;
         }
         if (selectedUnits().length) {
@@ -12724,11 +12901,21 @@
       }
       
       function getHQForTeam(team) {
-        return hqByTeam.get(team) || null;
+        const registered = hqByTeam.get(team);
+        if (registered?.hp > 0) return registered;
+        const replacement = structures
+          .filter(structure => structure.type === 'hq' && structure.team === team && structure.hp > 0)
+          .sort((a, b) => Number(a.underConstruction) - Number(b.underConstruction) || a.id - b.id)[0] || null;
+        if (replacement) hqByTeam.set(team, replacement);
+        return replacement;
       }
       
       function getLivingHQs(excludeTeam = null) {
-        return [...hqByTeam.values()].filter(hq => hq.hp > 0 && (!excludeTeam || hq.team !== excludeTeam));
+        const teams = new Set([...hqByTeam.keys(), ...structures.filter(structure => structure.type === 'hq' && structure.hp > 0).map(structure => structure.team)]);
+        return [...teams]
+          .filter(team => !excludeTeam || team !== excludeTeam)
+          .map(getHQForTeam)
+          .filter(Boolean);
       }
       
       function getNearestHostileHQ(team, origin = null) {
@@ -13267,7 +13454,7 @@
             Object.freeze({
               kind: 'productionUpgrade', structureType: 'heliasGateway', targetLevel: 2, facilityType: 'heliasCyberCore', matchLabel: 'WARP TECHNOLOGY',
               title: 'Research Warp Technology.',
-              copy: 'The Cybernetics Core can synchronize every Gateway with the deeper warp lattice. Normal Gateway training continues during research; afterward, each Gateway may transform into a rapid-deployment Warp Gate and the Prism Warden pattern becomes available.',
+              copy: 'The Cybernetics Core can synchronize every Gateway with the deeper warp lattice. Normal Gateway training continues during research; afterward, each Gateway may transform into a rapid-deployment Warp Gate; Warp Gates place units directly anywhere inside explored Pylon power, and the Prism Warden pattern becomes available.',
               objective: 'Select the CYBERNETICS CORE and research WARP TECHNOLOGY.',
               waiting: remaining => `Warp Technology research underway · ${remaining}s remaining. Gateways remain operational.`
             }),
@@ -20913,7 +21100,7 @@
   __define("rendering.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("main.js"); const __dep4 = __require("menu.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("state.js"); const __dep7 = __require("terrain.js"); const __dep8 = __require("commandPanel.js");
-    Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "INSECT_HIVE_EVOLUTION", { enumerable: true, get: () => __dep1["INSECT_HIVE_EVOLUTION"] }); Object.defineProperty(__imports, "INSECT_UPGRADES", { enumerable: true, get: () => __dep1["INSECT_UPGRADES"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "factionBuildMenuEntries", { enumerable: true, get: () => __dep1["factionBuildMenuEntries"] }); Object.defineProperty(__imports, "factionProductionTypes", { enumerable: true, get: () => __dep1["factionProductionTypes"] }); Object.defineProperty(__imports, "factionUnitRequirements", { enumerable: true, get: () => __dep1["factionUnitRequirements"] }); Object.defineProperty(__imports, "factionCanUseBuilding", { enumerable: true, get: () => __dep1["factionCanUseBuilding"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep1["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep1["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveEvolutionSpec", { enumerable: true, get: () => __dep1["insectHiveEvolutionSpec"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep1["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "HELIAS_FORGE_UPGRADES", { enumerable: true, get: () => __dep2["HELIAS_FORGE_UPGRADES"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep2["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep2["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "committedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["committedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "insectHiveLarvae", { enumerable: true, get: () => __dep2["insectHiveLarvae"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep2["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "creepTumorPlacementStatus", { enumerable: true, get: () => __dep2["creepTumorPlacementStatus"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep2["insectUpgradeOrders"] }); Object.defineProperty(__imports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => __dep2["insectUpgradeRequirementStatus"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "gatewayTransformReady", { enumerable: true, get: () => __dep2["gatewayTransformReady"] }); Object.defineProperty(__imports, "warpTechnologyResearched", { enumerable: true, get: () => __dep2["warpTechnologyResearched"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "unitMorphOptions", { enumerable: true, get: () => __dep2["unitMorphOptions"] }); Object.defineProperty(__imports, "unitMorphRequirementStatus", { enumerable: true, get: () => __dep2["unitMorphRequirementStatus"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep7["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep7["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep8["clearCommandMenu"] }); Object.defineProperty(__imports, "isCommandConsolePoint", { enumerable: true, get: () => __dep8["isCommandConsolePoint"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawConsoleText", { enumerable: true, get: () => __dep8["drawConsoleText"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] });
+    Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "INSECT_HIVE_EVOLUTION", { enumerable: true, get: () => __dep1["INSECT_HIVE_EVOLUTION"] }); Object.defineProperty(__imports, "INSECT_UPGRADES", { enumerable: true, get: () => __dep1["INSECT_UPGRADES"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "factionBuildMenuEntries", { enumerable: true, get: () => __dep1["factionBuildMenuEntries"] }); Object.defineProperty(__imports, "factionProductionTypes", { enumerable: true, get: () => __dep1["factionProductionTypes"] }); Object.defineProperty(__imports, "factionUnitRequirements", { enumerable: true, get: () => __dep1["factionUnitRequirements"] }); Object.defineProperty(__imports, "factionCanUseBuilding", { enumerable: true, get: () => __dep1["factionCanUseBuilding"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep1["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep1["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveEvolutionSpec", { enumerable: true, get: () => __dep1["insectHiveEvolutionSpec"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep1["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "HELIAS_FORGE_UPGRADES", { enumerable: true, get: () => __dep2["HELIAS_FORGE_UPGRADES"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep2["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep2["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "committedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["committedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "insectHiveLarvae", { enumerable: true, get: () => __dep2["insectHiveLarvae"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep2["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "creepTumorPlacementStatus", { enumerable: true, get: () => __dep2["creepTumorPlacementStatus"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep2["insectUpgradeOrders"] }); Object.defineProperty(__imports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => __dep2["insectUpgradeRequirementStatus"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "queueWarpInAcross", { enumerable: true, get: () => __dep2["queueWarpInAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "gatewayTransformReady", { enumerable: true, get: () => __dep2["gatewayTransformReady"] }); Object.defineProperty(__imports, "warpGateReady", { enumerable: true, get: () => __dep2["warpGateReady"] }); Object.defineProperty(__imports, "warpGateCooldownFor", { enumerable: true, get: () => __dep2["warpGateCooldownFor"] }); Object.defineProperty(__imports, "warpTechnologyResearched", { enumerable: true, get: () => __dep2["warpTechnologyResearched"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "unitMorphOptions", { enumerable: true, get: () => __dep2["unitMorphOptions"] }); Object.defineProperty(__imports, "unitMorphRequirementStatus", { enumerable: true, get: () => __dep2["unitMorphRequirementStatus"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep7["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep7["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep8["clearCommandMenu"] }); Object.defineProperty(__imports, "isCommandConsolePoint", { enumerable: true, get: () => __dep8["isCommandConsolePoint"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawConsoleText", { enumerable: true, get: () => __dep8["drawConsoleText"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "applySpawnFlagCommand", { enumerable: true, get: () => applySpawnFlagCommand }); Object.defineProperty(__exports, "draw", { enumerable: true, get: () => draw }); Object.defineProperty(__exports, "gasNodeForExtractor", { enumerable: true, get: () => gasNodeForExtractor }); Object.defineProperty(__exports, "handleMenuClick", { enumerable: true, get: () => handleMenuClick }); Object.defineProperty(__exports, "handleSettingsClick", { enumerable: true, get: () => handleSettingsClick }); Object.defineProperty(__exports, "handleQueueStripClick", { enumerable: true, get: () => handleQueueStripClick }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "openBuildMenu", { enumerable: true, get: () => openBuildMenu }); Object.defineProperty(__exports, "placePendingBuilding", { enumerable: true, get: () => placePendingBuilding }); Object.defineProperty(__exports, "openConstructionMenu", { enumerable: true, get: () => openConstructionMenu }); Object.defineProperty(__exports, "openGasExtractorMenu", { enumerable: true, get: () => openGasExtractorMenu }); Object.defineProperty(__exports, "openGasLeakMenu", { enumerable: true, get: () => openGasLeakMenu }); Object.defineProperty(__exports, "openHQMenu", { enumerable: true, get: () => openHQMenu }); Object.defineProperty(__exports, "openInsectStructureMenu", { enumerable: true, get: () => openInsectStructureMenu }); Object.defineProperty(__exports, "openHeliasStructureMenu", { enumerable: true, get: () => openHeliasStructureMenu }); Object.defineProperty(__exports, "openHousingMenu", { enumerable: true, get: () => openHousingMenu }); Object.defineProperty(__exports, "openLaboratoryMenu", { enumerable: true, get: () => openLaboratoryMenu }); Object.defineProperty(__exports, "openMinersHutMenu", { enumerable: true, get: () => openMinersHutMenu }); Object.defineProperty(__exports, "openProductionMenu", { enumerable: true, get: () => openProductionMenu }); Object.defineProperty(__exports, "openResearchFacilityMenu", { enumerable: true, get: () => openResearchFacilityMenu }); Object.defineProperty(__exports, "openUpgradeMenu", { enumerable: true, get: () => openUpgradeMenu }); Object.defineProperty(__exports, "resetGame", { enumerable: true, get: () => resetGame }); Object.defineProperty(__exports, "setSpawnFlag", { enumerable: true, get: () => setSpawnFlag });
@@ -21342,8 +21529,12 @@
       function beginSpawnFlagPlacement(source) {
         const requested = Array.isArray(source) ? source : [source];
         const targets = [...new Map(requested.filter(Boolean).map(s => [s.id, s])).values()]
-          .filter(s => s.team === activeCommandTeam() && s.hp > 0 && !s.underConstruction && isProductionBuilding(s));
-        if (!targets.length) return false;
+          .filter(s => s.team === activeCommandTeam() && s.hp > 0 && !s.underConstruction && isProductionBuilding(s) &&
+            !(s.type === 'heliasGateway' && s.warpGate));
+        if (!targets.length) {
+          toast('Warp Gates deploy units directly from their unit buttons; they do not use spawn flags.', COLORS.warn);
+          return false;
+        }
         state.placingGroundTag = false;
         state.placingQueenAbility = null;
         state.queenAbilityUnitIds = [];
@@ -21355,14 +21546,81 @@
         toast(`Click any open ground — explored or fogged — to set the spawn flag for ${scope}.`, COLORS.warn);
         return true;
       }
-      function setSpawnFlag(p) {
+      function localWarpInPlacementStatus(type, p, team = activeCommandTeam()) {
+        const data = UNIT_DATA[type];
+        if (!data || !p) return { valid: false, error: 'Choose a warp-in point.' };
         const tx = clamp(Math.floor(p.x / TILE), 0, COLS - 1);
         const ty = clamp(Math.floor(p.y / TILE), 0, ROWS - 1);
-        if (terrain[ty][tx] !== 0) { toast('The spawn flag needs open ground.', COLORS.warn); return false; }
+        const point = { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 };
+        if (!state.explored[ty]?.[tx]) return { valid: false, point, error: 'Warp-ins require explored ground.' };
+        if (terrain[ty][tx] !== 0) return { valid: false, point, error: 'Warp-ins require open ground.' };
+        if (!pointHasHeliasPowerForMenu(team, point.x, point.y)) return { valid: false, point, error: 'Warp-ins must be inside an operational Pylon field.' };
+        const radius = Math.max(6, data.radius || 8);
+        for (const structure of structures) {
+          if (structure.hp <= 0) continue;
+          if (Math.abs(structure.x - point.x) < (structure.w || 40) / 2 + radius + 3 &&
+              Math.abs(structure.y - point.y) < (structure.h || 38) / 2 + radius + 3) return { valid: false, point, error: 'That point is occupied by a structure.' };
+        }
+        if (!isAirUnit({ type })) {
+          for (const unit of units) {
+            if (unit.hp <= 0 || isAirUnit(unit)) continue;
+            if (Math.hypot(unit.x - point.x, unit.y - point.y) < (unit.radius || 8) + radius + 3) return { valid: false, point, error: 'That point is occupied by a ground unit.' };
+          }
+        }
+        return { valid: true, point, error: null };
+      }
+
+      function beginWarpInPlacement(type, source) {
+        const requested = Array.isArray(source) ? source : [source];
+        const gateways = [...new Map(requested.filter(Boolean).map(gateway => [gateway.id, gateway])).values()]
+          .filter(gateway => gateway.team === activeCommandTeam() && gateway.type === 'heliasGateway' && gateway.warpGate &&
+            gateway.hp > 0 && !gateway.underConstruction && productionTypesFor(gateway).includes(type));
+        if (!gateways.length) return false;
+        if (!gateways.some(gateway => warpGateReady(gateway, type))) {
+          toast('Every selected Warp Gate is unpowered, materialising a unit or recharging.', COLORS.warn);
+          return false;
+        }
+        state.placingBuildingType = null;
+        state.placingGroundTag = false;
+        state.placingQueenAbility = null;
+        state.queenAbilityUnitIds = [];
+        state.placingSpawnFlag = true;
+        state.spawnFlagMode = `warpIn:${type}`;
+        state.spawnFlagStructureIds = gateways.map(gateway => gateway.id);
+        state.contextMenu = null;
+        clearCommandMenu();
+        toast(`${factionUnitLabel(type, activeCommandTeam(), state.teamFactions)}: click explored open ground inside a Pylon field.`, COLORS.good);
+        return true;
+      }
+
+      function setSpawnFlag(p, keepPlacing = false) {
+        const tx = clamp(Math.floor(p.x / TILE), 0, COLS - 1);
+        const ty = clamp(Math.floor(p.y / TILE), 0, ROWS - 1);
         const team = activeCommandTeam();
         const structureIds = [...state.spawnFlagStructureIds];
-        const mode = state.spawnFlagMode;
+        const mode = String(state.spawnFlagMode || '');
         if (!structureIds.length) return false;
+        if (mode.startsWith('warpIn:')) {
+          const unitType = mode.slice('warpIn:'.length);
+          const status = localWarpInPlacementStatus(unitType, p, team);
+          if (!status.valid) { toast(status.error, COLORS.warn); return false; }
+          const readyGateways = structureIds
+            .map(id => structures.find(gateway => gateway.id === id && gateway.team === team))
+            .filter(gateway => warpGateReady(gateway, unitType));
+          if (!readyGateways.length) {
+            toast('No selected Warp Gate is ready. Wait for power, materialisation or cooldown.', COLORS.warn);
+            return false;
+          }
+          if (!queueGameplayCommand({
+            type: 'warpIn', team, unitType, gatewayIds: structureIds, point: status.point
+          })) return false;
+          state.placingSpawnFlag = false;
+          state.spawnFlagMode = null;
+          state.spawnFlagStructureIds = [];
+          openBuildMenu();
+          return true;
+        }
+        if (terrain[ty][tx] !== 0) { toast('The spawn flag needs open ground.', COLORS.warn); return false; }
         if (!queueGameplayCommand({
           type: 'spawnFlag', team, structureIds, mode,
           point: { x: p.x, y: p.y }
@@ -21381,7 +21639,8 @@
         const flag = { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 };
         const ids = new Set(command.structureIds || []);
         const targets = structures.filter(structure =>
-          ids.has(structure.id) && structure.team === command.team && structure.hp > 0 && isProductionBuilding(structure)
+          ids.has(structure.id) && structure.team === command.team && structure.hp > 0 && isProductionBuilding(structure) &&
+          !(structure.type === 'heliasGateway' && structure.warpGate)
         );
         if (targets.some(structure => structure.type === 'heliasGateway' && structure.warpGate) &&
             !pointHasHeliasPowerForMenu(command.team, flag.x, flag.y)) {
@@ -21407,27 +21666,48 @@
         const buildingType = group[0].type;
         const producers = group.filter(s => s.type === buildingType);
         const trainableTypes = [...new Set(producers.flatMap(productionTypesFor))];
-        const items = trainableTypes.map(type => {
+        const items = [];
+        for (const type of trainableTypes) {
           const d = UNIT_DATA[type];
-          const eligible = producers.filter(s => productionTypesFor(s).includes(type));
-          const capacity = eligible.filter(s => heliaStructurePoweredForMenu(s) && !s.gatewayTransformJob && s.queue.length < (s.warpGate ? 1 : 6)).length;
-          const groupStatus = producers.length > 1 ? ` · ${capacity}/${eligible.length} ready` : '';
           const batchCount = Math.max(1, Math.trunc(d.spawnCount || 1));
-          return {
-            label: `${factionUnitLabel(type, producers[0].team, state.teamFactions)}${batchCount > 1 ? ` ×${batchCount}` : ''} · T${d.tier}`,
-            sub: `${d.costM}M ${d.costG}G · ${unitBuildTimeFor(type, eligible.find(heliaStructurePoweredForMenu) || eligible[0] || producers[0])}s · ${(d.pop ?? 1) * batchCount} pop${batchCount > 1 ? ' total' : ''}${groupStatus}`,
-            tone: 'train', costM: d.costM, costG: d.costG,
-            enabled: capacity > 0,
-            command: { type: 'produce', team: producers[0].team, unitType: type, producerIds: producers.map(producer => producer.id), balanceAcross: true },
-            afterQueue: () => openProductionMenu(producers, screenPt)
-          };
-        });
+          const eligible = producers.filter(producer => productionTypesFor(producer).includes(type));
+          const standard = eligible.filter(producer => !(producer.type === 'heliasGateway' && producer.warpGate));
+          const warped = eligible.filter(producer => producer.type === 'heliasGateway' && producer.warpGate);
+          if (standard.length) {
+            const capacity = standard.filter(producer => heliaStructurePoweredForMenu(producer) && !producer.gatewayTransformJob && producer.queue.length < 6).length;
+            const groupStatus = standard.length > 1 ? ` · ${capacity}/${standard.length} ready` : '';
+            items.push({
+              label: `${factionUnitLabel(type, producers[0].team, state.teamFactions)}${batchCount > 1 ? ` ×${batchCount}` : ''} · T${d.tier}`,
+              sub: `${d.costM}M ${d.costG}G · ${unitBuildTimeFor(type, standard.find(heliaStructurePoweredForMenu) || standard[0])}s · ${(d.pop ?? 1) * batchCount} pop${batchCount > 1 ? ' total' : ''}${groupStatus}`,
+              tone: 'train', costM: d.costM, costG: d.costG,
+              enabled: capacity > 0,
+              command: { type: 'produce', team: producers[0].team, unitType: type, producerIds: standard.map(producer => producer.id), balanceAcross: true },
+              afterQueue: () => openProductionMenu(producers, screenPt)
+            });
+          }
+          if (warped.length) {
+            const ready = warped.filter(gateway => warpGateReady(gateway, type));
+            const materialising = warped.filter(gateway => gateway.warpInJob).length;
+            const recharging = warped.filter(gateway => !gateway.warpInJob && (gateway.warpGateCooldownLeft || 0) > 0).length;
+            const status = warped.length > 1 ? ` · ${ready.length}/${warped.length} ready` : '';
+            const busy = materialising || recharging
+              ? ` · ${materialising ? `${materialising} materialising` : ''}${materialising && recharging ? ', ' : ''}${recharging ? `${recharging} recharging` : ''}`
+              : '';
+            items.push({
+              label: `WARP IN ${factionUnitLabel(type, producers[0].team, state.teamFactions)}${batchCount > 1 ? ` ×${batchCount}` : ''}`,
+              sub: `${d.costM}M ${d.costG}G · 3s arrival · ${warpGateCooldownFor(type, warped[0])}s cooldown · ${(d.pop ?? 1) * batchCount} pop${status}${busy}`,
+              tone: 'ability', costM: d.costM, costG: d.costG,
+              enabled: ready.length > 0,
+              action: () => beginWarpInPlacement(type, warped)
+            });
+          }
+        }
         const productionTeam = producers[0].team;
         const poweredCount = producers.filter(heliaStructurePoweredForMenu).length;
         if (teamFactionId(productionTeam, state.teamFactions) === 'helias' && poweredCount < producers.length) {
           items.unshift({
             label: poweredCount ? `${producers.length - poweredCount} FACILITY${producers.length - poweredCount === 1 ? '' : 'IES'} UNPOWERED` : 'PRODUCTION DISABLED · NO PYLON POWER',
-            sub: poweredCount ? `${poweredCount}/${producers.length} facilities remain operational` : 'queues and research are paused until an operational Pylon powers the structure',
+            sub: poweredCount ? `${poweredCount}/${producers.length} facilities remain operational` : 'queues, warp cooldowns and research pause until Pylon power returns',
             tone: 'warning', enabled: false, action: () => {}
           });
         }
@@ -21445,7 +21725,7 @@
           const readyStandard = standard.filter(gateway => gatewayTransformReady(gateway, true));
           if (standard.length) items.push({
             label: `TRANSFORM ${standard.length > 1 ? `${readyStandard.length}/${standard.length} ` : ''}TO WARP GATE`,
-            sub: '5s · empty, powered Gateways only · units warp rapidly to a powered spawn flag',
+            sub: '5s · empty, powered Gateways only · deploy units to any explored powered point',
             tone: 'ability', enabled: readyStandard.length > 0,
             command: { type: 'transformGateway', team: productionTeam, gatewayIds: readyStandard.map(gateway => gateway.id), toWarpGate: true },
             afterQueue: () => openProductionMenu(producers, screenPt)
@@ -21453,7 +21733,7 @@
           const readyWarped = warped.filter(gateway => gatewayTransformReady(gateway, false));
           if (warped.length) items.push({
             label: `RETURN ${warped.length > 1 ? `${readyWarped.length}/${warped.length} ` : ''}TO GATEWAY`,
-            sub: '5s · restores normal multi-unit training queues',
+            sub: '5s · available after materialisation and cooldown · restores normal training queues',
             tone: 'ability', enabled: readyWarped.length > 0,
             command: { type: 'transformGateway', team: productionTeam, gatewayIds: readyWarped.map(gateway => gateway.id), toWarpGate: false },
             afterQueue: () => openProductionMenu(producers, screenPt)
@@ -21467,7 +21747,7 @@
           const toLevel = currentLevel + 1;
           const spec = tech.upgrades[toLevel];
           items.push({
-            label: buildingType === 'heliasGateway' ? 'RESEARCH WARP TECHNOLOGY' : `UPGRADE ALL ${structureLabel(buildingType)} BUILDINGS · L${currentLevel} → L${toLevel}`,
+            label: `UPGRADE ALL ${structureLabel(buildingType)} BUILDINGS · L${currentLevel} → L${toLevel}`,
             sub: `${spec.costM}M ${spec.costG}G · ${spec.time}s · ${spec.unlock} · production remains active`,
             tone: 'research', costM: spec.costM, costG: spec.costG,
             command: { type: 'upgradeProduction', team: productionTeam, producerId: producers[0].id },
@@ -21475,15 +21755,12 @@
           });
         }
         if (activeUpgrade) {
-          const allPeers = productionTechPeers(productionTeam, buildingType, true);
           items.push({
             label: `ALL ${structureLabel(buildingType)} BUILDINGS · RESEARCHING L${activeUpgrade.toLevel}`,
             sub: buildingType === 'heliasGateway'
               ? `${Math.ceil(activeUpgrade.timeLeft)}s · Cybernetics Core research · Gateway training remains active`
               : `${Math.ceil(activeUpgrade.timeLeft)}s · ${activeUpgrade.unlock} · research facility queue · production remains active`,
-            tone: 'research',
-            enabled: false,
-            action: () => {}
+            tone: 'research', enabled: false, action: () => {}
           });
         }
         const levelText = `L${productionTechLevel(productionTeam, buildingType)}`;
@@ -22029,7 +22306,7 @@
           const warpJob = productionTechJob(s.team, 'heliasGateway');
           const warpSpec = PRODUCTION_TECH.heliasGateway?.upgrades?.[2];
           if (warpTechnologyResearched(s.team)) {
-            items.push({ label: 'WARP TECHNOLOGY · COMPLETE', sub: 'each powered Gateway can transform into a Warp Gate and deploy troops at powered spawn flags', tone: 'research', enabled: false, action: () => {} });
+            items.push({ label: 'WARP TECHNOLOGY · COMPLETE', sub: 'each powered Gateway can transform into a Warp Gate and deploy troops at any explored point inside Pylon power', tone: 'research', enabled: false, action: () => {} });
           } else if (warpJob) {
             items.push({ label: 'WARP TECHNOLOGY · RESEARCHING', sub: `${Math.ceil(warpJob.timeLeft)}s · Gateway training remains active`, tone: 'research', enabled: false, action: () => {} });
           } else {
@@ -22202,7 +22479,7 @@
         state.spawnFlagMode = null;
         state.spawnFlagStructureIds = [];
         state.placingBuildingType = type;
-        toast(`${data.label}: move the green footprint to an explored tile${teamFactionId(activeCommandTeam(), state.teamFactions) === 'insects' && !['broodHive', 'gasExtractor'].includes(type) ? ' covered by creep' : ''} and click to place. Right-click or ESC cancels.`, COLORS.good);
+        toast(`${factionStructureLabel(type, activeCommandTeam(), state.teamFactions)}: move the green footprint to an explored tile${teamFactionId(activeCommandTeam(), state.teamFactions) === 'insects' && !['broodHive', 'gasExtractor'].includes(type) ? ' covered by creep' : ''} and click to place. Right-click or ESC cancels.`, COLORS.good);
         openBuildMenu();
         return true;
       }
@@ -22228,7 +22505,7 @@
           point: { x: placement.cx, y: placement.cy }, builderIds
         })) return false;
         state.placingBuildingType = keepPlacing ? type : null;
-        if (keepPlacing) toast(`${BUILDING_DATA[type].label} ordered · select another free Drone before placing another site.`, COLORS.good);
+        if (keepPlacing) toast(`${factionStructureLabel(type, team, state.teamFactions)} ordered · select another free Drone before placing another site.`, COLORS.good);
         openBuildMenu();
         return true;
       }
@@ -22451,8 +22728,9 @@
         const makeItem = (type, purpose, tone) => {
           const d = BUILDING_DATA[type];
           const cost = buildingCostFor(type, activeCommandTeam());
+          const displayLabel = factionStructureLabel(type, team, state.teamFactions);
           return {
-            label: `${state.placingBuildingType === type ? 'PLACING' : 'BUILD'} ${d.label}`,
+            label: `${state.placingBuildingType === type ? 'PLACING' : 'BUILD'} ${displayLabel}`,
             details: typeof purpose === 'function'
               ? () => [`${d.buildTime}s construction`, purpose()]
               : [`${d.buildTime}s construction`, purpose],
@@ -22486,8 +22764,9 @@
           });
         }
         const placing = BUILDING_DATA[state.placingBuildingType];
+        const placingLabel = placing ? factionStructureLabel(state.placingBuildingType, team, state.teamFactions) : '';
         const factionName = teamFactionId(team, state.teamFactions) === 'insects' ? 'ZGLENGO BROOD' : teamFactionId(team, state.teamFactions) === 'helias' ? 'HELIAS WARP CONSTRUCTION' : 'CONSTRUCTION';
-        openMenu(state.mouse, placing ? `PLACE ${placing.label} · CLICK MAP` : factionName, items, true, {
+        openMenu(state.mouse, placing ? `PLACE ${placingLabel} · CLICK MAP` : factionName, items, true, {
           columns: 2,
           rows: 2,
           constructionCards: true
@@ -25900,6 +26179,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
         if (s.researchJob) return { job: s.researchJob, color: COLORS.warn };
         if (s.turretTechJob) return { job: s.turretTechJob, color: COLORS.warn };
         if (s.gatewayTransformJob) return { job: s.gatewayTransformJob, color: '#9eeeff' };
+        if (s.warpInJob) return { job: s.warpInJob, color: '#bff7ff' };
         if (s.queue?.length) return { job: s.queue[0], color: COLORS.good };
         return null;
       }
@@ -29425,9 +29705,43 @@ function drawStructure(s) {
           drawText(ghost ? 'PLACE' : label, p.x, p.y + 14, 9, color, 'center');
           ctx.restore();
         };
+        const warpMode = String(state.spawnFlagMode || '');
+        if (state.placingSpawnFlag && warpMode.startsWith('warpIn:')) {
+          const unitType = warpMode.slice('warpIn:'.length);
+          const team = activeCommandTeam();
+          ctx.save();
+          for (const pylon of structures) {
+            if (pylon.team !== team || pylon.type !== 'heliasPylon' || pylon.hp <= 0 || pylon.underConstruction) continue;
+            ctx.strokeStyle = 'rgba(126,232,255,.5)';
+            ctx.fillStyle = 'rgba(126,232,255,.055)';
+            ctx.lineWidth = 2 / cam.zoom;
+            ctx.beginPath();
+            ctx.arc(pylon.x, pylon.y, BUILDING_DATA.heliasPylon.powerRadius || 182, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+          const status = localWarpInPlacementStatus(unitType, screenToWorld(state.mouse.x, state.mouse.y), team);
+          const point = status.point || screenToWorld(state.mouse.x, state.mouse.y);
+          const color = status.valid ? '#9eeeff' : COLORS.bad;
+          const radius = Math.max(10, UNIT_DATA[unitType]?.radius || 10);
+          ctx.strokeStyle = color;
+          ctx.fillStyle = status.valid ? 'rgba(158,238,255,.18)' : 'rgba(255,107,107,.14)';
+          ctx.lineWidth = 2.5 / cam.zoom;
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, radius + 7 + Math.sin(state.elapsed * 5) * 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, radius + 15, 0, Math.PI * 2);
+          ctx.stroke();
+          drawText(status.valid ? `WARP ${factionUnitLabel(unitType, team, state.teamFactions)}` : status.error, point.x, point.y + radius + 19, 9, color, 'center');
+          ctx.restore();
+          return;
+        }
         const groupedFlags = new Map();
         for (const structure of structures) {
-          if (structure.team !== activeCommandTeam() || structure.hp <= 0 || !structure.spawnFlag || !isProductionBuilding(structure)) continue;
+          if (structure.team !== activeCommandTeam() || structure.hp <= 0 || !structure.spawnFlag || !isProductionBuilding(structure) ||
+              (structure.type === 'heliasGateway' && structure.warpGate)) continue;
           const key = `${structure.type}:${structure.spawnFlag.x}:${structure.spawnFlag.y}`;
           const entry = groupedFlags.get(key) || { point: structure.spawnFlag, type: structure.type, count: 0 };
           entry.count++;
@@ -29489,7 +29803,8 @@ function drawStructure(s) {
         for (const u of units) if (u.hp > 0) dot(u, colorForTeam(u.team, 'light'));
         const minimapFlags = new Set();
         for (const structure of structures) {
-          if (structure.team !== activeCommandTeam() || structure.hp <= 0 || !structure.spawnFlag || !isProductionBuilding(structure)) continue;
+          if (structure.team !== activeCommandTeam() || structure.hp <= 0 || !structure.spawnFlag || !isProductionBuilding(structure) ||
+              (structure.type === 'heliasGateway' && structure.warpGate)) continue;
           const key = `${structure.spawnFlag.x}:${structure.spawnFlag.y}:${structure.type}`;
           if (minimapFlags.has(key)) continue;
           minimapFlags.add(key);
@@ -30273,8 +30588,10 @@ function drawStructure(s) {
       
       function addStructure(type, team, x, y, extra = {}) {
         let base;
-        if (type === 'hq') base = { w: 60, h: 52, hp: (state.teamFactions?.[team] || 'humans') === 'helias' ? 900 : isHumanTeam(team) ? 720 : 820, sight: 170 };
-        else if (BUILDING_DATA[type]) {
+        if (type === 'hq') {
+          const d = BUILDING_DATA.hq || {};
+          base = { w: d.w || 60, h: d.h || 52, hp: (state.teamFactions?.[team] || 'humans') === 'helias' ? (d.hp || 900) : isHumanTeam(team) ? 720 : 820, sight: d.sight || 170 };
+        } else if (BUILDING_DATA[type]) {
           const d = BUILDING_DATA[type];
           base = { w: d.w, h: d.h, hp: d.hp, sight: d.sight, range: d.range, damage: d.damage, cooldown: d.cooldown, radarRange: d.radarRange };
         }
@@ -30466,7 +30783,7 @@ function drawStructure(s) {
       
       
       
-      const CHECKSUM_SCHEMA_VERSION = 27;
+      const CHECKSUM_SCHEMA_VERSION = 28;
       
       const OMITTED_KEYS = new Set([
         // Render interpolation / local presentation.
