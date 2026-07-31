@@ -20659,8 +20659,10 @@
       const PORTRAIT_ROTATION_SECONDS = 8;
       // Shared viewing-angle correction for every external unit/building/faction GLB.
       // Individual holders keep their relative framing, while the embedded default
-      // commander remains untouched by this global top-down bias.
-      const NON_COMMANDER_CAMERA_TILT_BIAS = -0.20;
+      // commander remains untouched by this global top-down bias. Non-commander
+      // portraits are forced to a positive downward-looking tilt so they are seen
+      // from above rather than from underneath, regardless of legacy negative values.
+      const NON_COMMANDER_CAMERA_TILT_BIAS = 0.10;
       
       // One authoritative commander presentation is used whenever a requested portrait
       // is unavailable. Keeping these values centralized prevents unit/building holders
@@ -21629,8 +21631,10 @@ function compileShader(gl, type, source) {
         const zoomIn = commanderIdle
           ? Math.pow(Math.max(0, Math.sin(seconds * 0.21 - 1.15)), 18) * 0.115
           : 0;
-        const portraitCameraTilt = (activeHolder.cameraTilt ?? -0.34) +
-          (activeHolder === DEFAULT_GLB_HOLDER ? 0 : NON_COMMANDER_CAMERA_TILT_BIAS);
+        const baseCameraTilt = activeHolder.cameraTilt ?? -0.34;
+        const portraitCameraTilt = activeHolder === DEFAULT_GLB_HOLDER
+          ? baseCameraTilt
+          : Math.abs(baseCameraTilt) + NON_COMMANDER_CAMERA_TILT_BIAS;
         gl.uniform1f(gl.getUniformLocation(program, 'u_cameraTilt'), portraitCameraTilt);
         gl.uniform1f(gl.getUniformLocation(program, 'u_cameraDistance'), (activeHolder.cameraDistance ?? 2.16) - zoomIn);
         gl.uniform1f(gl.getUniformLocation(program, 'u_cameraLift'), (activeHolder.cameraLift ?? 0.0) - zoomIn * 0.035);
