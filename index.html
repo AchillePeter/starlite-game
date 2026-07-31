@@ -1379,7 +1379,8 @@
         Object.freeze({ at: 88, type: 'heliasTurret', dx: -58, dy: 150 }),
         Object.freeze({ at: 112, type: 'heliasRoboticsFacility', dx: -118, dy: -18 }),
         Object.freeze({ at: 140, type: 'heliasPylon', dx: 98, dy: -76 }),
-        Object.freeze({ at: 158, type: 'heliasStargate', dx: 52, dy: -58 })
+        Object.freeze({ at: 158, type: 'heliasStargate', dx: 52, dy: -58 }),
+        Object.freeze({ at: 188, type: 'heliasTemple', dx: -18, dy: -118 })
       ]);
 
       const HELIAS_AI_UPGRADE_PLAN = Object.freeze([
@@ -2742,7 +2743,8 @@
       }
 
       function celestialArkDronePosition(carrier, index, target = carrier?.target) {
-        const droneCount = Math.max(1, Math.min(3, UNIT_DATA.heliasCarrier.interceptors || 3));
+        const baseDroneCount = Math.max(1, UNIT_DATA.heliasCarrier.interceptors || 3);
+        const droneCount = (carrier.templeSkyarkBoostUntil || 0) > state.elapsed ? 5 : baseDroneCount;
         const phase = state.elapsed * 3.35 + carrier.id * .37 + index * Math.PI * 2 / droneCount;
         if (celestialArkDronesEngaged(carrier, target)) {
           const targetRadius = target.radius || Math.max(target.w || 0, target.h || 0) * .28 || 8;
@@ -3409,19 +3411,19 @@
           u.recoil = .2;
           u.attackAnim = .38;
           const lanceColor = '#ff9a55';
-          addEffect('beam', {
-            source: u, target, color: lanceColor, innerColor: '#fff5d8',
-            originOffset: u.radius + 15, life: .32, max: .32, width: 7.2,
-            phase: u.id * .57 + state.elapsed * 12
-          });
-          addEffect('beam', {
-            source: u, target, color: '#ffd18a', innerColor: '#ffffff',
-            originOffset: u.radius + 11, life: .25, max: .25, width: 3.4,
-            phase: u.id * .91 + state.elapsed * 15
-          });
-          addEffect('impactFlash', { x: target.x, y: target.y, color: '#fff0c4', scale: 1.65, life: .18, angle: u.heading });
-          burst(target.x, target.y, lanceColor, 12, false, { shape: 'spark', lifeMin: .08, lifeMax: .34, sizeMin: 1, sizeMax: 4, speedMin: 28, speedMax: 110 });
-          damage(target, u.damage, u);
+          const sacred = (u.templeSkystriderBoostUntil || 0) > state.elapsed;
+          const beamOffsets = sacred ? [[-11, 11], [11, -11]] : [[0, 0]];
+          for (const [originSideOffset, targetSideOffset] of beamOffsets) {
+            addEffect('beam', {
+              source: u, target, color: lanceColor, innerColor: '#fff5d8',
+              originOffset: u.radius + 15, originSideOffset, targetSideOffset,
+              life: .32, max: .32, width: sacred ? 6.4 : 7.2,
+              phase: u.id * .57 + state.elapsed * 12 + originSideOffset
+            });
+          }
+          addEffect('impactFlash', { x: target.x, y: target.y, color: '#fff0c4', scale: sacred ? 2 : 1.65, life: .18, angle: u.heading });
+          burst(target.x, target.y, lanceColor, sacred ? 18 : 12, false, { shape: 'spark', lifeMin: .08, lifeMax: .34, sizeMin: 1, sizeMax: 4, speedMin: 28, speedMax: 110 });
+          damage(target, u.damage * (sacred ? 1.25 : 1), u);
           const splashRadius = u.splash || 34;
           for (const victim of orderedCombatSpatialCandidates(target, splashRadius)) {
             if (victim === target || !isAlive(victim) || victim.team === u.team || isAirUnit(victim)) continue;
@@ -3448,7 +3450,8 @@
           // emitted by the three attack drones currently looping around the target.
           u.attackAnim = .46;
           u.recoil = 0;
-          const droneCount = Math.min(3, UNIT_DATA.heliasCarrier.interceptors || 3);
+          const baseDroneCount = Math.max(1, UNIT_DATA.heliasCarrier.interceptors || 3);
+          const droneCount = (u.templeSkyarkBoostUntil || 0) > state.elapsed ? 5 : baseDroneCount;
           for (let index = 0; index < droneCount; index++) {
             const drone = celestialArkDronePosition(u, index, target);
             const laserColor = index === 1 ? '#effcff' : '#8deaff';
@@ -3461,7 +3464,7 @@
               x: drone.x, y: drone.y, angle: drone.heading, color: laserColor,
               radius: 4.5, intensity: .72, life: .11
             });
-            damage(target, u.damage / droneCount, u);
+            damage(target, u.damage / baseDroneCount, u);
           }
         } else if (u.type === 'heliasPhoenix') {
           u.attackAnim = .18;
@@ -4123,6 +4126,7 @@
         u.moving = false;
         u.moveSpeed = 0;
         if (u.hp <= 0) return;
+        u.templeAbilityCooldownLeft = Math.max(0, (u.templeAbilityCooldownLeft || 0) - dt);
         if (u.type === 'heliasVanguard') {
           u.phaseChargeCooldownLeft = Math.max(0, (u.phaseChargeCooldownLeft || 0) - dt);
           u.phaseChargeTimeLeft = Math.max(0, (u.phaseChargeTimeLeft || 0) - dt);
@@ -4893,6 +4897,33 @@
           return;
         }
       
+
+        if (s.type === 'heliasTempleMine') {
+          s.templeMineArmLeft = Math.max(0, (s.templeMineArmLeft || 0) - dt);
+          s.templeMineLifeLeft = Math.max(0, (s.templeMineLifeLeft || 0) - dt);
+          if (s.templeMineLifeLeft <= 0) { s.hp = 0; return; }
+          if (s.templeMineArmLeft > 0) return;
+          let target = null, best = (s.range || 54) ** 2;
+          for (const candidate of orderedCombatSpatialCandidates(s, (s.range || 54) + combatSpatialMaxEntityRadius)) {
+            if (!isAlive(candidate) || candidate.team === s.team || isAirUnit(candidate)) continue;
+            const distance = sqrDist(s, candidate);
+            if (distance < best) { best = distance; target = candidate; }
+          }
+          if (!target) return;
+          const splash = s.splash || BUILDING_DATA.heliasTempleMine.splash || 58;
+          addEffect('shockwave', { x: s.x, y: s.y, color: '#f6d76f', maxRadius: splash, width: 5, life: .38 });
+          addEffect('airExplosion', { x: s.x, y: s.y, radius: 22, color: '#9eeeff', life: .5 });
+          burst(s.x, s.y, '#f6d76f', 24, true, { shape: 'spark', lifeMin: .08, lifeMax: .42, sizeMin: 1, sizeMax: 4, speedMin: 25, speedMax: 130 });
+          for (const victim of orderedCombatSpatialCandidates(s, splash + combatSpatialMaxEntityRadius)) {
+            if (!isAlive(victim) || victim.team === s.team || isAirUnit(victim)) continue;
+            const distance = dist(s, victim);
+            if (distance > splash) continue;
+            damage(victim, s.damage * (1 - distance / splash * .38), s);
+          }
+          s.hp = 0;
+          return;
+        }
+
         if (s.underConstruction) {
           if (!s.constructionStarted) {
             const builder = units.find(u => u.id === s.builderId);
@@ -5557,6 +5588,7 @@
         state.placingBuildingType = null;
         state.placingSpawnFlag = false;
         state.placingQueenAbility = null;
+        state.placingChronoBoostNexusId = null;
         state.queenAbilityUnitIds = [];
         state.spawnFlagMode = null;
         state.spawnFlagStructureIds = [];
@@ -7945,7 +7977,9 @@
         heliasForge: { label: 'FORGE', costM: 150, costG: 100, hp: 480, sight: 140, w: 54, h: 46, buildTime: 12 },
         heliasTurret: { label: 'PHOTON CANNON', costM: 150, costG: 0, hp: 430, sight: 220, range: 190, damage: 28, cooldown: .68, w: 40, h: 40, buildTime: 10 },
         heliasRoboticsFacility: { label: 'ROBOTICS FACILITY', costM: 200, costG: 120, hp: 520, sight: 145, w: 58, h: 48, buildTime: 14 },
-        heliasStargate: { label: 'STARGATE', costM: 225, costG: 150, hp: 500, sight: 175, w: 60, h: 50, buildTime: 15 }
+        heliasStargate: { label: 'STARGATE', costM: 225, costG: 150, hp: 500, sight: 175, w: 60, h: 50, buildTime: 15 },
+        heliasTemple: { label: 'TEMPLE', costM: 175, costG: 150, hp: 430, sight: 180, w: 28, h: 26, buildTime: 13 },
+        heliasTempleMine: { label: 'HEAVY PRISM MINE', costM: 0, costG: 0, hp: 95, sight: 82, range: 54, damage: 115, cooldown: 1, w: 18, h: 16, buildTime: 0, splash: 58 }
       };
       
       const INSECT_HIVE_EVOLUTION = Object.freeze({
@@ -8227,7 +8261,7 @@
       const DEFAULT_FACTION_ID = 'humans';
       const HUMAN_UNIT_TYPES = Object.freeze(Object.keys(UNIT_DATA).filter(type => !type.startsWith('insect') && !type.startsWith('helias')));
       const INSECT_ONLY_BUILDING_TYPES = new Set(['broodHive', 'spawningNest', 'evolutionPit', 'spitterDen', 'carapaceWarren', 'airSpire', 'creepTumor', 'thornmawCrawler', 'skysporeSentinel']);
-      const HELIAS_ONLY_BUILDING_TYPES = new Set(['heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate']);
+      const HELIAS_ONLY_BUILDING_TYPES = new Set(['heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate', 'heliasTemple', 'heliasTempleMine']);
       const HUMAN_BUILDING_TYPES = Object.freeze(['hq', ...Object.keys(BUILDING_DATA).filter(type => !INSECT_ONLY_BUILDING_TYPES.has(type) && !HELIAS_ONLY_BUILDING_TYPES.has(type))]);
       const HUMAN_BUILD_MENU = Object.freeze([
         Object.freeze({ type: 'barracks', purpose: 'fast melee · long-range · mortar · T4 mecha', tone: 'military' }),
@@ -8347,7 +8381,7 @@
         helias: Object.freeze({
           id: 'helias', label: 'THE HELIAS', hqLabel: 'NEXUS', enabled: true,
           unitTypes: Object.freeze(['forager', 'heliasVanguard', 'heliasLancer', 'heliasSentry', 'heliasObserver', 'heliasImmortal', 'heliasColossus', 'heliasPhoenix', 'heliasVoidRay', 'heliasCarrier']),
-          buildingTypes: Object.freeze(['hq', 'gasExtractor', 'heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate']),
+          buildingTypes: Object.freeze(['hq', 'gasExtractor', 'heliasPylon', 'heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate', 'heliasTemple']),
           startingUnits: Object.freeze([
             Object.freeze({ type: 'forager', count: 4, autoHarvest: true })
           ]),
@@ -8387,11 +8421,12 @@
             Object.freeze({ type: 'heliasForge', purpose: 'global Helias shield, movement and weapon upgrades · requires Cybernetics Core and Pylon power', tone: 'research', unique: true, requires: ['heliasCyberCore'] }),
             Object.freeze({ type: 'heliasTurret', purpose: 'powered photon defence · attacks land and air · requires Forge and Pylon power', tone: 'defense', requires: ['heliasForge'] }),
             Object.freeze({ type: 'heliasRoboticsFacility', purpose: 'Veil Eyes and Bulwarks · facility upgrade unlocks Skystrider · requires Cybernetics Core and Pylon power', tone: 'military', unique: true, requires: ['heliasCyberCore'] }),
-            Object.freeze({ type: 'heliasStargate', purpose: 'Aurora Wings and Null Spears · Stargate upgrade unlocks Celestial Ark with 3 attack drones', tone: 'military', unique: true, requires: ['heliasCyberCore'] })
+            Object.freeze({ type: 'heliasStargate', purpose: 'Aurora Wings and Null Spears · Stargate upgrade unlocks Celestial Ark with 3 attack drones', tone: 'military', unique: true, requires: ['heliasCyberCore'] }),
+            Object.freeze({ type: 'heliasTemple', purpose: 'activates sacred combat ascensions for Celestial Arks, Skystriders, Prism Wardens and Veil Eyes · requires Forge and Pylon power', tone: 'ability', unique: true, requires: ['heliasForge'] })
           ]),
           structureLabels: Object.freeze({
             hq: 'NEXUS', gasExtractor: 'ASSIMILATOR', heliasPylon: 'PYLON', heliasGateway: 'GATEWAY',
-            heliasCyberCore: 'CYBERNETICS CORE', heliasForge: 'FORGE', heliasTurret: 'PHOTON CANNON', heliasRoboticsFacility: 'ROBOTICS FACILITY', heliasStargate: 'STARGATE'
+            heliasCyberCore: 'CYBERNETICS CORE', heliasForge: 'FORGE', heliasTurret: 'PHOTON CANNON', heliasRoboticsFacility: 'ROBOTICS FACILITY', heliasStargate: 'STARGATE', heliasTemple: 'TEMPLE'
           }),
           unitLabels: Object.freeze({
             forager: 'LUMINANT', heliasVanguard: 'SUNBLADE', heliasLancer: 'RIFT LANCER',
@@ -8759,7 +8794,7 @@
       const HELIAS_POWER_RADIUS = BUILDING_DATA.heliasPylon?.powerRadius || 182;
       const HELIAS_CHRONO_MULTIPLIER = 1.5;
       const HELIAS_UNPOWERED_EXEMPT_TYPES = new Set(['hq', 'gasExtractor', 'heliasPylon']);
-      const HELIAS_POWERED_STRUCTURE_TYPES = new Set(['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate']);
+      const HELIAS_POWERED_STRUCTURE_TYPES = new Set(['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate', 'heliasTemple']);
 
       function isHeliasTeam(team) {
         return teamFactionId(team, state.teamFactions) === 'helias';
@@ -8771,6 +8806,17 @@
         return structures.some(structure =>
           structure.team === team && structure.type === 'heliasPylon' && structure.hp > 0 && !structure.underConstruction &&
           Math.hypot(structure.x - x, structure.y - y) <= Math.max(24, HELIAS_POWER_RADIUS - margin)
+        );
+      }
+
+      const HELIAS_VEIL_WARP_RADIUS = 150;
+
+      function pointHasHeliasWarpEnergy(team, x, y) {
+        if (pointHasHeliasPower(team, x, y)) return true;
+        return units.some(unit =>
+          unit.team === team && unit.type === 'heliasObserver' && unit.hp > 0 &&
+          (unit.templeVeilCloakUntil || 0) > state.elapsed &&
+          Math.hypot(unit.x - x, unit.y - y) <= HELIAS_VEIL_WARP_RADIUS
         );
       }
 
@@ -10601,7 +10647,7 @@
         const cx = tx * TILE + TILE / 2;
         const cy = ty * TILE + TILE / 2;
         if (terrain[ty][tx] !== 0) return 'Warp-ins require open ground.';
-        if (!pointHasHeliasPower(team, cx, cy)) return 'Warp-ins must be placed inside an operational Pylon power field.';
+        if (!pointHasHeliasWarpEnergy(team, cx, cy)) return 'Warp-ins must be placed inside an operational Pylon field or an active Veil Eye energy zone.';
         const radius = Math.max(6, data.radius || 8);
         for (const structure of structures) {
           if (structure.hp <= 0) continue;
@@ -10693,7 +10739,7 @@
         if (state.gameOver) return false;
         const d = UNIT_DATA[type];
         if (producer?.type === 'heliasGateway' && producer.warpGate) {
-          const preferred = producer.spawnFlag && pointHasHeliasPower(producer.team, producer.spawnFlag.x, producer.spawnFlag.y)
+          const preferred = producer.spawnFlag && pointHasHeliasWarpEnergy(producer.team, producer.spawnFlag.x, producer.spawnFlag.y)
             ? producer.spawnFlag
             : { x: producer.x, y: producer.y };
           return queueWarpInAcross(type, [producer], preferred, producer.team);
@@ -10781,7 +10827,7 @@
           .filter(s => s.team === team && s.hp > 0 && !s.underConstruction)
           .sort((a, b) => a.id - b.id);
         if (group.length && group.every(s => s.type === 'heliasGateway' && s.warpGate)) {
-          const anchor = group.find(s => s.spawnFlag && pointHasHeliasPower(team, s.spawnFlag.x, s.spawnFlag.y))?.spawnFlag || group[0];
+          const anchor = group.find(s => s.spawnFlag && pointHasHeliasWarpEnergy(team, s.spawnFlag.x, s.spawnFlag.y))?.spawnFlag || group[0];
           return queueWarpInAcross(type, group, anchor, team);
         }
         const eligible = group.filter(s => !s.warpGate && !s.conversionJob && productionTypesFor(s).includes(type));
@@ -11041,7 +11087,7 @@
           : null;
         const warpGateDeployment = options.warpGateDeployment === true || (producer.type === 'heliasGateway' && producer.warpGate);
         const poweredRally = !explicitWarpPoint && warpGateDeployment && producer.spawnFlag &&
-          pointHasHeliasPower(team, producer.spawnFlag.x, producer.spawnFlag.y);
+          pointHasHeliasWarpEnergy(team, producer.spawnFlag.x, producer.spawnFlag.y);
         if (explicitWarpPoint) {
           sx = clamp(explicitWarpPoint.x, 12, WORLD_W - 12);
           sy = clamp(explicitWarpPoint.y, 12, WORLD_H - 12);
@@ -11622,7 +11668,7 @@
   __define("input.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("menu.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("pathing.js"); const __dep6 = __require("commandPanel.js"); const __dep7 = __require("rendering.js"); const __dep8 = __require("state.js"); const __dep9 = __require("terrain.js");
-    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => __dep1["MAX_GROUND_TAGS_PER_TEAM"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep2["placeCreepTumor"] }); Object.defineProperty(__imports, "commandQueenInject", { enumerable: true, get: () => __dep2["commandQueenInject"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep2["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "setQueenInjectAutocast", { enumerable: true, get: () => __dep2["setQueenInjectAutocast"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep2["startUnitMorph"] }); Object.defineProperty(__imports, "cancelUnitMorph", { enumerable: true, get: () => __dep2["cancelUnitMorph"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "queueWarpInAcross", { enumerable: true, get: () => __dep2["queueWarpInAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startGatewayTransformation", { enumerable: true, get: () => __dep2["startGatewayTransformation"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep2["startInsectUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openInsectStructureMenu", { enumerable: true, get: () => __dep7["openInsectStructureMenu"] }); Object.defineProperty(__imports, "openHeliasStructureMenu", { enumerable: true, get: () => __dep7["openHeliasStructureMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep9["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep9["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] });
+    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => __dep1["MAX_GROUND_TAGS_PER_TEAM"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep2["placeCreepTumor"] }); Object.defineProperty(__imports, "commandQueenInject", { enumerable: true, get: () => __dep2["commandQueenInject"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep2["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "setQueenInjectAutocast", { enumerable: true, get: () => __dep2["setQueenInjectAutocast"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep2["startUnitMorph"] }); Object.defineProperty(__imports, "cancelUnitMorph", { enumerable: true, get: () => __dep2["cancelUnitMorph"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "queueWarpInAcross", { enumerable: true, get: () => __dep2["queueWarpInAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startGatewayTransformation", { enumerable: true, get: () => __dep2["startGatewayTransformation"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep2["startInsectUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openInsectStructureMenu", { enumerable: true, get: () => __dep7["openInsectStructureMenu"] }); Object.defineProperty(__imports, "openHeliasStructureMenu", { enumerable: true, get: () => __dep7["openHeliasStructureMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep8["addStructure"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep9["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep9["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activateNextQueuedUnitOrder", { enumerable: true, get: () => activateNextQueuedUnitOrder }); Object.defineProperty(__exports, "applyGameCommand", { enumerable: true, get: () => applyGameCommand }); Object.defineProperty(__exports, "canAttackTarget", { enumerable: true, get: () => canAttackTarget }); Object.defineProperty(__exports, "clearSelection", { enumerable: true, get: () => clearSelection }); Object.defineProperty(__exports, "commandUnits", { enumerable: true, get: () => commandUnits }); Object.defineProperty(__exports, "selectedUnits", { enumerable: true, get: () => selectedUnits }); Object.defineProperty(__exports, "updateCamera", { enumerable: true, get: () => updateCamera });
@@ -11755,12 +11801,25 @@
       }
       
       const ENEMY_TARGET_PADDING = 16;
+
+      function templeVeilCloaked(unit) {
+        return !!unit && unit.type === 'heliasObserver' && (unit.templeVeilCloakUntil || 0) > state.elapsed;
+      }
+
+      function templeVeilDetectedByTeam(unit, team) {
+        if (!templeVeilCloaked(unit) || unit.team === team) return true;
+        return units.some(detector =>
+          detector.team === team && detector.hp > 0 && UNIT_DATA[detector.type]?.detector &&
+          Math.hypot(detector.x - unit.x, detector.y - unit.y) <= (detector.sight || UNIT_DATA[detector.type]?.sight || 0)
+        );
+      }
       
       function entityAt(p, teamFilter = null) {
         for (let i = units.length - 1; i >= 0; i--) {
           const u = units[i];
           const teamAccepted = !teamFilter || (typeof teamFilter === 'function' ? teamFilter(u) : u.team === teamFilter);
           if (u.hp <= 0 || !teamAccepted) continue;
+          if (u.team !== activeInputTeam() && !templeVeilDetectedByTeam(u, activeInputTeam())) continue;
           const targetPadding = u.team !== activeInputTeam() ? ENEMY_TARGET_PADDING : 0;
           if (Math.hypot(p.x - u.x, p.y - u.y) <= u.radius + (isAirUnit(u) ? 13 : 7) + targetPadding) return u;
         }
@@ -11785,6 +11844,7 @@
       
       function canAttackTarget(attacker, target) {
         if (!attacker || !target || attacker.hp <= 0 || target.hp <= 0 || attacker.team === target.team || attacker.damage <= 0 || attacker.morphJob) return false;
+        if (!templeVeilDetectedByTeam(target, attacker.team)) return false;
         if (attacker.kind === 'structure') {
           const targetIsAir = isAirUnit(target);
           if (attacker.type === 'heliasTurret') return true;
@@ -12036,7 +12096,7 @@
       const HELIAS_CHRONO_MULTIPLIER = 1.5;
 
       function heliaChronoTargetPowered(target) {
-        if (!target || !['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasRoboticsFacility', 'heliasStargate'].includes(target.type)) return true;
+        if (!target || !['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasRoboticsFacility', 'heliasStargate', 'heliasTemple'].includes(target.type)) return true;
         const radius = BUILDING_DATA.heliasPylon?.powerRadius || 182;
         const margin = Math.hypot((target.w || 0) / 2, (target.h || 0) / 2) * .28;
         return structures.some(structure =>
@@ -12063,6 +12123,83 @@
         target.chronoBoostSourceId = nexus.id;
         burst(target.x, target.y, '#9eeeff', 24, true, { lifeMin: .25, lifeMax: .7, sizeMin: 2, sizeMax: 5, speedMin: 22, speedMax: 74, alpha: .9 });
         toast(`CHRONO BOOST active on ${target.type === 'hq' ? 'NEXUS' : (BUILDING_DATA[target.type]?.label || 'FACILITY')} for ${HELIAS_CHRONO_DURATION}s.`, COLORS.good, nexus.team);
+        return true;
+      }
+
+
+      const HELIAS_TEMPLE_SKYARK_DURATION = 18;
+      const HELIAS_TEMPLE_SKYSTRIDER_DURATION = 15;
+      const HELIAS_TEMPLE_VEIL_DURATION = 10;
+      const HELIAS_TEMPLE_SKYARK_COOLDOWN = 45;
+      const HELIAS_TEMPLE_SKYSTRIDER_COOLDOWN = 40;
+      const HELIAS_TEMPLE_SENTRY_COOLDOWN = 32;
+      const HELIAS_TEMPLE_VEIL_COOLDOWN = 35;
+
+      function operationalHeliasTemple(team) {
+        return structures.find(structure =>
+          structure.team === team && structure.type === 'heliasTemple' && structure.hp > 0 &&
+          !structure.underConstruction && heliaChronoTargetPowered(structure)
+        ) || null;
+      }
+
+      function placeTempleHeavyMines(unit) {
+        let placed = 0;
+        const radius = 29;
+        for (let index = 0; index < 3; index++) {
+          const angle = (Number.isFinite(unit.heading) ? unit.heading : 0) + index * Math.PI * 2 / 3;
+          const x = clamp(unit.x + Math.cos(angle) * radius, 12, WORLD_W - 12);
+          const y = clamp(unit.y + Math.sin(angle) * radius, 12, WORLD_H - 12);
+          const mine = addStructure('heliasTempleMine', unit.team, x, y, {
+            hp: BUILDING_DATA.heliasTempleMine.hp,
+            underConstruction: false,
+            templeMine: true,
+            templeMineArmLeft: .7,
+            templeMineLifeLeft: 35,
+            templeMineOwnerId: unit.id,
+            heading: angle
+          });
+          if (mine) placed++;
+        }
+        return placed;
+      }
+
+      function activateHeliasTempleBoost(unitIds, ability, team) {
+        const temple = operationalHeliasTemple(team);
+        if (!temple) {
+          toast('An operational powered TEMPLE is required.', COLORS.warn, team);
+          return false;
+        }
+        const expectedType = ({ skyark: 'heliasCarrier', skystrider: 'heliasColossus', sentryMines: 'heliasSentry', veil: 'heliasObserver' })[ability];
+        if (!expectedType) return false;
+        const selected = (unitIds || [])
+          .map(id => units.find(unit => unit.id === id && unit.team === team && unit.type === expectedType && unit.hp > 0))
+          .filter(Boolean).sort((a, b) => a.id - b.id);
+        let changed = 0;
+        for (const unit of selected) {
+          if ((unit.templeAbilityCooldownLeft || 0) > 0) continue;
+          if (ability === 'skyark') {
+            unit.templeSkyarkBoostUntil = state.elapsed + HELIAS_TEMPLE_SKYARK_DURATION;
+            unit.templeAbilityCooldownLeft = HELIAS_TEMPLE_SKYARK_COOLDOWN;
+          } else if (ability === 'skystrider') {
+            unit.templeSkystriderBoostUntil = state.elapsed + HELIAS_TEMPLE_SKYSTRIDER_DURATION;
+            unit.templeAbilityCooldownLeft = HELIAS_TEMPLE_SKYSTRIDER_COOLDOWN;
+          } else if (ability === 'sentryMines') {
+            if (!placeTempleHeavyMines(unit)) continue;
+            unit.templeAbilityCooldownLeft = HELIAS_TEMPLE_SENTRY_COOLDOWN;
+          } else if (ability === 'veil') {
+            unit.templeVeilCloakUntil = state.elapsed + HELIAS_TEMPLE_VEIL_DURATION;
+            unit.templeAbilityCooldownLeft = HELIAS_TEMPLE_VEIL_COOLDOWN;
+          }
+          addEffect('muzzleRing', { x: unit.x, y: unit.y, angle: unit.heading || 0, color: '#f6d76f', radius: unit.radius + 14, intensity: 2, life: .42 });
+          burst(unit.x, unit.y, '#f6d76f', 16, true, { shape: 'spark', lifeMin: .12, lifeMax: .5, sizeMin: 1, sizeMax: 4, speedMin: 18, speedMax: 86, alpha: .95 });
+          changed++;
+        }
+        if (!changed) {
+          toast('The selected units are still recharging their Temple ascension.', COLORS.warn, team);
+          return false;
+        }
+        const label = ({ skyark: 'ROYAL SKYARK', skystrider: 'SACRED SKYSTRIDER BEAMS', sentryMines: 'TRIUNE HEAVY MINES', veil: 'VEIL SANCTUM' })[ability];
+        toast(`${label} activated for ${changed} unit${changed === 1 ? '' : 's'}.`, COLORS.good, team);
         return true;
       }
 
@@ -12144,6 +12281,8 @@
             const target = structures.find(candidate => candidate.id === command.targetId && candidate.team === command.team);
             return !!activateHeliasChronoBoost(nexus, target);
           }
+          case 'activateHeliasTempleBoost':
+            return !!activateHeliasTempleBoost(command.unitIds, command.ability, command.team);
           case 'activateAdrenaline': {
             const structure = structures.find(candidate => candidate.id === command.structureId && candidate.team === command.team);
             return !!activateAdrenalineRush(structure);
@@ -12207,6 +12346,31 @@
       function processWorldClick(p, evt) {
         if (state.gameOver) return;
         const screenPt = { x: state.mouse.x, y: state.mouse.y };
+
+        if (state.placingChronoBoostNexusId) {
+          const team = activeInputTeam();
+          const nexus = structures.find(candidate => candidate.id === state.placingChronoBoostNexusId && candidate.team === team && candidate.type === 'hq' && candidate.hp > 0 && !candidate.underConstruction);
+          const target = structures
+            .filter(candidate => candidate.team === team && candidate.hp > 0 && !candidate.underConstruction &&
+              ['hq', 'heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate'].includes(candidate.type) &&
+              Math.abs(candidate.x - p.x) <= candidate.w / 2 && Math.abs(candidate.y - p.y) <= candidate.h / 2)
+            .sort((a, b) => sqrDist(a, p) - sqrDist(b, p) || a.id - b.id)[0];
+          if (!nexus) {
+            state.placingChronoBoostNexusId = null;
+            toast('The selected Nexus is no longer available.', COLORS.warn, team);
+            openBuildMenu();
+            return;
+          }
+          if (!target) {
+            toast('Click your Nexus, Gateway, Cybernetics Core, Robotics Facility or Stargate.', COLORS.warn, team);
+            return;
+          }
+          if (queueInputCommand({ type: 'activateChronoBoost', team, nexusId: nexus.id, targetId: target.id })) {
+            state.placingChronoBoostNexusId = null;
+            openHQMenu(screenPt, nexus);
+          }
+          return;
+        }
       
         if (state.placingQueenAbility === 'inject') {
           const team = activeInputTeam();
@@ -12410,6 +12574,7 @@
           state.contextMenu = null;
           clearCommandMenu();
           state.placingQueenAbility = null;
+          state.placingChronoBoostNexusId = null;
           state.queenAbilityUnitIds = [];
           cancelBuildingPlacement();
           state.placingSpawnFlag = false;
@@ -12624,6 +12789,7 @@
           state.contextMenu = null;
           clearCommandMenu();
           state.placingQueenAbility = null;
+          state.placingChronoBoostNexusId = null;
           state.queenAbilityUnitIds = [];
           cancelBuildingPlacement();
           state.placingSpawnFlag = false;
@@ -20557,7 +20723,7 @@
       const HELIAS_AIR_PORTRAITS = new Set(['heliasObserver', 'heliasPhoenix', 'heliasVoidRay', 'heliasCarrier']);
       const HELIAS_HEAVY_PORTRAITS = new Set(['heliasImmortal', 'heliasColossus']);
       const TURRET_BUILDING_PORTRAITS = new Set(['turret', 'antiAirTurret', 'radarTurret', 'thornmawCrawler', 'skysporeSentinel', 'heliasTurret']);
-      const SMALL_BUILDING_PORTRAITS = new Set(['housing', 'creepTumor', 'heliasPylon']);
+      const SMALL_BUILDING_PORTRAITS = new Set(['housing', 'creepTumor', 'heliasPylon', 'heliasTemple']);
 
       function unitPortraitPresentation(faction, type) {
         if (faction === 'humans') {
@@ -21936,20 +22102,19 @@ function compileShader(gl, type, source) {
             structure.team === team && structure.hp > 0 && !structure.underConstruction &&
             ['hq', 'heliasGateway', 'heliasCyberCore', 'heliasRoboticsFacility', 'heliasStargate'].includes(structure.type)
           ).sort((a, b) => a.id - b.id);
-          for (const target of chronoTargets) {
-            items.push({
-              label: `CHRONO BOOST · ${factionStructureLabel(target.type, team, state.teamFactions)}`,
-              sub: () => (primary.chronoCooldownLeft || 0) > 0
-                ? `recharging · ${Math.ceil(primary.chronoCooldownLeft)}s`
-                : (target.chronoBoostTimeLeft || 0) > 0
-                  ? `already accelerated · ${Math.ceil(target.chronoBoostTimeLeft)}s remaining`
-                  : `+50% production speed for 15s${target.queue?.length ? ` · ${target.queue.length} queued` : ''}`,
-              tone: 'ability',
-              enabled: () => (primary.chronoCooldownLeft || 0) <= 0 && (target.chronoBoostTimeLeft || 0) <= 0,
-              command: { type: 'activateChronoBoost', team, nexusId: primary.id, targetId: target.id },
-              afterQueue: () => openHQMenu(screenPt, primary)
-            });
-          }
+          items.push({
+            label: 'CHRONO BOOST',
+            sub: () => (primary.chronoCooldownLeft || 0) > 0
+              ? `recharging · ${Math.ceil(primary.chronoCooldownLeft)}s`
+              : `select one of ${chronoTargets.length} eligible buildings · +50% production speed for 15s`,
+            tone: 'ability',
+            enabled: () => (primary.chronoCooldownLeft || 0) <= 0 && chronoTargets.some(target => (target.chronoBoostTimeLeft || 0) <= 0),
+            action: () => {
+              state.placingChronoBoostNexusId = primary.id;
+              clearCommandMenu();
+              toast('CHRONO BOOST ready · click the Helias building you want to accelerate.', COLORS.good, team);
+            }
+          });
         } else if (!insectHive) {
           items.push(adrenalineMenuItem(primary, () => openHQMenu(screenPt, primary)));
         }
@@ -21960,6 +22125,7 @@ function compileShader(gl, type, source) {
         openMenu(screenPt, title, items, true);
       }
       
+
       function spawnFlagShortLabel(type) {
         return ({ hq: 'HQ', barracks: 'BAR', garage: 'GAR', airBay: 'AIR', supportCamp: 'SUP', minersHut: 'HUT' })[type] || 'SPAWN';
       }
@@ -21996,7 +22162,7 @@ function compileShader(gl, type, source) {
         const point = { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 };
         if (!state.explored[ty]?.[tx]) return { valid: false, point, error: 'Warp-ins require explored ground.' };
         if (terrain[ty][tx] !== 0) return { valid: false, point, error: 'Warp-ins require open ground.' };
-        if (!pointHasHeliasPowerForMenu(team, point.x, point.y)) return { valid: false, point, error: 'Warp-ins must be inside an operational Pylon field.' };
+        if (!pointHasHeliasPowerForMenu(team, point.x, point.y)) return { valid: false, point, error: 'Warp-ins must be inside a Pylon field or active Veil Eye energy zone.' };
         const radius = Math.max(6, data.radius || 8);
         for (const structure of structures) {
           if (structure.hp <= 0) continue;
@@ -22717,7 +22883,7 @@ function compileShader(gl, type, source) {
       }
       function heliaStructurePoweredForMenu(structure) {
         if (!structure || teamFactionId(structure.team, state.teamFactions) !== 'helias') return true;
-        if (!['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate'].includes(structure.type)) return true;
+        if (!['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate', 'heliasTemple'].includes(structure.type)) return true;
         const radius = BUILDING_DATA.heliasPylon?.powerRadius || 182;
         const margin = Math.hypot((structure.w || 0) / 2, (structure.h || 0) / 2) * .28;
         return structures.some(pylon =>
@@ -22729,10 +22895,12 @@ function compileShader(gl, type, source) {
       function pointHasHeliasPowerForMenu(team, x, y) {
         if (teamFactionId(team, state.teamFactions) !== 'helias') return true;
         const radius = BUILDING_DATA.heliasPylon?.powerRadius || 182;
-        return structures.some(pylon =>
+        if (structures.some(pylon =>
           pylon.team === team && pylon.type === 'heliasPylon' && pylon.hp > 0 && !pylon.underConstruction &&
           Math.hypot(pylon.x - x, pylon.y - y) <= radius
-        );
+        )) return true;
+        return units.some(unit => unit.team === team && unit.type === 'heliasObserver' && unit.hp > 0 &&
+          (unit.templeVeilCloakUntil || 0) > state.elapsed && Math.hypot(unit.x - x, unit.y - y) <= 150);
       }
 
       function openHeliasStructureMenu(s, screenPt) {
@@ -22761,6 +22929,11 @@ function compileShader(gl, type, source) {
             });
           }
           items.push({ label: 'ADVANCED TECHNOLOGY FOUNDATION', sub: 'required before constructing a Forge, Robotics Facility or Stargate', tone: 'info', enabled: false, action: () => {} });
+        } else if (s.type === 'heliasTemple') {
+          const powered = heliaStructurePoweredForMenu(s);
+          items.push({ label: powered ? 'TEMPLE ASCENSIONS ONLINE' : 'TEMPLE UNPOWERED', sub: powered ? 'select supported combat units to activate their sacred power during battle' : 'move a Pylon field over the Temple to reactivate its ascensions', tone: powered ? 'ability' : 'warning', enabled: false, action: () => {} });
+          items.push({ label: 'ROYAL SKYARK · SACRED SKYSTRIDER', sub: 'Celestial Arks command five attack drones · Skystriders fire two crossing beams', tone: 'military', enabled: false, action: () => {} });
+          items.push({ label: 'TRIUNE MINES · VEIL SANCTUM', sub: 'Prism Wardens deploy three heavy mines · Veil Eyes cloak and project warp energy for 10s', tone: 'support', enabled: false, action: () => {} });
         } else if (s.type === 'heliasForge') {
           const powered = heliaStructurePoweredForMenu(s);
           const registry = heliasForgeRegistry(s.team);
@@ -23118,6 +23291,40 @@ function compileShader(gl, type, source) {
         return true;
       }
 
+
+      function openHeliasTempleAbilityMenu(selected) {
+        if (!selected?.length) return false;
+        const team = selected[0].team;
+        if (teamFactionId(team, state.teamFactions) !== 'helias') return false;
+        const temple = structures.find(structure => structure.team === team && structure.type === 'heliasTemple' && structure.hp > 0 && !structure.underConstruction && heliaStructurePoweredForMenu(structure));
+        if (!temple) return false;
+        const specs = [
+          { type: 'heliasCarrier', ability: 'skyark', label: 'ROYAL SKYARK', description: '18s · commands 5 attack drones instead of 3', cooldown: 45 },
+          { type: 'heliasColossus', ability: 'skystrider', label: 'SACRED SKYSTRIDER BEAMS', description: '15s · fires 2 crossing beams with +25% strike damage', cooldown: 40 },
+          { type: 'heliasSentry', ability: 'sentryMines', label: 'TRIUNE HEAVY MINES', description: 'places 3 heavy proximity mines around each selected Prism Warden', cooldown: 32 },
+          { type: 'heliasObserver', ability: 'veil', label: 'VEIL SANCTUM', description: '10s cloak · becomes a 150-range warp-energy zone', cooldown: 35 }
+        ];
+        const items = [];
+        for (const spec of specs) {
+          const matching = selected.filter(unit => unit.type === spec.type);
+          if (!matching.length) continue;
+          items.push({
+            label: `${spec.label}${matching.length > 1 ? ` · ${matching.length} UNITS` : ''}`,
+            sub: () => {
+              const ready = matching.filter(unit => (unit.templeAbilityCooldownLeft || 0) <= 0);
+              return ready.length ? `${spec.description} · ${ready.length}/${matching.length} ready` : `recharging · ${Math.ceil(Math.min(...matching.map(unit => unit.templeAbilityCooldownLeft || 0)))}s`;
+            },
+            tone: 'ability',
+            enabled: () => matching.some(unit => (unit.templeAbilityCooldownLeft || 0) <= 0),
+            command: { type: 'activateHeliasTempleBoost', team, ability: spec.ability, unitIds: matching.map(unit => unit.id) },
+            afterQueue: () => openBuildMenu()
+          });
+        }
+        if (!items.length) return false;
+        openMenu(state.mouse, 'TEMPLE ASCENSIONS', items, true);
+        return true;
+      }
+
       function openSelectedStructureCommandMenu(team) {
         const selected = structures.filter(structure =>
           structure.team === team && structure.hp > 0 && state.selectedStructures.has(structure.id)
@@ -23141,7 +23348,7 @@ function compileShader(gl, type, source) {
         if (['spawningNest', 'evolutionPit', 'spitterDen', 'carapaceWarren', 'airSpire', 'creepTumor', 'thornmawCrawler', 'skysporeSentinel'].includes(structure.type)) {
           openInsectStructureMenu(structure, state.mouse); return true;
         }
-        if (['heliasPylon', 'heliasCyberCore', 'heliasForge', 'heliasTurret'].includes(structure.type)) { openHeliasStructureMenu(structure, state.mouse); return true; }
+        if (['heliasPylon', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasTemple'].includes(structure.type)) { openHeliasStructureMenu(structure, state.mouse); return true; }
         if (structure.type === 'minersHut') { openMinersHutMenu(structure, state.mouse); return true; }
         if (structure.type === 'housing') { openHousingMenu(structure, state.mouse); return true; }
         if (structure.type === 'researchFacility') { openResearchFacilityMenu(structure, state.mouse); return true; }
@@ -23161,6 +23368,7 @@ function compileShader(gl, type, source) {
           openQueenControlMenu(selectedQueens);
           return;
         }
+        if (selectedLivingUnits.length && openHeliasTempleAbilityMenu(selectedLivingUnits)) return;
         if (selectedLivingUnits.length && openUnitMorphMenu(selectedLivingUnits)) return;
         if (!selectedLivingUnits.length && !state.placingBuildingType && openSelectedStructureCommandMenu(team)) return;
         if (teamFactionId(team, state.teamFactions) === 'insects' && !state.placingBuildingType) {
@@ -25311,6 +25519,48 @@ function drawHeliasPylonStructure(s, x, y, team, light, flash) {
   drawStructureLabel('PYLON', s, y, '#9eeeff', 8);
 }
 
+
+function drawHeliasTempleStructure(s, x, y, team, light, flash) {
+  const pulse = .5 + Math.sin(state.elapsed * 4.4 + s.id) * .5;
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,.48)';
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 7, 18, 9, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = flash ? '#ffffff' : '#17141d';
+  ctx.strokeStyle = '#d9b75f'; ctx.lineWidth = 2 / cam.zoom;
+  ctx.beginPath();
+  ctx.moveTo(s.x - 12, s.y + 9); ctx.lineTo(s.x - 7, s.y - 17); ctx.lineTo(s.x - 3, s.y - 34);
+  ctx.lineTo(s.x + 3, s.y - 34); ctx.lineTo(s.x + 7, s.y - 17); ctx.lineTo(s.x + 12, s.y + 9);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#08090d'; ctx.fillRect(s.x - 5, s.y - 17, 10, 25);
+  ctx.strokeStyle = '#f6d76f'; ctx.lineWidth = 1.5 / cam.zoom;
+  for (const yy of [-19, -8, 3]) { ctx.beginPath(); ctx.moveTo(s.x - 7, s.y + yy); ctx.lineTo(s.x + 7, s.y + yy); ctx.stroke(); }
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.shadowColor = '#9eeeff'; ctx.shadowBlur = 12;
+  ctx.strokeStyle = pulse > .5 ? '#9eeeff' : '#c4a8ff'; ctx.lineWidth = 1.6 / cam.zoom;
+  ctx.beginPath();
+  for (let i = 0; i <= 7; i++) {
+    const yy = s.y + 6 - i * 5;
+    const xx = s.x + Math.sin(state.elapsed * 7 + s.id + i * 1.7) * (7 - i * .55);
+    if (!i) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#fff4b0'; ctx.globalAlpha = .7 + pulse * .3;
+  ctx.beginPath(); ctx.arc(s.x, s.y - 36, 3.5 + pulse * 1.5, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawHeliasTempleMineStructure(s) {
+  const armed = (s.templeMineArmLeft || 0) <= 0;
+  const pulse = .5 + Math.sin(state.elapsed * 9 + s.id) * .5;
+  ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(s.heading || 0);
+  ctx.fillStyle = '#090b11'; ctx.strokeStyle = '#d9b75f'; ctx.lineWidth = 1.4 / cam.zoom;
+  ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(8, 5); ctx.lineTo(0, 8); ctx.lineTo(-8, 5); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = armed ? '#9eeeff' : '#6b577f';
+  ctx.globalAlpha = armed ? .65 + pulse * .35 : .35;
+  ctx.beginPath(); ctx.arc(0, 0, 3 + pulse * 1.5, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
 function drawHeliasGatewayStructure(s, x, y, team, light, flash) {
   // Infantry warp shrine: a split golden arch makes the production role legible,
   // while the animated aperture reads as the point where troops materialize.
@@ -26865,7 +27115,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
 
       function renderHeliasStructurePowered(s) {
   if (!s || teamFactionId(s.team, state.teamFactions) !== 'helias') return true;
-  if (!['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate'].includes(s.type)) return true;
+  if (!['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate', 'heliasTemple'].includes(s.type)) return true;
   const radius = BUILDING_DATA.heliasPylon?.powerRadius || 182;
   const margin = Math.hypot((s.w || 0) / 2, (s.h || 0) / 2) * .28;
   return structures.some(pylon => pylon.team === s.team && pylon.type === 'heliasPylon' && pylon.hp > 0 && !pylon.underConstruction &&
@@ -26956,7 +27206,9 @@ function drawStructure(s) {
   else if (s.type === 'creepTumor') drawCreepTumorStructure(s, x, y, team, light, flash);
   else if (s.type === 'thornmawCrawler') drawInsectDefenseStructure(s, x, y, team, light, flash, false);
   else if (s.type === 'skysporeSentinel') drawInsectDefenseStructure(s, x, y, team, light, flash, true);
+  else if (s.type === 'heliasTempleMine') drawHeliasTempleMineStructure(s);
   else if (s.type === 'heliasPylon') drawHeliasPylonStructure(s, x, y, team, light, flash);
+  else if (s.type === 'heliasTemple') drawHeliasTempleStructure(s, x, y, team, light, flash);
   else if (s.type === 'heliasGateway') drawHeliasGatewayStructure(s, x, y, team, light, flash);
   else if (s.type === 'heliasCyberCore') drawHeliasCyberCoreStructure(s, x, y, team, light, flash);
   else if (s.type === 'heliasForge') drawHeliasTechStructure(s, x, y, team, light, flash, 'FORGE', 'forge');
@@ -27070,7 +27322,8 @@ function drawStructure(s) {
       }
 
       function renderCelestialArkDronePosition(carrier, index, target = carrier?.target) {
-        const droneCount = Math.max(1, Math.min(3, UNIT_DATA.heliasCarrier.interceptors || 3));
+        const baseDroneCount = Math.max(1, UNIT_DATA.heliasCarrier.interceptors || 3);
+        const droneCount = (carrier.templeSkyarkBoostUntil || 0) > state.elapsed ? 5 : baseDroneCount;
         const phase = state.elapsed * 3.35 + carrier.id * .37 + index * Math.PI * 2 / droneCount;
         if (renderCelestialArkDronesEngaged(carrier, target)) {
           const targetRadius = target.radius || Math.max(target.w || 0, target.h || 0) * .28 || 8;
@@ -27095,15 +27348,32 @@ function drawStructure(s) {
         };
       }
       
+
+      function renderTempleVeilDetected(unit, team) {
+        if (!unit || unit.type !== 'heliasObserver' || (unit.templeVeilCloakUntil || 0) <= state.elapsed || unit.team === team) return true;
+        return units.some(detector => detector.team === team && detector.hp > 0 && UNIT_DATA[detector.type]?.detector &&
+          Math.hypot(detector.x - unit.x, detector.y - unit.y) <= (detector.sight || UNIT_DATA[detector.type]?.sight || 0));
+      }
+
       function drawUnit(u) {
         if (u.hp <= 0) return;
         if (!isLocallyVisibleToTeam(activeCommandTeam(), u.x, u.y) && u.team !== activeCommandTeam()) return;
+        if (!renderTempleVeilDetected(u, activeCommandTeam())) return;
+        const veilActive = u.type === 'heliasObserver' && (u.templeVeilCloakUntil || 0) > state.elapsed;
+        if (veilActive) {
+          const pulse = .55 + Math.sin(state.elapsed * 6 + u.id) * .18;
+          ctx.save(); ctx.globalAlpha = .07 + pulse * .04; ctx.fillStyle = '#9eeeff';
+          ctx.beginPath(); ctx.arc(u.x, u.y, 150, 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = .5 + pulse * .25; ctx.strokeStyle = '#f6d76f'; ctx.lineWidth = 2 / cam.zoom; ctx.setLineDash([8 / cam.zoom, 6 / cam.zoom]);
+          ctx.beginPath(); ctx.arc(u.x, u.y, 150, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+        }
         const team = colorForTeam(u.team);
         const light = colorForTeam(u.team, 'light');
         const airborne = isAirUnit(u);
         const hover = airborne ? Math.sin(state.elapsed * 6 + u.flightPhase) * 1.2 : 0;
         const x = airborne ? u.x : Math.round(u.x);
         const y = airborne ? u.y : Math.round(u.y);
+        if (veilActive) { ctx.save(); ctx.globalAlpha = u.team === activeCommandTeam() ? .48 : .7; }
       
         if (isResourceHarvester(u) && (u.adrenalineUntil || 0) > state.elapsed) {
           const pulse = .55 + Math.sin(state.elapsed * 12 + u.id) * .25;
@@ -29168,6 +29438,7 @@ function drawStructure(s) {
         ctx.restore();
         const largeHelias = u.type === 'heliasColossus' || u.type === 'heliasImmortal' || u.type === 'heliasVoidRay' || u.type === 'heliasCarrier';
         const mediumHelias = u.type === 'heliasLancer' || u.type === 'heliasSentry' || u.type === 'heliasObserver' || u.type === 'heliasPhoenix';
+        if (veilActive) ctx.restore();
         hpBar(u, (u.type === 'titanTank' || u.type === 'mecha' || u.type === 'bomber' || largeHelias) ? 42 : u.type === 'doubleChopper' ? 38 : (u.type === 'antiAirFighter' || mediumHelias) ? 34 : (u.type === 'forceFieldTruck' || u.type === 'heavy' || u.type === 'armoredJeep' || u.type === 'jeep' || u.type === 'roboMiner' || u.type === 'helicopter') ? 30 : (u.type === 'mortar' ? 28 : (u.type === 'forager' ? 20 : 24)), -u.radius - 10);
       }
       
@@ -29895,9 +30166,12 @@ function drawStructure(s) {
           } else if (e.type === 'beam' && e.source && e.target) {
             const sourceHeading = Number.isFinite(e.source.heading) ? e.source.heading : 0;
             const originOffset = e.originOffset || 0;
-            const sx = e.source.x + Math.cos(sourceHeading) * originOffset;
-            const sy = e.source.y + Math.sin(sourceHeading) * originOffset;
-            const tx = e.target.x, ty = e.target.y;
+            const originSideOffset = e.originSideOffset || 0;
+            const targetSideOffset = e.targetSideOffset || 0;
+            const sx = e.source.x + Math.cos(sourceHeading) * originOffset - Math.sin(sourceHeading) * originSideOffset;
+            const sy = e.source.y + Math.sin(sourceHeading) * originOffset + Math.cos(sourceHeading) * originSideOffset;
+            const tx = e.target.x - Math.sin(sourceHeading) * targetSideOffset;
+            const ty = e.target.y + Math.cos(sourceHeading) * targetSideOffset;
             ctx.globalAlpha = alpha;
             if (e.voidRay) {
               const dx = tx - sx, dy = ty - sy;
@@ -30335,6 +30609,8 @@ function drawStructure(s) {
         }
         const dot = (o, col) => {
           if (o.team !== activeCommandTeam() && !isLocallyVisibleToTeam(activeCommandTeam(), o.x, o.y)) return;
+          if (o.type === 'heliasTempleMine') return;
+          if (o.kind === 'unit' && !renderTempleVeilDetected(o, activeCommandTeam())) return;
           ctx.fillStyle = col;
           ctx.fillRect(mx + o.x * sx - 1, my + o.y * sy - 1, 3, 3);
         };
@@ -30990,6 +31266,7 @@ function drawStructure(s) {
         placingBuildingType: null,
         placingSpawnFlag: false,
         placingQueenAbility: null,
+        placingChronoBoostNexusId: null,
         queenAbilityUnitIds: [],
         spawnFlagMode: null,
         spawnFlagStructureIds: [],
