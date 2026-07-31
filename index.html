@@ -20667,7 +20667,16 @@
         throw new Error(`Unsupported GLB component type: ${componentType}`);
       }
       
-      function readAccessor(json, binary, accessorIndex) {
+      
+function normalizeGLTFComponent(value, componentType) {
+        if (componentType === 5120) return Math.max(-1, value / 127);
+        if (componentType === 5121) return value / 255;
+        if (componentType === 5122) return Math.max(-1, value / 32767);
+        if (componentType === 5123) return value / 65535;
+        return value;
+      }
+      
+      function readAccessor(json, binary, accessorIndex, options = {}) {
         const accessor = json.accessors?.[accessorIndex];
         if (!accessor) throw new Error(`Missing GLB accessor ${accessorIndex}`);
         const bufferView = json.bufferViews?.[accessor.bufferView];
@@ -20680,13 +20689,276 @@
         const base = (bufferView.byteOffset || 0) + (accessor.byteOffset || 0);
         const source = new DataView(binary.buffer, binary.byteOffset, binary.byteLength);
         const total = accessor.count * components;
-        const values = accessor.componentType === 5126 ? new Float32Array(total) : accessor.componentType === 5125 ? new Uint32Array(total) : new Uint16Array(total);
+        const keepIntegers = !!options.keepIntegers;
+        const values = keepIntegers
+          ? new Uint32Array(total)
+          : new Float32Array(total);
         let output = 0;
         for (let row = 0; row < accessor.count; row++) {
           const rowOffset = base + row * stride;
-          for (let component = 0; component < components; component++) values[output++] = readComponent(source, rowOffset + component * componentBytes, accessor.componentType);
+          for (let component = 0; component < components; component++) {
+            let value = readComponent(source, rowOffset + component * componentBytes, accessor.componentType);
+            if (!keepIntegers && accessor.normalized && accessor.componentType !== 5126) value = normalizeGLTFComponent(value, accessor.componentType);
+            values[output++] = value;
+          }
         }
         return { values, accessor };
+      }
+      
+      function identityMat4() {
+        return new Float32Array([1, 0, 0, 0,
+                                 0, 1, 0, 0,
+                                 0, 0, 1, 0,
+                                 0, 0, 0, 1]);
+      }
+      
+      function multiplyMat4(a, b) {
+        const out = new Float32Array(16);
+        for (let col = 0; col < 4; col++) {
+          const b0 = b[col * 4];
+          const b1 = b[col * 4 + 1];
+          const b2 = b[col * 4 + 2];
+          const b3 = b[col * 4 + 3];
+          out[col * 4] = a[0] * b0 + a[4] * b1 + a[8] * b2 + a[12] * b3;
+          out[col * 4 + 1] = a[1] * b0 + a[5] * b1 + a[9] * b2 + a[13] * b3;
+          out[col * 4 + 2] = a[2] * b0 + a[6] * b1 + a[10] * b2 + a[14] * b3;
+          out[col * 4 + 3] = a[3] * b0 + a[7] * b1 + a[11] * b2 + a[15] * b3;
+        }
+        return out;
+      }
+      
+      function composeNodeMatrix(node) {
+        if (Array.isArray(node?.matrix) && node.matrix.length === 16) return new Float32Array(node.matrix);
+        const t = node?.translation || [0, 0, 0];
+        const r = node?.rotation || [0, 0, 0, 1];
+        const s = node?.scale || [1, 1, 1];
+        const x = r[0], y = r[1], z = r[2], w = r[3];
+        const x2 = x + x, y2 = y + y, z2 = z + z;
+        const xx = x * x2, xy = x * y2, xz = x * z2;
+        const yy = y * y2, yz = y * z2, zz = z * z2;
+        const wx = w * x2, wy = w * y2, wz = w * z2;
+        const sx = s[0], sy = s[1], sz = s[2];
+        return new Float32Array([
+          (1 - (yy + zz)) * sx, (xy + wz) * sx, (xz - wy) * sx, 0,
+          (xy - wz) * sy, (1 - (xx + zz)) * sy, (yz + wx) * sy, 0,
+          (xz + wy) * sz, (yz - wx) * sz, (1 - (xx + yy)) * sz, 0,
+          t[0], t[1], t[2], 1
+        ]);
+      }
+      
+      function transformPosition3(matrix, x, y, z) {
+        return [
+          matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12],
+          matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13],
+          matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14]
+        ];
+      }
+      
+      function transformDirection3(matrix, x, y, z) {
+        const dx = matrix[0] * x + matrix[4] * y + matrix[8] * z;
+        const dy = matrix[1] * x + matrix[5] * y + matrix[9] * z;
+        const dz = matrix[2] * x + matrix[6] * y + matrix[10] * z;
+        const length = Math.hypot(dx, dy, dz) || 1;
+        return [dx / length, dy / length, dz / length];
+      }
+      
+      function expandVertexColors(colorValues, accessor, baseColor) {
+        const count = accessor.count;
+        const components = COMPONENTS[accessor.type] || 0;
+        const out = new Float32Array(count * 4);
+        for (let index = 0; index < count; index++) {
+          const source = index * components;
+          const target = index * 4;
+          const r = components > 0 ? colorValues[source] : 1;
+          const g = components > 1 ? colorValues[source + 1] : 1;
+          const b = components > 2 ? colorValues[source + 2] : 1;
+          const a = components > 3 ? colorValues[source + 3] : 1;
+          out[target] = r * baseColor[0];
+          out[target + 1] = g * baseColor[1];
+          out[target + 2] = b * baseColor[2];
+          out[target + 3] = a * baseColor[3];
+        }
+        return out;
+      }
+      
+      function solidVertexColors(count, baseColor) {
+        const out = new Float32Array(count * 4);
+        for (let index = 0; index < count; index++) {
+          const offset = index * 4;
+          out[offset] = baseColor[0];
+          out[offset + 1] = baseColor[1];
+          out[offset + 2] = baseColor[2];
+          out[offset + 3] = baseColor[3];
+        }
+        return out;
+      }
+      
+      function generateNormals(positions, indices) {
+        const normals = new Float32Array(positions.length);
+        const accumulate = (ia, ib, ic) => {
+          const ax = positions[ia], ay = positions[ia + 1], az = positions[ia + 2];
+          const bx = positions[ib], by = positions[ib + 1], bz = positions[ib + 2];
+          const cx = positions[ic], cy = positions[ic + 1], cz = positions[ic + 2];
+          const abx = bx - ax, aby = by - ay, abz = bz - az;
+          const acx = cx - ax, acy = cy - ay, acz = cz - az;
+          const nx = aby * acz - abz * acy;
+          const ny = abz * acx - abx * acz;
+          const nz = abx * acy - aby * acx;
+          normals[ia] += nx; normals[ia + 1] += ny; normals[ia + 2] += nz;
+          normals[ib] += nx; normals[ib + 1] += ny; normals[ib + 2] += nz;
+          normals[ic] += nx; normals[ic + 1] += ny; normals[ic + 2] += nz;
+        };
+        if (indices?.length) {
+          for (let index = 0; index + 2 < indices.length; index += 3) {
+            accumulate(indices[index] * 3, indices[index + 1] * 3, indices[index + 2] * 3);
+          }
+        } else {
+          for (let index = 0; index + 8 < positions.length; index += 9) accumulate(index, index + 3, index + 6);
+        }
+        for (let index = 0; index < normals.length; index += 3) {
+          const length = Math.hypot(normals[index], normals[index + 1], normals[index + 2]) || 1;
+          normals[index] /= length;
+          normals[index + 1] /= length;
+          normals[index + 2] /= length;
+        }
+        return normals;
+      }
+      
+      function primitiveToTriangles(json, binary, primitive, worldMatrix) {
+        if (!primitive || (primitive.mode !== undefined && primitive.mode !== 4)) return null;
+        if (primitive.attributes?.POSITION === undefined) return null;
+        const position = readAccessor(json, binary, primitive.attributes.POSITION);
+        const vertexCount = position.accessor.count;
+        const positions = new Float32Array(vertexCount * 3);
+        for (let index = 0; index < vertexCount; index++) {
+          const source = index * 3;
+          const transformed = transformPosition3(worldMatrix, position.values[source], position.values[source + 1], position.values[source + 2]);
+          positions[source] = transformed[0];
+          positions[source + 1] = transformed[1];
+          positions[source + 2] = transformed[2];
+        }
+        let indices = null;
+        if (primitive.indices !== undefined) {
+          const read = readAccessor(json, binary, primitive.indices, { keepIntegers: true });
+          indices = new Uint32Array(read.values.length);
+          indices.set(read.values);
+        } else {
+          indices = new Uint32Array(vertexCount);
+          for (let index = 0; index < vertexCount; index++) indices[index] = index;
+        }
+        const materialIndex = primitive.material ?? 0;
+        const baseColor = json.materials?.[materialIndex]?.pbrMetallicRoughness?.baseColorFactor || [1, 1, 1, 1];
+        const color = primitive.attributes.COLOR_0 === undefined ? null : readAccessor(json, binary, primitive.attributes.COLOR_0);
+        const colors = color?.values ? expandVertexColors(color.values, color.accessor, baseColor) : solidVertexColors(vertexCount, baseColor);
+        let normals = null;
+        if (primitive.attributes.NORMAL !== undefined) {
+          const normal = readAccessor(json, binary, primitive.attributes.NORMAL);
+          normals = new Float32Array(vertexCount * 3);
+          for (let index = 0; index < vertexCount; index++) {
+            const source = index * 3;
+            const transformed = transformDirection3(worldMatrix, normal.values[source], normal.values[source + 1], normal.values[source + 2]);
+            normals[source] = transformed[0];
+            normals[source + 1] = transformed[1];
+            normals[source + 2] = transformed[2];
+          }
+        } else normals = generateNormals(positions, indices);
+        return { positions, normals, colors, indices };
+      }
+      
+      function flattenSceneToMesh(json, binary) {
+        const primitives = [];
+        const rootMatrix = identityMat4();
+        const visitNode = (nodeIndex, parentMatrix) => {
+          const node = json.nodes?.[nodeIndex];
+          if (!node) return;
+          const localMatrix = composeNodeMatrix(node);
+          const worldMatrix = multiplyMat4(parentMatrix, localMatrix);
+          if (node.mesh !== undefined) {
+            const mesh = json.meshes?.[node.mesh];
+            for (const primitive of mesh?.primitives || []) {
+              const flattened = primitiveToTriangles(json, binary, primitive, worldMatrix);
+              if (flattened) primitives.push(flattened);
+            }
+          }
+          for (const child of node.children || []) visitNode(child, worldMatrix);
+        };
+        const sceneIndex = json.scene ?? 0;
+        const scene = json.scenes?.[sceneIndex];
+        const rootNodes = scene?.nodes?.length ? scene.nodes : [0];
+        for (const nodeIndex of rootNodes) visitNode(nodeIndex, rootMatrix);
+        if (!primitives.length) throw new Error('GLB portrait contains no supported triangle primitives');
+        const totalVertices = primitives.reduce((sum, primitive) => sum + primitive.positions.length / 3, 0);
+        const totalIndices = primitives.reduce((sum, primitive) => sum + primitive.indices.length, 0);
+        const positions = new Float32Array(totalVertices * 3);
+        const normals = new Float32Array(totalVertices * 3);
+        const colors = new Float32Array(totalVertices * 4);
+        const indices = new Uint32Array(totalIndices);
+        let vertexOffset = 0;
+        let positionOffset = 0;
+        let colorOffset = 0;
+        let indexOffset = 0;
+        for (const primitive of primitives) {
+          positions.set(primitive.positions, positionOffset);
+          normals.set(primitive.normals, positionOffset);
+          colors.set(primitive.colors, colorOffset);
+          for (let index = 0; index < primitive.indices.length; index++) indices[indexOffset + index] = primitive.indices[index] + vertexOffset;
+          vertexOffset += primitive.positions.length / 3;
+          positionOffset += primitive.positions.length;
+          colorOffset += primitive.colors.length;
+          indexOffset += primitive.indices.length;
+        }
+        return { positions, normals, colors, indices };
+      }
+      
+      function normalizePortraitModel(positions, normals) {
+        if (!positions?.length) return { positions, normals, bounds: null };
+        let minX = Infinity, minY = Infinity, minZ = Infinity;
+        let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+        for (let index = 0; index < positions.length; index += 3) {
+          const x = positions[index], y = positions[index + 1], z = positions[index + 2];
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+          if (z < minZ) minZ = z; if (z > maxZ) maxZ = z;
+        }
+        const centerX = (minX + maxX) * 0.5;
+        const centerY = (minY + maxY) * 0.5;
+        const centerZ = (minZ + maxZ) * 0.5;
+        const spanX = maxX - minX;
+        const spanY = maxY - minY;
+        const spanZ = maxZ - minZ;
+        const maxSpan = Math.max(spanX, spanY, spanZ);
+        const centerDistance = Math.max(Math.abs(centerX), Math.abs(centerY), Math.abs(centerZ));
+        const needsNormalize = centerDistance > 0.25 || maxSpan > 1.9 || maxSpan < 0.78;
+        if (!needsNormalize || !Number.isFinite(maxSpan) || maxSpan <= 1e-6) {
+          return {
+            positions,
+            normals,
+            bounds: { minX, minY, minZ, maxX, maxY, maxZ, centerX, centerY, centerZ, maxSpan }
+          };
+        }
+        const scale = 1.56 / maxSpan;
+        const normalizedPositions = new Float32Array(positions.length);
+        for (let index = 0; index < positions.length; index += 3) {
+          normalizedPositions[index] = (positions[index] - centerX) * scale;
+          normalizedPositions[index + 1] = (positions[index + 1] - centerY) * scale;
+          normalizedPositions[index + 2] = (positions[index + 2] - centerZ) * scale;
+        }
+        return {
+          positions: normalizedPositions,
+          normals,
+          bounds: {
+            minX: (minX - centerX) * scale,
+            minY: (minY - centerY) * scale,
+            minZ: (minZ - centerZ) * scale,
+            maxX: (maxX - centerX) * scale,
+            maxY: (maxY - centerY) * scale,
+            maxZ: (maxZ - centerZ) * scale,
+            centerX: 0,
+            centerY: 0,
+            centerZ: 0,
+            maxSpan: 1.56
+          }
+        };
       }
       
       function parseGLB(arrayBuffer) {
@@ -20711,43 +20983,24 @@
           offset = end;
         }
         if (!json || !binary) throw new Error('GLB portrait requires JSON and BIN chunks');
-        const sceneIndex = json.scene ?? 0;
-        const scene = json.scenes?.[sceneIndex];
-        const nodeIndex = scene?.nodes?.[0] ?? 0;
-        const node = json.nodes?.[nodeIndex];
-        const primitive = json.meshes?.[node?.mesh ?? 0]?.primitives?.[0];
-        if (primitive?.attributes?.POSITION === undefined) throw new Error('GLB portrait has no POSITION attribute');
-        const position = readAccessor(json, binary, primitive.attributes.POSITION);
-        const normal = primitive.attributes.NORMAL === undefined ? null : readAccessor(json, binary, primitive.attributes.NORMAL);
-        const color = primitive.attributes.COLOR_0 === undefined ? null : readAccessor(json, binary, primitive.attributes.COLOR_0);
-        const indices = primitive.indices === undefined ? null : readAccessor(json, binary, primitive.indices);
-        const materialIndex = primitive.material ?? 0;
-        const baseColor = json.materials?.[materialIndex]?.pbrMetallicRoughness?.baseColorFactor || [1, 1, 1, 1];
-        let vertexColors = null;
-        if (color?.values) {
-          if (color.accessor.type === 'VEC4') vertexColors = color.values;
-          else if (color.accessor.type === 'VEC3') {
-            vertexColors = new Float32Array(color.accessor.count * 4);
-            for (let index = 0; index < color.accessor.count; index++) {
-              vertexColors[index * 4] = color.values[index * 3];
-              vertexColors[index * 4 + 1] = color.values[index * 3 + 1];
-              vertexColors[index * 4 + 2] = color.values[index * 3 + 2];
-              vertexColors[index * 4 + 3] = 1;
-            }
-          }
-        }
+        const flattened = flattenSceneToMesh(json, binary);
+        const normalized = normalizePortraitModel(flattened.positions, flattened.normals);
+        const maxIndex = flattened.indices.length ? flattened.indices.reduce((max, value) => value > max ? value : max, 0) : 0;
+        const compactIndices = maxIndex < 65536 ? new Uint16Array(flattened.indices) : flattened.indices;
         return {
-          positions: position.values,
-          normals: normal?.values || new Float32Array(position.values.length),
-          colors: vertexColors,
-          indices: indices?.values || null,
-          indexComponentType: indices?.accessor.componentType || null,
-          baseColor: new Float32Array(baseColor.slice(0, 4)),
-          animationName: json.animations?.[0]?.name || null
+          positions: normalized.positions,
+          normals: normalized.normals,
+          colors: flattened.colors,
+          indices: compactIndices,
+          indexComponentType: maxIndex < 65536 ? 5123 : 5125,
+          baseColor: new Float32Array([1, 1, 1, 1]),
+          bounds: normalized.bounds,
+          animationName: json.animations?.[0]?.name || null,
+          primitiveCount: json.meshes?.reduce((sum, mesh) => sum + (mesh?.primitives?.length || 0), 0) || 0
         };
       }
       
-      function compileShader(gl, type, source) {
+function compileShader(gl, type, source) {
         const shader = gl.createShader(type);
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
