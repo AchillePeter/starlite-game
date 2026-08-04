@@ -8203,7 +8203,7 @@
                 "arcOrder": 1,
                 "faction": "humans",
                 "title": "Last Light",
-                "description": "Restore three isolated generators, survive deterministic Zglengo assaults, rescue civilians and hold Northpad for extraction.",
+                "description": "Seize Kestrel’s three dark generators, turn each site into a turret strongpoint, survive the Zglengo assault and hold Northpad for extraction.",
                 "seed": 11719427,
                 "aiDifficulty": "normal",
                 "objectiveMode": "ordered",
@@ -8218,17 +8218,17 @@
                         }
                 },
                 "briefing": {
-                        "situation": "Colony Kestrel has six minutes of reserve power. Its command core is damaged, the production grid is dark, and Northpad is the only surviving evacuation route.",
+                        "situation": "Kestrel is dying in the dark. Three generators still answer on the grid, but the Zglengo are already closing around them and Northpad is our last road out.",
                         "orders": [
-                                "Restore Generator Alpha, Beta and Gamma with Foragers.",
-                                "Keep the grid online through the Zglengo counterattack.",
-                                "Hold Northpad until the extraction timer completes."
+                                "Take each generator with combat units and hold the ring until the core wakes.",
+                                "The barracks grid is gone. Fortify every generator with turrets and fight from those positions.",
+                                "When the grid stabilizes, fall back to Northpad and hold the extraction zone."
                         ],
                         "intel": [
-                                "Generator activation unlocks production tiers immediately.",
-                                "Five civilians are stranded south of Alpha; their rescue is optional."
+                                "The generators lie on separate attack lanes; expect the brood to strike each site.",
+                                "Civilians are trapped south of Alpha. Bring them to Northpad if the line gives you room."
                         ],
-                        "commanderLine": "We are not winning a war tonight. We are making sure there is still someone alive to fight tomorrow."
+                        "commanderLine": "We do not need daylight. We need one last line that refuses to go dark."
                 },
                 "debriefing": {
                         "victory": "Northpad launches under fire. The colony grid fails seconds later, but the survivors and command staff escape into the night.",
@@ -8343,8 +8343,8 @@
                 ],
                 "startingResources": {
                         "player": {
-                                "minerals": 340,
-                                "gas": 90
+                                "minerals": 520,
+                                "gas": 180
                         },
                         "enemy": {
                                 "minerals": 0,
@@ -8458,7 +8458,7 @@
                                 {
                                         "type": "infantry",
                                         "team": "player",
-                                        "count": 3,
+                                        "count": 5,
                                         "relativeTo": "hq",
                                         "forward": 86,
                                         "side": 2,
@@ -8467,7 +8467,7 @@
                                 {
                                         "type": "assault",
                                         "team": "player",
-                                        "count": 1,
+                                        "count": 2,
                                         "relativeTo": "hq",
                                         "forward": 95,
                                         "side": -38
@@ -8498,52 +8498,58 @@
                         {
                                 "id": "restore-grid",
                                 "type": "parallel",
-                                "title": "Restore all three power generators.",
+                                "title": "Take back all three power generators.",
                                 "objectives": [
                                         {
                                                 "id": "restore-alpha",
                                                 "type": "capture",
                                                 "team": "player",
-                                                "unitTypes": [
+                                                "requireCombat": true,
+                                                "excludeUnitTypes": [
                                                         "forager"
                                                 ],
-                                                "count": 1,
-                                                "holdSeconds": 9,
-                                                "radius": 58,
+                                                "count": 2,
+                                                "holdSeconds": 7,
+                                                "radius": 62,
                                                 "destination": {
                                                         "tag": "generator-alpha"
                                                 },
-                                                "title": "Restore Generator Alpha with a Forager."
+                                                "title": "Seize Generator Alpha with combat units.",
+                                                "narration": "Push a combat team into Alpha’s ring and hold it there until the core answers. Then get turrets down before the brood arrives."
                                         },
                                         {
                                                 "id": "restore-beta",
                                                 "type": "capture",
                                                 "team": "player",
-                                                "unitTypes": [
+                                                "requireCombat": true,
+                                                "excludeUnitTypes": [
                                                         "forager"
                                                 ],
-                                                "count": 1,
-                                                "holdSeconds": 11,
-                                                "radius": 58,
+                                                "count": 2,
+                                                "holdSeconds": 9,
+                                                "radius": 62,
                                                 "destination": {
                                                         "tag": "generator-beta"
                                                 },
-                                                "title": "Restore Generator Beta with a Forager."
+                                                "title": "Seize Generator Beta with combat units.",
+                                                "narration": "Beta is exposed. Take the ring with fighting units, wake the core and turn the approach into a turret lane."
                                         },
                                         {
                                                 "id": "restore-gamma",
                                                 "type": "capture",
                                                 "team": "player",
-                                                "unitTypes": [
+                                                "requireCombat": true,
+                                                "excludeUnitTypes": [
                                                         "forager"
                                                 ],
-                                                "count": 1,
-                                                "holdSeconds": 13,
-                                                "radius": 58,
+                                                "count": 2,
+                                                "holdSeconds": 11,
+                                                "radius": 62,
                                                 "destination": {
                                                         "tag": "generator-gamma"
                                                 },
-                                                "title": "Restore Generator Gamma with a Forager."
+                                                "title": "Seize Generator Gamma with combat units.",
+                                                "narration": "Gamma is the last light on the ridge. Break into the ring, hold it with combat units and fortify it immediately."
                                         }
                                 ]
                         },
@@ -8565,7 +8571,8 @@
                                 "type": "survive",
                                 "fromActivation": true,
                                 "duration": 38,
-                                "title": "Keep the restored grid online while extraction is routed."
+                                "title": "Hold the generator line until Northpad answers.",
+                                "narration": "The grid is alive and the brood knows it. Hold the generator line while Northpad finds us."
                         },
                         {
                                 "id": "hold-extraction",
@@ -8580,7 +8587,8 @@
                                 "contested": true,
                                 "decayOnContest": true,
                                 "decayRate": 0.5,
-                                "title": "Hold Northpad through the 55-second extraction countdown."
+                                "title": "Hold Northpad until extraction completes.",
+                                "narration": "Northpad is open. Get your force inside the beacon and do not give the brood a single step until the transports lift."
                         }
                 ],
                 "scriptedEvents": [
@@ -8597,7 +8605,7 @@
                                 "at": 1.5,
                                 "action": "dialogue",
                                 "speaker": "Commander Mara Hale",
-                                "text": "The HQ is barely holding. Put a Forager inside each generator ring and keep it there until the core restarts."
+                                "text": "Kestrel is going dark. Take the generators with combat teams. The barracks are gone, so every site you win becomes a turret line—or it becomes a grave."
                         },
                         {
                                 "id": "last-light-camera-alpha",
@@ -8612,7 +8620,7 @@
                                 "at": 8,
                                 "action": "dialogue",
                                 "speaker": "Civilian channel",
-                                "text": "Five survivors are sheltering south of Generator Alpha. Northpad is our only way out."
+                                "text": "A civilian signal is still moving south of Alpha. We cannot promise them safety—but Northpad is their only chance."
                         },
                         {
                                 "id": "last-light-wave-1",
@@ -8622,8 +8630,8 @@
                                 "relativeTo": "hq",
                                 "forward": 172,
                                 "side": -18,
-                                "attackTeam": "player",
-                                "text": "Zglengo scouts breach the eastern ridge.",
+                                "attackTag": "generator-alpha",
+                                "text": "Movement on the eastern ridge. Alpha is about to be hit.",
                                 "groups": [
                                         {
                                                 "type": "insectSwarmling",
@@ -8640,8 +8648,8 @@
                                 "relativeTo": "hq",
                                 "forward": 176,
                                 "side": 28,
-                                "attackTeam": "player",
-                                "text": "Second contact: ranged organisms behind the swarm.",
+                                "attackTag": "generator-beta",
+                                "text": "Beta is drawing the next swarm. Spitters are moving behind the front line.",
                                 "groups": [
                                         {
                                                 "type": "insectSwarmling",
@@ -8664,8 +8672,8 @@
                                 "relativeTo": "hq",
                                 "forward": 184,
                                 "side": -36,
-                                "attackTeam": "player",
-                                "text": "Armored Zglengo are moving with the third wave.",
+                                "attackTag": "generator-gamma",
+                                "text": "Gamma has their full attention. Armored organisms are coming up the ridge.",
                                 "groups": [
                                         {
                                                 "type": "insectSwarmling",
@@ -8694,16 +8702,12 @@
                                 "activateTags": [
                                         "generator-alpha"
                                 ],
-                                "structures": [
-                                        "barracks"
-                                ],
-                                "units": [
-                                        "infantry"
-                                ],
-                                "productionLevels": {
-                                        "barracks": 1
-                                },
-                                "text": "Generator Alpha online · Barracks and close-combat production restored."
+                                "structures": [],
+                                "units": [],
+                                "productionLevels": {},
+                                "minerals": 150,
+                                "gas": 70,
+                                "text": "Alpha is alive. No barracks response—use the power and supplies to raise turrets around the site."
                         },
                         {
                                 "id": "restore-beta-unlock",
@@ -8718,18 +8722,16 @@
                                         "supportCamp"
                                 ],
                                 "units": [
-                                        "assault",
                                         "jeep",
                                         "healer"
                                 ],
                                 "productionLevels": {
-                                        "barracks": 2,
                                         "garage": 1,
                                         "supportCamp": 1
                                 },
                                 "minerals": 120,
                                 "gas": 45,
-                                "text": "Generator Beta online · ranged infantry, vehicles and field medicine restored."
+                                "text": "Beta is holding. Vehicle and field-medicine circuits are back—there is still no barracks grid."
                         },
                         {
                                 "id": "restore-gamma-unlock",
@@ -8745,18 +8747,83 @@
                                         "antiAirTurret"
                                 ],
                                 "units": [
-                                        "mortar",
                                         "armoredJeep",
                                         "helicopter"
                                 ],
                                 "productionLevels": {
-                                        "barracks": 3,
                                         "garage": 2,
                                         "airBay": 1
                                 },
                                 "minerals": 160,
                                 "gas": 90,
-                                "text": "Generator Gamma online · artillery, armor and aircraft restored."
+                                "text": "Gamma is online. Armor and flight systems are answering. Keep the turret line intact and prepare to run for Northpad."
+                        },
+                        {
+                                "id": "alpha-field-detachment",
+                                "afterObjective": "restore-alpha",
+                                "delay": 1.2,
+                                "action": "reinforcements",
+                                "team": "player",
+                                "relativeToTag": "generator-alpha",
+                                "offsetX": -34,
+                                "offsetY": 30,
+                                "text": "A stranded fireteam has reached Alpha. Fold them into the turret line.",
+                                "groups": [
+                                        {
+                                                "type": "infantry",
+                                                "count": 2,
+                                                "spacing": 18
+                                        },
+                                        {
+                                                "type": "mechanic",
+                                                "count": 1,
+                                                "side": 28
+                                        }
+                                ]
+                        },
+                        {
+                                "id": "beta-field-detachment",
+                                "afterObjective": "restore-beta",
+                                "delay": 1.2,
+                                "action": "reinforcements",
+                                "team": "player",
+                                "relativeToTag": "generator-beta",
+                                "offsetX": -32,
+                                "offsetY": 30,
+                                "text": "Beta’s shelter doors are opening. A vehicle crew and medic are joining the line.",
+                                "groups": [
+                                        {
+                                                "type": "jeep",
+                                                "count": 1
+                                        },
+                                        {
+                                                "type": "healer",
+                                                "count": 1,
+                                                "side": 30
+                                        }
+                                ]
+                        },
+                        {
+                                "id": "gamma-field-detachment",
+                                "afterObjective": "restore-gamma",
+                                "delay": 1.2,
+                                "action": "reinforcements",
+                                "team": "player",
+                                "relativeToTag": "generator-gamma",
+                                "offsetX": -38,
+                                "offsetY": 34,
+                                "text": "Gamma released its last reserve machines. Use them to break toward Northpad.",
+                                "groups": [
+                                        {
+                                                "type": "armoredJeep",
+                                                "count": 1
+                                        },
+                                        {
+                                                "type": "helicopter",
+                                                "count": 1,
+                                                "side": 34
+                                        }
+                                ]
                         },
                         {
                                 "id": "extraction-reveal",
@@ -19878,7 +19945,13 @@
           const radius = Math.max(12, Number(objective.radius) || 72);
           const minimum = Math.max(1, Math.trunc(Number(objective.count) || 1));
           const allowedTypes = campaignTypeSet(objective, 'unit');
-          const friendly = units.filter(unit => unit.hp > 0 && unit.team === team && (!allowedTypes.size || allowedTypes.has(unit.type)) && Math.hypot(unit.x - destination.x, unit.y - destination.y) <= radius).length;
+          const excludedTypes = new Set(Array.isArray(objective.excludeUnitTypes) ? objective.excludeUnitTypes : objective.excludeUnitType ? [objective.excludeUnitType] : []);
+          const friendly = units.filter(unit => {
+            if (unit.hp <= 0 || unit.team !== team || excludedTypes.has(unit.type)) return false;
+            if (allowedTypes.size && !allowedTypes.has(unit.type)) return false;
+            if (objective.requireCombat && (UNIT_DATA[unit.type]?.damage || unit.damage || 0) <= 0) return false;
+            return Math.hypot(unit.x - destination.x, unit.y - destination.y) <= radius;
+          }).length;
           const hostile = units.filter(unit => unit.hp > 0 && unit.team !== team && Math.hypot(unit.x - destination.x, unit.y - destination.y) <= radius).length;
           const holdSeconds = Math.max(0, Number(objective.holdSeconds ?? objective.duration) || 0);
           let progressSeconds = Math.max(0, Number(objectiveState.progressSeconds) || 0);
@@ -20033,6 +20106,7 @@
             ? Math.max(.5, Math.min(1.75, Number(behavior.enemyWaveMultiplier) || 1)) : 1;
           return {
             ...defaults, relativeTo: event.relativeTo, relativeToTag: event.relativeToTag,
+            attackTag: event.attackTag, attackTeam: event.attackTeam || defaults.attackTeam,
             x: event.x, y: event.y, forward: event.forward, side: event.side, spacing: event.spacing,
             ...group, count: Math.max(1, Math.round(rawCount * multiplier))
           };
@@ -20344,33 +20418,10 @@
       }
 
       function campaignNarrationToolSummary(mission) {
-        const team = state.activeCommandTeam || 'player';
-        const entityGroups = mission?.initialEntities || {};
-        const unitCounts = new Map();
-        const structureCounts = new Map();
-        for (const group of entityGroups.units || []) {
-          if ((group.team || team) !== team || group.campaignCivilian) continue;
-          unitCounts.set(group.type, (unitCounts.get(group.type) || 0) + Math.max(1, Math.trunc(Number(group.count) || 1)));
-        }
-        for (const group of entityGroups.structures || []) {
-          if ((group.team || team) !== team || String(group.type || '').startsWith('campaign')) continue;
-          structureCounts.set(group.type, (structureCounts.get(group.type) || 0) + Math.max(1, Math.trunc(Number(group.count) || 1)));
-        }
-        const roster = [
-          ...[...unitCounts].map(([type, count]) => `${count} ${campaignNarrationEntityLabel('unit', type, team)}`),
-          ...[...structureCounts].map(([type, count]) => `${count} ${campaignNarrationEntityLabel('structure', type, team)}`)
-        ].slice(0, 7);
-        const startingTeam = mission?.startingTeams?.find(entry => entry.team === team || entry.controller === 'human');
-        const hqNote = Number(startingTeam?.hqHpFraction) < 0.99
-          ? `Your ${campaignNarrationEntityLabel('structure', 'hq', team)} begins damaged.`
-          : `Your ${campaignNarrationEntityLabel('structure', 'hq', team)} is operational.`;
-        const wallet = mission?.startingResources?.[team] || {};
-        const resourceNote = `${Math.max(0, Number(wallet.minerals) || 0)} minerals and ${Math.max(0, Number(wallet.gas) || 0)} gas are available at deployment.`;
-        const tech = mission?.availableTechnologies?.[team];
-        const techNote = tech?.all
-          ? 'Your normal faction technology is available.'
-          : 'Only mission-approved production is available; additional tools can unlock as objectives advance.';
-        return `${hqNote} You command ${roster.length ? roster.join(', ') : 'a limited field force'}. ${resourceNote} ${techNote}`;
+        const briefing = mission?.briefing || {};
+        const fieldNotes = (briefing.intel || []).filter(Boolean);
+        if (fieldNotes.length) return fieldNotes.join(' ');
+        return 'Read the ground, use the marked routes and preserve whatever the mission cannot replace.';
       }
 
       function campaignNarrationObjectiveLeaves(objectives = state.campaignMission?.objectives || [], prefix = 'objective', result = []) {
@@ -20384,44 +20435,42 @@
       }
 
       function campaignNarrationInstruction(objective) {
-        if (!objective) return 'Follow the highlighted objective marker and keep your force ready for scripted threats.';
+        if (!objective) return 'Watch the markers. The next order is already moving toward you.';
+        if (objective.narration) return objective.narration;
         const seconds = Math.max(0, Number(objective.holdSeconds ?? objective.duration) || 0);
         switch (objective.type) {
-          case 'build': return 'Select a worker, place the required structure and keep the builder close until construction completes.';
-          case 'gather': return 'Assign workers to the required resources and keep safe drop-off routes open.';
-          case 'destroy': return 'Use attack-move or focus fire to destroy the marked hostile targets.';
-          case 'protect': return 'Keep the marked allied target alive; intercept attackers before they reach it.';
-          case 'survive': return seconds ? `Hold your position and preserve the required forces for ${Math.ceil(seconds)} seconds.` : 'Hold your position until the threat window ends.';
-          case 'reach': return 'Move the required units into the highlighted destination area.';
-          case 'escort': return 'Keep the escorted group moving with a combat screen and bring the required survivors into the destination zone.';
-          case 'capture': return seconds ? `Move the required units into the highlighted zone and hold it for ${Math.ceil(seconds)} seconds.` : 'Move the required units into the highlighted zone and maintain control.';
-          case 'ownUnits': return 'Produce and preserve the required unit composition.';
-          case 'ownStructures': return 'Construct and preserve the required structures.';
-          case 'eliminateTeam': return 'Break the marked hostile force while protecting your mission-critical assets.';
-          default: return 'Follow the highlighted marker and use the mission tools described in the briefing.';
+          case 'build': return 'Get the marked defenses standing before the next attack reaches us.';
+          case 'gather': return 'Keep the harvest moving. We need those reserves before the line closes.';
+          case 'destroy': return 'Break the marked targets and leave the enemy nowhere safe to regroup.';
+          case 'protect': return 'Nothing gets through to the marked target. Put your force between it and the enemy.';
+          case 'survive': return 'Hold together. The only way out is through the pressure coming at us.';
+          case 'reach': return 'Move for the marked ground. Do not let the formation stretch apart on the way.';
+          case 'escort': return 'Keep the escorted group inside your screen and bring them through alive.';
+          case 'capture': return seconds ? 'Take the marked ground and keep the enemy out until the signal locks.' : 'Take the marked ground and do not give it back.';
+          case 'ownUnits': return 'Build the force we need and keep it alive for what comes next.';
+          case 'ownStructures': return 'Raise the marked positions and make them hold.';
+          case 'eliminateTeam': return 'Break the hostile force. Their headquarters is not the mission—this battlefield is.';
+          default: return 'Follow the marker, keep the formation intact and finish the order in front of you.';
         }
       }
 
       function campaignNarrationIntroPages(mission) {
         const briefing = mission?.briefing || {};
-        const primary = (briefing.orders || []).join(' ');
+        const orders = (briefing.orders || []).filter(Boolean);
         const optional = campaignNarrationObjectiveLeaves(mission?.objectives || [])
           .filter(row => row.objective.optional).map(row => row.objective.title).filter(Boolean).join(' ');
+        const situation = [briefing.situation || mission.description, briefing.commanderLine].filter(Boolean).join(' ');
+        const orderCopy = orders.length ? orders.join(' ') : mission.description;
         return [
           {
             title: mission.title,
-            copy: [briefing.situation || mission.description, briefing.commanderLine].filter(Boolean).join(' '),
-            objective: 'Understand the situation before issuing orders.'
+            copy: situation,
+            objective: 'Listen carefully. The enemy is already moving.'
           },
           {
-            title: 'Your tools',
-            copy: campaignNarrationToolSummary(mission),
-            objective: 'Use the command panel, minimap and highlighted world markers to direct your force.'
-          },
-          {
-            title: 'Mission objectives',
-            copy: primary || mission.description,
-            objective: optional ? `Optional objective: ${optional}` : 'Complete the primary objectives in the order shown by the mission HUD.'
+            title: 'Your orders',
+            copy: orderCopy,
+            objective: optional ? `If the line holds, there is one more thing: ${optional}` : 'Complete the order and keep the mission-critical force alive.'
           }
         ];
       }
@@ -20549,9 +20598,9 @@
           : kind === 'failed' ? `${optional}objective failed`
             : `${optional}new objective`;
         const copy = kind === 'completed'
-          ? 'Confirmed. Re-form your units and prepare for the next order.'
+          ? 'Good. That ground is ours. Do not relax—the next pressure is already building.'
           : kind === 'failed'
-            ? (objective.failureReason || 'That objective can no longer be completed. Protect the remaining mission-critical assets.')
+            ? (objective.failureReason || 'We lost that chance. Protect what remains and keep the mission alive.')
             : campaignNarrationInstruction(objective);
         return queueCampaignNarration({
           id: `objective:${key}:${kind}`,
@@ -20577,10 +20626,10 @@
           : kind === 'failed' ? 'Objectives failed'
             : 'New objectives';
         const copy = kind === 'completed'
-          ? 'Multiple field tasks are confirmed complete. Re-form and prepare for the next order.'
+          ? 'Those positions are secure. Pull the force together before the enemy finds the gap.'
           : kind === 'failed'
-            ? 'Multiple field tasks can no longer be completed. Protect the remaining mission-critical assets.'
-            : 'Several objectives are active at the same time. Split your force only when the map and enemy pressure allow it.';
+            ? 'We lost more than one position. Tighten the line around what is still alive.'
+            : 'The field is opening in several directions. Choose your ground carefully and do not let the force break apart.';
         return queueCampaignNarration({
           id: `objective-batch:${kind}:${rows.map(row => row.key).join(',')}`,
           title,
