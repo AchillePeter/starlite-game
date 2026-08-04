@@ -6027,7 +6027,17 @@
       }
       
       function consoleLayout() {
-        return commandConsoleLayout(CW, CH);
+        const layout = commandConsoleLayout(CW, CH);
+        if (!state.campaignMode || !layout?.portrait || !layout?.info) return layout;
+        const minimumInfoWidth = layout.compact ? 72 : 132;
+        const available = Math.max(0, layout.info.w - minimumInfoWidth);
+        const extra = Math.min(available, layout.compact ? 46 : 118);
+        if (extra > 0) {
+          layout.portrait.w += extra;
+          layout.info.x += extra;
+          layout.info.w -= extra;
+        }
+        return layout;
       }
       
       function setFont(size, weight = 700) {
@@ -6590,7 +6600,98 @@
         return structures.filter(structure => structure.team === activeCommandTeam() && structure.hp > 0 && state.selectedStructures.has(structure.id));
       }
       
+      function campaignPortraitAccent() {
+        const faction = state.campaignMission?.faction;
+        return faction === 'insects' ? '#a7ef74' : faction === 'helias' ? '#7de8ff' : '#f1c76b';
+      }
+
+      function campaignPortraitObjectiveLeaves() {
+        const leaves = [];
+        const walk = objectives => {
+          for (const objective of objectives || []) {
+            const children = objective.objectives || objective.children || objective.conditions;
+            if (Array.isArray(children) && children.length) walk(children);
+            else leaves.push(objective);
+          }
+        };
+        walk(state.campaignMission?.objectives || []);
+        return leaves;
+      }
+
+      function campaignPortraitInstruction(objective, objectiveState) {
+        if (!objective) return state.campaignMission?.description || 'Follow the highlighted mission route.';
+        const detail = objectiveState?.detail ? ` ${objectiveState.detail}.` : '';
+        const target = Math.max(1, Number(objective.count) || 1);
+        const type = objective.type || '';
+        if (type === 'build') return `Select a worker and construct ${objective.title || 'the required structure'}.${detail}`;
+        if (type === 'gather' || type === 'gatherResources') return `Keep workers harvesting until the displayed resource target is reached.${detail}`;
+        if (type === 'destroy') return `Move along the marked route and destroy the highlighted targets.${detail}`;
+        if (type === 'protect') return `Keep the marked target alive. Intercept attackers before they reach it.${detail}`;
+        if (type === 'survive') return `Hold your defensive corridor until the countdown reaches zero.${detail}`;
+        if (type === 'reach') return `Move ${target > 1 ? `${target} units` : 'a unit'} into the marked destination ring.${detail}`;
+        if (type === 'escort') return `Stay with the marked escort group and bring it safely to the destination ring.${detail}`;
+        if (type === 'capture') return `Move ${target > 1 ? `${target} units` : 'a unit'} into the marked ring, clear hostiles and hold position.${detail}`;
+        if (type === 'ownUnits') return `Train the required force before advancing to the next corridor step.${detail}`;
+        if (type === 'ownStructures') return `Build the required structures to open the next mission step.${detail}`;
+        if (type === 'eliminateTeam') return `Break the marked enemy force to clear the route.${detail}`;
+        return `${objective.title || state.campaignMission?.description || 'Follow the current objective.'}${detail}`;
+      }
+
+      function campaignPortraitDirective() {
+        if (!state.campaignMode || !state.campaignMission || !state.campaignRuntime) return null;
+        const mission = state.campaignMission;
+        const runtime = state.campaignRuntime;
+        const leaves = campaignPortraitObjectiveLeaves();
+        const required = leaves.filter(objective => !objective.optional);
+        const activeRequired = required.find(objective => runtime.objectiveStates?.[objective.id]?.status === 'active');
+        const activeOptional = leaves.find(objective => runtime.objectiveStates?.[objective.id]?.status === 'active');
+        const objective = activeRequired || activeOptional || required.find(objective => runtime.objectiveStates?.[objective.id]?.status !== 'completed') || leaves[0];
+        const objectiveState = objective?.id ? runtime.objectiveStates?.[objective.id] : null;
+        const stepIndex = objective ? Math.max(0, required.indexOf(objective)) : -1;
+        const history = runtime.dialogueHistory || [];
+        const latest = history.length ? history[history.length - 1] : null;
+        const recentDialogue = latest && (state.elapsed || 0) - (Number(latest.at) || 0) <= 10.5 ? latest : null;
+        const commander = mission.commanders?.player?.name || 'Field Commander';
+        return {
+          speaker: recentDialogue?.speaker || commander,
+          text: recentDialogue?.text || campaignPortraitInstruction(objective, objectiveState),
+          missionTitle: mission.title,
+          step: stepIndex >= 0 ? stepIndex + 1 : null,
+          totalSteps: required.length,
+          optional: !!objective?.optional,
+          accent: campaignPortraitAccent()
+        };
+      }
+
+      function drawWrappedConsoleText(text, x, y, maxWidth, lineHeight, maxLines, size, color, weight = 700) {
+        const words = String(text || '').trim().split(/\s+/).filter(Boolean);
+        const lines = [];
+        let line = '';
+        setFont(size, weight);
+        for (const word of words) {
+          const candidate = line ? `${line} ${word}` : word;
+          if (!line || ctx.measureText(candidate).width <= maxWidth) line = candidate;
+          else { lines.push(line); line = word; }
+        }
+        if (line) lines.push(line);
+        const visible = lines.slice(0, Math.max(1, maxLines));
+        if (lines.length > visible.length && visible.length) {
+          visible[visible.length - 1] = clippedText(`${visible[visible.length - 1]}…`, maxWidth, size, weight);
+        }
+        visible.forEach((value, index) => drawConsoleText(value, x, y + index * lineHeight, size, color, 'left', maxWidth, weight));
+        return visible.length * lineHeight;
+      }
+
       function portraitSubject() {
+        if (state.campaignMode && state.campaignMission && state.campaignRuntime?.status === 'active') {
+          const team = activeCommandTeam();
+          return {
+            kind: 'faction',
+            type: state.campaignMission.faction,
+            team,
+            label: state.campaignMission.commanders?.player?.name || 'Field Commander'
+          };
+        }
         const selectedUnits = selectedUnitObjects();
         const selectedStructures = selectedStructureObjects();
         if (selectedUnits.length === 1) {
@@ -6660,8 +6761,65 @@
           hideGLBPortrait();
           return;
         }
-        drawInsetPanel(zone, '#101721');
         const compact = layout.compact;
+        const directive = campaignPortraitDirective();
+        if (directive) {
+          const accent = directive.accent;
+          drawInsetPanel(zone, '#081018');
+          ctx.fillStyle = 'rgba(2,7,12,.95)';
+          ctx.fillRect(zone.x + 3, zone.y + 3, zone.w - 6, zone.h - 6);
+          ctx.strokeStyle = accent;
+          ctx.globalAlpha = .78;
+          ctx.strokeRect(zone.x + 1.5, zone.y + 1.5, zone.w - 3, zone.h - 3);
+          ctx.globalAlpha = 1;
+          const headerH = compact ? 20 : 25;
+          drawConsoleText('FIELD LINK // LIVE', zone.x + 7, zone.y + (compact ? 4 : 5), compact ? 6 : 8, accent, 'left', zone.w - 14, 900);
+          const guidanceH = Math.max(compact ? 48 : 62, Math.round(zone.h * .43));
+          const modelRect = {
+            x: zone.x + 6,
+            y: zone.y + headerH,
+            w: Math.max(1, zone.w - 12),
+            h: Math.max(30, zone.h - headerH - guidanceH - 7)
+          };
+          const gradient = ctx.createLinearGradient(modelRect.x, modelRect.y, modelRect.x, modelRect.y + modelRect.h);
+          gradient.addColorStop(0, 'rgba(24,36,48,.98)');
+          gradient.addColorStop(1, 'rgba(4,9,15,.98)');
+          ctx.fillStyle = gradient;
+          ctx.fillRect(modelRect.x, modelRect.y, modelRect.w, modelRect.h);
+          ctx.strokeStyle = colorForTeam(activeCommandTeam(), 'light');
+          ctx.globalAlpha = .32;
+          ctx.strokeRect(modelRect.x + .5, modelRect.y + .5, Math.max(0, modelRect.w - 1), Math.max(0, modelRect.h - 1));
+          ctx.globalAlpha = 1;
+          const subject = portraitSubject();
+          const holder = syncGLBPortrait(subject, modelRect);
+          const status = portraitRendererStatus();
+          if (status.failed) {
+            drawConsoleText('COMMS VISUAL OFFLINE', modelRect.x + modelRect.w / 2, modelRect.y + modelRect.h / 2 - 5, compact ? 5 : 7, COLORS.bad, 'center', modelRect.w - 8, 800);
+          }
+          ctx.save();
+          ctx.beginPath(); ctx.rect(modelRect.x, modelRect.y, modelRect.w, modelRect.h); ctx.clip();
+          ctx.globalAlpha = .12;
+          ctx.fillStyle = accent;
+          const scanY = modelRect.y + ((state.elapsed || 0) * 31 % Math.max(1, modelRect.h));
+          ctx.fillRect(modelRect.x, scanY, modelRect.w, 2);
+          ctx.globalAlpha = .09;
+          for (let y = modelRect.y + 2; y < modelRect.y + modelRect.h; y += 5) ctx.fillRect(modelRect.x, y, modelRect.w, 1);
+          ctx.restore();
+          const cardY = modelRect.y + modelRect.h + 4;
+          const cardH = zone.y + zone.h - cardY - 5;
+          ctx.fillStyle = 'rgba(5,11,17,.96)';
+          ctx.fillRect(zone.x + 6, cardY, zone.w - 12, cardH);
+          ctx.strokeStyle = 'rgba(255,255,255,.1)';
+          ctx.strokeRect(zone.x + 6.5, cardY + .5, zone.w - 13, cardH - 1);
+          const stepLabel = directive.step ? `CORRIDOR ${directive.step}/${Math.max(directive.step, directive.totalSteps || 1)}` : 'MISSION CORRIDOR';
+          drawConsoleText(`${stepLabel}${directive.optional ? ' · OPTIONAL' : ''}`, zone.x + 10, cardY + 5, compact ? 5 : 7, accent, 'left', zone.w - 20, 900);
+          drawConsoleText(String(directive.speaker || 'FIELD COMMAND').toUpperCase(), zone.x + 10, cardY + (compact ? 15 : 18), compact ? 5 : 7, '#dff8ff', 'left', zone.w - 20, 900);
+          const textY = cardY + (compact ? 25 : 30);
+          drawWrappedConsoleText(directive.text, zone.x + 10, textY, zone.w - 20, compact ? 8 : 10, compact ? 3 : 4, compact ? 5 : 7, '#b9cbd5', 700);
+          void holder;
+          return;
+        }
+        drawInsetPanel(zone, '#101721');
         const headerH = compact ? 18 : 23;
         const commanderName = activeMultiplayerUsername();
         drawConsoleText(
@@ -8267,7 +8425,6 @@
                                 "conditions": {
                                         "maxTime": 285,
                                         "allOptional": true,
-                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -8909,7 +9066,6 @@
                                 "conditions": {
                                         "maxTime": 255,
                                         "allOptional": true,
-                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 6
                                 }
                         }
@@ -9435,7 +9591,6 @@
                                 "conditions": {
                                         "maxTime": 235,
                                         "allOptional": true,
-                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -9979,7 +10134,6 @@
                                 "conditions": {
                                         "maxTime": 250,
                                         "allOptional": true,
-                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 8
                                 }
                         }
@@ -10456,7 +10610,6 @@
                                 "conditions": {
                                         "maxTime": 240,
                                         "allOptional": true,
-                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -10943,7 +11096,6 @@
                                 "conditions": {
                                         "maxTime": 225,
                                         "allOptional": true,
-                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -11425,7 +11577,6 @@
                                 "conditions": {
                                         "maxTime": 250,
                                         "allOptional": true,
-                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -11961,7 +12112,6 @@
                                 "conditions": {
                                         "maxTime": 205,
                                         "allOptional": true,
-                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 4
                                 }
                         }
@@ -12490,7 +12640,6 @@
                                 "conditions": {
                                         "maxTime": 275,
                                         "allOptional": true,
-                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 9
                                 }
                         }
@@ -22080,37 +22229,28 @@
         .starlite-menu__panel[data-view="tutorials"] { width: min(900px, 100%); max-height: calc(100vh - 130px); overflow-y: auto; overscroll-behavior: contain; }
         .starlite-menu__tutorial-copy { max-width: 680px; margin: -2px auto 17px; color: #aebfca; font-size: 12px; line-height: 1.55; text-align: center; }
         .starlite-menu__gate--campaign { border-color: rgba(229,191,103,.58); background: linear-gradient(145deg,rgba(73,56,24,.86),rgba(26,22,15,.92)); }
-        .starlite-menu__panel[data-view="campaign"] { width: min(940px, 100%); max-height: calc(100vh - 130px); overflow-y: auto; }
-        .starlite-menu__campaign-copy { max-width: 760px; margin: -3px auto 14px; color: #b9c7ce; font-size: 12px; line-height: 1.55; text-align: center; }
-        .starlite-menu__campaign-command { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: stretch; margin: 0 0 14px; }
-        .starlite-menu__campaign-summary { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; padding: 10px; border: 1px solid rgba(125,232,255,.26); border-radius: 12px; background: rgba(7,14,20,.82); }
-        .starlite-menu__campaign-stat { min-width: 0; padding: 9px 10px; border-left: 2px solid rgba(125,232,255,.52); }
-        .starlite-menu__campaign-stat strong { display: block; overflow: hidden; color: #edf9ff; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
-        .starlite-menu__campaign-stat span { display: block; margin-top: 3px; color: #859ba8; font-size: 8px; letter-spacing: .11em; }
-        .starlite-menu__campaign-controls { min-width: 220px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 10px; border: 1px solid rgba(229,191,103,.28); border-radius: 12px; background: rgba(20,18,13,.86); }
-        .starlite-menu__campaign-controls label { grid-column: 1 / -1; display: grid; gap: 5px; color: #e5bf67; font-size: 9px; letter-spacing: .11em; }
-        .starlite-menu__campaign-controls select { min-height: 34px; border: 1px solid rgba(229,191,103,.42); border-radius: 7px; background: #0b1117; color: #edf6fa; padding: 0 9px; }
-        .starlite-menu__campaign-controls button { min-height: 36px; border: 1px solid rgba(229,191,103,.38); border-radius: 7px; background: rgba(40,33,20,.78); color: #f4e6ba; font-size: 9px; font-weight: 800; letter-spacing: .07em; cursor: pointer; }
-        .starlite-menu__campaign-controls button:disabled { opacity: .4; cursor: not-allowed; }
-        .starlite-menu__campaign-controls [data-campaign-resume] { grid-column: 1 / -1; }
-        .starlite-menu__campaign-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
-        .starlite-menu__campaign-card { min-height: 238px; display: flex; flex-direction: column; align-items: flex-start; gap: 9px; padding: 18px; border: 1px solid rgba(229,191,103,.42); border-radius: 12px; background: linear-gradient(155deg,rgba(39,34,24,.96),rgba(10,14,18,.96)); color: #edf6fa; text-align: left; cursor: pointer; }
-        .starlite-menu__campaign-card--complete { border-color: rgba(125,232,255,.48); background: linear-gradient(155deg,rgba(25,38,42,.96),rgba(10,14,18,.96)); }
-        .starlite-menu__campaign-card:hover,.starlite-menu__campaign-card:focus-visible { border-color: #e5bf67; transform: translateY(-2px); outline: none; }
-        .starlite-menu__campaign-card:disabled { opacity: .42; cursor: not-allowed; transform: none; }
-        .starlite-menu__campaign-card strong { font-size: 18px; letter-spacing: .04em; }
-        .starlite-menu__campaign-card small { flex: 1; color: #aebbc4; font-size: 11px; line-height: 1.55; }
-        .starlite-menu__campaign-record { color: #8fcbd8; font-size: 9px; font-weight: 800; letter-spacing: .08em; }
-        .starlite-menu__campaign-medals { min-height: 20px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .starlite-menu__campaign-medal { padding: 4px 6px; border: 1px solid rgba(229,191,103,.45); border-radius: 999px; background: rgba(229,191,103,.09); color: #ead395; font-size: 7px; font-weight: 900; letter-spacing: .08em; }
-        .starlite-menu__campaign-command-status { min-height: 18px; margin: 8px 0 0; color: #a9bbc5; font-size: 10px; text-align: center; }
-        .starlite-menu__campaign-act,.starlite-menu__campaign-status { color: #e5bf67; font: 900 9px ui-monospace,monospace; letter-spacing: .12em; }
-        .starlite-menu__campaign-arc { margin: 0 0 18px; }
-        .starlite-menu__campaign-arc-head { display:flex; align-items:end; justify-content:space-between; gap:12px; margin:0 0 8px; padding:0 2px 7px; border-bottom:1px solid rgba(125,232,255,.18); }
-        .starlite-menu__campaign-arc-head strong { color:var(--campaign-accent,#e5bf67); font-size:14px; letter-spacing:.08em; }
-        .starlite-menu__campaign-arc-head span { color:#7f96a4; font-size:8px; letter-spacing:.12em; }
-        .starlite-menu__campaign-banner-select { grid-column:1 / -1; }
-        .starlite-menu__campaign-card-commander { color:var(--campaign-accent,#e5bf67); font-size:8px; font-weight:850; letter-spacing:.08em; }
+        #starlite-menu[data-active-view="campaign"] .starlite-menu__layout { width:min(1240px,calc(100% - 32px)); }
+        .starlite-menu__panel[data-view="campaign"] { width:min(1180px,100%); max-height:calc(100vh - 118px); overflow-y:auto; }
+        .starlite-menu__campaign-copy { max-width:760px; margin:-3px auto 18px; color:#b9c7ce; font-size:12px; line-height:1.55; text-align:center; }
+        .starlite-menu__campaign-route-shell { overflow-x:auto; overflow-y:hidden; padding:12px 8px 18px; border:1px solid rgba(125,232,255,.18); border-radius:16px; background:linear-gradient(180deg,rgba(8,15,22,.92),rgba(4,8,13,.96)); scrollbar-width:thin; }
+        .starlite-menu__campaign-route { position:relative; display:grid; grid-template-columns:repeat(9,minmax(126px,1fr)); gap:10px; min-width:1160px; padding:0 8px; }
+        .starlite-menu__campaign-route::before { content:""; position:absolute; left:68px; right:68px; top:49px; height:5px; border-radius:999px; background:linear-gradient(90deg,#f1c76b 0 33.33%,#a7ef74 33.33% 66.66%,#7de8ff 66.66% 100%); box-shadow:0 0 18px rgba(125,232,255,.22); opacity:.72; }
+        .starlite-menu__campaign-node-item { --campaign-node:#e5bf67; position:relative; z-index:1; min-width:0; display:grid; grid-template-rows:100px auto; justify-items:center; align-content:start; text-align:center; }
+        .starlite-menu__campaign-node { position:relative; width:88px; height:88px; display:grid; place-items:center; border:4px solid var(--campaign-node); border-radius:50%; background:radial-gradient(circle at 38% 30%,color-mix(in srgb,var(--campaign-node) 26%,#18222d),#070c12 67%); color:#f7fbff; box-shadow:0 0 0 7px rgba(4,8,13,.92),0 0 22px color-mix(in srgb,var(--campaign-node) 42%,transparent),inset 0 0 18px rgba(255,255,255,.08); cursor:pointer; transition:transform .14s ease,filter .14s ease,box-shadow .14s ease; }
+        .starlite-menu__campaign-node:hover,.starlite-menu__campaign-node:focus-visible { outline:none; transform:scale(1.08); filter:brightness(1.12); box-shadow:0 0 0 7px rgba(4,8,13,.96),0 0 32px color-mix(in srgb,var(--campaign-node) 62%,transparent),inset 0 0 18px rgba(255,255,255,.12); }
+        .starlite-menu__campaign-node:disabled { cursor:not-allowed; filter:brightness(.5) saturate(.62); box-shadow:0 0 0 7px rgba(4,8,13,.92),0 0 14px color-mix(in srgb,var(--campaign-node) 24%,transparent),inset 0 0 12px rgba(255,255,255,.04); }
+        .starlite-menu__campaign-node--complete::after { content:"✓"; position:absolute; right:-5px; bottom:-3px; width:26px; height:26px; display:grid; place-items:center; border:2px solid #071018; border-radius:50%; background:var(--campaign-node); color:#061017; font:950 16px ui-monospace,monospace; }
+        .starlite-menu__campaign-node-number { font:950 27px ui-monospace,monospace; letter-spacing:-.05em; }
+        .starlite-menu__campaign-node-lock { font:950 21px ui-monospace,monospace; opacity:.72; }
+        .starlite-menu__campaign-node-copy { width:100%; min-width:0; padding:8px 6px 0; }
+        .starlite-menu__campaign-node-copy span { display:block; color:var(--campaign-node); font:900 8px ui-monospace,monospace; letter-spacing:.12em; }
+        .starlite-menu__campaign-node-copy strong { display:block; min-height:38px; margin:6px 0 5px; color:#f0f7fb; font-size:14px; line-height:1.15; letter-spacing:.035em; }
+        .starlite-menu__campaign-node-copy small { display:block; color:#9fb0ba; font-size:9px; line-height:1.48; }
+        .starlite-menu__campaign-node-item[data-locked="true"] .starlite-menu__campaign-node-copy { opacity:.52; }
+        .starlite-menu__campaign-footer { display:flex; justify-content:center; margin-top:13px; }
+        .starlite-menu__campaign-reset { min-height:32px; padding:0 14px; border:1px solid rgba(151,172,184,.28); border-radius:7px; background:rgba(14,20,27,.72); color:#8fa2ad; font-size:8px; font-weight:850; letter-spacing:.1em; cursor:pointer; }
+        .starlite-menu__campaign-reset:hover,.starlite-menu__campaign-reset:focus-visible { outline:none; border-color:rgba(229,191,103,.62); color:#f0dca7; }
+        .starlite-menu__campaign-command-status { min-height:18px; margin:8px 0 0; color:#a9bbc5; font-size:10px; text-align:center; }
         .starlite-menu__panel[data-view="campaign-briefing"] { width:min(820px,100%); max-height:calc(100vh - 110px); overflow-y:auto; }
         .starlite-menu__briefing-shell { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(230px,.7fr); gap:14px; }
         .starlite-menu__briefing-main,.starlite-menu__briefing-side { padding:18px; border:1px solid rgba(125,232,255,.24); border-radius:12px; background:rgba(7,14,20,.9); }
@@ -23061,37 +23201,26 @@
           <div class="starlite-menu__campaign-stat starlite-menu__campaign-stat--wide"><strong>${lastMission ? lastMission.title : 'NONE'}</strong><span>LAST PLAYED MISSION</span></div>`;
       }
 
-      function campaignMissionCardMarkup(mission, progression) {
+      function campaignMissionCardMarkup(mission, progression, routeIndex = 0) {
         const progress = campaignMissionProgress(mission.id, progression);
         const available = !!progress?.unlocked;
         const completed = !!progress?.completed;
-        const optionalIds = missionOptionalObjectiveIds(mission);
-        const optionalCompleted = optionalIds.filter(objectiveId => progress?.optionalObjectives?.[objectiveId]?.completed).length;
-        const details = [progress?.highestDifficulty ? `BEST ${progress.highestDifficulty.toUpperCase()}` : '', optionalIds.length ? `OPTIONAL ${optionalCompleted}/${optionalIds.length}` : ''].filter(Boolean).join(' · ');
-        const commander = mission.commanders?.player?.name || 'Field Commander';
-        return `<button class="starlite-menu__campaign-card${completed ? ' starlite-menu__campaign-card--complete' : ''}" type="button" data-campaign-mission="${mission.id}" ${available ? '' : 'disabled'}>
-          <span class="starlite-menu__campaign-act">MISSION ${mission.arcOrder || mission.act} · ${campaignFactionLabel(mission.faction)}</span>
-          <strong>${escapeHTML(mission.title)}</strong>
-          <span class="starlite-menu__campaign-card-commander">${escapeHTML(commander)}</span>
-          <small>${escapeHTML(mission.description)}</small>
-          ${details ? `<span class="starlite-menu__campaign-record">${details}</span>` : ''}
-          <span class="starlite-menu__campaign-medals">${campaignMedalsMarkup(progress?.medals)}</span>
-          <span class="starlite-menu__campaign-status">${available ? (completed ? 'REPLAY BRIEFING' : 'OPEN BRIEFING') : 'LOCKED'}</span>
-        </button>`;
+        const factionColor = mission.faction === 'insects' ? '#a7ef74' : mission.faction === 'helias' ? '#7de8ff' : '#f1c76b';
+        const missionNumber = routeIndex + 1;
+        return `<article class="starlite-menu__campaign-node-item" data-locked="${available ? 'false' : 'true'}" style="--campaign-node:${factionColor}">
+          <button class="starlite-menu__campaign-node${completed ? ' starlite-menu__campaign-node--complete' : ''}" type="button" data-campaign-mission="${mission.id}" ${available ? '' : 'disabled'} aria-label="${available ? (completed ? 'Replay' : 'Open') : 'Locked'} mission ${missionNumber}: ${escapeHTML(mission.title)}">
+            ${available ? `<span class="starlite-menu__campaign-node-number">${missionNumber}</span>` : '<span class="starlite-menu__campaign-node-lock">×</span>'}
+          </button>
+          <div class="starlite-menu__campaign-node-copy">
+            <span>${campaignFactionLabel(mission.faction)} · MISSION ${mission.arcOrder || mission.act}</span>
+            <strong>${escapeHTML(mission.title)}</strong>
+            <small>${escapeHTML(mission.description)}</small>
+          </div>
+        </article>`;
       }
 
       function campaignCardsMarkup(progression = loadCampaignProgression()) {
-        const arcs = [];
-        for (const id of CAMPAIGN_MISSION_ORDER) {
-          const mission = CAMPAIGN_MISSIONS[id];
-          let arc = arcs.find(row => row.id === mission.arc);
-          if (!arc) { arc = { id: mission.arc, title: mission.arcTitle || `Act ${mission.act}`, faction: mission.faction, missions: [] }; arcs.push(arc); }
-          arc.missions.push(mission);
-        }
-        return arcs.map(arc => `<section class="starlite-menu__campaign-arc">
-          <div class="starlite-menu__campaign-arc-head"><strong>${escapeHTML(arc.title)}</strong><span>${campaignFactionLabel(arc.faction)} ARC · ${arc.missions.length} MISSIONS</span></div>
-          <div class="starlite-menu__campaign-grid">${arc.missions.map(mission => campaignMissionCardMarkup(mission, progression)).join('')}</div>
-        </section>`).join('');
+        return `<div class="starlite-menu__campaign-route-shell"><div class="starlite-menu__campaign-route">${CAMPAIGN_MISSION_ORDER.map((id, index) => campaignMissionCardMarkup(CAMPAIGN_MISSIONS[id], progression, index)).join('')}</div></div>`;
       }
 
       function campaignBriefingMarkup(mission, progression = loadCampaignProgression()) {
@@ -23106,6 +23235,7 @@
           <div class="starlite-menu__briefing-main">
             <span class="starlite-menu__briefing-kicker">${escapeHTML(mission.arcTitle || `ACT ${mission.act}`)} · ${campaignFactionLabel(mission.faction)}</span>
             <h3>${escapeHTML(mission.title)}</h3><p>${escapeHTML(briefing.situation || mission.description)}</p>
+            <div class="starlite-menu__briefing-quote"><strong>MISSION PURPOSE</strong><br>${escapeHTML(mission.description)}</div>
             ${briefing.commanderLine ? `<div class="starlite-menu__briefing-quote">“${escapeHTML(briefing.commanderLine)}”</div>` : ''}
             <div class="starlite-menu__briefing-section"><strong>PRIMARY ORDERS</strong><ul>${orders}</ul></div>
             ${intel ? `<div class="starlite-menu__briefing-section"><strong>FIELD INTELLIGENCE</strong><ul>${intel}</ul></div>` : ''}
@@ -23113,8 +23243,8 @@
           <aside class="starlite-menu__briefing-side">
             <div class="starlite-menu__briefing-commander"><span>FIELD COMMANDER</span><strong>${escapeHTML(player.name || 'Unknown')}</strong><span>${escapeHTML(player.title || '')}</span></div>
             <div class="starlite-menu__briefing-commander"><span>OPPOSITION</span><strong>${escapeHTML(enemy.name || 'Unknown')}</strong><span>${escapeHTML(enemy.title || '')}</span></div>
-            <div class="starlite-menu__briefing-commander"><span>MISSION RECORD</span><strong>${progress?.completed ? 'COMPLETED · REPLAY' : 'UNCOMPLETED'}</strong><span>${optionalCount} OPTIONAL OBJECTIVE${optionalCount === 1 ? '' : 'S'}</span></div>
-            <button class="starlite-menu__briefing-deploy" type="button" data-campaign-deploy>DEPLOY ON NORMAL</button>
+            <div class="starlite-menu__briefing-commander"><span>MISSION FLOW</span><strong>${progress?.completed ? 'REPLAY AVAILABLE' : 'READY TO DEPLOY'}</strong><span>${optionalCount ? `${optionalCount} OPTIONAL OBJECTIVE${optionalCount === 1 ? '' : 'S'}` : 'FOLLOW THE FIELD DIRECTIVES'}</span></div>
+            <button class="starlite-menu__briefing-deploy" type="button" data-campaign-deploy>DEPLOY</button>
           </aside>
         </div>`;
       }
@@ -23418,18 +23548,10 @@
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="campaign">
               <button class="starlite-menu__return" type="button" data-close-campaign aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
-              <h2 class="starlite-menu__heading">Campaign command</h2>
-              <p class="starlite-menu__campaign-copy">Three compact faction arcs. Every deployment uses a distinct strategic objective and campaign-only difficulty behavior.</p>
-              <div class="starlite-menu__campaign-command">
-                <div class="starlite-menu__campaign-summary" data-campaign-summary>${campaignCommandSummaryMarkup()}</div>
-                <div class="starlite-menu__campaign-controls">
-                  <label>MISSION DIFFICULTY<select data-campaign-difficulty><option value="easy">EASY</option><option value="normal" selected>NORMAL</option><option value="hard">HARD</option></select></label>
-                  <label class="starlite-menu__campaign-banner-select">COMMAND BANNER<select data-campaign-cosmetic></select></label>
-                  <button type="button" data-campaign-resume>CONTINUE LAST MISSION</button>
-                  <button type="button" data-campaign-reset>RESET PROGRESS</button><button type="button" data-campaign-refresh>REFRESH</button>
-                </div>
-              </div>
+              <h2 class="starlite-menu__heading">Campaign</h2>
+              <p class="starlite-menu__campaign-copy">Follow the route from left to right. Select an unlocked mission node to read its briefing or replay it.</p>
               <div data-campaign-grid>${campaignCardsMarkup()}</div>
+              <div class="starlite-menu__campaign-footer"><button class="starlite-menu__campaign-reset" type="button" data-campaign-reset>RESET CAMPAIGN PROGRESSION</button></div>
               <p class="starlite-menu__campaign-command-status" data-campaign-status role="status" aria-live="polite"></p>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="campaign-briefing">
@@ -23552,12 +23674,7 @@
         const campaignBriefingView = root.querySelector('[data-view="campaign-briefing"]');
         const campaignBriefingContent = root.querySelector('[data-campaign-briefing-content]');
         const campaignGrid = root.querySelector('[data-campaign-grid]');
-        const campaignSummary = root.querySelector('[data-campaign-summary]');
-        const campaignDifficultySelect = root.querySelector('[data-campaign-difficulty]');
-        const campaignCosmeticSelect = root.querySelector('[data-campaign-cosmetic]');
-        const campaignResumeButton = root.querySelector('[data-campaign-resume]');
         const campaignResetButton = root.querySelector('[data-campaign-reset]');
-        const campaignRefreshButton = root.querySelector('[data-campaign-refresh]');
         const campaignStatus = root.querySelector('[data-campaign-status]');
         const playerView = root.querySelector('[data-view="player"]');
         const settingsView = root.querySelector('[data-view="settings"]');
@@ -24566,32 +24683,21 @@
           };
         }
 
-        function applyCampaignMenuCosmetic(progression) {
-          const selected = CAMPAIGN_COSMETIC_DEFINITIONS[progression.selectedCosmetic] || CAMPAIGN_COSMETIC_DEFINITIONS.standard;
-          root.style.setProperty('--campaign-accent', selected?.color || '#e5bf67');
-          campaignCosmeticSelect.innerHTML = campaignCosmeticOptionsMarkup(progression);
-          campaignCosmeticSelect.value = progression.selectedCosmetic || 'standard';
+        function campaignFactionAccent(faction) {
+          return faction === 'insects' ? '#a7ef74' : faction === 'helias' ? '#7de8ff' : '#f1c76b';
         }
 
-        function renderCampaignCommandScreen({ preserveDifficulty = true } = {}) {
-          const previousDifficulty = campaignDifficultySelect.value;
+        function renderCampaignCommandScreen() {
           const progression = loadCampaignProgression();
-          const summary = campaignProgressSummary(progression);
-          campaignSummary.innerHTML = campaignCommandSummaryMarkup(progression);
+          root.style.setProperty('--campaign-accent', '#e5bf67');
           campaignGrid.innerHTML = campaignCardsMarkup(progression);
-          applyCampaignMenuCosmetic(progression);
-          const lastMission = summary.lastPlayedMission && CAMPAIGN_MISSIONS[summary.lastPlayedMission];
-          campaignResumeButton.disabled = !lastMission || !progression.unlockedMissions.includes(lastMission.id);
-          campaignResumeButton.textContent = lastMission ? `${campaignMissionProgress(lastMission.id, progression)?.completed ? 'REPLAY' : 'CONTINUE'} · ${lastMission.title.toUpperCase()}` : 'NO LAST MISSION';
-          campaignDifficultySelect.value = preserveDifficulty ? previousDifficulty || summary.lastPlayedDifficulty || 'normal' : summary.lastPlayedDifficulty || 'normal';
-          if (!['easy','normal','hard'].includes(campaignDifficultySelect.value)) campaignDifficultySelect.value = 'normal';
           return progression;
         }
 
         function launchCampaignMission(missionId) {
           const mode = campaignModeForMission(missionId);
           if (!mode) return false;
-          finishMenu?.({ ...mode, aiDifficulty: campaignDifficultySelect.value || mode.aiDifficulty || 'normal' });
+          finishMenu?.({ ...mode, aiDifficulty: mode.aiDifficulty || 'normal' });
           return true;
         }
 
@@ -24602,7 +24708,8 @@
           selectedCampaignMissionId = missionId;
           campaignBriefingContent.innerHTML = campaignBriefingMarkup(mission, progression);
           const deploy = campaignBriefingContent.querySelector('[data-campaign-deploy]');
-          deploy.textContent = `DEPLOY ON ${(campaignDifficultySelect.value || 'normal').toUpperCase()}`;
+          root.style.setProperty('--campaign-accent', campaignFactionAccent(mission.faction));
+          deploy.textContent = 'DEPLOY';
           deploy.addEventListener('click', () => launchCampaignMission(selectedCampaignMissionId));
           showOnly(campaignBriefingView);
           deploy.focus();
@@ -24611,7 +24718,7 @@
 
         function openCampaign() {
           status.textContent = ''; campaignStatus.textContent = '';
-          renderCampaignCommandScreen({ preserveDifficulty: false });
+          renderCampaignCommandScreen();
           showOnly(campaignView);
           campaignGrid.querySelector('[data-campaign-mission]:not(:disabled)')?.focus();
         }
@@ -25082,26 +25189,10 @@
           if (!card || card.disabled || !campaignGrid.contains(card)) return;
           openCampaignBriefing(card.dataset.campaignMission);
         });
-        campaignResumeButton.addEventListener('click', () => {
-          const progression = loadCampaignProgression();
-          if (!progression.lastPlayedMission || !openCampaignBriefing(progression.lastPlayedMission)) {
-            campaignStatus.textContent = 'No replayable last mission is available.';
-          }
-        });
-        campaignCosmeticSelect.addEventListener('change', () => {
-          const progression = selectCampaignCosmetic(campaignCosmeticSelect.value);
-          applyCampaignMenuCosmetic(progression);
-          scheduleAccountSync();
-          campaignStatus.textContent = `Command banner selected: ${CAMPAIGN_COSMETIC_DEFINITIONS[progression.selectedCosmetic]?.label || 'Standard'}.`;
-        });
-        campaignRefreshButton.addEventListener('click', () => {
-          renderCampaignCommandScreen();
-          campaignStatus.textContent = 'Campaign progression refreshed from local storage.';
-        });
         campaignResetButton.addEventListener('click', () => {
           if (!globalThis.confirm?.('Reset all campaign completions, medals, optional results and unlocks? This also syncs to your signed-in cloud account.')) return;
           resetCampaignProgression();
-          renderCampaignCommandScreen({ preserveDifficulty: false });
+          renderCampaignCommandScreen();
           campaignStatus.textContent = 'Campaign progression reset. Last Light remains unlocked.';
         });
         root.querySelector('[data-close-sizes]').addEventListener('click', closeSizes);
