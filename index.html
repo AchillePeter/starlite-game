@@ -23372,6 +23372,79 @@
         .starlite-menu__welcome-primary:hover,.starlite-menu__welcome-primary:focus-visible,.starlite-menu__welcome-secondary:hover,.starlite-menu__welcome-secondary:focus-visible { transform: translateY(-1px); outline: 2px solid rgba(125,232,255,.55); outline-offset: 3px; }
         .starlite-menu__welcome-separator { color: #81909a; font-weight: 900; }
         @media(max-width:520px){.starlite-menu__welcome-actions{display:grid;grid-template-columns:1fr}.starlite-menu__welcome-separator{display:none}.starlite-menu__welcome-primary,.starlite-menu__welcome-secondary{width:100%}}
+
+        /* Narrow, visible battlefield mode tiles. The canvases are cosmetic and
+           intentionally independent from the deterministic match simulation. */
+        .starlite-menu__panel[data-view="categories"] { width:min(850px,100%); }
+        .starlite-menu__mode-gates {
+          grid-template-columns:repeat(3,minmax(0,220px)); justify-content:center; gap:20px;
+        }
+        .starlite-menu__gate {
+          width:220px; max-width:100%; min-height:365px; aspect-ratio:5 / 8; padding:0;
+          border-radius:22px;
+        }
+        .starlite-menu__gate-scene { background:#081015; }
+        .starlite-menu__gate-scene::before {
+          z-index:2; background:linear-gradient(180deg,rgba(255,255,255,.035),transparent 32%,rgba(0,0,0,.03) 62%,rgba(0,0,0,.18));
+        }
+        .starlite-menu__gate-scene::after { z-index:3; height:36%; background:linear-gradient(180deg,transparent,rgba(2,5,7,.18) 25%,rgba(2,5,7,.72)); }
+        .starlite-menu__gate-canvas {
+          position:absolute; z-index:1; inset:0; display:block; width:100%; height:100%;
+          image-rendering:pixelated;
+        }
+        .starlite-menu__gate-overlay {
+          z-index:4; padding:17px 16px 14px; border-radius:inherit;
+          background:linear-gradient(180deg,transparent 0 54%,rgba(1,4,6,.08) 62%,rgba(2,5,7,.92) 84%);
+        }
+        .starlite-menu__gate-copy { gap:6px; }
+        .starlite-menu__gate strong { font-size:24px; }
+        .starlite-menu__gate small { font-size:11px; line-height:1.38; }
+        .starlite-menu__shortcut-dock {
+          width:100%; margin:16px auto 0; display:flex; justify-content:center; align-items:center; gap:13px;
+        }
+        #starlite-menu:not([data-active-view="categories"]) .starlite-menu__shortcut-dock { display:none; }
+        .starlite-menu__shortcut-dock .starlite-menu__tag-teaser,
+        .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser {
+          position:relative; inset:auto; width:166px; min-height:58px; margin:0; padding:8px 11px;
+          grid-template-columns:36px 1fr; grid-template-rows:auto auto; gap:1px 8px;
+          transform:none; animation:none; border-radius:10px; box-shadow:0 7px 18px rgba(0,0,0,.3),inset 0 0 0 1px rgba(255,255,255,.15);
+        }
+        .starlite-menu__shortcut-dock .starlite-menu__tag-teaser:hover,
+        .starlite-menu__shortcut-dock .starlite-menu__tag-teaser:focus-visible,
+        .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser:hover,
+        .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser:focus-visible { transform:translateY(-2px) scale(1.01); }
+        .starlite-menu__shortcut-dock .starlite-menu__tag-teaser-mark,
+        .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser-mark {
+          grid-row:1 / span 2; width:34px; height:34px; font-size:18px;
+        }
+        .starlite-menu__shortcut-dock .starlite-menu__tag-teaser strong,
+        .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser strong { max-width:none; font-size:13px; text-align:left; }
+        .starlite-menu__shortcut-dock .starlite-menu__tag-teaser small,
+        .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser small { font-size:7px; text-align:left; }
+        @media(max-width:760px) {
+          .starlite-menu__panel[data-view="categories"] { width:min(590px,100%); }
+          .starlite-menu__mode-gates { grid-template-columns:repeat(2,minmax(0,210px)); gap:15px; }
+          .starlite-menu__gate { width:210px; min-height:340px; }
+          .starlite-menu__gate--campaign { grid-column:1 / -1; justify-self:center; }
+        }
+        @media(max-width:560px) {
+          .starlite-menu__layout { align-content:start; overflow:auto; padding-bottom:32px; }
+          .starlite-menu__mode-gates { grid-template-columns:1fr; }
+          .starlite-menu__gate,.starlite-menu__gate--campaign { grid-column:auto; width:min(238px,78vw); min-height:360px; aspect-ratio:5 / 8; justify-self:center; }
+          .starlite-menu__shortcut-dock { flex-wrap:wrap; margin-top:14px; }
+          .starlite-menu__shortcut-dock .starlite-menu__tag-teaser,
+          .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser { width:min(190px,75vw); }
+        }
+        @media(max-height:720px) and (min-width:761px) {
+          .starlite-menu__brand { margin-bottom:10px; }
+          .starlite-menu__title { font-size:clamp(42px,8vh,58px); }
+          .starlite-menu__panel[data-view="categories"] { padding:14px 18px; }
+          .starlite-menu__gate { width:190px; min-height:296px; }
+          .starlite-menu__mode-gates { grid-template-columns:repeat(3,minmax(0,190px)); gap:15px; }
+          .starlite-menu__shortcut-dock { margin-top:10px; }
+          .starlite-menu__shortcut-dock .starlite-menu__tag-teaser,
+          .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser { min-height:48px; }
+        }
         @media (prefers-reduced-motion: reduce) {
           .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__gate-scene, .starlite-menu__gate-unit, .starlite-menu__gate-bolt, .starlite-menu__gate-spark, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser, .starlite-menu__new-tag, .starlite-menu__confetti-piece, .starlite-menu__tag-celebration-message { transition: none; animation: none !important; }
         }
@@ -23777,6 +23850,190 @@
         };
       }
 
+
+      function startMenuBattleTiles(root) {
+        const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        const sceneDefinitions = Object.freeze({
+          online: Object.freeze({
+            biome: 'frost', objective: 'bridge', left: 'humans', right: 'helias',
+            units: Object.freeze([
+              ['humans','infantry',.18,.34,12], ['humans','jeep',.2,.48,18], ['humans','mecha',.28,.61,19],
+              ['helias','vanguard',.78,.35,14], ['helias','immortal',.72,.53,19], ['helias','phoenix',.82,.22,16]
+            ])
+          }),
+          computer: Object.freeze({
+            biome: 'desert', objective: 'ridge', left: 'humans', right: 'insects',
+            units: Object.freeze([
+              ['humans','infantry',.16,.35,12], ['humans','mortar',.23,.49,15], ['humans','titan',.28,.61,20],
+              ['insects','swarmling',.8,.34,11], ['insects','spitter',.73,.49,14], ['insects','wasp',.82,.21,14], ['insects','swarmling',.69,.61,10]
+            ])
+          }),
+          campaign: Object.freeze({
+            biome: 'night', objective: 'generator', left: 'humans', right: 'insects',
+            units: Object.freeze([
+              ['humans','infantry',.18,.36,12], ['humans','healer',.22,.52,13], ['humans','turret',.34,.48,17],
+              ['insects','swarmling',.78,.35,11], ['insects','spitter',.72,.51,14], ['insects','swarmling',.83,.61,10]
+            ])
+          })
+        });
+        const scenes = [];
+        let frameId = 0;
+        let stopped = false;
+
+        function seededNoise(x, y, seed = 0) {
+          return menuTerrainHash(Math.floor(x * 97) + seed * 13, Math.floor(y * 113) - seed * 7, seed * 101 + 29);
+        }
+
+        function resizeScene(scene) {
+          const rect = scene.canvas.getBoundingClientRect();
+          const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          const width = Math.max(1, Math.round(rect.width));
+          const height = Math.max(1, Math.round(rect.height));
+          if (scene.width === width && scene.height === height && scene.dpr === dpr) return;
+          scene.width = width; scene.height = height; scene.dpr = dpr;
+          scene.canvas.width = Math.max(1, Math.round(width * dpr));
+          scene.canvas.height = Math.max(1, Math.round(height * dpr));
+          scene.ctx.setTransform(dpr,0,0,dpr,0,0);
+          scene.ctx.imageSmoothingEnabled = false;
+        }
+
+        function drawFrostTerrain(ctx,w,h,t) {
+          const sky = ctx.createLinearGradient(0,0,0,h); sky.addColorStop(0,'#426b82'); sky.addColorStop(.52,'#244654'); sky.addColorStop(1,'#16272c');
+          ctx.fillStyle=sky; ctx.fillRect(0,0,w,h);
+          ctx.fillStyle='#b7d8db'; ctx.beginPath(); ctx.moveTo(0,h*.46); ctx.lineTo(w*.36,h*.37); ctx.lineTo(w*.58,h*.51); ctx.lineTo(w,h*.4); ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.closePath(); ctx.fill();
+          ctx.fillStyle='#7bb2c3'; ctx.beginPath(); ctx.moveTo(w*.38,0); ctx.lineTo(w*.62,0); ctx.lineTo(w*.57,h); ctx.lineTo(w*.41,h); ctx.closePath(); ctx.fill();
+          ctx.strokeStyle='rgba(223,251,255,.48)'; ctx.lineWidth=1;
+          for(let i=0;i<7;i++){ const x=w*(.41+i*.027)+Math.sin(t*.18+i)*2; ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x+w*.04,h);ctx.stroke(); }
+          ctx.fillStyle='#52656b';
+          for(let i=0;i<13;i++){const x=seededNoise(i,.2,3)*w,y=h*(.38+seededNoise(i,.8,4)*.5),r=2+seededNoise(i,.5,5)*5;ctx.beginPath();ctx.ellipse(x,y,r*1.4,r,0,0,Math.PI*2);ctx.fill();}
+          ctx.fillStyle='#5a6f73'; ctx.fillRect(w*.39,h*.56,w*.2,h*.07); ctx.fillStyle='#8ea8aa'; ctx.fillRect(w*.4,h*.565,w*.18,h*.025);
+        }
+
+        function drawDesertTerrain(ctx,w,h,t) {
+          const sand=ctx.createLinearGradient(0,0,0,h);sand.addColorStop(0,'#9b5b32');sand.addColorStop(.5,'#6e3e24');sand.addColorStop(1,'#2a2118');ctx.fillStyle=sand;ctx.fillRect(0,0,w,h);
+          ctx.strokeStyle='rgba(255,196,115,.16)';ctx.lineWidth=2;
+          for(let i=0;i<9;i++){const y=h*(.15+i*.09);ctx.beginPath();ctx.moveTo(0,y+Math.sin(t*.08+i)*2);ctx.bezierCurveTo(w*.3,y-12,w*.67,y+13,w,y-3);ctx.stroke();}
+          ctx.fillStyle='rgba(88,25,34,.68)';ctx.beginPath();ctx.moveTo(w*.61,h*.25);ctx.lineTo(w,h*.16);ctx.lineTo(w,h);ctx.lineTo(w*.72,h);ctx.lineTo(w*.64,h*.55);ctx.closePath();ctx.fill();
+          ctx.strokeStyle='rgba(199,255,111,.16)';ctx.lineWidth=1;
+          for(let i=0;i<18;i++){const x=w*(.63+seededNoise(i,.1,9)*.36),y=h*(.25+seededNoise(i,.2,10)*.65);ctx.beginPath();ctx.arc(x,y,2+seededNoise(i,.3,11)*5,0,Math.PI*2);ctx.stroke();}
+          ctx.fillStyle='#3d3026';
+          for(let i=0;i<11;i++){const x=seededNoise(i,.2,12)*w,y=h*(.35+seededNoise(i,.7,13)*.56);ctx.fillRect(x,y,3+seededNoise(i,.4,14)*6,2+seededNoise(i,.9,15)*4);}
+        }
+
+        function drawNightTerrain(ctx,w,h,t) {
+          const ground=ctx.createLinearGradient(0,0,0,h);ground.addColorStop(0,'#18313b');ground.addColorStop(.42,'#10262b');ground.addColorStop(1,'#091316');ctx.fillStyle=ground;ctx.fillRect(0,0,w,h);
+          ctx.fillStyle='rgba(64,88,74,.42)';ctx.beginPath();ctx.moveTo(0,h*.44);ctx.lineTo(w*.37,h*.35);ctx.lineTo(w*.58,h*.5);ctx.lineTo(w,h*.38);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
+          ctx.fillStyle='#0b1715';
+          for(let i=0;i<19;i++){const x=seededNoise(i,.2,21)*w,y=h*(.28+seededNoise(i,.7,22)*.58),r=3+seededNoise(i,.5,23)*7;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.fillRect(x-1,y,r*.2,8);}
+          const fog=ctx.createLinearGradient(0,h*.28,w,h*.72);fog.addColorStop(0,'rgba(154,205,216,.02)');fog.addColorStop(.5,'rgba(154,205,216,.16)');fog.addColorStop(1,'rgba(154,205,216,.02)');ctx.fillStyle=fog;ctx.fillRect(0,h*.24,w,h*.56);
+          ctx.fillStyle='rgba(31,43,45,.85)';ctx.fillRect(w*.42,h*.56,w*.18,h*.08);ctx.fillStyle='rgba(89,116,118,.68)';ctx.fillRect(w*.43,h*.57,w*.16,h*.025);
+        }
+
+        function drawObjective(ctx,scene,t) {
+          const w=scene.width,h=scene.height,kind=scene.definition.objective;
+          if(kind==='generator'){
+            const x=w*.5,y=h*.46,pulse=.75+Math.sin(t*2.4)*.18;
+            ctx.save();ctx.translate(x,y);ctx.fillStyle='#26343a';ctx.fillRect(-13,-4,26,34);ctx.fillStyle='#53646b';ctx.fillRect(-9,-1,18,27);ctx.fillStyle=`rgba(125,232,255,${.42*pulse})`;ctx.beginPath();ctx.arc(0,-8,13*pulse,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(125,232,255,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,14,24+Math.sin(t*2)*2,0,Math.PI*2);ctx.stroke();ctx.restore();
+          } else if(kind==='ridge'){
+            ctx.fillStyle='rgba(55,42,29,.9)';ctx.beginPath();ctx.ellipse(w*.5,h*.53,w*.16,h*.045,0,0,Math.PI*2);ctx.fill();
+          } else {
+            ctx.strokeStyle='rgba(125,232,255,.5)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(w*.39,h*.59);ctx.lineTo(w*.59,h*.59);ctx.stroke();
+          }
+        }
+
+        function factionColor(faction) {
+          return faction==='humans' ? ['#b7d7e5','#7de8ff','#243b49'] : faction==='helias' ? ['#f4d579','#8deaff','#5a421b'] : ['#9bcf55','#c8ff69','#263b18'];
+        }
+
+        function drawUnit(ctx,unit,x,y,heading,t) {
+          const [body,accent,dark]=factionColor(unit.faction),s=unit.size;
+          ctx.save();ctx.translate(x,y);ctx.rotate(heading);ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=5;ctx.shadowOffsetY=3;
+          if(unit.type==='jeep'||unit.type==='titan'){
+            const k=unit.type==='titan'?1.25:1;ctx.fillStyle=dark;ctx.fillRect(-s*.7*k,-s*.48,s*1.4*k,s*.96);ctx.fillStyle=body;ctx.fillRect(-s*.48*k,-s*.4,s*.96*k,s*.8);ctx.fillStyle=accent;ctx.fillRect(s*.15,-s*.09,s*.78*k,s*.18);ctx.fillStyle='#111';ctx.fillRect(-s*.8*k,-s*.52,s*.24,s*1.04);ctx.fillRect(s*.56*k,-s*.52,s*.24,s*1.04);
+          } else if(unit.type==='mortar'||unit.type==='turret'){
+            ctx.fillStyle=dark;ctx.beginPath();ctx.arc(0,0,s*.72,0,Math.PI*2);ctx.fill();ctx.fillStyle=body;ctx.beginPath();ctx.arc(0,0,s*.52,0,Math.PI*2);ctx.fill();ctx.fillStyle=accent;ctx.fillRect(0,-s*.08,s*1.05,s*.16);if(unit.type==='turret'){ctx.strokeStyle=accent;ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,s*.9,0,Math.PI*2);ctx.stroke();}
+          } else if(unit.type==='phoenix'||unit.type==='wasp'){
+            ctx.fillStyle=body;ctx.beginPath();ctx.moveTo(s*.85,0);ctx.lineTo(-s*.5,-s*.55);ctx.lineTo(-s*.22,0);ctx.lineTo(-s*.5,s*.55);ctx.closePath();ctx.fill();ctx.fillStyle=accent;ctx.fillRect(-s*.12,-s*.12,s*.75,s*.24);
+          } else if(unit.type==='swarmling'||unit.type==='spitter'){
+            ctx.fillStyle=body;ctx.beginPath();ctx.ellipse(0,0,s*.65,s*.48,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=accent;ctx.lineWidth=1.4;for(const sign of [-1,1]){ctx.beginPath();ctx.moveTo(-s*.15,sign*s*.3);ctx.lineTo(-s*.8,sign*s*.7);ctx.stroke();ctx.beginPath();ctx.moveTo(s*.2,sign*s*.3);ctx.lineTo(s*.72,sign*s*.62);ctx.stroke();}ctx.fillStyle=accent;ctx.beginPath();ctx.arc(s*.45,0,s*.13,0,Math.PI*2);ctx.fill();
+          } else if(unit.type==='vanguard'||unit.type==='immortal'){
+            const k=unit.type==='immortal'?1.22:1;ctx.fillStyle=dark;ctx.beginPath();ctx.moveTo(s*.72*k,0);ctx.lineTo(0,-s*.65*k);ctx.lineTo(-s*.65*k,0);ctx.lineTo(0,s*.65*k);ctx.closePath();ctx.fill();ctx.fillStyle=body;ctx.beginPath();ctx.arc(0,0,s*.42*k,0,Math.PI*2);ctx.fill();ctx.fillStyle=accent;ctx.fillRect(s*.1,-s*.08,s*.9*k,s*.16);
+          } else {
+            ctx.fillStyle=dark;ctx.beginPath();ctx.arc(0,0,s*.64,0,Math.PI*2);ctx.fill();ctx.fillStyle=body;ctx.beginPath();ctx.arc(0,0,s*.46,0,Math.PI*2);ctx.fill();ctx.fillStyle=accent;ctx.fillRect(s*.18,-s*.08,s*.78,s*.16);if(unit.type==='healer'){ctx.fillStyle='#dfffe8';ctx.fillRect(-2,-s*.28,4,s*.56);ctx.fillRect(-s*.28,-2,s*.56,4);}
+          }
+          ctx.restore();
+          ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y+s*.8,s*.75,s*.28,0,0,Math.PI*2);ctx.fill();ctx.restore();
+        }
+
+        function drawProjectile(ctx,from,to,progress,color,reverse=false) {
+          const p=reverse?1-progress:progress,x=from.x+(to.x-from.x)*p,y=from.y+(to.y-from.y)*p;
+          ctx.save();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.shadowColor=color;ctx.shadowBlur=8;ctx.beginPath();ctx.moveTo(x-(to.x-from.x)*.06,y-(to.y-from.y)*.06);ctx.lineTo(x,y);ctx.stroke();ctx.restore();
+        }
+
+        function drawScene(scene,now) {
+          resizeScene(scene);
+          const ctx=scene.ctx,w=scene.width,h=scene.height,t=now/1000;
+          ctx.setTransform(scene.dpr,0,0,scene.dpr,0,0);ctx.clearRect(0,0,w,h);
+          if(scene.definition.biome==='frost') drawFrostTerrain(ctx,w,h,t);
+          else if(scene.definition.biome==='desert') drawDesertTerrain(ctx,w,h,t);
+          else drawNightTerrain(ctx,w,h,t);
+          drawObjective(ctx,scene,t);
+          const positions=[];
+          scene.units.forEach((unit,index)=>{
+            const side=unit.x<.5?1:-1,advance=Math.sin(t*.48+unit.phase)*w*.025,drift=Math.sin(t*.82+unit.phase*1.7)*h*.012;
+            const x=w*(unit.x)+advance*side,y=h*unit.y+drift;
+            positions.push({x,y,unit});
+          });
+          positions.sort((a,b)=>a.y-b.y);
+          positions.forEach(p=>drawUnit(ctx,p.unit,p.x,p.y,p.unit.x<.5?0:Math.PI,t));
+        }
+
+        // The projectile loop is kept separate so the scene remains deterministic
+        // and does not allocate transient objects every frame.
+        function drawSceneCombat(scene,now) {
+          const ctx=scene.ctx,t=now/1000,w=scene.width,h=scene.height;
+          const positions=scene.units.map(unit=>({
+            unit,
+            x:w*unit.x+Math.sin(t*.48+unit.phase)*w*.025*(unit.x<.5?1:-1),
+            y:h*unit.y+Math.sin(t*.82+unit.phase*1.7)*h*.012
+          }));
+          const left=positions.filter(p=>p.unit.x<.5),right=positions.filter(p=>p.unit.x>.5);
+          left.forEach((from,index)=>{
+            const to=right[index%right.length]; if(!to)return;
+            const period=1.45+index*.19,cycle=((t+from.unit.phase)%period)/period;
+            if(cycle<.55) drawProjectile(ctx,from,to,cycle/.55,from.unit.faction==='humans'?'#7de8ff':'#ffe18a');
+            if(cycle>.5&&cycle<.66){ctx.save();ctx.globalAlpha=1-(cycle-.5)/.16;ctx.fillStyle='#fff0a4';ctx.beginPath();ctx.arc(to.x,to.y,3+(cycle-.5)*45,0,Math.PI*2);ctx.fill();ctx.restore();}
+          });
+          right.forEach((from,index)=>{
+            const to=left[(index+1)%left.length]; if(!to)return;
+            const period=1.7+index*.21,cycle=((t+from.unit.phase+.67)%period)/period;
+            if(cycle<.48) drawProjectile(ctx,from,to,cycle/.48,from.unit.faction==='helias'?'#c7a6ff':'#c9ff6f',true);
+          });
+        }
+
+        function render(now) {
+          if(stopped)return;
+          const active=root.dataset.activeView==='categories';
+          if(active||reducedMotion){
+            for(const scene of scenes){drawScene(scene,now);drawSceneCombat(scene,now);}
+          }
+          frameId=requestAnimationFrame(render);
+        }
+
+        for(const canvas of root.querySelectorAll('[data-menu-battle-scene]')){
+          const definition=sceneDefinitions[canvas.dataset.menuBattleScene];
+          if(!definition)continue;
+          const ctx=canvas.getContext('2d',{alpha:false});
+          const units=definition.units.map((row,index)=>({faction:row[0],type:row[1],x:row[2],y:row[3],size:row[4],phase:index*.91+definition.biome.length*.17}));
+          scenes.push({canvas,ctx,definition,units,width:0,height:0,dpr:0});
+        }
+        const resize=()=>scenes.forEach(resizeScene);
+        window.addEventListener('resize',resize);
+        resize();
+        frameId=requestAnimationFrame(render);
+        return()=>{stopped=true;cancelAnimationFrame(frameId);window.removeEventListener('resize',resize);};
+      }
+
       const GAME_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       
       function normalizeMenuGameCode(value) {
@@ -23958,54 +24215,28 @@
               <div class="starlite-menu__mode-gates">
                 <button class="starlite-menu__gate starlite-menu__gate--online" type="button" data-category="online" aria-label="Open multiplayer menu">
                   <span class="starlite-menu__gate-scene starlite-menu__gate-scene--online" aria-hidden="true">
-                    <span class="starlite-menu__gate-haze"></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human" style="--unit-left:12%; --unit-bottom:14%; --unit-size:24px; --drift:-5px; --bob-duration:3.8s; --bob-delay:.1s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human starlite-menu__gate-unit--heavy" style="--unit-left:22%; --unit-bottom:16%; --drift:-4px; --bob-duration:4.2s; --bob-delay:.4s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--helias starlite-menu__gate-unit--air" style="--unit-left:65%; --unit-bottom:18%; --unit-size:26px; --drift:6px; --bob-duration:4.4s; --bob-delay:.2s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--helias" style="--unit-left:76%; --unit-bottom:14%; --unit-size:24px; --drift:5px; --bob-duration:3.6s; --bob-delay:.5s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--cyan" style="--bolt-left:25%; --bolt-bottom:32%; --bolt-angle:-6deg; --bolt-delay:.2s; --bolt-length:28%;"></span>
-                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--amber starlite-menu__gate-bolt--reverse" style="--bolt-left:72%; --bolt-bottom:36%; --bolt-angle:188deg; --bolt-delay:.8s; --bolt-length:24%;"></span>
-                    <span class="starlite-menu__gate-spark" style="--spark-left:49%; --spark-bottom:34%; --spark-delay:.35s;"></span>
-                    <span class="starlite-menu__gate-ground-glow"></span>
+                    <canvas class="starlite-menu__gate-canvas" data-menu-battle-scene="online"></canvas>
                   </span>
                   <span class="starlite-menu__gate-overlay">
-                    <span class="starlite-menu__gate-copy"><span><span class="starlite-menu__gate-kicker">MULTIPLAYER</span><strong>ONLINE</strong></span><small>Meet other commanders in a live battle and jump straight into the war.</small></span>
+                    <span class="starlite-menu__gate-copy"><span><span class="starlite-menu__gate-kicker">FROZEN CROSSING</span><strong>MULTIPLAYER</strong></span><small>Human armor clashes with Helias skimmers across ice, cliffs and a contested bridge.</small></span>
                     <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
                   </span>
                 </button>
                 <button class="starlite-menu__gate starlite-menu__gate--computer" type="button" data-category="computer" aria-label="Open versus computer menu">
                   <span class="starlite-menu__gate-scene starlite-menu__gate-scene--computer" aria-hidden="true">
-                    <span class="starlite-menu__gate-haze"></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human" style="--unit-left:11%; --unit-bottom:14%; --unit-size:24px; --drift:-4px; --bob-duration:3.7s; --bob-delay:.15s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human starlite-menu__gate-unit--heavy" style="--unit-left:24%; --unit-bottom:13%; --drift:-3px; --bob-duration:4.5s; --bob-delay:.45s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:67%; --unit-bottom:13%; --unit-size:25px; --drift:5px; --bob-duration:3.6s; --bob-delay:.25s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:79%; --unit-bottom:16%; --unit-size:23px; --drift:4px; --bob-duration:3.9s; --bob-delay:.6s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:72%; --unit-bottom:22%; --unit-size:21px; --drift:6px; --bob-duration:4.3s; --bob-delay:.05s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--cyan" style="--bolt-left:26%; --bolt-bottom:30%; --bolt-angle:-4deg; --bolt-delay:.3s; --bolt-length:27%;"></span>
-                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--acid starlite-menu__gate-bolt--reverse" style="--bolt-left:73%; --bolt-bottom:33%; --bolt-angle:183deg; --bolt-delay:.95s; --bolt-length:25%;"></span>
-                    <span class="starlite-menu__gate-spark" style="--spark-left:51%; --spark-bottom:31%; --spark-delay:.58s;"></span>
-                    <span class="starlite-menu__gate-ground-glow"></span>
+                    <canvas class="starlite-menu__gate-canvas" data-menu-battle-scene="computer"></canvas>
                   </span>
                   <span class="starlite-menu__gate-overlay">
-                    <span class="starlite-menu__gate-copy"><span><span class="starlite-menu__gate-kicker">SOLO BATTLE</span><strong>VS. COMPUTER</strong></span><small>Challenge seeded enemy commanders in a focused head-to-head battlefield.</small></span>
+                    <span class="starlite-menu__gate-copy"><span><span class="starlite-menu__gate-kicker">RED DUNES</span><strong>VS. COMPUTER</strong></span><small>Infantry, vehicles and fire support hold a desert line against a moving Zglengo swarm.</small></span>
                     <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
                   </span>
                 </button>
                 <button class="starlite-menu__gate starlite-menu__gate--campaign" type="button" data-category="campaign" aria-label="Open campaign menu">
                   <span class="starlite-menu__gate-scene starlite-menu__gate-scene--campaign" aria-hidden="true">
-                    <span class="starlite-menu__gate-haze"></span>
-                    <span class="starlite-menu__gate-structure starlite-menu__gate-structure--generator"></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human" style="--unit-left:14%; --unit-bottom:13%; --unit-size:24px; --drift:-4px; --bob-duration:3.8s; --bob-delay:.12s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human starlite-menu__gate-unit--heavy" style="--unit-left:26%; --unit-bottom:14%; --drift:-3px; --bob-duration:4.2s; --bob-delay:.38s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:68%; --unit-bottom:14%; --unit-size:25px; --drift:5px; --bob-duration:3.7s; --bob-delay:.22s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:79%; --unit-bottom:17%; --unit-size:22px; --drift:4px; --bob-duration:4.1s; --bob-delay:.54s;"><i></i><b></b></span>
-                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--cyan" style="--bolt-left:28%; --bolt-bottom:30%; --bolt-angle:-3deg; --bolt-delay:.24s; --bolt-length:24%;"></span>
-                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--acid starlite-menu__gate-bolt--reverse" style="--bolt-left:71%; --bolt-bottom:31%; --bolt-angle:182deg; --bolt-delay:1.02s; --bolt-length:21%;"></span>
-                    <span class="starlite-menu__gate-spark" style="--spark-left:55%; --spark-bottom:29%; --spark-delay:.6s;"></span>
-                    <span class="starlite-menu__gate-ground-glow"></span>
+                    <canvas class="starlite-menu__gate-canvas" data-menu-battle-scene="campaign"></canvas>
                   </span>
                   <span class="starlite-menu__gate-overlay">
-                    <span class="starlite-menu__gate-copy"><span><span class="starlite-menu__gate-kicker">STORY MISSIONS</span><strong>CAMPAIGN</strong></span><small>Step into handcrafted operations and push through each faction’s warfront.</small></span>
+                    <span class="starlite-menu__gate-copy"><span><span class="starlite-menu__gate-kicker">LAST LIGHT</span><strong>CAMPAIGN</strong></span><small>Explore a dark frontier, secure a power generator and defend it from patrols emerging through the fog.</small></span>
                     <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
                   </span>
                 </button>
@@ -24308,12 +24539,14 @@
                 <button class="starlite-menu__secondary" type="button" data-reset-keybinds>RESET KEYBINDS</button>
               </div>
             </section>
-            <button class="starlite-menu__tag-teaser" type="button" data-open-tag-lab aria-label="Open Tag Lab">
-              <span class="starlite-menu__tag-teaser-mark" aria-hidden="true">✎</span><strong>TAG LAB</strong><small>MAKE YOUR MARK</small>
-            </button>
-            <button class="starlite-menu__tutorial-teaser" type="button" data-open-tutorials aria-label="Choose a faction tutorial">
-              <span class="starlite-menu__tutorial-teaser-mark" aria-hidden="true">?</span><strong>TUTORIALS</strong><small>CHOOSE A FACTION</small>
-            </button>
+            <div class="starlite-menu__shortcut-dock" aria-label="Additional game tools">
+              <button class="starlite-menu__tag-teaser" type="button" data-open-tag-lab aria-label="Open Tag Lab">
+                <span class="starlite-menu__tag-teaser-mark" aria-hidden="true">✎</span><strong>TAG LAB</strong><small>MAKE YOUR MARK</small>
+              </button>
+              <button class="starlite-menu__tutorial-teaser" type="button" data-open-tutorials aria-label="Choose a faction tutorial">
+                <span class="starlite-menu__tutorial-teaser-mark" aria-hidden="true">?</span><strong>TUTORIALS</strong><small>CHOOSE A FACTION</small>
+              </button>
+            </div>
             <footer class="starlite-menu__footer">
               <span class="starlite-menu__footer-note">Deterministic lockstep · WebSocket relay ready</span>
               <nav class="starlite-menu__footer-links" aria-label="Information and privacy">
@@ -24350,6 +24583,7 @@
         document.body.appendChild(root);
       
         const stopBackdrop = startMenuBackdrop(root.querySelector('canvas'));
+        const stopBattleTiles = startMenuBattleTiles(root);
         const categoryView = root.querySelector('[data-view="categories"]');
         const onlineChoiceView = root.querySelector('[data-view="online-choice"]');
         const onlineView = root.querySelector('[data-view="online"]');
@@ -25925,6 +26159,7 @@
             accountUnsubscribe?.();
             accountUnsubscribe = null;
             stopBackdrop();
+            stopBattleTiles();
             document.body.style.overflow = previousOverflow;
             root.remove();
             resolve(mode);
