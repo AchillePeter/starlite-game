@@ -39291,63 +39291,80 @@ function drawStructure(s) {
       // command state and match balance are never advanced or changed.
       const MENU_BATTLE_PREVIEW_SCENES = Object.freeze({
         online: Object.freeze({
-          mapSkin: 'frozen', terrain: 'crossing',
+          mapSkin: 'frozen', terrain: 'crossing', leftFaction: 'helias', rightFaction: 'insects',
+          structures: Object.freeze([
+            Object.freeze({ type: 'broodHive', faction: 'insects', side: 'right', x: .73, y: .50, level: 2 })
+          ]),
           units: Object.freeze([
-            Object.freeze({ type: 'armoredJeep', faction: 'humans', side: 'left', x: .20, y: .43, heading: 0 }),
-            Object.freeze({ type: 'assault', faction: 'humans', side: 'left', x: .25, y: .31, heading: 0 }),
-            Object.freeze({ type: 'antiAirFighter', faction: 'humans', side: 'left', x: .30, y: .20, heading: .08 }),
-            Object.freeze({ type: 'heliasLancer', faction: 'helias', side: 'right', x: .76, y: .34, heading: Math.PI }),
-            Object.freeze({ type: 'heliasImmortal', faction: 'helias', side: 'right', x: .72, y: .50, heading: Math.PI }),
-            Object.freeze({ type: 'heliasPhoenix', faction: 'helias', side: 'right', x: .82, y: .21, heading: Math.PI })
+            Object.freeze({ type: 'heliasVoidRay', faction: 'helias', side: 'left', x: .18, y: .29, heading: .08 }),
+            Object.freeze({ type: 'heliasVoidRay', faction: 'helias', side: 'left', x: .19, y: .48, heading: 0 }),
+            Object.freeze({ type: 'heliasVoidRay', faction: 'helias', side: 'left', x: .23, y: .66, heading: -.08 }),
+            Object.freeze({ type: 'insectQueen', faction: 'insects', side: 'right', x: .57, y: .34, heading: Math.PI }),
+            Object.freeze({ type: 'insectQueen', faction: 'insects', side: 'right', x: .58, y: .66, heading: Math.PI })
+          ]),
+          beams: Object.freeze([
+            Object.freeze({ from: 0, toStructure: 0, type: 'beam', voidRay: true, color: '#8f63ff', innerColor: '#eafcff', width: 7.2, phase: .06 }),
+            Object.freeze({ from: 1, toStructure: 0, type: 'beam', voidRay: true, color: '#8f63ff', innerColor: '#eafcff', width: 7.8, phase: .41 }),
+            Object.freeze({ from: 2, toStructure: 0, type: 'beam', voidRay: true, color: '#8f63ff', innerColor: '#eafcff', width: 7.2, phase: .74 })
           ]),
           shots: Object.freeze([
-            Object.freeze({ from: 0, to: 3, style: 'tracer', color: '#7de8ff', trailColor: '#7de8ff', radius: 2.2, duration: 1.28, phase: .02 }),
-            Object.freeze({ from: 1, to: 4, style: 'shell', color: '#ffd166', trailColor: '#ffd166', radius: 3.2, duration: 1.62, phase: .42 }),
-            Object.freeze({ from: 5, to: 2, style: 'plasma', color: '#9cf2ff', trailColor: '#8f63ff', radius: 3.4, duration: 1.48, phase: .73 })
-          ])
+            Object.freeze({ from: 3, to: 0, style: 'plasma', color: '#d8ff9c', trailColor: '#efffcf', radius: 3.6, duration: 1.34, phase: .16 }),
+            Object.freeze({ from: 4, to: 2, style: 'plasma', color: '#d8ff9c', trailColor: '#efffcf', radius: 3.6, duration: 1.48, phase: .62 })
+          ]),
+          selectedIndex: 1
         }),
         computer: Object.freeze({
-          mapSkin: 'mars', terrain: 'ridge',
+          mapSkin: 'mars', terrain: 'ridge', leftFaction: 'humans', rightFaction: 'insects',
           units: Object.freeze([
-            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .17, y: .35, heading: 0 }),
-            Object.freeze({ type: 'mortar', faction: 'humans', side: 'left', x: .23, y: .50, heading: 0 }),
-            Object.freeze({ type: 'titanTank', faction: 'humans', side: 'left', x: .27, y: .61, heading: 0 }),
-            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .78, y: .33, heading: Math.PI }),
-            Object.freeze({ type: 'insectSpitter', faction: 'insects', side: 'right', x: .72, y: .48, heading: Math.PI }),
-            Object.freeze({ type: 'insectWasp', faction: 'insects', side: 'right', x: .82, y: .20, heading: Math.PI }),
-            Object.freeze({ type: 'insectBroodTitan', faction: 'insects', side: 'right', x: .76, y: .62, heading: Math.PI })
+            Object.freeze({ type: 'jeep', faction: 'humans', side: 'left', x: .14, y: .54, heading: 0 }),
+            Object.freeze({ type: 'helicopter', faction: 'humans', side: 'left', x: .20, y: .24, heading: .05 }),
+            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .27, y: .36, heading: 0, fighting: true }),
+            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .28, y: .47, heading: 0, fighting: true }),
+            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .27, y: .59, heading: 0, fighting: true }),
+            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .36, y: .41, heading: 0, fighting: true }),
+            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .36, y: .55, heading: 0, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .50, y: .31, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .52, y: .41, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .51, y: .52, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .53, y: .63, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .61, y: .26, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .62, y: .37, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .61, y: .49, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .62, y: .61, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .70, y: .35, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .70, y: .53, heading: Math.PI, fighting: true }),
+            Object.freeze({ type: 'insectQueen', faction: 'insects', side: 'right', x: .82, y: .38, heading: Math.PI }),
+            Object.freeze({ type: 'insectSpitter', faction: 'insects', side: 'right', x: .80, y: .56, heading: Math.PI }),
+            Object.freeze({ type: 'insectSpitter', faction: 'insects', side: 'right', x: .86, y: .68, heading: Math.PI })
           ]),
           shots: Object.freeze([
-            Object.freeze({ from: 0, to: 3, style: 'tracer', color: '#7de8ff', trailColor: '#7de8ff', radius: 2.1, duration: 1.16, phase: .08 }),
-            Object.freeze({ from: 1, to: 4, style: 'siege', color: '#ffb76d', trailColor: '#ff8a3d', radius: 4.4, duration: 2.05, phase: .36, arcHeight: 26 }),
-            Object.freeze({ from: 2, to: 6, style: 'shell', color: '#ffd166', trailColor: '#ffd166', radius: 4.8, duration: 1.86, phase: .61 }),
-            Object.freeze({ from: 4, to: 0, style: 'plasma', color: '#c9ff6f', trailColor: '#6f9e34', radius: 3.2, duration: 1.55, phase: .78 })
-          ])
+            Object.freeze({ from: 0, to: 8, style: 'tracer', color: '#7de8ff', trailColor: '#fff5c7', radius: 2.1, duration: 1.02, phase: .05 }),
+            Object.freeze({ from: 1, to: 17, style: 'tracer', color: '#d9fbff', trailColor: '#fff5c7', radius: 2.1, duration: .88, phase: .34 }),
+            Object.freeze({ from: 17, to: 1, style: 'plasma', color: '#d8ff9c', trailColor: '#efffcf', radius: 3.5, duration: 1.34, phase: .53 }),
+            Object.freeze({ from: 18, to: 4, style: 'plasma', color: '#68ff84', trailColor: '#c4ffd1', radius: 3.3, duration: 1.22, phase: .76 }),
+            Object.freeze({ from: 19, to: 6, style: 'plasma', color: '#68ff84', trailColor: '#c4ffd1', radius: 3.3, duration: 1.36, phase: .16 })
+          ]),
+          selectedIndex: 0
         }),
         campaign: Object.freeze({
-          mapSkin: 'normal', terrain: 'forest',
+          mapSkin: 'normal', terrain: 'forest', leftFaction: 'humans', rightFaction: 'insects',
+          checkpoint: Object.freeze({ x: .82, y: .66, radius: .105, label: 'CHECKPOINT' }),
           structures: Object.freeze([
-            Object.freeze({ type: 'campaignPowerGenerator', faction: 'humans', side: 'left', x: .50, y: .40, campaignActive: true }),
-            Object.freeze({ type: 'turret', faction: 'humans', side: 'left', x: .34, y: .49, level: 2 }),
-            Object.freeze({ type: 'turret', faction: 'humans', side: 'left', x: .61, y: .50, level: 2 })
+            Object.freeze({ type: 'thornmawCrawler', faction: 'insects', side: 'right', x: .68, y: .28 })
           ]),
           units: Object.freeze([
-            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .25, y: .35, heading: 0 }),
-            Object.freeze({ type: 'assault', faction: 'humans', side: 'left', x: .28, y: .52, heading: 0 }),
-            Object.freeze({ type: 'healer', faction: 'humans', side: 'left', x: .20, y: .47, heading: 0 }),
-            Object.freeze({ type: 'insectSwarmling', faction: 'insects', side: 'right', x: .78, y: .33, heading: Math.PI }),
-            Object.freeze({ type: 'insectSpitter', faction: 'insects', side: 'right', x: .75, y: .49, heading: Math.PI }),
-            Object.freeze({ type: 'insectSiegeSpitter', faction: 'insects', side: 'right', x: .81, y: .61, heading: Math.PI })
+            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .17, y: .50, heading: 0, travel: Object.freeze({ fromX: .13, toX: .73, fromY: .48, toY: .61, duration: 5.4 }) }),
+            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .14, y: .61, heading: 0, travel: Object.freeze({ fromX: .10, toX: .70, fromY: .59, toY: .70, duration: 5.4 }) }),
+            Object.freeze({ type: 'infantry', faction: 'humans', side: 'left', x: .21, y: .69, heading: 0, travel: Object.freeze({ fromX: .17, toX: .77, fromY: .67, toY: .75, duration: 5.4 }) }),
+            Object.freeze({ type: 'mecha', faction: 'humans', side: 'left', x: .11, y: .76, heading: 0, travel: Object.freeze({ fromX: .07, toX: .67, fromY: .74, toY: .81, duration: 5.4 }) })
           ]),
-          shots: Object.freeze([
-            Object.freeze({ from: 0, to: 3, style: 'tracer', color: '#7de8ff', trailColor: '#7de8ff', radius: 2.1, duration: 1.3, phase: .04 }),
-            Object.freeze({ fromStructure: 1, to: 4, style: 'tracer', color: '#ffd166', trailColor: '#ff9d4d', radius: 2.8, duration: 1.1, phase: .38 }),
-            Object.freeze({ fromStructure: 2, to: 5, style: 'shell', color: '#ffd166', trailColor: '#ffd166', radius: 3.8, duration: 1.55, phase: .67 }),
-            Object.freeze({ from: 4, to: 1, style: 'plasma', color: '#c9ff6f', trailColor: '#6f9e34', radius: 3.2, duration: 1.7, phase: .82 })
-          ])
+          effects: Object.freeze([
+            Object.freeze({ type: 'earthTentacleStrike', fromStructure: 0, to: 0, duration: 1.42, phase: .06 }),
+            Object.freeze({ type: 'earthTentacleStrike', fromStructure: 0, to: 2, duration: 1.42, phase: .58 })
+          ]),
+          selectedIndex: 3
         })
       });
-
       function menuPreviewTerrainType(scene, x, y, columns, rows) {
         const nx = columns > 1 ? x / (columns - 1) : 0;
         const ny = rows > 1 ? y / (rows - 1) : 0;
@@ -39420,25 +39437,44 @@ function drawStructure(s) {
         const data = UNIT_DATA[definition.type];
         const phase = elapsed * .72 + index * 1.17;
         const direction = definition.side === 'left' ? 1 : -1;
-        const motion = Math.sin(phase) * 4.5 * direction;
-        const x = width * definition.x + motion;
-        const y = height * definition.y + Math.cos(phase * .83) * 2.4;
+        let x = width * definition.x;
+        let y = height * definition.y;
+        let heading = definition.heading;
+        let moving = true;
+        let moveSpeed = data.speed * .28;
+        if (definition.travel) {
+          const travel = definition.travel;
+          const duration = Math.max(.1, Number(travel.duration) || 5);
+          const progress = ((elapsed / duration) + (Number(travel.phase) || 0)) % 1;
+          const fromX = Number(travel.fromX) || 0;
+          const fromY = Number(travel.fromY) || 0;
+          const toX = Number(travel.toX) || fromX;
+          const toY = Number(travel.toY) || fromY;
+          x = width * (fromX + (toX - fromX) * progress);
+          y = height * (fromY + (toY - fromY) * progress) + Math.sin(elapsed * 7 + index) * 1.4;
+          heading = Math.atan2((toY - fromY) * height, (toX - fromX) * width);
+          moveSpeed = data.speed * .72;
+        } else {
+          const motionScale = definition.fighting ? 2.2 : 4.5;
+          x += Math.sin(phase) * motionScale * direction;
+          y += Math.cos(phase * .83) * (definition.fighting ? 1.5 : 2.4);
+        }
         const shieldMax = data.shieldHp || 0;
-        const firingPulse = Math.max(0, Math.sin(elapsed * 4.6 + index * 1.8));
+        const firingPulse = Math.max(0, Math.sin(elapsed * (definition.fighting ? 6.2 : 4.6) + index * 1.8));
         return {
           id: 91000 + index, kind: 'unit', type: definition.type,
           team: definition.side === 'left' ? 'player2' : 'computer', faction: definition.faction,
           x, y, prevX: x, prevY: y, radius: data.radius, hp: data.hp, maxHp: data.hp,
           speed: data.speed, damage: data.damage, heal: data.heal || 0, repair: data.repair || 0,
           range: data.range, splash: data.splash || 0, cooldown: data.cooldown, cooldownLeft: 0,
-          sight: data.sight, heading: definition.heading, prevHeading: definition.heading,
-          destination: { x: x + direction * 24, y }, guardPoint: { x, y }, target: null,
+          sight: data.sight, heading, prevHeading: heading,
+          destination: { x: x + Math.cos(heading) * 24, y: y + Math.sin(heading) * 24 }, guardPoint: { x, y }, target: null,
           command: 'attackMove', selected: false, flash: 0,
-          recoil: firingPulse > .82 ? .13 : 0, attackAnim: firingPulse > .74 ? .2 : 0,
-          voidRayCharge: definition.type === 'heliasVoidRay' ? .8 : 0,
+          recoil: firingPulse > .82 ? .13 : 0, attackAnim: firingPulse > .66 ? .24 : 0,
+          voidRayCharge: definition.type === 'heliasVoidRay' ? .9 : 0,
           mortarSetup: definition.type === 'mortar' ? 1 : 0,
-          barrelAngle: definition.heading, turretAngle: definition.heading,
-          animation: data.animation || null, moving: true, moveSpeed: data.speed * .28,
+          barrelAngle: heading, turretAngle: heading,
+          animation: data.animation || null, moving, moveSpeed,
           motionPhase: elapsed * 3.2 + index, flightPhase: index * .73,
           markDistance: 0, stepSide: index % 2 ? -1 : 1, engineClock: .2,
           shield: shieldMax, maxShield: shieldMax, intrinsicShieldMax: shieldMax,
@@ -39469,7 +39505,7 @@ function drawStructure(s) {
 
       function menuPreviewProjectile(shot, unitObjects, structureObjects, elapsed) {
         const from = Number.isFinite(shot.fromStructure) ? structureObjects[shot.fromStructure] : unitObjects[shot.from];
-        const to = unitObjects[shot.to];
+        const to = Number.isFinite(shot.toStructure) ? structureObjects[shot.toStructure] : unitObjects[shot.to];
         if (!from || !to) return null;
         const progress = ((elapsed / shot.duration) + shot.phase) % 1;
         const angle = Math.atan2(to.y - from.y, to.x - from.x);
@@ -39487,6 +39523,62 @@ function drawStructure(s) {
           zigzagFrequency: 18, zigzagPhase: shot.phase * Math.PI * 2,
           ballistic: true, impactX: to.x, impactY: to.y
         };
+      }
+
+      function menuPreviewEffect(definition, unitObjects, structureObjects, elapsed) {
+        const source = Number.isFinite(definition.fromStructure)
+          ? structureObjects[definition.fromStructure]
+          : unitObjects[definition.from];
+        const target = Number.isFinite(definition.toStructure)
+          ? structureObjects[definition.toStructure]
+          : unitObjects[definition.to];
+        if (!source || !target) return null;
+        if (definition.type === 'beam') {
+          return {
+            type: 'beam', source, target,
+            color: definition.color || '#8f63ff', innerColor: definition.innerColor || '#eafcff',
+            voidRay: !!definition.voidRay, originOffset: source.radius + 9,
+            charge: definition.voidRay ? .9 : 0,
+            life: 1, max: 1, width: definition.width || 7,
+            phase: elapsed * 12 + (Number(definition.phase) || 0) * Math.PI * 2
+          };
+        }
+        if (definition.type === 'earthTentacleStrike') {
+          const duration = Math.max(.1, Number(definition.duration) || 1.4);
+          const cycle = ((elapsed / duration) + (Number(definition.phase) || 0)) % 1;
+          return {
+            type: 'earthTentacleStrike', x: source.x, y: source.y, source, target,
+            targetX: target.x, targetY: target.y,
+            color: '#7d3d68', innerColor: '#b8ff63',
+            seed: source.id * 11 + Math.floor(elapsed * 10),
+            life: Math.max(.015, 1 - cycle), max: 1, intensity: 1.45
+          };
+        }
+        return null;
+      }
+
+      function drawMenuPreviewCheckpoint(target, checkpoint, width, height, elapsed) {
+        if (!checkpoint) return;
+        const x = width * checkpoint.x;
+        const y = height * checkpoint.y;
+        const radius = Math.max(18, Math.min(width, height) * (checkpoint.radius || .1));
+        const pulse = .5 + Math.sin(elapsed * 4.2) * .5;
+        target.save();
+        target.globalAlpha = .16 + pulse * .06;
+        target.fillStyle = '#7de8ff';
+        target.beginPath(); target.arc(x, y, radius, 0, Math.PI * 2); target.fill();
+        target.globalAlpha = .82;
+        target.strokeStyle = '#7de8ff';
+        target.lineWidth = 2;
+        target.setLineDash([8, 6]);
+        target.beginPath(); target.arc(x, y, radius, -Math.PI / 2, Math.PI * 1.5); target.stroke();
+        target.setLineDash([]);
+        target.globalAlpha = .72 + pulse * .25;
+        target.strokeStyle = '#ffffff';
+        target.lineWidth = 2.5;
+        target.beginPath(); target.arc(x, y, radius + 5 + pulse * 2, 0, Math.PI * 2); target.stroke();
+        target.restore();
+        drawText(checkpoint.label || 'CHECKPOINT', x, y - radius - 14, 9, '#7de8ff', 'center');
       }
 
       function renderMenuBattlePreviewFrame(targetCanvas, sceneId, timeMs = 0) {
@@ -39508,9 +39600,9 @@ function drawStructure(s) {
         const target = targetCanvas.getContext('2d', { alpha: false });
         if (!target) return false;
 
-        // Match the closer tactical zoom used during normal play so real unit
-        // silhouettes remain readable inside the narrow portrait cards.
-        const previewZoom = width < 250 ? 2.12 : 2.05;
+        // Show a wider tactical slice than before so the complete battle
+        // composition remains visible inside the narrow portrait cards.
+        const previewZoom = width < 250 ? .72 : .78;
         const scratchWidth = Math.max(1, Math.min(Math.round(width / previewZoom), canvas.width));
         const scratchHeight = Math.max(1, Math.min(Math.round(height / previewZoom), canvas.height));
         const elapsed = Math.max(0, Number(timeMs) || 0) / 1000;
@@ -39528,7 +39620,7 @@ function drawStructure(s) {
           cam.x = 0; cam.y = 0; cam.zoom = 1;
           state.elapsed = elapsed;
           state.mapSkin = scene.mapSkin;
-          state.teamFactions = { player2: 'humans', computer: sceneId === 'online' ? 'helias' : 'insects' };
+          state.teamFactions = { player2: scene.leftFaction || 'humans', computer: scene.rightFaction || 'insects' };
           state.selected = new Set();
           state.selectedStructures = new Set();
           state.placingChronoBoostNexusId = null;
@@ -39542,18 +39634,38 @@ function drawStructure(s) {
           ctx.globalCompositeOperation = 'source-over';
           ctx.clearRect(0, 0, scratchWidth, scratchHeight);
           drawMenuPreviewTerrain(ctx, scene, scratchWidth, scratchHeight);
+          drawMenuPreviewCheckpoint(ctx, scene.checkpoint, scratchWidth, scratchHeight, elapsed);
 
           const structuresForPreview = (scene.structures || []).map((definition, index) =>
             menuPreviewStructure(definition, scratchWidth, scratchHeight, index));
           const unitsForPreview = scene.units.map((definition, index) =>
             menuPreviewUnit(definition, scratchWidth, scratchHeight, elapsed, index));
-          const selectedPreviewIndex = sceneId === 'computer' ? 2 : sceneId === 'online' ? 4 : 0;
+          const selectedPreviewIndex = Number.isFinite(scene.selectedIndex) ? scene.selectedIndex : -1;
           state.selected = new Set(unitsForPreview[selectedPreviewIndex] ? [unitsForPreview[selectedPreviewIndex].id] : []);
+
+          for (const definition of [...(scene.shots || []), ...(scene.beams || []), ...(scene.effects || [])]) {
+            const source = Number.isFinite(definition.fromStructure)
+              ? structuresForPreview[definition.fromStructure]
+              : unitsForPreview[definition.from];
+            const targetEntity = Number.isFinite(definition.toStructure)
+              ? structuresForPreview[definition.toStructure]
+              : unitsForPreview[definition.to];
+            if (!source || !targetEntity) continue;
+            const angle = Math.atan2(targetEntity.y - source.y, targetEntity.x - source.x);
+            source.heading = angle;
+            source.prevHeading = angle;
+            source.barrelAngle = angle;
+            source.turretAngle = angle;
+            source.recoil = .12;
+          }
 
           [...structuresForPreview].sort((a, b) => a.y - b.y).forEach(drawStructure);
           [...unitsForPreview].sort((a, b) => a.y - b.y).forEach(drawUnit);
 
-          state.projectiles = scene.shots.map(shot => menuPreviewProjectile(shot, unitsForPreview, structuresForPreview, elapsed)).filter(Boolean);
+          state.projectiles = (scene.shots || []).map(shot =>
+            menuPreviewProjectile(shot, unitsForPreview, structuresForPreview, elapsed)).filter(Boolean);
+          state.effects = [...(scene.beams || []), ...(scene.effects || [])].map(effect =>
+            menuPreviewEffect(effect, unitsForPreview, structuresForPreview, elapsed)).filter(Boolean);
           drawEffects();
 
           target.setTransform(dpr, 0, 0, dpr, 0, 0);
