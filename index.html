@@ -6167,9 +6167,16 @@
       }
       
       function commandGridSpec(menu) {
-        const columns = clamp(Math.floor(menu?.columns || ACTION_COLUMNS), 1, 4);
-        const rows = clamp(Math.floor(menu?.rows || ACTION_ROWS), 1, 4);
-        return { columns, rows, perPage: columns * rows };
+        const itemCount = Math.max(1, Math.trunc(menu?.items?.length || 0));
+        const visibleCount = Math.min(ACTIONS_PER_PAGE, itemCount);
+        let columns = visibleCount === 1 ? 1 : visibleCount === 4 ? 2 : Math.min(ACTION_COLUMNS, visibleCount);
+        let rows = Math.ceil(visibleCount / columns);
+        if (menu?.fixedGrid === true) {
+          columns = clamp(Math.floor(menu.columns || ACTION_COLUMNS), 1, ACTION_COLUMNS);
+          rows = clamp(Math.floor(menu.rows || ACTION_ROWS), 1, ACTION_ROWS);
+        }
+        const perPage = itemCount > ACTIONS_PER_PAGE ? ACTIONS_PER_PAGE : columns * rows;
+        return { columns, rows, perPage };
       }
       
       function setCommandMenu(title, items, persistent = false, options = {}) {
@@ -6182,7 +6189,13 @@
         // belong to the clicked world location rather than the current selection.
         // They opt out of the global selection-menu refresh so resource ticks or
         // prerequisite changes cannot replace them with openBuildMenu().
-        state.commandMenu = { title, items, persistent, liveRefresh: options.liveRefresh !== false, ...options };
+        const preserveView = options.preserveView === true || typeof options.refreshAction === 'function';
+        state.commandMenu = {
+          title, items, persistent, ...options,
+          preserveView,
+          liveRefresh: options.liveRefresh !== false
+        };
+        state.requestBuildMenu = false;
         if (previousTitle !== title) state.commandPage = 0;
         const pages = Math.max(1, Math.ceil(items.length / commandGridSpec(state.commandMenu).perPage));
         state.commandPage = clamp(state.commandPage || 0, 0, pages - 1);
@@ -7616,9 +7629,7 @@
         state.commandNavRects = [];
       
         const menu = state.commandMenu;
-        const grid = menu?.constructionCards && compact
-          ? { columns: 1, rows: 1, perPage: 1 }
-          : commandGridSpec(menu);
+        const grid = commandGridSpec(menu);
         const pageCount = Math.max(1, Math.ceil((menu?.items.length || 0) / grid.perPage));
         state.commandPage = clamp(state.commandPage || 0, 0, pageCount - 1);
         const headerH = compact ? 17 : 23;
@@ -30600,10 +30611,12 @@ function compileShader(gl, type, source) {
         });
       
         openMenu(screenPt, `LABORATORY · ${category.label} · CLICK UNIT TO UPGRADE`, items, true, {
-          columns: 2,
-          rows: 2,
           labId: s.id,
+          ownerStructureId: s.id,
           labCategoryId: category.id,
+          preserveView: true,
+          viewValid: () => s.hp > 0 && s.team === activeCommandTeam() && state.selectedStructures.has(s.id),
+          refreshAction: () => openLabCategoryMenu(s, screenPt, category.id),
           backLabel: '‹ TYPES',
           backAction: () => openLaboratoryMenu(s, screenPt)
         });
@@ -31433,8 +31446,6 @@ function compileShader(gl, type, source) {
         const placingLabel = placing ? factionStructureLabel(state.placingBuildingType, team, state.teamFactions) : '';
         const factionName = teamFactionId(team, state.teamFactions) === 'insects' ? 'ZGLENGO BROOD' : teamFactionId(team, state.teamFactions) === 'helias' ? 'HELIAS WARP CONSTRUCTION' : 'CONSTRUCTION';
         openMenu(state.mouse, placing ? `PLACE ${placingLabel} · CLICK MAP` : factionName, items, true, {
-          columns: 2,
-          rows: 2,
           constructionCards: true
         });
       }
@@ -39859,14 +39870,29 @@ function drawStructure(s) {
       }
 
       function draw() {
-        const commandMenuContextLocked = !!state.commandMenu?.contextBound;
-        const liveMenuRefreshDue = !!state.commandMenu && !commandMenuContextLocked &&
-          state.commandMenu.liveRefresh !== false && !state.gameOver && !state.settingsOpen &&
+        const menuBeforeRefresh = state.commandMenu;
+        const commandMenuContextLocked = !!menuBeforeRefresh?.contextBound;
+        const liveMenuRefreshDue = !!menuBeforeRefresh && !commandMenuContextLocked &&
+          menuBeforeRefresh.liveRefresh !== false && !state.gameOver && !state.settingsOpen &&
           !state.placingQueenAbility && state.elapsed >= (Number(state.commandMenuRefreshAt) || 0);
         if ((!commandMenuContextLocked && state.requestBuildMenu) || liveMenuRefreshDue) {
           state.requestBuildMenu = false;
           state.commandMenuRefreshAt = state.elapsed + .20;
-          openBuildMenu();
+          let preserveCurrentView = false;
+          if (menuBeforeRefresh?.preserveView) {
+            if (typeof menuBeforeRefresh.viewValid === 'function') {
+              try { preserveCurrentView = !!menuBeforeRefresh.viewValid(); }
+              catch { preserveCurrentView = false; }
+            } else {
+              const ownerId = Number(menuBeforeRefresh.ownerStructureId ?? menuBeforeRefresh.labId ?? menuBeforeRefresh.researchFacilityId);
+              preserveCurrentView = !Number.isFinite(ownerId) || structures.some(structure =>
+                structure.id === ownerId && structure.hp > 0 && structure.team === activeCommandTeam() &&
+                state.selectedStructures.has(structure.id)
+              );
+            }
+          }
+          if (preserveCurrentView && typeof menuBeforeRefresh.refreshAction === 'function') menuBeforeRefresh.refreshAction();
+          else openBuildMenu();
         }
         // Background.
         ctx.fillStyle = '#05070b';
