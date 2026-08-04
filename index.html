@@ -22626,20 +22626,186 @@
           outline: none; transform: translateY(-2px); border-color: #a7ef74; background: rgba(35,57,37,.92);
         }
         .starlite-menu__icon-button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-        .starlite-menu__mode-gates { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .starlite-menu__panel[data-view="categories"] { width: min(1080px, 100%); }
+        .starlite-menu__mode-gates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
         .starlite-menu__gate {
-          min-height: 178px; padding: 24px 22px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
-          border: 1px solid rgba(255,255,255,.28); border-radius: 18px; color: #fff; text-align: left; cursor: pointer;
+          position: relative; isolation: isolate; overflow: hidden;
+          min-height: 340px; aspect-ratio: 4 / 5; padding: 16px; display: flex; align-items: stretch; justify-content: stretch;
+          border: 1px solid rgba(255,255,255,.28); border-radius: 24px; color: #fff; text-align: left; cursor: pointer;
+          background: linear-gradient(180deg, rgba(16,23,23,.72), rgba(4,8,8,.92));
           box-shadow: inset 0 1px rgba(255,255,255,.15), 0 15px 28px rgba(0,0,0,.24);
-          transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+          transition: transform .16s ease, filter .16s ease, box-shadow .16s ease, border-color .16s ease;
         }
-        .starlite-menu__gate:hover, .starlite-menu__gate:focus-visible { outline: none; transform: translateY(-4px); filter: saturate(1.12) brightness(1.06); box-shadow: inset 0 1px rgba(255,255,255,.2), 0 20px 34px rgba(0,0,0,.3); }
-        .starlite-menu__gate--online { background: linear-gradient(145deg, #136b8d, #173f76); }
-        .starlite-menu__gate--computer { background: linear-gradient(145deg, #a96724, #704225); }
-        .starlite-menu__gate-kicker { font-size: 10px; font-weight: 850; letter-spacing: .18em; opacity: .78; }
-        .starlite-menu__gate strong { display: block; margin-top: 6px; font-size: clamp(22px, 3vw, 31px); line-height: 1; letter-spacing: .045em; }
-        .starlite-menu__gate small { max-width: 230px; color: rgba(255,255,255,.78); font-size: 12px; line-height: 1.45; }
-        .starlite-menu__gate-arrow { align-self: flex-end; font-size: 28px; line-height: 1; opacity: .9; }
+        .starlite-menu__gate:hover, .starlite-menu__gate:focus-visible {
+          outline: none; transform: translateY(-4px); filter: saturate(1.12) brightness(1.06);
+          border-color: rgba(255,255,255,.58); box-shadow: inset 0 1px rgba(255,255,255,.2), 0 20px 34px rgba(0,0,0,.3);
+        }
+        .starlite-menu__gate--online { border-color: rgba(104,226,255,.42); background: linear-gradient(145deg, #133b55, #07111c); }
+        .starlite-menu__gate--computer { border-color: rgba(255,176,95,.42); background: linear-gradient(145deg, #4c2413, #140c08); }
+        .starlite-menu__gate--campaign { border-color: rgba(229,191,103,.58); background: linear-gradient(145deg, rgba(73,56,24,.92), rgba(18,16,12,.96)); }
+        .starlite-menu__gate-scene {
+          position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none;
+        }
+        .starlite-menu__gate-scene::before {
+          content: ""; position: absolute; inset: 0;
+          background: radial-gradient(circle at 50% 16%, rgba(255,255,255,.18), transparent 33%), linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 28%, rgba(0,0,0,.08) 62%, rgba(0,0,0,.34));
+        }
+        .starlite-menu__gate-scene::after {
+          content: ""; position: absolute; inset: auto -4% 0; height: 42%;
+          background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.22) 28%), radial-gradient(circle at 20% 24%, rgba(255,255,255,.06), transparent 16%), radial-gradient(circle at 80% 18%, rgba(255,255,255,.05), transparent 14%), linear-gradient(180deg, rgba(35,55,43,.15), rgba(5,8,8,.86));
+          border-top: 1px solid rgba(255,255,255,.08);
+        }
+        .starlite-menu__gate-scene--online { background: radial-gradient(circle at 50% -8%, rgba(77,188,255,.46), transparent 34%), linear-gradient(180deg, rgba(26,75,108,.94), rgba(7,13,20,.98)); }
+        .starlite-menu__gate-scene--computer { background: radial-gradient(circle at 50% -10%, rgba(255,174,94,.42), transparent 36%), linear-gradient(180deg, rgba(78,39,23,.96), rgba(13,10,9,.98)); }
+        .starlite-menu__gate-scene--campaign { background: radial-gradient(circle at 50% -6%, rgba(229,191,103,.32), transparent 36%), linear-gradient(180deg, rgba(64,57,40,.95), rgba(9,10,11,.98)); }
+        .starlite-menu__gate-haze, .starlite-menu__gate-ground-glow {
+          position: absolute; inset: auto 0 0 0; pointer-events: none;
+        }
+        .starlite-menu__gate-haze {
+          bottom: 17%; height: 20%; opacity: .35;
+          background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.08) 55%, rgba(255,255,255,0));
+          animation: starlite-menu-gate-haze 6.5s ease-in-out infinite;
+        }
+        .starlite-menu__gate-ground-glow {
+          bottom: 9%; left: 50%; width: 72%; height: 16%; transform: translateX(-50%);
+          border-radius: 50%; filter: blur(10px); opacity: .48;
+          background: radial-gradient(circle, rgba(125,232,255,.34), rgba(125,232,255,0));
+          animation: starlite-menu-gate-pulse 4.6s ease-in-out infinite;
+        }
+        .starlite-menu__gate-overlay {
+          position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px;
+          padding: 14px; border-radius: 18px;
+          background: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0) 34%, rgba(0,0,0,.22) 56%, rgba(3,6,8,.84));
+        }
+        .starlite-menu__gate-copy { display: grid; gap: 8px; margin-top: auto; }
+        .starlite-menu__gate-kicker { font-size: 10px; font-weight: 850; letter-spacing: .18em; opacity: .82; }
+        .starlite-menu__gate strong { display: block; margin-top: 6px; font-size: clamp(24px, 2.2vw, 30px); line-height: .98; letter-spacing: .045em; text-shadow: 0 2px 10px rgba(0,0,0,.65); }
+        .starlite-menu__gate small { max-width: none; color: rgba(255,255,255,.84); font-size: 12px; line-height: 1.45; text-shadow: 0 2px 8px rgba(0,0,0,.55); }
+        .starlite-menu__gate-arrow { align-self: flex-end; margin-top: 3px; font-size: 28px; line-height: 1; opacity: .95; text-shadow: 0 2px 10px rgba(0,0,0,.55); }
+        .starlite-menu__gate-unit {
+          position: absolute; left: var(--unit-left, 20%); bottom: var(--unit-bottom, 14%);
+          width: var(--unit-size, 24px); height: calc(var(--unit-size, 24px) * 1.2);
+          transform-origin: 50% 100%; filter: drop-shadow(0 5px 9px rgba(0,0,0,.45));
+          animation: starlite-menu-gate-unit-bob var(--bob-duration, 3.6s) ease-in-out infinite var(--bob-delay, 0s);
+        }
+        .starlite-menu__gate-unit::before {
+          content: ""; position: absolute; left: 50%; top: 0; width: 48%; height: 34%; transform: translateX(-50%);
+          background: var(--unit-head, #ebf7ff); border-radius: 50% 50% 44% 44%; box-shadow: 0 0 0 1px rgba(0,0,0,.24) inset;
+        }
+        .starlite-menu__gate-unit::after {
+          content: ""; position: absolute; left: 50%; top: 25%; width: 78%; height: 67%; transform: translateX(-50%);
+          background: var(--unit-body, #7ea8c6); border-radius: 9px 9px 7px 7px;
+          box-shadow: 0 0 0 1px rgba(0,0,0,.22) inset, 0 -2px 0 rgba(255,255,255,.08) inset;
+        }
+        .starlite-menu__gate-unit > i,
+        .starlite-menu__gate-unit > b {
+          position: absolute; display: block; pointer-events: none;
+        }
+        .starlite-menu__gate-unit > b {
+          left: 15%; right: 15%; bottom: -10%; height: 12%; border-radius: 999px;
+          background: rgba(0,0,0,.26); filter: blur(2px); opacity: .86;
+        }
+        .starlite-menu__gate-unit > i {
+          top: 56%; right: -12%; width: 46%; height: 12%; border-radius: 999px;
+          background: rgba(9,16,24,.74); transform: rotate(var(--weapon-rot, -15deg));
+          box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset;
+        }
+        .starlite-menu__gate-unit--human { --unit-body: #8ab0cb; --unit-head: #eef8ff; }
+        .starlite-menu__gate-unit--human::after { width: 76%; height: 66%; }
+        .starlite-menu__gate-unit--zglengo { --unit-body: #59792e; --unit-head: #d8ff9c; }
+        .starlite-menu__gate-unit--zglengo::before { width: 56%; height: 28%; top: 8%; border-radius: 62% 48% 36% 42%; background: #d8ff9c; }
+        .starlite-menu__gate-unit--zglengo::after { width: 84%; height: 60%; top: 30%; border-radius: 58% 58% 44% 44%; background: linear-gradient(180deg, #5e7d31, #253615); }
+        .starlite-menu__gate-unit--zglengo > i {
+          top: 62%; left: -4%; width: 108%; height: 10%; transform: none; background: linear-gradient(90deg, transparent 0 8%, rgba(216,255,156,.5) 8% 12%, transparent 12% 38%, rgba(216,255,156,.5) 38% 42%, transparent 42% 58%, rgba(216,255,156,.5) 58% 62%, transparent 62% 88%, rgba(216,255,156,.5) 88% 92%, transparent 92%);
+        }
+        .starlite-menu__gate-unit--helias { --unit-body: #d8be66; --unit-head: #f8f8dd; }
+        .starlite-menu__gate-unit--helias::before { width: 42%; height: 31%; top: 2%; background: #fff9da; }
+        .starlite-menu__gate-unit--helias::after {
+          width: 74%; height: 54%; top: 28%; border-radius: 0;
+          background: linear-gradient(180deg, #f3d674, #83642a);
+          clip-path: polygon(50% 0, 100% 32%, 78% 100%, 22% 100%, 0 32%);
+        }
+        .starlite-menu__gate-unit--helias > i {
+          top: 42%; left: -18%; width: 136%; height: 26%; transform: none;
+          background: linear-gradient(90deg, transparent 0 8%, rgba(125,232,255,.72) 8% 13%, transparent 13% 26%, rgba(125,232,255,.72) 26% 31%, transparent 31% 69%, rgba(125,232,255,.72) 69% 74%, transparent 74% 87%, rgba(125,232,255,.72) 87% 92%, transparent 92%);
+        }
+        .starlite-menu__gate-unit--heavy { --unit-size: 31px; }
+        .starlite-menu__gate-unit--air { bottom: calc(var(--unit-bottom, 32%) + 8%); }
+        .starlite-menu__gate-bolt {
+          position: absolute; left: var(--bolt-left, 24%); bottom: var(--bolt-bottom, 32%);
+          width: var(--bolt-length, 30%); height: 3px; border-radius: 999px; opacity: 0;
+          transform-origin: left center; transform: rotate(var(--bolt-angle, 0deg)) scaleX(.12);
+          animation: starlite-menu-gate-bolt 1.8s linear infinite var(--bolt-delay, 0s);
+        }
+        .starlite-menu__gate-bolt--reverse {
+          transform-origin: right center; transform: rotate(var(--bolt-angle, 0deg)) scaleX(.12);
+          animation-name: starlite-menu-gate-bolt-reverse;
+        }
+        .starlite-menu__gate-bolt--cyan { background: linear-gradient(90deg, rgba(255,255,255,.96), #7de8ff 38%, rgba(125,232,255,0)); box-shadow: 0 0 8px rgba(125,232,255,.86), 0 0 18px rgba(125,232,255,.46); }
+        .starlite-menu__gate-bolt--amber { background: linear-gradient(90deg, rgba(255,255,255,.96), #ffd672 38%, rgba(255,214,114,0)); box-shadow: 0 0 8px rgba(255,214,114,.84), 0 0 18px rgba(255,214,114,.4); }
+        .starlite-menu__gate-bolt--acid { background: linear-gradient(90deg, rgba(255,255,255,.95), #c9ff6f 36%, rgba(201,255,111,0)); box-shadow: 0 0 8px rgba(201,255,111,.88), 0 0 16px rgba(201,255,111,.44); }
+        .starlite-menu__gate-spark {
+          position: absolute; left: var(--spark-left, 50%); bottom: var(--spark-bottom, 29%); width: 18px; height: 18px;
+          border-radius: 50%; opacity: 0;
+          background: radial-gradient(circle, rgba(255,255,255,.98), rgba(255,208,102,.74) 34%, rgba(255,170,40,0) 72%);
+          animation: starlite-menu-gate-spark 2.4s ease-in-out infinite var(--spark-delay, 0s);
+        }
+        .starlite-menu__gate-structure {
+          position: absolute; pointer-events: none; filter: drop-shadow(0 7px 14px rgba(0,0,0,.44));
+        }
+        .starlite-menu__gate-structure--generator {
+          left: 50%; bottom: 19%; width: 54px; height: 90px; transform: translateX(-50%);
+        }
+        .starlite-menu__gate-structure--generator::before,
+        .starlite-menu__gate-structure--generator::after {
+          content: ""; position: absolute;
+        }
+        .starlite-menu__gate-structure--generator::before {
+          left: 50%; top: 0; width: 28px; height: 30px; transform: translateX(-50%);
+          border-radius: 50%; background: radial-gradient(circle, rgba(125,232,255,.95), rgba(125,232,255,.16) 62%, rgba(125,232,255,0) 74%);
+          box-shadow: 0 0 20px rgba(125,232,255,.42);
+        }
+        .starlite-menu__gate-structure--generator::after {
+          left: 50%; bottom: 0; width: 38px; height: 68px; transform: translateX(-50%);
+          border-radius: 12px 12px 10px 10px; background: linear-gradient(180deg, #6f7f87, #26333a);
+          box-shadow: 0 0 0 1px rgba(255,255,255,.1) inset;
+        }
+        @keyframes starlite-menu-gate-haze {
+          0%, 100% { transform: translateX(-4%); opacity: .18; }
+          50% { transform: translateX(4%); opacity: .36; }
+        }
+        @keyframes starlite-menu-gate-pulse {
+          0%, 100% { opacity: .18; transform: translateX(-50%) scale(.82); }
+          50% { opacity: .46; transform: translateX(-50%) scale(1.06); }
+        }
+        @keyframes starlite-menu-gate-unit-bob {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          35% { transform: translate(calc(var(--drift, 4px) * .45), -2px) scale(1.01); }
+          55% { transform: translate(var(--drift, 4px), -4px) scale(1.02); }
+          75% { transform: translate(calc(var(--drift, 4px) * .2), -1px) scale(.995); }
+        }
+        @keyframes starlite-menu-gate-bolt {
+          0%, 12% { opacity: 0; transform: rotate(var(--bolt-angle, 0deg)) scaleX(.12); }
+          18% { opacity: 1; }
+          48% { opacity: 1; transform: rotate(var(--bolt-angle, 0deg)) translateX(18px) scaleX(1); }
+          64%, 100% { opacity: 0; transform: rotate(var(--bolt-angle, 0deg)) translateX(48px) scaleX(1.08); }
+        }
+        @keyframes starlite-menu-gate-bolt-reverse {
+          0%, 12% { opacity: 0; transform: rotate(var(--bolt-angle, 0deg)) scaleX(.12); }
+          18% { opacity: 1; }
+          48% { opacity: 1; transform: rotate(var(--bolt-angle, 0deg)) translateX(-18px) scaleX(1); }
+          64%, 100% { opacity: 0; transform: rotate(var(--bolt-angle, 0deg)) translateX(-48px) scaleX(1.08); }
+        }
+        @keyframes starlite-menu-gate-spark {
+          0%, 22%, 100% { opacity: 0; transform: scale(.35); }
+          32% { opacity: .88; transform: scale(1); }
+          48% { opacity: .38; transform: scale(1.38); }
+        }
+        @media (max-width: 980px) {
+          .starlite-menu__panel[data-view="categories"] { width: min(760px, 100%); }
+          .starlite-menu__mode-gates { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .starlite-menu__gate--campaign { grid-column: 1 / -1; width: min(100%, 340px); justify-self: center; }
+        }
         .starlite-menu__online-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .starlite-menu__online-choice {
           min-height: 132px; padding: 18px; display: grid; align-content: space-between; gap: 16px;
@@ -22679,7 +22845,6 @@
         }
         .starlite-menu__panel[data-view="tutorials"] { width: min(900px, 100%); max-height: calc(100vh - 130px); overflow-y: auto; overscroll-behavior: contain; }
         .starlite-menu__tutorial-copy { max-width: 680px; margin: -2px auto 17px; color: #aebfca; font-size: 12px; line-height: 1.55; text-align: center; }
-        .starlite-menu__gate--campaign { border-color: rgba(229,191,103,.58); background: linear-gradient(145deg,rgba(73,56,24,.86),rgba(26,22,15,.92)); }
         .starlite-menu__panel[data-view="campaign"] { width: min(940px, 100%); max-height: calc(100vh - 130px); overflow-y: auto; }
         .starlite-menu__campaign-copy { max-width: 760px; margin: -3px auto 14px; color: #b9c7ce; font-size: 12px; line-height: 1.55; text-align: center; }
         .starlite-menu__campaign-command { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: stretch; margin: 0 0 14px; }
@@ -22832,7 +22997,7 @@
           .starlite-menu__panel { padding: 15px; }
           .starlite-menu__button { min-height: 59px; }
           .starlite-menu__branch-actions, .starlite-menu__online-create, .starlite-menu__mode-gates, .starlite-menu__online-choices { grid-template-columns: 1fr; }
-          .starlite-menu__gate { min-height: 126px; }
+          .starlite-menu__gate { min-height: 240px; aspect-ratio: 5 / 4; }
           .starlite-menu__top-actions { top: 10px; right: 10px; }
           .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser { position: static; width: min(210px, 72vw); min-height: 72px; margin: 15px auto 0; grid-template-columns: auto 1fr; }
           .starlite-menu__tag-teaser { transform: rotate(-4deg); }
@@ -22928,7 +23093,7 @@
           .starlite-menu__eyebrow { display: none; }
           .starlite-menu__title { font-size: clamp(42px, 9vh, 62px); }
           .starlite-menu__panel { padding: 15px 17px; }
-          .starlite-menu__gate { min-height: 120px; padding: 15px 16px; }
+          .starlite-menu__gate { min-height: 230px; padding: 14px; }
           .starlite-menu__gate strong { font-size: 22px; }
           .starlite-menu__gate small { font-size: 10px; line-height: 1.3; }
           .starlite-menu__online-choice { min-height: 105px; padding: 13px; gap: 8px; }
@@ -23208,7 +23373,7 @@
         .starlite-menu__welcome-separator { color: #81909a; font-weight: 900; }
         @media(max-width:520px){.starlite-menu__welcome-actions{display:grid;grid-template-columns:1fr}.starlite-menu__welcome-separator{display:none}.starlite-menu__welcome-primary,.starlite-menu__welcome-secondary{width:100%}}
         @media (prefers-reduced-motion: reduce) {
-          .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser, .starlite-menu__new-tag, .starlite-menu__confetti-piece, .starlite-menu__tag-celebration-message { transition: none; animation: none !important; }
+          .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__gate-scene, .starlite-menu__gate-unit, .starlite-menu__gate-bolt, .starlite-menu__gate-spark, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser, .starlite-menu__new-tag, .starlite-menu__confetti-piece, .starlite-menu__tag-celebration-message { transition: none; animation: none !important; }
         }
       `;
       
@@ -23791,20 +23956,58 @@
             <section class="starlite-menu__panel" data-view="categories">
               <h2 class="starlite-menu__heading">Choose how to play</h2>
               <div class="starlite-menu__mode-gates">
-                <button class="starlite-menu__gate starlite-menu__gate--online" type="button" data-category="online">
-                  <span><span class="starlite-menu__gate-kicker">MULTIPLAYER</span><strong>ONLINE</strong></span>
-                  <small>Browse public games or host and join a private room.</small>
-                  <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
+                <button class="starlite-menu__gate starlite-menu__gate--online" type="button" data-category="online" aria-label="Open multiplayer menu">
+                  <span class="starlite-menu__gate-scene starlite-menu__gate-scene--online" aria-hidden="true">
+                    <span class="starlite-menu__gate-haze"></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human" style="--unit-left:12%; --unit-bottom:14%; --unit-size:24px; --drift:-5px; --bob-duration:3.8s; --bob-delay:.1s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human starlite-menu__gate-unit--heavy" style="--unit-left:22%; --unit-bottom:16%; --drift:-4px; --bob-duration:4.2s; --bob-delay:.4s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--helias starlite-menu__gate-unit--air" style="--unit-left:65%; --unit-bottom:18%; --unit-size:26px; --drift:6px; --bob-duration:4.4s; --bob-delay:.2s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--helias" style="--unit-left:76%; --unit-bottom:14%; --unit-size:24px; --drift:5px; --bob-duration:3.6s; --bob-delay:.5s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--cyan" style="--bolt-left:25%; --bolt-bottom:32%; --bolt-angle:-6deg; --bolt-delay:.2s; --bolt-length:28%;"></span>
+                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--amber starlite-menu__gate-bolt--reverse" style="--bolt-left:72%; --bolt-bottom:36%; --bolt-angle:188deg; --bolt-delay:.8s; --bolt-length:24%;"></span>
+                    <span class="starlite-menu__gate-spark" style="--spark-left:49%; --spark-bottom:34%; --spark-delay:.35s;"></span>
+                    <span class="starlite-menu__gate-ground-glow"></span>
+                  </span>
+                  <span class="starlite-menu__gate-overlay">
+                    <span class="starlite-menu__gate-copy"><span><span class="starlite-menu__gate-kicker">MULTIPLAYER</span><strong>ONLINE</strong></span><small>Meet other commanders in a live battle and jump straight into the war.</small></span>
+                    <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
+                  </span>
                 </button>
-                <button class="starlite-menu__gate starlite-menu__gate--computer" type="button" data-category="computer">
-                  <span><span class="starlite-menu__gate-kicker">SOLO BATTLE</span><strong>VS. COMPUTER</strong></span>
-                  <small>Fight one to three computer commanders or enter sandbox mode.</small>
-                  <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
+                <button class="starlite-menu__gate starlite-menu__gate--computer" type="button" data-category="computer" aria-label="Open versus computer menu">
+                  <span class="starlite-menu__gate-scene starlite-menu__gate-scene--computer" aria-hidden="true">
+                    <span class="starlite-menu__gate-haze"></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human" style="--unit-left:11%; --unit-bottom:14%; --unit-size:24px; --drift:-4px; --bob-duration:3.7s; --bob-delay:.15s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human starlite-menu__gate-unit--heavy" style="--unit-left:24%; --unit-bottom:13%; --drift:-3px; --bob-duration:4.5s; --bob-delay:.45s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:67%; --unit-bottom:13%; --unit-size:25px; --drift:5px; --bob-duration:3.6s; --bob-delay:.25s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:79%; --unit-bottom:16%; --unit-size:23px; --drift:4px; --bob-duration:3.9s; --bob-delay:.6s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:72%; --unit-bottom:22%; --unit-size:21px; --drift:6px; --bob-duration:4.3s; --bob-delay:.05s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--cyan" style="--bolt-left:26%; --bolt-bottom:30%; --bolt-angle:-4deg; --bolt-delay:.3s; --bolt-length:27%;"></span>
+                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--acid starlite-menu__gate-bolt--reverse" style="--bolt-left:73%; --bolt-bottom:33%; --bolt-angle:183deg; --bolt-delay:.95s; --bolt-length:25%;"></span>
+                    <span class="starlite-menu__gate-spark" style="--spark-left:51%; --spark-bottom:31%; --spark-delay:.58s;"></span>
+                    <span class="starlite-menu__gate-ground-glow"></span>
+                  </span>
+                  <span class="starlite-menu__gate-overlay">
+                    <span class="starlite-menu__gate-copy"><span><span class="starlite-menu__gate-kicker">SOLO BATTLE</span><strong>VS. COMPUTER</strong></span><small>Challenge seeded enemy commanders in a focused head-to-head battlefield.</small></span>
+                    <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
+                  </span>
                 </button>
-                <button class="starlite-menu__gate starlite-menu__gate--campaign" type="button" data-category="campaign">
-                  <span><span class="starlite-menu__gate-kicker">STORY MISSIONS</span><strong>CAMPAIGN</strong></span>
-                  <small>Play deterministic scripted missions with persistent mission unlocks.</small>
-                  <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
+                <button class="starlite-menu__gate starlite-menu__gate--campaign" type="button" data-category="campaign" aria-label="Open campaign menu">
+                  <span class="starlite-menu__gate-scene starlite-menu__gate-scene--campaign" aria-hidden="true">
+                    <span class="starlite-menu__gate-haze"></span>
+                    <span class="starlite-menu__gate-structure starlite-menu__gate-structure--generator"></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human" style="--unit-left:14%; --unit-bottom:13%; --unit-size:24px; --drift:-4px; --bob-duration:3.8s; --bob-delay:.12s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--human starlite-menu__gate-unit--heavy" style="--unit-left:26%; --unit-bottom:14%; --drift:-3px; --bob-duration:4.2s; --bob-delay:.38s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:68%; --unit-bottom:14%; --unit-size:25px; --drift:5px; --bob-duration:3.7s; --bob-delay:.22s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-unit starlite-menu__gate-unit--zglengo" style="--unit-left:79%; --unit-bottom:17%; --unit-size:22px; --drift:4px; --bob-duration:4.1s; --bob-delay:.54s;"><i></i><b></b></span>
+                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--cyan" style="--bolt-left:28%; --bolt-bottom:30%; --bolt-angle:-3deg; --bolt-delay:.24s; --bolt-length:24%;"></span>
+                    <span class="starlite-menu__gate-bolt starlite-menu__gate-bolt--acid starlite-menu__gate-bolt--reverse" style="--bolt-left:71%; --bolt-bottom:31%; --bolt-angle:182deg; --bolt-delay:1.02s; --bolt-length:21%;"></span>
+                    <span class="starlite-menu__gate-spark" style="--spark-left:55%; --spark-bottom:29%; --spark-delay:.6s;"></span>
+                    <span class="starlite-menu__gate-ground-glow"></span>
+                  </span>
+                  <span class="starlite-menu__gate-overlay">
+                    <span class="starlite-menu__gate-copy"><span><span class="starlite-menu__gate-kicker">STORY MISSIONS</span><strong>CAMPAIGN</strong></span><small>Step into handcrafted operations and push through each faction’s warfront.</small></span>
+                    <span class="starlite-menu__gate-arrow" aria-hidden="true">›</span>
+                  </span>
                 </button>
               </div>
               <p class="starlite-menu__status" role="status" aria-live="polite"></p>
