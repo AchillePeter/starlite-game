@@ -8203,7 +8203,7 @@
                 "arcOrder": 1,
                 "faction": "humans",
                 "title": "Last Light",
-                "description": "Seize Kestrel’s three dark generators, turn each site into a turret strongpoint, survive the Zglengo assault and hold Northpad for extraction.",
+                "description": "Wake Kestrel’s lost power grid, defend each recovered generator and reach Northpad before the colony disappears into the dark.",
                 "seed": 11719427,
                 "aiDifficulty": "normal",
                 "objectiveMode": "ordered",
@@ -8229,6 +8229,38 @@
                                 "Civilians are trapped south of Alpha. Bring them to Northpad if the line gives you room."
                         ],
                         "commanderLine": "We do not need daylight. We need one last line that refuses to go dark."
+                },
+                "openingSequence": {
+                        "openingZoom": 1.62,
+                        "patrolTag": "last-light-opening-patrol",
+                        "pages": [
+                                {
+                                        "title": "Last Light",
+                                        "copy": "Kestrel is breathing on emergency power. The command core is wounded, the perimeter is thin, and beyond these lamps the colony has already vanished into the night.",
+                                        "cameraTag": "last-light-hq",
+                                        "zoom": 1.62,
+                                        "duration": 1.2,
+                                        "buttonLabel": "SHOW ME THE GRID"
+                                },
+                                {
+                                        "title": "Generator Alpha",
+                                        "copy": "There. Alpha is the nearest generator still answering. We cannot rebuild the barracks, so take the site with soldiers and turn its power into a turret line before the brood finds it.",
+                                        "cameraTag": "generator-alpha",
+                                        "revealDuringBriefing": true,
+                                        "zoom": 1.42,
+                                        "duration": 2.2,
+                                        "buttonLabel": "BACK TO KESTREL"
+                                },
+                                {
+                                        "title": "Into the dark",
+                                        "copy": "Once you leave the perimeter, the map goes black. Find Alpha, watch the ridges, and do not assume the silence means you are alone.",
+                                        "cameraTag": "last-light-hq",
+                                        "zoom": 1.62,
+                                        "duration": 2.0,
+                                        "blackoutOnShow": true,
+                                        "buttonLabel": "MOVE OUT"
+                                }
+                        ]
                 },
                 "debriefing": {
                         "victory": "Northpad launches under fire. The colony grid fails seconds later, but the survivors and command staff escape into the night.",
@@ -8391,6 +8423,7 @@
                                         "x": 0.31,
                                         "y": 0.68,
                                         "tag": "generator-alpha",
+                                        "campaignVisionDisabled": true,
                                         "campaignLabel": "GENERATOR ALPHA",
                                         "campaignActive": false,
                                         "campaignInvulnerable": true
@@ -8401,6 +8434,7 @@
                                         "x": 0.52,
                                         "y": 0.48,
                                         "tag": "generator-beta",
+                                        "campaignVisionDisabled": true,
                                         "campaignLabel": "GENERATOR BETA",
                                         "campaignActive": false,
                                         "campaignInvulnerable": true
@@ -8411,6 +8445,7 @@
                                         "x": 0.72,
                                         "y": 0.3,
                                         "tag": "generator-gamma",
+                                        "campaignVisionDisabled": true,
                                         "campaignLabel": "GENERATOR GAMMA",
                                         "campaignActive": false,
                                         "campaignInvulnerable": true
@@ -8421,6 +8456,7 @@
                                         "x": 0.16,
                                         "y": 0.2,
                                         "tag": "last-light-extraction",
+                                        "campaignVisionDisabled": true,
                                         "campaignLabel": "NORTHPAD EXTRACTION",
                                         "campaignActive": false,
                                         "campaignInvulnerable": true
@@ -8462,7 +8498,11 @@
                                         "relativeTo": "hq",
                                         "forward": 86,
                                         "side": 2,
-                                        "spacing": 19
+                                        "spacing": 19,
+                                        "tag": "last-light-opening-patrol",
+                                        "campaignPatrol": true,
+                                        "campaignPatrolDuringBriefingOnly": true,
+                                        "campaignPatrolRadius": 78
                                 },
                                 {
                                         "type": "assault",
@@ -8470,7 +8510,11 @@
                                         "count": 2,
                                         "relativeTo": "hq",
                                         "forward": 95,
-                                        "side": -38
+                                        "side": -38,
+                                        "tag": "last-light-opening-patrol",
+                                        "campaignPatrol": true,
+                                        "campaignPatrolDuringBriefingOnly": true,
+                                        "campaignPatrolRadius": 68
                                 },
                                 {
                                         "type": "healer",
@@ -8489,8 +8533,33 @@
                                         "spacing": 14,
                                         "tag": "last-light-civilians",
                                         "campaignCivilian": true,
+                                        "campaignVisionDisabled": true,
                                         "command": "hold",
                                         "static": false
+                                },
+                                {
+                                        "type": "insectSwarmling",
+                                        "team": "enemy",
+                                        "count": 3,
+                                        "x": 0.29,
+                                        "y": 0.58,
+                                        "spacing": 16,
+                                        "campaignPatrol": true,
+                                        "campaignPatrolRadius": 72,
+                                        "static": false,
+                                        "aiReserve": false
+                                },
+                                {
+                                        "type": "insectSpitter",
+                                        "team": "enemy",
+                                        "count": 2,
+                                        "x": 0.42,
+                                        "y": 0.56,
+                                        "spacing": 20,
+                                        "campaignPatrol": true,
+                                        "campaignPatrolRadius": 58,
+                                        "static": false,
+                                        "aiReserve": false
                                 }
                         ]
                 },
@@ -8503,6 +8572,8 @@
                                         {
                                                 "id": "restore-alpha",
                                                 "type": "capture",
+                                                "narrateActivation": false,
+                                                "narrateCompletion": false,
                                                 "team": "player",
                                                 "requireCombat": true,
                                                 "excludeUnitTypes": [
@@ -8520,6 +8591,8 @@
                                         {
                                                 "id": "restore-beta",
                                                 "type": "capture",
+                                                "narrateActivation": false,
+                                                "narrateCompletion": false,
                                                 "team": "player",
                                                 "requireCombat": true,
                                                 "excludeUnitTypes": [
@@ -8537,6 +8610,8 @@
                                         {
                                                 "id": "restore-gamma",
                                                 "type": "capture",
+                                                "narrateActivation": false,
+                                                "narrateCompletion": false,
                                                 "team": "player",
                                                 "requireCombat": true,
                                                 "excludeUnitTypes": [
@@ -8556,6 +8631,8 @@
                         {
                                 "id": "rescue-civilians",
                                 "type": "escort",
+                                "narrateActivation": false,
+                                "narrateCompletion": false,
                                 "optional": true,
                                 "team": "player",
                                 "tag": "last-light-civilians",
@@ -8570,7 +8647,7 @@
                                 "id": "grid-stabilization",
                                 "type": "survive",
                                 "fromActivation": true,
-                                "duration": 38,
+                                "duration": 52,
                                 "title": "Hold the generator line until Northpad answers.",
                                 "narration": "The grid is alive and the brood knows it. Hold the generator line while Northpad finds us."
                         },
@@ -8579,7 +8656,7 @@
                                 "type": "capture",
                                 "team": "player",
                                 "count": 4,
-                                "holdSeconds": 55,
+                                "holdSeconds": 65,
                                 "radius": 96,
                                 "destination": {
                                         "tag": "last-light-extraction"
@@ -8593,45 +8670,24 @@
                 ],
                 "scriptedEvents": [
                         {
-                                "id": "last-light-camera-hq",
-                                "at": 0.5,
-                                "action": "cameraReveal",
-                                "tag": "last-light-hq",
-                                "duration": 1.4,
-                                "zoom": 1.12
-                        },
-                        {
-                                "id": "last-light-briefing",
-                                "at": 1.5,
+                                "id": "last-light-civilians-call",
+                                "afterObjective": "restore-alpha",
+                                "delay": 12,
                                 "action": "dialogue",
                                 "speaker": "Commander Mara Hale",
-                                "text": "Kestrel is going dark. Take the generators with combat teams. The barracks are gone, so every site you win becomes a turret line—or it becomes a grave."
-                        },
-                        {
-                                "id": "last-light-camera-alpha",
-                                "at": 3.2,
-                                "action": "cameraReveal",
-                                "tag": "generator-alpha",
-                                "duration": 1.3,
-                                "zoom": 1.2
-                        },
-                        {
-                                "id": "last-light-civilians-call",
-                                "at": 8,
-                                "action": "dialogue",
-                                "speaker": "Civilian channel",
-                                "text": "A civilian signal is still moving south of Alpha. We cannot promise them safety—but Northpad is their only chance."
+                                "text": "There is a civilian signal south of Alpha. If the line gives you room, bring them to Northpad. Do not lose the generators trying to save them."
                         },
                         {
                                 "id": "last-light-wave-1",
-                                "at": 34,
+                                "at": 105,
                                 "action": "enemyWave",
                                 "team": "enemy",
                                 "relativeTo": "hq",
                                 "forward": 172,
                                 "side": -18,
                                 "attackTag": "generator-alpha",
-                                "text": "Movement on the eastern ridge. Alpha is about to be hit.",
+                                "narrate": true,
+                                "text": "The ridge is moving. Hold Alpha.",
                                 "groups": [
                                         {
                                                 "type": "insectSwarmling",
@@ -8642,13 +8698,14 @@
                         },
                         {
                                 "id": "last-light-wave-2",
-                                "at": 72,
+                                "at": 178,
                                 "action": "enemyWave",
                                 "team": "enemy",
                                 "relativeTo": "hq",
                                 "forward": 176,
                                 "side": 28,
                                 "attackTag": "generator-beta",
+                                "narrate": false,
                                 "text": "Beta is drawing the next swarm. Spitters are moving behind the front line.",
                                 "groups": [
                                         {
@@ -8666,14 +8723,15 @@
                         },
                         {
                                 "id": "last-light-wave-3",
-                                "at": 116,
+                                "at": 255,
                                 "action": "enemyWave",
                                 "team": "enemy",
                                 "relativeTo": "hq",
                                 "forward": 184,
                                 "side": -36,
                                 "attackTag": "generator-gamma",
-                                "text": "Gamma has their full attention. Armored organisms are coming up the ridge.",
+                                "narrate": true,
+                                "text": "Gamma is the last light on the ridge. Everything the brood has left is climbing toward it.",
                                 "groups": [
                                         {
                                                 "type": "insectSwarmling",
@@ -8707,7 +8765,8 @@
                                 "productionLevels": {},
                                 "minerals": 150,
                                 "gas": 70,
-                                "text": "Alpha is alive. No barracks response—use the power and supplies to raise turrets around the site."
+                                "narrate": true,
+                                "text": "Alpha is alive. The barracks remain dead. Build the turret line here."
                         },
                         {
                                 "id": "restore-beta-unlock",
@@ -8731,6 +8790,7 @@
                                 },
                                 "minerals": 120,
                                 "gas": 45,
+                                "narrate": false,
                                 "text": "Beta is holding. Vehicle and field-medicine circuits are back—there is still no barracks grid."
                         },
                         {
@@ -8756,7 +8816,8 @@
                                 },
                                 "minerals": 160,
                                 "gas": 90,
-                                "text": "Gamma is online. Armor and flight systems are answering. Keep the turret line intact and prepare to run for Northpad."
+                                "narrate": true,
+                                "text": "Gamma is awake. The grid is whole. Hold the line until Northpad answers."
                         },
                         {
                                 "id": "alpha-field-detachment",
@@ -8767,6 +8828,7 @@
                                 "relativeToTag": "generator-alpha",
                                 "offsetX": -34,
                                 "offsetY": 30,
+                                "narrate": false,
                                 "text": "A stranded fireteam has reached Alpha. Fold them into the turret line.",
                                 "groups": [
                                         {
@@ -8790,6 +8852,7 @@
                                 "relativeToTag": "generator-beta",
                                 "offsetX": -32,
                                 "offsetY": 30,
+                                "narrate": false,
                                 "text": "Beta’s shelter doors are opening. A vehicle crew and medic are joining the line.",
                                 "groups": [
                                         {
@@ -8812,6 +8875,7 @@
                                 "relativeToTag": "generator-gamma",
                                 "offsetX": -38,
                                 "offsetY": 34,
+                                "narrate": false,
                                 "text": "Gamma released its last reserve machines. Use them to break toward Northpad.",
                                 "groups": [
                                         {
@@ -8838,19 +8902,21 @@
                                 "afterObjective": "grid-stabilization",
                                 "action": "activateTaggedEntities",
                                 "tag": "last-light-extraction",
-                                "text": "Northpad beacon online · begin the final hold."
+                                "narrate": true,
+                                "text": "Northpad is awake. Get inside the beacon and hold until the transports lift."
                         },
                         {
                                 "id": "last-light-final-wave",
                                 "afterObjective": "grid-stabilization",
-                                "delay": 8,
+                                "delay": 14,
                                 "action": "enemyWave",
                                 "team": "enemy",
                                 "relativeTo": "hq",
                                 "forward": 190,
                                 "side": 10,
                                 "attackTeam": "player",
-                                "text": "Broodmind Vek commits the assault mass to Northpad.",
+                                "narrate": true,
+                                "text": "This is the last attack. Hold Northpad, and Kestrel lives beyond tonight.",
                                 "groups": [
                                         {
                                                 "type": "insectSwarmling",
@@ -8884,6 +8950,7 @@
                                 "team": "player",
                                 "minerals": 100,
                                 "gas": 50,
+                                "narrate": false,
                                 "text": "Civilian convoy secured · emergency supplies transferred to command."
                         }
                 ],
@@ -19235,6 +19302,7 @@
             campaignLabel: spec.campaignLabel || null,
             campaignActive: spec.campaignActive === true,
             campaignInvulnerable: spec.campaignInvulnerable === true,
+            campaignVisionDisabled: spec.campaignVisionDisabled === true,
             campaignSpawnSource: source,
             aiBase: isComputerTeam(spec.team)
           });
@@ -19257,6 +19325,13 @@
               campaignLabel: spec.campaignLabel || null,
               campaignCivilian: spec.campaignCivilian === true,
               campaignInvulnerable: spec.campaignInvulnerable === true,
+              campaignVisionDisabled: spec.campaignVisionDisabled === true,
+              campaignPatrol: spec.campaignPatrol === true,
+              campaignPatrolDuringBriefingOnly: spec.campaignPatrolDuringBriefingOnly === true,
+              campaignPatrolCenterX: center.x,
+              campaignPatrolCenterY: center.y,
+              campaignPatrolRadius: Math.max(30, Number(spec.campaignPatrolRadius) || 64),
+              campaignPatrolStep: index,
               campaignSpawnSource: source,
               aiReserve: spec.aiReserve ?? computer,
               static: spec.static ?? computer,
@@ -19399,6 +19474,9 @@
           earnedCosmeticRewards: [],
           debriefing: null,
           lastEvaluationElapsed: 0,
+          timelineStartAt: null,
+          briefingComplete: false,
+          openingFogReset: false,
           outcomeReason: '',
           nextMissionUnlocks: [...mission.nextMissionUnlocks]
         } : null;
@@ -19659,7 +19737,10 @@
         // Begin closer to the command core so the opening view immediately reads
         // as a base rather than a distant strategic overview. Compact screens use a
         // slightly softer zoom to preserve enough surrounding construction space.
-        const openingZoom = VIEW_W < 700 || VIEW_H < 430 ? 1.2 : 1.38;
+        const authoredOpeningZoom = Number(campaignMission?.openingSequence?.openingZoom);
+        const openingZoom = Number.isFinite(authoredOpeningZoom)
+          ? authoredOpeningZoom
+          : VIEW_W < 700 || VIEW_H < 430 ? 1.2 : 1.38;
         cam.zoom = clamp(openingZoom, minZoom, maxZoom);
         const activeHQ = getHQForTeam(state.activeCommandTeam) || playerHQ;
         centerCamOn(activeHQ.x, activeHQ.y);
@@ -20065,12 +20146,17 @@
           const ids = campaignTaggedEntityIds(condition.tag);
           return ids.length > 0 && ids.every(id => campaignEntityById(id)?.hp > 0);
         }
-        if (condition.type === 'timeLimit' || condition.type === 'elapsed') return state.elapsed + 1e-6 >= (Number(condition.seconds ?? condition.at) || Infinity);
+        if (condition.type === 'timeLimit' || condition.type === 'elapsed') return campaignTimelineElapsed() + 1e-6 >= (Number(condition.seconds ?? condition.at) || Infinity);
         if (['build', 'gather', 'gatherResources', 'destroy', 'reach', 'escort', 'capture', 'protect', 'survive', 'ownUnits', 'ownStructures', 'eliminateTeam'].includes(condition.type)) {
           const transientState = { activatedAt: condition.fromMissionStart === false ? state.elapsed : 0, progressSeconds: 0 };
           return !!campaignLeafObjectiveResult(condition, transientState, 0, false).met;
         }
         return false;
+      }
+
+      function campaignTimelineElapsed() {
+        const start = Number(state.campaignRuntime?.timelineStartAt);
+        return Number.isFinite(start) ? Math.max(0, (state.elapsed || 0) - start) : 0;
       }
 
       function campaignEventReady(event) {
@@ -20080,7 +20166,7 @@
         const baseAt = Number(event.at);
         const effectiveAt = Number.isFinite(explicitAt) ? explicitAt
           : Number.isFinite(baseAt) ? baseAt * Math.max(.5, Math.min(1.6, Number(behavior.eventTimeMultiplier) || 1)) : null;
-        if (Number.isFinite(effectiveAt) && state.elapsed + 1e-6 < effectiveAt) return false;
+        if (Number.isFinite(effectiveAt) && campaignTimelineElapsed() + 1e-6 < effectiveAt) return false;
         if (event.afterObjective) {
           const objectiveState = state.campaignRuntime.objectiveStates[event.afterObjective];
           if (objectiveState?.status !== 'completed') return false;
@@ -20211,6 +20297,7 @@
           for (const tag of event.activateTags || (event.activateTag ? [event.activateTag] : [])) {
             for (const entity of campaignEntitiesForTag(tag, true)) {
               entity.campaignActive = true;
+              entity.campaignVisionDisabled = false;
               entity.campaignActivatedAt = state.elapsed || 0;
             }
           }
@@ -20224,6 +20311,7 @@
           const tags = event.tags || (event.tag ? [event.tag] : []);
           for (const tag of tags) for (const entity of campaignEntitiesForTag(tag, true)) {
             entity.campaignActive = event.active !== false;
+            if (event.active !== false) entity.campaignVisionDisabled = false;
             entity.campaignActivatedAt = state.elapsed || 0;
           }
           if (event.text) toast(event.text, event.color || COLORS.good, event.team || state.activeCommandTeam);
@@ -20322,11 +20410,77 @@
         for (const entity of campaignEntitiesForTag(objective.captureTag, true)) entity.team = objective.team || 'player';
       }
 
+      function setCampaignPatrolDestination(unit) {
+        const radius = Math.max(30, Number(unit.campaignPatrolRadius) || 64);
+        const step = Math.max(0, Math.trunc(Number(unit.campaignPatrolStep) || 0));
+        const angle = step * 1.5707963267948966 + (unit.id % 5) * .11;
+        const centerX = Number(unit.campaignPatrolCenterX) || unit.x;
+        const centerY = Number(unit.campaignPatrolCenterY) || unit.y;
+        const destination = {
+          x: clamp(centerX + Math.cos(angle) * radius, unit.radius + 10, WORLD_W - unit.radius - 10),
+          y: clamp(centerY + Math.sin(angle) * radius * .64, unit.radius + 10, WORLD_H - unit.radius - 10)
+        };
+        unit.campaignPatrolStep = step + 1;
+        unit.static = false;
+        unit.command = 'attack';
+        unit.destination = destination;
+        unit.guardPoint = { ...destination };
+        unit.movementOrderActive = true;
+        unit.yieldUntil = 0;
+        unit.target = null;
+        unit.targetSource = null;
+      }
+
+      function updateCampaignAmbientPatrols() {
+        if (!state.campaignMode) return;
+        const briefing = !!campaignNarration?.introActive;
+        for (const unit of units) {
+          if (!unit.campaignPatrol || unit.hp <= 0) continue;
+          if (unit.campaignPatrolDuringBriefingOnly && !briefing) continue;
+          if (unit.target?.hp > 0) continue;
+          const destination = unit.destination || unit;
+          if (!unit.movementOrderActive || Math.hypot(unit.x - destination.x, unit.y - destination.y) <= 13) setCampaignPatrolDestination(unit);
+        }
+      }
+
+      function releaseCampaignBriefingPatrols() {
+        for (const unit of units) {
+          if (!unit.campaignPatrolDuringBriefingOnly) continue;
+          unit.campaignPatrol = false;
+          unit.campaignPatrolDuringBriefingOnly = false;
+          unit.command = 'hold';
+          unit.destination = { x: unit.x, y: unit.y };
+          unit.guardPoint = { ...unit.destination };
+          unit.movementOrderActive = false;
+          unit.target = null;
+          unit.targetSource = null;
+        }
+      }
+
+      function completeCampaignOpeningSequence() {
+        const runtime = state.campaignRuntime;
+        if (!runtime || runtime.briefingComplete) return;
+        runtime.briefingComplete = true;
+        runtime.timelineStartAt = state.elapsed || 0;
+        runtime.lastEvaluationElapsed = state.elapsed || 0;
+        releaseCampaignBriefingPatrols();
+        if (!runtime.openingFogReset) {
+          resetVisibilityGrids();
+          recomputeVisibility();
+          runtime.openingFogReset = true;
+        }
+      }
+
       function updateCampaignMission() {
         const runtime = state.campaignRuntime;
         if (!state.campaignMode || !state.campaignMission || !runtime) return;
         updateCampaignCameraDirective();
+        updateCampaignAmbientPatrols();
         if (state.gameOver || runtime.status !== 'active') return;
+        if (campaignNarration?.introActive || !runtime.briefingComplete) {
+          runtime.lastEvaluationElapsed = state.elapsed || 0;
+          return;
+        }
         const elapsed = state.elapsed || 0;
         const dt = Math.max(0, elapsed - (runtime.lastEvaluationElapsed || 0));
         runtime.lastEvaluationElapsed = elapsed;
@@ -20455,6 +20609,8 @@
       }
 
       function campaignNarrationIntroPages(mission) {
+        const openingPages = mission?.openingSequence?.pages;
+        if (Array.isArray(openingPages) && openingPages.length) return openingPages.map(page => ({ ...page, objective: '' }));
         const briefing = mission?.briefing || {};
         const orders = (briefing.orders || []).filter(Boolean);
         const optional = campaignNarrationObjectiveLeaves(mission?.objectives || [])
@@ -20465,12 +20621,12 @@
           {
             title: mission.title,
             copy: situation,
-            objective: 'Listen carefully. The enemy is already moving.'
+            objective: ''
           },
           {
             title: 'Your orders',
             copy: orderCopy,
-            objective: optional ? `If the line holds, there is one more thing: ${optional}` : 'Complete the order and keep the mission-critical force alive.'
+            objective: ''
           }
         ];
       }
@@ -20478,6 +20634,7 @@
       function setCampaignNarrationMessage({ title, copy, objective = '', progress = '', button = null }) {
         if (!campaignNarration?.ui) return;
         const ui = campaignNarration.ui;
+        ui.root.hidden = false;
         ui.title.textContent = title || state.campaignMission?.title || 'Mission update';
         ui.copy.textContent = copy || '';
         ui.progress.textContent = progress || 'CAMPAIGN';
@@ -20501,6 +20658,28 @@
         if (!campaignNarration) return;
         const pages = campaignNarration.introPages;
         const page = pages[index];
+        if (!page) return;
+        if (page.revealDuringBriefing && page.cameraTag) {
+          for (const entity of campaignEntitiesForTag(page.cameraTag, true)) {
+            entity.campaignOpeningVisionOnly = true;
+            entity.campaignVisionDisabled = false;
+          }
+          recomputeVisibility();
+        }
+        if (page.cameraTag || Number.isFinite(Number(page.x)) || Number.isFinite(Number(page.y))) {
+          beginCampaignCameraReveal({ tag: page.cameraTag, x: page.x, y: page.y, team: state.activeCommandTeam,
+            duration: page.duration || 1.8, zoom: page.zoom || cam.zoom }, `campaign-intro-camera-${index}`);
+        }
+        if (page.blackoutOnShow && !state.campaignRuntime?.openingFogReset) {
+          for (const entity of [...units, ...structures]) {
+            if (!entity.campaignOpeningVisionOnly) continue;
+            entity.campaignOpeningVisionOnly = false;
+            entity.campaignVisionDisabled = true;
+          }
+          resetVisibilityGrids();
+          recomputeVisibility();
+          state.campaignRuntime.openingFogReset = true;
+        }
         const finalPage = index >= pages.length - 1;
         campaignNarration.introIndex = index;
         campaignNarration.introActive = true;
@@ -20508,10 +20687,11 @@
           ...page,
           progress: `${index + 1}/${pages.length}`,
           button: {
-            label: finalPage ? 'BEGIN MISSION' : 'NEXT',
+            label: page.buttonLabel || (finalPage ? 'BEGIN MISSION' : 'NEXT'),
             onClick: () => {
               if (finalPage) {
                 campaignNarration.introActive = false;
+                completeCampaignOpeningSequence();
                 showCampaignCurrentObjective(true);
               } else showCampaignNarrationIntro(index + 1);
             }
@@ -20537,16 +20717,18 @@
           setCampaignNarrationMessage({
             title: 'Awaiting mission resolution',
             copy: 'Primary field objectives are complete. Hold formation while command verifies the final victory condition.',
-            objective: 'Maintain control of mission-critical units and zones.',
-            progress: 'MISSION'
+            objective: '',
+            progress: ''
           });
           return;
         }
+        campaignNarration.temporaryActive = true;
+        campaignNarration.temporaryUntil = (state.elapsed || 0) + 10;
         setCampaignNarrationMessage({
-          title: row.objective.optional ? 'Optional objective' : 'Current objective',
+          title: row.objective.title || (row.objective.optional ? 'Optional objective' : 'Current objective'),
           copy: campaignNarrationInstruction(row.objective),
-          objective: row.objective.title || 'Complete the highlighted objective.',
-          progress: row.objective.optional ? 'OPTIONAL' : 'OBJECTIVE'
+          objective: '',
+          progress: ''
         });
       }
 
@@ -20568,7 +20750,10 @@
       }
 
       function queueCampaignEventNarration(event, eventId) {
-        if (!campaignNarration || !event?.text) return false;
+        if (!campaignNarration || !event?.text || event.narrate === false) return false;
+        const alwaysNarrate = event.action === 'dialogue' || event.action === 'message';
+        const explicitlyNarrated = event.narrate === true;
+        if (!alwaysNarrate && !explicitlyNarrated) return false;
         const narrator = campaignNarration.config.speaker;
         const source = String(event.speaker || '').trim();
         const sourcePrefix = source && source.toLowerCase() !== narrator.toLowerCase() ? `${source} reports: ` : '';
@@ -20585,14 +20770,17 @@
           id: eventId,
           title,
           copy: `${sourcePrefix}${event.text}`,
-          objective: campaignCurrentObjectiveRow()?.objective?.title || '',
-          progress: 'STORY',
+          objective: '',
+          progress: '',
           duration: Math.min(11, Math.max(6, String(event.text).length / 18))
         });
       }
 
       function queueCampaignObjectiveNarration(kind, objective, key) {
         if (!campaignNarration || !objective?.title) return false;
+        if (kind === 'activated' && objective.narrateActivation === false) return false;
+        if (kind === 'completed' && objective.narrateCompletion === false) return false;
+        if (kind === 'failed' && objective.narrateFailure === false) return false;
         const optional = objective.optional ? 'Optional ' : '';
         const title = kind === 'completed' ? `${optional}objective complete`
           : kind === 'failed' ? `${optional}objective failed`
@@ -20606,17 +20794,19 @@
           id: `objective:${key}:${kind}`,
           title,
           copy,
-          objective: objective.title,
-          progress: objective.optional ? 'OPTIONAL UPDATE' : 'OBJECTIVE UPDATE',
+          objective: '',
+          progress: '',
           duration: kind === 'activated' ? 8 : 6
         });
       }
 
       function queueCampaignObjectiveTransitionBatch(kind, transitions = []) {
         if (!campaignNarration) return false;
+        const preferenceKey = kind === 'activated' ? 'narrateActivation' : kind === 'completed' ? 'narrateCompletion' : 'narrateFailure';
         const rows = transitions.filter(transition =>
           transition?.key !== '__campaign-root__' &&
           transition?.objective?.title &&
+          transition.objective[preferenceKey] !== false &&
           campaignObjectiveChildren(transition.objective).length === 0
         );
         if (!rows.length) return false;
@@ -20645,18 +20835,18 @@
         if (campaignNarration.introActive) return;
         if (campaignNarration.temporaryActive && (state.elapsed || 0) + 1e-6 >= campaignNarration.temporaryUntil) {
           campaignNarration.temporaryActive = false;
-          if (!activateNextCampaignNarration()) showCampaignCurrentObjective(true);
+          if (!activateNextCampaignNarration()) {
+            campaignNarration.ui.root.hidden = true;
+            state.campaignNarrationVisible = false;
+          }
           return;
         }
         if (!campaignNarration.temporaryActive && campaignNarration.queue.length) {
           activateNextCampaignNarration();
           return;
         }
-        const elapsed = state.elapsed || 0;
-        if (elapsed + 1e-6 >= (campaignNarration.nextObjectiveRefreshAt || 0)) {
-          campaignNarration.nextObjectiveRefreshAt = elapsed + .35;
-          showCampaignCurrentObjective(false);
-        }
+        // Objectives remain visible in the normal campaign HUD. The commander
+        // only reappears for authored story beats and meaningful objective changes.
       }
 
       function initializeCampaignNarration(mission) {
@@ -20941,6 +21131,11 @@
         style.textContent = `
           .starlite-tutorial-bubble{--tutorial-accent:#e5bf67;--tutorial-soft:#64d8ff;position:fixed;z-index:15000;left:clamp(150px,19vw,360px);bottom:168px;width:min(470px,calc(100vw - 36px));box-sizing:border-box;padding:14px 15px 13px;border:2px solid var(--tutorial-accent);border-radius:15px;background:linear-gradient(145deg,rgba(17,25,32,.98),rgba(5,10,15,.98));color:#eef7fb;box-shadow:0 18px 55px rgba(0,0,0,.48),inset 0 0 0 1px rgba(255,255,255,.05);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;pointer-events:auto}
           .starlite-tutorial-bubble::after{content:"";position:absolute;left:42px;bottom:-18px;border:9px solid transparent;border-top-color:var(--tutorial-accent);filter:drop-shadow(0 4px 2px rgba(0,0,0,.3))}
+          .starlite-campaign-narration{width:min(650px,calc(100vw - 44px));padding:20px 22px 18px;border-radius:18px}
+          .starlite-campaign-narration .starlite-tutorial-progress,.starlite-campaign-narration .starlite-tutorial-objective{display:none!important}
+          .starlite-campaign-narration .starlite-tutorial-title{font-size:21px;line-height:1.2;margin-top:5px}
+          .starlite-campaign-narration .starlite-tutorial-copy{font-size:16px;line-height:1.62;margin-top:10px}
+          .starlite-campaign-narration .starlite-tutorial-actions{margin-top:15px}
           .starlite-tutorial-bubble[hidden]{display:none}
           .starlite-tutorial-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
           .starlite-tutorial-speaker{display:flex;align-items:center;gap:9px;color:var(--tutorial-accent);font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
@@ -20959,7 +21154,7 @@
           .starlite-tutorial-arrow-label{fill:#fff8d6;stroke:#111923;stroke-width:5;paint-order:stroke;stroke-linejoin:round;font:900 12px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;text-anchor:middle}
           @keyframes starliteTutorialArrowFlow{to{stroke-dashoffset:-20}}
           @keyframes starliteTutorialArrowPulse{50%{r:25;opacity:.45}}
-          @media(max-width:700px){.starlite-tutorial-bubble{left:10px;bottom:128px;width:calc(100vw - 20px);padding:11px 12px}.starlite-tutorial-title{font-size:15px}.starlite-tutorial-copy,.starlite-tutorial-objective{font-size:11px}.starlite-tutorial-arrow-label{font-size:10px}}
+          @media(max-width:700px){.starlite-tutorial-bubble{left:10px;bottom:128px;width:calc(100vw - 20px);padding:11px 12px}.starlite-tutorial-title{font-size:15px}.starlite-tutorial-copy,.starlite-tutorial-objective{font-size:11px}.starlite-tutorial-arrow-label{font-size:10px}.starlite-campaign-narration{width:calc(100vw - 20px);padding:16px 16px 14px}.starlite-campaign-narration .starlite-tutorial-title{font-size:18px}.starlite-campaign-narration .starlite-tutorial-copy{font-size:14px;line-height:1.55}}
           @media(prefers-reduced-motion:reduce){.starlite-tutorial-arrow-line,.starlite-tutorial-arrow-ring{animation:none}}
         `;
         document.head.appendChild(style);
@@ -39826,10 +40021,10 @@ function drawStructure(s) {
           }
         };
         for (const unit of units) {
-          if (unit.team === team && unit.hp > 0) reveal(unit);
+          if (unit.team === team && unit.hp > 0 && !unit.campaignVisionDisabled) reveal(unit);
         }
         for (const structure of structures) {
-          if (structure.team === team && structure.hp > 0 && !structure.underConstruction) reveal(structure);
+          if (structure.team === team && structure.hp > 0 && !structure.underConstruction && !structure.campaignVisionDisabled) reveal(structure);
         }
         if (teamFactionId(team, state.teamFactions) === 'insects') {
           const revealCreep = (x, y, rad) => {
