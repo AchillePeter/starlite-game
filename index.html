@@ -6027,17 +6027,7 @@
       }
       
       function consoleLayout() {
-        const layout = commandConsoleLayout(CW, CH);
-        if (!state.campaignMode || !layout?.portrait || !layout?.info) return layout;
-        const minimumInfoWidth = layout.compact ? 72 : 132;
-        const available = Math.max(0, layout.info.w - minimumInfoWidth);
-        const extra = Math.min(available, layout.compact ? 46 : 118);
-        if (extra > 0) {
-          layout.portrait.w += extra;
-          layout.info.x += extra;
-          layout.info.w -= extra;
-        }
-        return layout;
+        return commandConsoleLayout(CW, CH);
       }
       
       function setFont(size, weight = 700) {
@@ -6600,96 +6590,13 @@
         return structures.filter(structure => structure.team === activeCommandTeam() && structure.hp > 0 && state.selectedStructures.has(structure.id));
       }
       
-      function campaignPortraitAccent() {
-        const faction = state.campaignMission?.faction;
-        return faction === 'insects' ? '#a7ef74' : faction === 'helias' ? '#7de8ff' : '#f1c76b';
-      }
-
-      function campaignPortraitObjectiveLeaves() {
-        const leaves = [];
-        const walk = objectives => {
-          for (const objective of objectives || []) {
-            const children = objective.objectives || objective.children || objective.conditions;
-            if (Array.isArray(children) && children.length) walk(children);
-            else leaves.push(objective);
-          }
-        };
-        walk(state.campaignMission?.objectives || []);
-        return leaves;
-      }
-
-      function campaignPortraitInstruction(objective, objectiveState) {
-        if (!objective) return state.campaignMission?.description || 'Follow the highlighted mission route.';
-        const detail = objectiveState?.detail ? ` ${objectiveState.detail}.` : '';
-        const target = Math.max(1, Number(objective.count) || 1);
-        const type = objective.type || '';
-        if (type === 'build') return `Select a worker and construct ${objective.title || 'the required structure'}.${detail}`;
-        if (type === 'gather' || type === 'gatherResources') return `Keep workers harvesting until the displayed resource target is reached.${detail}`;
-        if (type === 'destroy') return `Move along the marked route and destroy the highlighted targets.${detail}`;
-        if (type === 'protect') return `Keep the marked target alive. Intercept attackers before they reach it.${detail}`;
-        if (type === 'survive') return `Hold your defensive corridor until the countdown reaches zero.${detail}`;
-        if (type === 'reach') return `Move ${target > 1 ? `${target} units` : 'a unit'} into the marked destination ring.${detail}`;
-        if (type === 'escort') return `Stay with the marked escort group and bring it safely to the destination ring.${detail}`;
-        if (type === 'capture') return `Move ${target > 1 ? `${target} units` : 'a unit'} into the marked ring, clear hostiles and hold position.${detail}`;
-        if (type === 'ownUnits') return `Train the required force before advancing to the next corridor step.${detail}`;
-        if (type === 'ownStructures') return `Build the required structures to open the next mission step.${detail}`;
-        if (type === 'eliminateTeam') return `Break the marked enemy force to clear the route.${detail}`;
-        return `${objective.title || state.campaignMission?.description || 'Follow the current objective.'}${detail}`;
-      }
-
-      function campaignPortraitDirective() {
-        if (!state.campaignMode || !state.campaignMission || !state.campaignRuntime) return null;
-        const mission = state.campaignMission;
-        const runtime = state.campaignRuntime;
-        const leaves = campaignPortraitObjectiveLeaves();
-        const required = leaves.filter(objective => !objective.optional);
-        const activeRequired = required.find(objective => runtime.objectiveStates?.[objective.id]?.status === 'active');
-        const activeOptional = leaves.find(objective => runtime.objectiveStates?.[objective.id]?.status === 'active');
-        const objective = activeRequired || activeOptional || required.find(objective => runtime.objectiveStates?.[objective.id]?.status !== 'completed') || leaves[0];
-        const objectiveState = objective?.id ? runtime.objectiveStates?.[objective.id] : null;
-        const stepIndex = objective ? Math.max(0, required.indexOf(objective)) : -1;
-        const history = runtime.dialogueHistory || [];
-        const latest = history.length ? history[history.length - 1] : null;
-        const recentDialogue = latest && (state.elapsed || 0) - (Number(latest.at) || 0) <= 10.5 ? latest : null;
-        const commander = mission.commanders?.player?.name || 'Field Commander';
-        return {
-          speaker: recentDialogue?.speaker || commander,
-          text: recentDialogue?.text || campaignPortraitInstruction(objective, objectiveState),
-          missionTitle: mission.title,
-          step: stepIndex >= 0 ? stepIndex + 1 : null,
-          totalSteps: required.length,
-          optional: !!objective?.optional,
-          accent: campaignPortraitAccent()
-        };
-      }
-
-      function drawWrappedConsoleText(text, x, y, maxWidth, lineHeight, maxLines, size, color, weight = 700) {
-        const words = String(text || '').trim().split(/\s+/).filter(Boolean);
-        const lines = [];
-        let line = '';
-        setFont(size, weight);
-        for (const word of words) {
-          const candidate = line ? `${line} ${word}` : word;
-          if (!line || ctx.measureText(candidate).width <= maxWidth) line = candidate;
-          else { lines.push(line); line = word; }
-        }
-        if (line) lines.push(line);
-        const visible = lines.slice(0, Math.max(1, maxLines));
-        if (lines.length > visible.length && visible.length) {
-          visible[visible.length - 1] = clippedText(`${visible[visible.length - 1]}…`, maxWidth, size, weight);
-        }
-        visible.forEach((value, index) => drawConsoleText(value, x, y + index * lineHeight, size, color, 'left', maxWidth, weight));
-        return visible.length * lineHeight;
-      }
-
       function portraitSubject() {
-        if (state.campaignMode && state.campaignMission && state.campaignRuntime?.status === 'active') {
+        if (state.campaignMode && state.campaignNarrationVisible) {
           const team = activeCommandTeam();
+          const faction = state.campaignMission?.faction || teamFactionId(team, state.teamFactions);
           return {
-            kind: 'faction',
-            type: state.campaignMission.faction,
-            team,
-            label: state.campaignMission.commanders?.player?.name || 'Field Commander'
+            kind: 'faction', type: faction, team,
+            label: state.campaignNarrationSpeaker || (faction === 'insects' ? 'ZGLENGO BROOD MIND' : faction === 'helias' ? 'HELIAS EXECUTOR' : 'COMMANDER')
           };
         }
         const selectedUnits = selectedUnitObjects();
@@ -6761,69 +6668,15 @@
           hideGLBPortrait();
           return;
         }
-        const compact = layout.compact;
-        const directive = campaignPortraitDirective();
-        if (directive) {
-          const accent = directive.accent;
-          drawInsetPanel(zone, '#081018');
-          ctx.fillStyle = 'rgba(2,7,12,.95)';
-          ctx.fillRect(zone.x + 3, zone.y + 3, zone.w - 6, zone.h - 6);
-          ctx.strokeStyle = accent;
-          ctx.globalAlpha = .78;
-          ctx.strokeRect(zone.x + 1.5, zone.y + 1.5, zone.w - 3, zone.h - 3);
-          ctx.globalAlpha = 1;
-          const headerH = compact ? 20 : 25;
-          drawConsoleText('FIELD LINK // LIVE', zone.x + 7, zone.y + (compact ? 4 : 5), compact ? 6 : 8, accent, 'left', zone.w - 14, 900);
-          const guidanceH = Math.max(compact ? 48 : 62, Math.round(zone.h * .43));
-          const modelRect = {
-            x: zone.x + 6,
-            y: zone.y + headerH,
-            w: Math.max(1, zone.w - 12),
-            h: Math.max(30, zone.h - headerH - guidanceH - 7)
-          };
-          const gradient = ctx.createLinearGradient(modelRect.x, modelRect.y, modelRect.x, modelRect.y + modelRect.h);
-          gradient.addColorStop(0, 'rgba(24,36,48,.98)');
-          gradient.addColorStop(1, 'rgba(4,9,15,.98)');
-          ctx.fillStyle = gradient;
-          ctx.fillRect(modelRect.x, modelRect.y, modelRect.w, modelRect.h);
-          ctx.strokeStyle = colorForTeam(activeCommandTeam(), 'light');
-          ctx.globalAlpha = .32;
-          ctx.strokeRect(modelRect.x + .5, modelRect.y + .5, Math.max(0, modelRect.w - 1), Math.max(0, modelRect.h - 1));
-          ctx.globalAlpha = 1;
-          const subject = portraitSubject();
-          const holder = syncGLBPortrait(subject, modelRect);
-          const status = portraitRendererStatus();
-          if (status.failed) {
-            drawConsoleText('COMMS VISUAL OFFLINE', modelRect.x + modelRect.w / 2, modelRect.y + modelRect.h / 2 - 5, compact ? 5 : 7, COLORS.bad, 'center', modelRect.w - 8, 800);
-          }
-          ctx.save();
-          ctx.beginPath(); ctx.rect(modelRect.x, modelRect.y, modelRect.w, modelRect.h); ctx.clip();
-          ctx.globalAlpha = .12;
-          ctx.fillStyle = accent;
-          const scanY = modelRect.y + ((state.elapsed || 0) * 31 % Math.max(1, modelRect.h));
-          ctx.fillRect(modelRect.x, scanY, modelRect.w, 2);
-          ctx.globalAlpha = .09;
-          for (let y = modelRect.y + 2; y < modelRect.y + modelRect.h; y += 5) ctx.fillRect(modelRect.x, y, modelRect.w, 1);
-          ctx.restore();
-          const cardY = modelRect.y + modelRect.h + 4;
-          const cardH = zone.y + zone.h - cardY - 5;
-          ctx.fillStyle = 'rgba(5,11,17,.96)';
-          ctx.fillRect(zone.x + 6, cardY, zone.w - 12, cardH);
-          ctx.strokeStyle = 'rgba(255,255,255,.1)';
-          ctx.strokeRect(zone.x + 6.5, cardY + .5, zone.w - 13, cardH - 1);
-          const stepLabel = directive.step ? `CORRIDOR ${directive.step}/${Math.max(directive.step, directive.totalSteps || 1)}` : 'MISSION CORRIDOR';
-          drawConsoleText(`${stepLabel}${directive.optional ? ' · OPTIONAL' : ''}`, zone.x + 10, cardY + 5, compact ? 5 : 7, accent, 'left', zone.w - 20, 900);
-          drawConsoleText(String(directive.speaker || 'FIELD COMMAND').toUpperCase(), zone.x + 10, cardY + (compact ? 15 : 18), compact ? 5 : 7, '#dff8ff', 'left', zone.w - 20, 900);
-          const textY = cardY + (compact ? 25 : 30);
-          drawWrappedConsoleText(directive.text, zone.x + 10, textY, zone.w - 20, compact ? 8 : 10, compact ? 3 : 4, compact ? 5 : 7, '#b9cbd5', 700);
-          void holder;
-          return;
-        }
         drawInsetPanel(zone, '#101721');
+        const compact = layout.compact;
         const headerH = compact ? 18 : 23;
         const commanderName = activeMultiplayerUsername();
+        const portraitHeader = state.campaignMode && state.campaignNarrationVisible
+          ? (state.campaignNarrationSpeaker || 'MISSION COMMAND')
+          : (commanderName || 'GLB PORTRAIT');
         drawConsoleText(
-          commanderName || 'GLB PORTRAIT',
+          portraitHeader,
           zone.x + 6,
           zone.y + (compact ? 4 : 5),
           compact ? 7 : 9,
@@ -8425,6 +8278,7 @@
                                 "conditions": {
                                         "maxTime": 285,
                                         "allOptional": true,
+                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -9066,6 +8920,7 @@
                                 "conditions": {
                                         "maxTime": 255,
                                         "allOptional": true,
+                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 6
                                 }
                         }
@@ -9591,6 +9446,7 @@
                                 "conditions": {
                                         "maxTime": 235,
                                         "allOptional": true,
+                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -10134,6 +9990,7 @@
                                 "conditions": {
                                         "maxTime": 250,
                                         "allOptional": true,
+                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 8
                                 }
                         }
@@ -10610,6 +10467,7 @@
                                 "conditions": {
                                         "maxTime": 240,
                                         "allOptional": true,
+                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -11096,6 +10954,7 @@
                                 "conditions": {
                                         "maxTime": 225,
                                         "allOptional": true,
+                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -11577,6 +11436,7 @@
                                 "conditions": {
                                         "maxTime": 250,
                                         "allOptional": true,
+                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 7
                                 }
                         }
@@ -12112,6 +11972,7 @@
                                 "conditions": {
                                         "maxTime": 205,
                                         "allOptional": true,
+                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 4
                                 }
                         }
@@ -12640,6 +12501,7 @@
                                 "conditions": {
                                         "maxTime": 275,
                                         "allOptional": true,
+                                        "requiredDifficulty": "hard",
                                         "maxPlayerUnitLosses": 9
                                 }
                         }
@@ -19445,6 +19307,8 @@
         state.campaignMissionId = mission?.id || null;
         state.campaignMission = mission || null;
         state.campaignTechnologyAvailability = cloneCampaignTechnologyAvailability(mission?.availableTechnologies);
+        state.campaignNarrationVisible = false;
+        state.campaignNarrationSpeaker = '';
         state.campaignRuntime = mission ? {
           missionId: mission.id,
           status: 'active',
@@ -19737,6 +19601,9 @@
         if (campaignMission) {
           const firstObjective = campaignMission.objectives?.[0];
           toast(`ACT ${campaignMission.act} · ${campaignMission.title}${firstObjective ? ` · ${firstObjective.title}` : ''}`, COLORS.good, state.activeCommandTeam);
+          initializeCampaignNarration(campaignMission);
+        } else {
+          disposeCampaignNarration();
         }
         openBuildMenu();
       }
@@ -20212,6 +20079,7 @@
       function executeCampaignEvent(event, eventId) {
         if (!event) return;
         if (!state.campaignRuntime.triggeredEventIds.includes(eventId)) state.campaignRuntime.triggeredEventIds.push(eventId);
+        if (event.text) queueCampaignEventNarration(event, eventId);
         state.campaignRuntime.eventCursor = state.campaignRuntime.triggeredEventIds.length;
         if (event.action === 'cameraReveal' || event.action === 'cameraDirectedReveal') {
           beginCampaignCameraReveal(event, eventId);
@@ -20372,6 +20240,7 @@
         if (victory) persistCampaignCompletion(state.campaignMission);
         toast(victory ? `MISSION COMPLETE · ${state.campaignMission.title}` : `MISSION FAILED · ${reason || state.campaignMission.title}`,
           victory ? COLORS.good : COLORS.bad, state.activeCommandTeam);
+        disposeCampaignNarration();
       }
 
       function applyCampaignObjectiveCompletionEffect(objective) {
@@ -20411,16 +20280,23 @@
         for (const transition of transitions.completed) {
           if (transition.key === '__campaign-root__') continue;
           applyCampaignObjectiveCompletionEffect(transition.objective);
-          if (transition.objective.title) toast(`OBJECTIVE COMPLETE · ${transition.objective.title}`, COLORS.good, state.activeCommandTeam);
+          if (transition.objective.title) {
+            toast(`OBJECTIVE COMPLETE · ${transition.objective.title}`, COLORS.good, state.activeCommandTeam);
+          }
         }
         for (const transition of transitions.failed) {
           if (transition.key === '__campaign-root__') continue;
-          if (transition.objective.title) toast(`OBJECTIVE FAILED · ${transition.objective.title}`, COLORS.bad, state.activeCommandTeam);
+          if (transition.objective.title) {
+            toast(`OBJECTIVE FAILED · ${transition.objective.title}`, COLORS.bad, state.activeCommandTeam);
+          }
           if (transition.objective.failureEndsMission) {
             finishCampaignMission(false, transition.objective.failureReason || transition.objective.title || 'A required objective failed.');
             return;
           }
         }
+        queueCampaignObjectiveTransitionBatch('activated', transitions.activated);
+        queueCampaignObjectiveTransitionBatch('completed', transitions.completed);
+        queueCampaignObjectiveTransitionBatch('failed', transitions.failed);
 
         const defeat = (state.campaignMission.defeatConditions || []).find(campaignConditionMet);
         if (defeat) {
@@ -20436,6 +20312,336 @@
         if (victoryConditions.length && victoryConditions.every(campaignConditionMet)) {
           finishCampaignMission(true, 'All required mission objectives complete.');
         }
+      }
+
+
+      // Campaign narration deliberately reuses the tutorial bubble presentation.
+      // The command-console portrait is pinned to the mission faction's default
+      // persona while this UI is visible, so Human missions are spoken by the
+      // embedded default commander and the other arcs use their faction persona.
+      let campaignNarration = null;
+
+      function campaignNarrationConfig(mission = state.campaignMission) {
+        const base = tutorialConfigFor(mission?.faction);
+        const commander = mission?.commanders?.player || {};
+        return {
+          ...base,
+          speaker: commander.name || base.speaker,
+          accent: base.accent,
+          softAccent: base.softAccent
+        };
+      }
+
+      function campaignNarrationEntityLabel(kind, type, team = state.activeCommandTeam || 'player') {
+        if (!type) return '';
+        try {
+          return kind === 'structure'
+            ? factionStructureLabel(type, team, state.teamFactions)
+            : factionUnitLabel(type, team, state.teamFactions);
+        } catch {
+          return String(type).replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[-_]+/g, ' ').toUpperCase();
+        }
+      }
+
+      function campaignNarrationToolSummary(mission) {
+        const team = state.activeCommandTeam || 'player';
+        const entityGroups = mission?.initialEntities || {};
+        const unitCounts = new Map();
+        const structureCounts = new Map();
+        for (const group of entityGroups.units || []) {
+          if ((group.team || team) !== team || group.campaignCivilian) continue;
+          unitCounts.set(group.type, (unitCounts.get(group.type) || 0) + Math.max(1, Math.trunc(Number(group.count) || 1)));
+        }
+        for (const group of entityGroups.structures || []) {
+          if ((group.team || team) !== team || String(group.type || '').startsWith('campaign')) continue;
+          structureCounts.set(group.type, (structureCounts.get(group.type) || 0) + Math.max(1, Math.trunc(Number(group.count) || 1)));
+        }
+        const roster = [
+          ...[...unitCounts].map(([type, count]) => `${count} ${campaignNarrationEntityLabel('unit', type, team)}`),
+          ...[...structureCounts].map(([type, count]) => `${count} ${campaignNarrationEntityLabel('structure', type, team)}`)
+        ].slice(0, 7);
+        const startingTeam = mission?.startingTeams?.find(entry => entry.team === team || entry.controller === 'human');
+        const hqNote = Number(startingTeam?.hqHpFraction) < 0.99
+          ? `Your ${campaignNarrationEntityLabel('structure', 'hq', team)} begins damaged.`
+          : `Your ${campaignNarrationEntityLabel('structure', 'hq', team)} is operational.`;
+        const wallet = mission?.startingResources?.[team] || {};
+        const resourceNote = `${Math.max(0, Number(wallet.minerals) || 0)} minerals and ${Math.max(0, Number(wallet.gas) || 0)} gas are available at deployment.`;
+        const tech = mission?.availableTechnologies?.[team];
+        const techNote = tech?.all
+          ? 'Your normal faction technology is available.'
+          : 'Only mission-approved production is available; additional tools can unlock as objectives advance.';
+        return `${hqNote} You command ${roster.length ? roster.join(', ') : 'a limited field force'}. ${resourceNote} ${techNote}`;
+      }
+
+      function campaignNarrationObjectiveLeaves(objectives = state.campaignMission?.objectives || [], prefix = 'objective', result = []) {
+        (objectives || []).forEach((objective, index) => {
+          const key = objective.id || `${prefix}-${index + 1}`;
+          const children = campaignObjectiveChildren(objective);
+          if (children.length) campaignNarrationObjectiveLeaves(children, key, result);
+          else result.push({ key, objective, state: state.campaignRuntime?.objectiveStates?.[key] || null });
+        });
+        return result;
+      }
+
+      function campaignNarrationInstruction(objective) {
+        if (!objective) return 'Follow the highlighted objective marker and keep your force ready for scripted threats.';
+        const seconds = Math.max(0, Number(objective.holdSeconds ?? objective.duration) || 0);
+        switch (objective.type) {
+          case 'build': return 'Select a worker, place the required structure and keep the builder close until construction completes.';
+          case 'gather': return 'Assign workers to the required resources and keep safe drop-off routes open.';
+          case 'destroy': return 'Use attack-move or focus fire to destroy the marked hostile targets.';
+          case 'protect': return 'Keep the marked allied target alive; intercept attackers before they reach it.';
+          case 'survive': return seconds ? `Hold your position and preserve the required forces for ${Math.ceil(seconds)} seconds.` : 'Hold your position until the threat window ends.';
+          case 'reach': return 'Move the required units into the highlighted destination area.';
+          case 'escort': return 'Keep the escorted group moving with a combat screen and bring the required survivors into the destination zone.';
+          case 'capture': return seconds ? `Move the required units into the highlighted zone and hold it for ${Math.ceil(seconds)} seconds.` : 'Move the required units into the highlighted zone and maintain control.';
+          case 'ownUnits': return 'Produce and preserve the required unit composition.';
+          case 'ownStructures': return 'Construct and preserve the required structures.';
+          case 'eliminateTeam': return 'Break the marked hostile force while protecting your mission-critical assets.';
+          default: return 'Follow the highlighted marker and use the mission tools described in the briefing.';
+        }
+      }
+
+      function campaignNarrationIntroPages(mission) {
+        const briefing = mission?.briefing || {};
+        const primary = (briefing.orders || []).join(' ');
+        const optional = campaignNarrationObjectiveLeaves(mission?.objectives || [])
+          .filter(row => row.objective.optional).map(row => row.objective.title).filter(Boolean).join(' ');
+        return [
+          {
+            title: mission.title,
+            copy: [briefing.situation || mission.description, briefing.commanderLine].filter(Boolean).join(' '),
+            objective: 'Understand the situation before issuing orders.'
+          },
+          {
+            title: 'Your tools',
+            copy: campaignNarrationToolSummary(mission),
+            objective: 'Use the command panel, minimap and highlighted world markers to direct your force.'
+          },
+          {
+            title: 'Mission objectives',
+            copy: primary || mission.description,
+            objective: optional ? `Optional objective: ${optional}` : 'Complete the primary objectives in the order shown by the mission HUD.'
+          }
+        ];
+      }
+
+      function setCampaignNarrationMessage({ title, copy, objective = '', progress = '', button = null }) {
+        if (!campaignNarration?.ui) return;
+        const ui = campaignNarration.ui;
+        ui.title.textContent = title || state.campaignMission?.title || 'Mission update';
+        ui.copy.textContent = copy || '';
+        ui.progress.textContent = progress || 'CAMPAIGN';
+        ui.objective.textContent = objective || '';
+        ui.objective.hidden = !objective;
+        ui.actions.replaceChildren();
+        if (button) {
+          const control = document.createElement('button');
+          control.type = 'button';
+          control.className = 'starlite-tutorial-action';
+          control.textContent = button.label;
+          control.addEventListener('click', button.onClick, { once: true });
+          ui.actions.appendChild(control);
+          globalThis.setTimeout(() => control.focus(), 0);
+        }
+        state.campaignNarrationVisible = true;
+        state.campaignNarrationSpeaker = campaignNarration.config.speaker;
+      }
+
+      function showCampaignNarrationIntro(index = 0) {
+        if (!campaignNarration) return;
+        const pages = campaignNarration.introPages;
+        const page = pages[index];
+        const finalPage = index >= pages.length - 1;
+        campaignNarration.introIndex = index;
+        campaignNarration.introActive = true;
+        setCampaignNarrationMessage({
+          ...page,
+          progress: `${index + 1}/${pages.length}`,
+          button: {
+            label: finalPage ? 'BEGIN MISSION' : 'NEXT',
+            onClick: () => {
+              if (finalPage) {
+                campaignNarration.introActive = false;
+                showCampaignCurrentObjective(true);
+              } else showCampaignNarrationIntro(index + 1);
+            }
+          }
+        });
+      }
+
+      function campaignCurrentObjectiveRow() {
+        const leaves = campaignNarrationObjectiveLeaves();
+        return leaves.find(row => !row.objective.optional && row.state?.status === 'active')
+          || leaves.find(row => !row.objective.optional && row.state?.status === 'pending')
+          || leaves.find(row => row.objective.optional && row.state?.status === 'active')
+          || null;
+      }
+
+      function showCampaignCurrentObjective(force = false) {
+        if (!campaignNarration || campaignNarration.introActive || campaignNarration.temporaryActive) return;
+        const row = campaignCurrentObjectiveRow();
+        const signature = row ? `${row.key}:${row.state?.status || 'pending'}` : 'mission-complete';
+        if (!force && campaignNarration.objectiveSignature === signature) return;
+        campaignNarration.objectiveSignature = signature;
+        if (!row) {
+          setCampaignNarrationMessage({
+            title: 'Awaiting mission resolution',
+            copy: 'Primary field objectives are complete. Hold formation while command verifies the final victory condition.',
+            objective: 'Maintain control of mission-critical units and zones.',
+            progress: 'MISSION'
+          });
+          return;
+        }
+        setCampaignNarrationMessage({
+          title: row.objective.optional ? 'Optional objective' : 'Current objective',
+          copy: campaignNarrationInstruction(row.objective),
+          objective: row.objective.title || 'Complete the highlighted objective.',
+          progress: row.objective.optional ? 'OPTIONAL' : 'OBJECTIVE'
+        });
+      }
+
+      function activateNextCampaignNarration() {
+        if (!campaignNarration || campaignNarration.introActive || campaignNarration.temporaryActive) return false;
+        const message = campaignNarration.queue.shift();
+        if (!message) return false;
+        campaignNarration.temporaryActive = true;
+        campaignNarration.temporaryUntil = (state.elapsed || 0) + Math.max(4.5, Number(message.duration) || 7);
+        setCampaignNarrationMessage(message);
+        return true;
+      }
+
+      function queueCampaignNarration(message) {
+        if (!campaignNarration || !message) return false;
+        campaignNarration.queue.push(message);
+        if (!campaignNarration.introActive) activateNextCampaignNarration();
+        return true;
+      }
+
+      function queueCampaignEventNarration(event, eventId) {
+        if (!campaignNarration || !event?.text) return false;
+        const narrator = campaignNarration.config.speaker;
+        const source = String(event.speaker || '').trim();
+        const sourcePrefix = source && source.toLowerCase() !== narrator.toLowerCase() ? `${source} reports: ` : '';
+        const title = event.action === 'enemyWave' || event.action === 'spawnEnemyWave'
+          ? 'Enemy attack incoming'
+          : event.action === 'reinforcements' || event.action === 'spawnReinforcements'
+            ? 'Reinforcements'
+            : event.action === 'unlockTechnology'
+              ? 'New tools available'
+              : event.action === 'dialogue' || event.action === 'message'
+                ? 'Command channel'
+                : 'Mission update';
+        return queueCampaignNarration({
+          id: eventId,
+          title,
+          copy: `${sourcePrefix}${event.text}`,
+          objective: campaignCurrentObjectiveRow()?.objective?.title || '',
+          progress: 'STORY',
+          duration: Math.min(11, Math.max(6, String(event.text).length / 18))
+        });
+      }
+
+      function queueCampaignObjectiveNarration(kind, objective, key) {
+        if (!campaignNarration || !objective?.title) return false;
+        const optional = objective.optional ? 'Optional ' : '';
+        const title = kind === 'completed' ? `${optional}objective complete`
+          : kind === 'failed' ? `${optional}objective failed`
+            : `${optional}new objective`;
+        const copy = kind === 'completed'
+          ? 'Confirmed. Re-form your units and prepare for the next order.'
+          : kind === 'failed'
+            ? (objective.failureReason || 'That objective can no longer be completed. Protect the remaining mission-critical assets.')
+            : campaignNarrationInstruction(objective);
+        return queueCampaignNarration({
+          id: `objective:${key}:${kind}`,
+          title,
+          copy,
+          objective: objective.title,
+          progress: objective.optional ? 'OPTIONAL UPDATE' : 'OBJECTIVE UPDATE',
+          duration: kind === 'activated' ? 8 : 6
+        });
+      }
+
+      function queueCampaignObjectiveTransitionBatch(kind, transitions = []) {
+        if (!campaignNarration) return false;
+        const rows = transitions.filter(transition =>
+          transition?.key !== '__campaign-root__' &&
+          transition?.objective?.title &&
+          campaignObjectiveChildren(transition.objective).length === 0
+        );
+        if (!rows.length) return false;
+        if (rows.length === 1) return queueCampaignObjectiveNarration(kind, rows[0].objective, rows[0].key);
+        const titles = rows.map(row => row.objective.title).join(' • ');
+        const title = kind === 'completed' ? 'Objectives complete'
+          : kind === 'failed' ? 'Objectives failed'
+            : 'New objectives';
+        const copy = kind === 'completed'
+          ? 'Multiple field tasks are confirmed complete. Re-form and prepare for the next order.'
+          : kind === 'failed'
+            ? 'Multiple field tasks can no longer be completed. Protect the remaining mission-critical assets.'
+            : 'Several objectives are active at the same time. Split your force only when the map and enemy pressure allow it.';
+        return queueCampaignNarration({
+          id: `objective-batch:${kind}:${rows.map(row => row.key).join(',')}`,
+          title,
+          copy,
+          objective: titles,
+          progress: 'OBJECTIVE UPDATE',
+          duration: kind === 'activated' ? 8 : 6.5
+        });
+      }
+
+      function updateCampaignNarration() {
+        if (!campaignNarration || !state.campaignMode || state.gameOver) return;
+        if (campaignNarration.introActive) return;
+        if (campaignNarration.temporaryActive && (state.elapsed || 0) + 1e-6 >= campaignNarration.temporaryUntil) {
+          campaignNarration.temporaryActive = false;
+          if (!activateNextCampaignNarration()) showCampaignCurrentObjective(true);
+          return;
+        }
+        if (!campaignNarration.temporaryActive && campaignNarration.queue.length) {
+          activateNextCampaignNarration();
+          return;
+        }
+        const elapsed = state.elapsed || 0;
+        if (elapsed + 1e-6 >= (campaignNarration.nextObjectiveRefreshAt || 0)) {
+          campaignNarration.nextObjectiveRefreshAt = elapsed + .35;
+          showCampaignCurrentObjective(false);
+        }
+      }
+
+      function initializeCampaignNarration(mission) {
+        disposeCampaignNarration();
+        if (!mission) return;
+        const config = campaignNarrationConfig(mission);
+        const ui = createFactionTutorialBubble(config);
+        ui.root.classList.add('starlite-campaign-narration');
+        ui.root.dataset.campaignNarration = 'true';
+        ui.arrowRoot.hidden = true;
+        campaignNarration = {
+          mission,
+          config,
+          ui,
+          introPages: campaignNarrationIntroPages(mission),
+          introIndex: 0,
+          introActive: true,
+          queue: [],
+          temporaryActive: false,
+          temporaryUntil: 0,
+          objectiveSignature: '',
+          nextObjectiveRefreshAt: 0
+        };
+        state.campaignNarrationVisible = true;
+        state.campaignNarrationSpeaker = config.speaker;
+        showCampaignNarrationIntro(0);
+      }
+
+      function disposeCampaignNarration() {
+        campaignNarration?.ui?.arrowRoot?.remove();
+        campaignNarration?.ui?.root?.remove();
+        campaignNarration = null;
+        state.campaignNarrationVisible = false;
+        state.campaignNarrationSpeaker = '';
       }
 
 
@@ -21327,6 +21533,7 @@
           applyQueuedCommands(tick, applyQueuedGameCommand);
           update(SIMULATION_STEP);
           updateCampaignMission();
+          updateCampaignNarration();
           updateFactionTutorial();
           if (tick % 30 === 0) {
             const hash = deterministicStateHash(
@@ -22229,28 +22436,62 @@
         .starlite-menu__panel[data-view="tutorials"] { width: min(900px, 100%); max-height: calc(100vh - 130px); overflow-y: auto; overscroll-behavior: contain; }
         .starlite-menu__tutorial-copy { max-width: 680px; margin: -2px auto 17px; color: #aebfca; font-size: 12px; line-height: 1.55; text-align: center; }
         .starlite-menu__gate--campaign { border-color: rgba(229,191,103,.58); background: linear-gradient(145deg,rgba(73,56,24,.86),rgba(26,22,15,.92)); }
-        #starlite-menu[data-active-view="campaign"] .starlite-menu__layout { width:min(1240px,calc(100% - 32px)); }
-        .starlite-menu__panel[data-view="campaign"] { width:min(1180px,100%); max-height:calc(100vh - 118px); overflow-y:auto; }
-        .starlite-menu__campaign-copy { max-width:760px; margin:-3px auto 18px; color:#b9c7ce; font-size:12px; line-height:1.55; text-align:center; }
-        .starlite-menu__campaign-route-shell { overflow-x:auto; overflow-y:hidden; padding:12px 8px 18px; border:1px solid rgba(125,232,255,.18); border-radius:16px; background:linear-gradient(180deg,rgba(8,15,22,.92),rgba(4,8,13,.96)); scrollbar-width:thin; }
-        .starlite-menu__campaign-route { position:relative; display:grid; grid-template-columns:repeat(9,minmax(126px,1fr)); gap:10px; min-width:1160px; padding:0 8px; }
-        .starlite-menu__campaign-route::before { content:""; position:absolute; left:68px; right:68px; top:49px; height:5px; border-radius:999px; background:linear-gradient(90deg,#f1c76b 0 33.33%,#a7ef74 33.33% 66.66%,#7de8ff 66.66% 100%); box-shadow:0 0 18px rgba(125,232,255,.22); opacity:.72; }
-        .starlite-menu__campaign-node-item { --campaign-node:#e5bf67; position:relative; z-index:1; min-width:0; display:grid; grid-template-rows:100px auto; justify-items:center; align-content:start; text-align:center; }
-        .starlite-menu__campaign-node { position:relative; width:88px; height:88px; display:grid; place-items:center; border:4px solid var(--campaign-node); border-radius:50%; background:radial-gradient(circle at 38% 30%,color-mix(in srgb,var(--campaign-node) 26%,#18222d),#070c12 67%); color:#f7fbff; box-shadow:0 0 0 7px rgba(4,8,13,.92),0 0 22px color-mix(in srgb,var(--campaign-node) 42%,transparent),inset 0 0 18px rgba(255,255,255,.08); cursor:pointer; transition:transform .14s ease,filter .14s ease,box-shadow .14s ease; }
-        .starlite-menu__campaign-node:hover,.starlite-menu__campaign-node:focus-visible { outline:none; transform:scale(1.08); filter:brightness(1.12); box-shadow:0 0 0 7px rgba(4,8,13,.96),0 0 32px color-mix(in srgb,var(--campaign-node) 62%,transparent),inset 0 0 18px rgba(255,255,255,.12); }
-        .starlite-menu__campaign-node:disabled { cursor:not-allowed; filter:brightness(.5) saturate(.62); box-shadow:0 0 0 7px rgba(4,8,13,.92),0 0 14px color-mix(in srgb,var(--campaign-node) 24%,transparent),inset 0 0 12px rgba(255,255,255,.04); }
-        .starlite-menu__campaign-node--complete::after { content:"✓"; position:absolute; right:-5px; bottom:-3px; width:26px; height:26px; display:grid; place-items:center; border:2px solid #071018; border-radius:50%; background:var(--campaign-node); color:#061017; font:950 16px ui-monospace,monospace; }
-        .starlite-menu__campaign-node-number { font:950 27px ui-monospace,monospace; letter-spacing:-.05em; }
-        .starlite-menu__campaign-node-lock { font:950 21px ui-monospace,monospace; opacity:.72; }
-        .starlite-menu__campaign-node-copy { width:100%; min-width:0; padding:8px 6px 0; }
-        .starlite-menu__campaign-node-copy span { display:block; color:var(--campaign-node); font:900 8px ui-monospace,monospace; letter-spacing:.12em; }
-        .starlite-menu__campaign-node-copy strong { display:block; min-height:38px; margin:6px 0 5px; color:#f0f7fb; font-size:14px; line-height:1.15; letter-spacing:.035em; }
-        .starlite-menu__campaign-node-copy small { display:block; color:#9fb0ba; font-size:9px; line-height:1.48; }
-        .starlite-menu__campaign-node-item[data-locked="true"] .starlite-menu__campaign-node-copy { opacity:.52; }
-        .starlite-menu__campaign-footer { display:flex; justify-content:center; margin-top:13px; }
-        .starlite-menu__campaign-reset { min-height:32px; padding:0 14px; border:1px solid rgba(151,172,184,.28); border-radius:7px; background:rgba(14,20,27,.72); color:#8fa2ad; font-size:8px; font-weight:850; letter-spacing:.1em; cursor:pointer; }
-        .starlite-menu__campaign-reset:hover,.starlite-menu__campaign-reset:focus-visible { outline:none; border-color:rgba(229,191,103,.62); color:#f0dca7; }
-        .starlite-menu__campaign-command-status { min-height:18px; margin:8px 0 0; color:#a9bbc5; font-size:10px; text-align:center; }
+        .starlite-menu__panel[data-view="campaign"] { width: min(940px, 100%); max-height: calc(100vh - 130px); overflow-y: auto; }
+        .starlite-menu__campaign-copy { max-width: 760px; margin: -3px auto 14px; color: #b9c7ce; font-size: 12px; line-height: 1.55; text-align: center; }
+        .starlite-menu__campaign-command { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: stretch; margin: 0 0 14px; }
+        .starlite-menu__campaign-summary { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; padding: 10px; border: 1px solid rgba(125,232,255,.26); border-radius: 12px; background: rgba(7,14,20,.82); }
+        .starlite-menu__campaign-stat { min-width: 0; padding: 9px 10px; border-left: 2px solid rgba(125,232,255,.52); }
+        .starlite-menu__campaign-stat strong { display: block; overflow: hidden; color: #edf9ff; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+        .starlite-menu__campaign-stat span { display: block; margin-top: 3px; color: #859ba8; font-size: 8px; letter-spacing: .11em; }
+        .starlite-menu__campaign-controls { min-width: 220px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 10px; border: 1px solid rgba(229,191,103,.28); border-radius: 12px; background: rgba(20,18,13,.86); }
+        .starlite-menu__campaign-controls label { grid-column: 1 / -1; display: grid; gap: 5px; color: #e5bf67; font-size: 9px; letter-spacing: .11em; }
+        .starlite-menu__campaign-controls select { min-height: 34px; border: 1px solid rgba(229,191,103,.42); border-radius: 7px; background: #0b1117; color: #edf6fa; padding: 0 9px; }
+        .starlite-menu__campaign-controls button { min-height: 36px; border: 1px solid rgba(229,191,103,.38); border-radius: 7px; background: rgba(40,33,20,.78); color: #f4e6ba; font-size: 9px; font-weight: 800; letter-spacing: .07em; cursor: pointer; }
+        .starlite-menu__campaign-controls button:disabled { opacity: .4; cursor: not-allowed; }
+        .starlite-menu__campaign-controls [data-campaign-resume] { grid-column: 1 / -1; }
+        .starlite-menu__campaign-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+        .starlite-menu__campaign-card { min-height: 238px; display: flex; flex-direction: column; align-items: flex-start; gap: 9px; padding: 18px; border: 1px solid rgba(229,191,103,.42); border-radius: 12px; background: linear-gradient(155deg,rgba(39,34,24,.96),rgba(10,14,18,.96)); color: #edf6fa; text-align: left; cursor: pointer; }
+        .starlite-menu__campaign-card--complete { border-color: rgba(125,232,255,.48); background: linear-gradient(155deg,rgba(25,38,42,.96),rgba(10,14,18,.96)); }
+        .starlite-menu__campaign-card:hover,.starlite-menu__campaign-card:focus-visible { border-color: #e5bf67; transform: translateY(-2px); outline: none; }
+        .starlite-menu__campaign-card:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+        .starlite-menu__campaign-card strong { font-size: 18px; letter-spacing: .04em; }
+        .starlite-menu__campaign-card small { flex: 1; color: #aebbc4; font-size: 11px; line-height: 1.55; }
+        .starlite-menu__campaign-record { color: #8fcbd8; font-size: 9px; font-weight: 800; letter-spacing: .08em; }
+        .starlite-menu__campaign-medals { min-height: 20px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .starlite-menu__campaign-medal { padding: 4px 6px; border: 1px solid rgba(229,191,103,.45); border-radius: 999px; background: rgba(229,191,103,.09); color: #ead395; font-size: 7px; font-weight: 900; letter-spacing: .08em; }
+        .starlite-menu__campaign-command-status { min-height: 18px; margin: 8px 0 0; color: #a9bbc5; font-size: 10px; text-align: center; }
+        .starlite-menu__campaign-act,.starlite-menu__campaign-status { color: #e5bf67; font: 900 9px ui-monospace,monospace; letter-spacing: .12em; }
+        .starlite-menu__campaign-arc { margin: 0 0 18px; }
+        .starlite-menu__campaign-arc-head { display:flex; align-items:end; justify-content:space-between; gap:12px; margin:0 0 8px; padding:0 2px 7px; border-bottom:1px solid rgba(125,232,255,.18); }
+        .starlite-menu__campaign-arc-head strong { color:var(--campaign-accent,#e5bf67); font-size:14px; letter-spacing:.08em; }
+        .starlite-menu__campaign-arc-head span { color:#7f96a4; font-size:8px; letter-spacing:.12em; }
+        .starlite-menu__campaign-banner-select { grid-column:1 / -1; }
+        .starlite-menu__campaign-card-commander { color:var(--campaign-accent,#e5bf67); font-size:8px; font-weight:850; letter-spacing:.08em; }
+        /* Straightforward campaign path: one progression line, large faction-colored mission nodes, descriptions below. */
+        .starlite-menu__panel[data-view="campaign"] { width:min(1180px,100%); max-height:calc(100vh - 110px); overflow-y:auto; overflow-x:hidden; }
+        .starlite-menu__campaign-copy { max-width:820px; margin:-3px auto 18px; color:#b9c7ce; font-size:12px; line-height:1.55; text-align:center; }
+        .starlite-menu__campaign-path-shell { position:relative; margin:0 -4px; padding:2px 4px 14px; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-color:rgba(229,191,103,.45) rgba(7,14,20,.6); }
+        .starlite-menu__campaign-progression { --campaign-progress:0%; position:relative; display:grid; grid-template-columns:repeat(9,minmax(150px,1fr)); gap:24px; min-width:1500px; padding:34px 30px 8px; isolation:isolate; }
+        .starlite-menu__campaign-progression::before,.starlite-menu__campaign-progression::after { content:""; position:absolute; z-index:-1; left:92px; top:94px; height:8px; border-radius:999px; }
+        .starlite-menu__campaign-progression::before { right:92px; background:rgba(123,146,159,.25); box-shadow:inset 0 0 0 1px rgba(255,255,255,.05); }
+        .starlite-menu__campaign-progression::after { width:calc((100% - 184px) * var(--campaign-progress) / 100); background:linear-gradient(90deg,#e5bf67 0%,#e5bf67 31%,#9bdd63 35%,#9bdd63 65%,#7de8ff 69%,#7de8ff 100%); box-shadow:0 0 14px rgba(125,232,255,.24); }
+        .starlite-menu__campaign-node-wrap { --mission-accent:#e5bf67; min-width:0; display:grid; grid-template-rows:auto minmax(92px,auto); justify-items:center; align-content:start; gap:12px; text-align:center; }
+        .starlite-menu__campaign-node-wrap--humans { --mission-accent:#e5bf67; }
+        .starlite-menu__campaign-node-wrap--insects { --mission-accent:#9bdd63; }
+        .starlite-menu__campaign-node-wrap--helias { --mission-accent:#7de8ff; }
+        .starlite-menu__campaign-node { position:relative; width:124px; height:124px; padding:14px 10px; display:grid; place-items:center; align-content:center; gap:5px; border:4px solid var(--mission-accent); border-radius:50%; background:radial-gradient(circle at 38% 30%,color-mix(in srgb,var(--mission-accent) 24%,#17212a),#0a1016 72%); color:#f4fbff; cursor:pointer; box-shadow:0 0 0 8px rgba(5,10,15,.92),0 0 22px color-mix(in srgb,var(--mission-accent) 28%,transparent),inset 0 0 22px rgba(255,255,255,.04); transition:transform .14s ease,filter .14s ease,box-shadow .14s ease; }
+        .starlite-menu__campaign-node:hover,.starlite-menu__campaign-node:focus-visible { outline:none; transform:translateY(-4px) scale(1.035); filter:brightness(1.12); box-shadow:0 0 0 8px rgba(5,10,15,.94),0 0 30px color-mix(in srgb,var(--mission-accent) 46%,transparent),inset 0 0 22px rgba(255,255,255,.07); }
+        .starlite-menu__campaign-node:disabled { border-color:color-mix(in srgb,var(--mission-accent) 48%,#53616a); background:radial-gradient(circle at 38% 30%,color-mix(in srgb,var(--mission-accent) 10%,#202a31),#090d11 72%); color:#74838c; cursor:not-allowed; filter:saturate(.55); box-shadow:0 0 0 8px rgba(5,10,15,.92); }
+        .starlite-menu__campaign-node:disabled:hover { transform:none; filter:saturate(.3); }
+        .starlite-menu__campaign-node--complete::after { content:"✓"; position:absolute; right:2px; top:2px; width:30px; height:30px; display:grid; place-items:center; border:3px solid #071015; border-radius:50%; background:var(--mission-accent); color:#071015; font:950 18px system-ui; }
+        .starlite-menu__campaign-node-number { color:var(--mission-accent); font:950 20px ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.04em; }
+        .starlite-menu__campaign-node strong { max-width:100px; font-size:13px; line-height:1.08; letter-spacing:.045em; text-transform:uppercase; }
+        .starlite-menu__campaign-node small { color:color-mix(in srgb,var(--mission-accent) 70%,white); font-size:7px; font-weight:900; letter-spacing:.13em; }
+        .starlite-menu__campaign-node-description { width:100%; margin:0; color:#aebdc6; font-size:10px; line-height:1.48; }
+        .starlite-menu__campaign-node-wrap--locked .starlite-menu__campaign-node-description { color:#66747c; }
+        .starlite-menu__campaign-simple-actions { display:flex; justify-content:center; margin-top:9px; }
+        .starlite-menu__campaign-simple-actions button { min-height:36px; padding:0 16px; border:1px solid rgba(229,191,103,.34); border-radius:8px; background:rgba(36,30,20,.74); color:#ead9a9; font-size:9px; font-weight:850; letter-spacing:.09em; cursor:pointer; }
+        .starlite-menu__campaign-simple-actions button:hover,.starlite-menu__campaign-simple-actions button:focus-visible { outline:2px solid rgba(229,191,103,.35); outline-offset:2px; background:rgba(54,44,25,.9); }
         .starlite-menu__panel[data-view="campaign-briefing"] { width:min(820px,100%); max-height:calc(100vh - 110px); overflow-y:auto; }
         .starlite-menu__briefing-shell { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(230px,.7fr); gap:14px; }
         .starlite-menu__briefing-main,.starlite-menu__briefing-side { padding:18px; border:1px solid rgba(125,232,255,.24); border-radius:12px; background:rgba(7,14,20,.9); }
@@ -23201,50 +23442,50 @@
           <div class="starlite-menu__campaign-stat starlite-menu__campaign-stat--wide"><strong>${lastMission ? lastMission.title : 'NONE'}</strong><span>LAST PLAYED MISSION</span></div>`;
       }
 
-      function campaignMissionCardMarkup(mission, progression, routeIndex = 0) {
+      function campaignMissionCardMarkup(mission, progression, index = 0) {
         const progress = campaignMissionProgress(mission.id, progression);
         const available = !!progress?.unlocked;
         const completed = !!progress?.completed;
-        const factionColor = mission.faction === 'insects' ? '#a7ef74' : mission.faction === 'helias' ? '#7de8ff' : '#f1c76b';
-        const missionNumber = routeIndex + 1;
-        return `<article class="starlite-menu__campaign-node-item" data-locked="${available ? 'false' : 'true'}" style="--campaign-node:${factionColor}">
-          <button class="starlite-menu__campaign-node${completed ? ' starlite-menu__campaign-node--complete' : ''}" type="button" data-campaign-mission="${mission.id}" ${available ? '' : 'disabled'} aria-label="${available ? (completed ? 'Replay' : 'Open') : 'Locked'} mission ${missionNumber}: ${escapeHTML(mission.title)}">
-            ${available ? `<span class="starlite-menu__campaign-node-number">${missionNumber}</span>` : '<span class="starlite-menu__campaign-node-lock">×</span>'}
-          </button>
-          <div class="starlite-menu__campaign-node-copy">
-            <span>${campaignFactionLabel(mission.faction)} · MISSION ${mission.arcOrder || mission.act}</span>
+        const faction = ['humans', 'insects', 'helias'].includes(mission.faction) ? mission.faction : 'humans';
+        const statusLabel = completed ? 'COMPLETED' : available ? 'AVAILABLE' : 'LOCKED';
+        return `<article class="starlite-menu__campaign-node-wrap starlite-menu__campaign-node-wrap--${faction}${available ? '' : ' starlite-menu__campaign-node-wrap--locked'}">
+          <button class="starlite-menu__campaign-node${completed ? ' starlite-menu__campaign-node--complete' : ''}" type="button" data-campaign-mission="${mission.id}" ${available ? '' : 'disabled'} aria-label="${escapeHTML(`${mission.title}. ${statusLabel}. ${mission.description}`)}">
+            <span class="starlite-menu__campaign-node-number">${String(index + 1).padStart(2, '0')}</span>
             <strong>${escapeHTML(mission.title)}</strong>
-            <small>${escapeHTML(mission.description)}</small>
-          </div>
+            <small>${campaignFactionLabel(mission.faction)}</small>
+          </button>
+          <p class="starlite-menu__campaign-node-description">${escapeHTML(mission.description)}</p>
         </article>`;
       }
 
       function campaignCardsMarkup(progression = loadCampaignProgression()) {
-        return `<div class="starlite-menu__campaign-route-shell"><div class="starlite-menu__campaign-route">${CAMPAIGN_MISSION_ORDER.map((id, index) => campaignMissionCardMarkup(CAMPAIGN_MISSIONS[id], progression, index)).join('')}</div></div>`;
+        const missions = CAMPAIGN_MISSION_ORDER.map(id => CAMPAIGN_MISSIONS[id]).filter(Boolean);
+        let lastCompletedIndex = -1;
+        missions.forEach((mission, index) => { if (campaignMissionProgress(mission.id, progression)?.completed) lastCompletedIndex = index; });
+        const progressPercent = missions.length > 1 && lastCompletedIndex >= 0
+          ? Math.max(0, Math.min(100, lastCompletedIndex / (missions.length - 1) * 100))
+          : 0;
+        return `<div class="starlite-menu__campaign-progression" style="--campaign-progress:${progressPercent.toFixed(2)}%">${missions.map((mission, index) => campaignMissionCardMarkup(mission, progression, index)).join('')}</div>`;
       }
 
       function campaignBriefingMarkup(mission, progression = loadCampaignProgression()) {
         const briefing = mission.briefing || {};
-        const progress = campaignMissionProgress(mission.id, progression);
         const orders = (briefing.orders || []).map(order => `<li>${escapeHTML(order)}</li>`).join('');
         const intel = (briefing.intel || []).map(item => `<li>${escapeHTML(item)}</li>`).join('');
         const player = mission.commanders?.player || {};
         const enemy = mission.commanders?.enemy || {};
-        const optionalCount = missionOptionalObjectiveIds(mission).length;
         return `<div class="starlite-menu__briefing-shell">
           <div class="starlite-menu__briefing-main">
-            <span class="starlite-menu__briefing-kicker">${escapeHTML(mission.arcTitle || `ACT ${mission.act}`)} · ${campaignFactionLabel(mission.faction)}</span>
+            <span class="starlite-menu__briefing-kicker">MISSION ${CAMPAIGN_MISSION_ORDER.indexOf(mission.id) + 1} · ${campaignFactionLabel(mission.faction)}</span>
             <h3>${escapeHTML(mission.title)}</h3><p>${escapeHTML(briefing.situation || mission.description)}</p>
-            <div class="starlite-menu__briefing-quote"><strong>MISSION PURPOSE</strong><br>${escapeHTML(mission.description)}</div>
             ${briefing.commanderLine ? `<div class="starlite-menu__briefing-quote">“${escapeHTML(briefing.commanderLine)}”</div>` : ''}
-            <div class="starlite-menu__briefing-section"><strong>PRIMARY ORDERS</strong><ul>${orders}</ul></div>
-            ${intel ? `<div class="starlite-menu__briefing-section"><strong>FIELD INTELLIGENCE</strong><ul>${intel}</ul></div>` : ''}
+            <div class="starlite-menu__briefing-section"><strong>MISSION OBJECTIVES</strong><ul>${orders}</ul></div>
+            ${intel ? `<div class="starlite-menu__briefing-section"><strong>WHAT YOU NEED TO KNOW</strong><ul>${intel}</ul></div>` : ''}
           </div>
           <aside class="starlite-menu__briefing-side">
-            <div class="starlite-menu__briefing-commander"><span>FIELD COMMANDER</span><strong>${escapeHTML(player.name || 'Unknown')}</strong><span>${escapeHTML(player.title || '')}</span></div>
+            <div class="starlite-menu__briefing-commander"><span>YOUR NARRATOR</span><strong>${escapeHTML(player.name || 'Commander')}</strong><span>${escapeHTML(player.title || campaignFactionLabel(mission.faction))}</span></div>
             <div class="starlite-menu__briefing-commander"><span>OPPOSITION</span><strong>${escapeHTML(enemy.name || 'Unknown')}</strong><span>${escapeHTML(enemy.title || '')}</span></div>
-            <div class="starlite-menu__briefing-commander"><span>MISSION FLOW</span><strong>${progress?.completed ? 'REPLAY AVAILABLE' : 'READY TO DEPLOY'}</strong><span>${optionalCount ? `${optionalCount} OPTIONAL OBJECTIVE${optionalCount === 1 ? '' : 'S'}` : 'FOLLOW THE FIELD DIRECTIVES'}</span></div>
-            <button class="starlite-menu__briefing-deploy" type="button" data-campaign-deploy>DEPLOY</button>
+            <button class="starlite-menu__briefing-deploy" type="button" data-campaign-deploy>START MISSION</button>
           </aside>
         </div>`;
       }
@@ -23549,9 +23790,9 @@
             <section class="starlite-menu__panel starlite-hidden" data-view="campaign">
               <button class="starlite-menu__return" type="button" data-close-campaign aria-label="Return" title="Return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading">Campaign</h2>
-              <p class="starlite-menu__campaign-copy">Follow the route from left to right. Select an unlocked mission node to read its briefing or replay it.</p>
-              <div data-campaign-grid>${campaignCardsMarkup()}</div>
-              <div class="starlite-menu__campaign-footer"><button class="starlite-menu__campaign-reset" type="button" data-campaign-reset>RESET CAMPAIGN PROGRESSION</button></div>
+              <p class="starlite-menu__campaign-copy">Follow the mission path from left to right. Human, Zglengo and Helias missions use their own faction color; complete a node to unlock the next deployment.</p>
+              <div class="starlite-menu__campaign-path-shell" data-campaign-path-shell><div data-campaign-grid>${campaignCardsMarkup()}</div></div>
+              <div class="starlite-menu__campaign-simple-actions"><button type="button" data-campaign-reset>RESET PROGRESSION</button></div>
               <p class="starlite-menu__campaign-command-status" data-campaign-status role="status" aria-live="polite"></p>
             </section>
             <section class="starlite-menu__panel starlite-hidden" data-view="campaign-briefing">
@@ -24683,13 +24924,8 @@
           };
         }
 
-        function campaignFactionAccent(faction) {
-          return faction === 'insects' ? '#a7ef74' : faction === 'helias' ? '#7de8ff' : '#f1c76b';
-        }
-
         function renderCampaignCommandScreen() {
           const progression = loadCampaignProgression();
-          root.style.setProperty('--campaign-accent', '#e5bf67');
           campaignGrid.innerHTML = campaignCardsMarkup(progression);
           return progression;
         }
@@ -24697,7 +24933,8 @@
         function launchCampaignMission(missionId) {
           const mode = campaignModeForMission(missionId);
           if (!mode) return false;
-          finishMenu?.({ ...mode, aiDifficulty: mode.aiDifficulty || 'normal' });
+          // Campaign deployments intentionally use one fixed, authored balance profile.
+          finishMenu?.({ ...mode, aiDifficulty: 'normal' });
           return true;
         }
 
@@ -24708,8 +24945,7 @@
           selectedCampaignMissionId = missionId;
           campaignBriefingContent.innerHTML = campaignBriefingMarkup(mission, progression);
           const deploy = campaignBriefingContent.querySelector('[data-campaign-deploy]');
-          root.style.setProperty('--campaign-accent', campaignFactionAccent(mission.faction));
-          deploy.textContent = 'DEPLOY';
+          deploy.textContent = 'START MISSION';
           deploy.addEventListener('click', () => launchCampaignMission(selectedCampaignMissionId));
           showOnly(campaignBriefingView);
           deploy.focus();
@@ -25185,12 +25421,12 @@
         root.querySelector('[data-close-campaign]').addEventListener('click', closeCampaign);
         root.querySelector('[data-close-campaign-briefing]').addEventListener('click', closeCampaignBriefing);
         campaignGrid.addEventListener('click', event => {
-          const card = event.target.closest('[data-campaign-mission]');
-          if (!card || card.disabled || !campaignGrid.contains(card)) return;
-          openCampaignBriefing(card.dataset.campaignMission);
+          const node = event.target.closest('[data-campaign-mission]');
+          if (!node || node.disabled || !campaignGrid.contains(node)) return;
+          openCampaignBriefing(node.dataset.campaignMission);
         });
         campaignResetButton.addEventListener('click', () => {
-          if (!globalThis.confirm?.('Reset all campaign completions, medals, optional results and unlocks? This also syncs to your signed-in cloud account.')) return;
+          if (!globalThis.confirm?.('Reset all campaign mission progress? This also syncs to your signed-in cloud account.')) return;
           resetCampaignProgression();
           renderCampaignCommandScreen();
           campaignStatus.textContent = 'Campaign progression reset. Last Light remains unlocked.';
