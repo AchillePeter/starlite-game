@@ -23206,11 +23206,18 @@
         .starlite-menu__computer-picker { min-height: 330px; display: grid; align-items: center; }
         .starlite-menu__computer-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
         .starlite-menu__computer-choice-grid[data-computer-faction-options] { grid-template-columns: 1fr; }
+        .starlite-menu__computer-choice-grid[data-computer-mode-options] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
         .starlite-menu__computer-picker-title { grid-column: 1 / -1; color: #b8f288; font-size: 11px; font-weight: 900; letter-spacing: .16em; text-align: center; }
         .starlite-menu__computer-mode-choice {
-          min-height: 190px; padding: 18px 10px; display: grid; place-content: center; gap: 9px;
+          min-height: 190px; padding: 7px; display: grid; grid-template-rows: minmax(0, 1fr) auto auto; place-content: stretch; align-items: center; gap: 7px;
           border: 1px solid rgba(178,221,151,.28); border-radius: 11px; color: #edf7e8; background: rgba(11,23,15,.84); cursor: pointer;
         }
+        .starlite-menu__computer-mode-preview {
+          display: block; width: 100%; height: 100%; min-height: 118px; overflow: hidden;
+          border: 1px solid rgba(191,231,168,.24); border-radius: 8px; background: #081015;
+          image-rendering: pixelated;
+        }
+        .starlite-menu__computer-mode-preview--summary { min-height: 0; }
         .starlite-menu__computer-mode-choice:hover, .starlite-menu__computer-mode-choice:focus-visible,
         .starlite-menu__computer-mode-choice[aria-pressed="true"] { outline: none; border-color: #a7ef74; background: rgba(54,89,49,.72); }
         .starlite-menu__computer-mode-choice strong { font-size: 25px; }
@@ -23247,7 +23254,7 @@
         @media (max-height: 720px) {
           .starlite-menu__panel[data-view="sizes"] { width: min(780px, 100%); padding: 12px 15px; }
           .starlite-menu__selection-card { min-height: 250px; grid-template-rows: auto minmax(0, 1fr) auto auto auto; }
-          .starlite-menu__selection-portrait, .starlite-menu__mode-formation { height: 135px; min-height: 135px; }
+          .starlite-menu__selection-portrait, .starlite-menu__mode-formation, .starlite-menu__computer-mode-preview--summary { height: 135px; min-height: 135px; }
           .starlite-menu__computer-picker { min-height: 250px; }
           .starlite-menu__computer-mode-choice { min-height: 145px; }
           .starlite-menu__faction-portrait-box { height: 64px; }
@@ -23265,10 +23272,12 @@
           .starlite-menu__computer-summary { gap: 7px; }
           .starlite-menu__selection-card { min-height: 260px; padding: 8px; }
           .starlite-menu__selection-card > strong { font-size: 16px; }
-          .starlite-menu__selection-portrait, .starlite-menu__mode-formation { height: 145px; }
+          .starlite-menu__selection-portrait, .starlite-menu__mode-formation, .starlite-menu__computer-mode-preview--summary { height: 145px; }
           .starlite-menu__selection-kicker, .starlite-menu__selection-change { font-size: 7px; }
           .starlite-menu__computer-choice-grid { gap: 5px; }
-          .starlite-menu__computer-mode-choice { min-height: 150px; padding: 9px 4px; }
+          .starlite-menu__computer-choice-grid[data-computer-mode-options] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .starlite-menu__computer-mode-choice { min-height: 150px; padding: 5px; }
+          .starlite-menu__computer-mode-preview { min-height: 92px; }
           .starlite-menu__computer-mode-choice strong { font-size: 16px; }
           .starlite-menu__faction-portrait-box { height: 70px; }
           .starlite-menu__panel[data-view="sizes"] .starlite-menu__faction-grid,
@@ -23305,7 +23314,8 @@
           letter-spacing: .07em;
         }
         .starlite-menu__selection-portrait,
-        .starlite-menu__mode-formation {
+        .starlite-menu__mode-formation,
+        .starlite-menu__computer-mode-preview--summary {
           width: 100%;
           height: 100%;
           min-height: 0;
@@ -23854,19 +23864,31 @@
       function startMenuBattleTiles(root) {
         const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
         const { renderMenuBattlePreviewFrame } = __require("rendering.js");
-        const scenes = [...root.querySelectorAll('[data-menu-battle-scene]')];
+        const battleScenes = [...root.querySelectorAll('[data-menu-battle-scene]')];
+        const computerModeScenes = [...root.querySelectorAll('[data-computer-mode-preview]')];
         let frameId = 0;
         let stopped = false;
-        let reducedFrameDrawn = false;
+        let lastRenderAt = -Infinity;
+
+        function visiblePreviewCanvases(collection) {
+          return collection.filter(canvas => canvas.getClientRects().length > 0 && canvas.clientWidth > 0 && canvas.clientHeight > 0);
+        }
 
         function render(now) {
           if (stopped) return;
-          const active = root.dataset.activeView === 'categories';
-          if (active && (!reducedMotion || !reducedFrameDrawn)) {
-            for (const canvas of scenes) {
-              renderMenuBattlePreviewFrame(canvas, canvas.dataset.menuBattleScene, reducedMotion ? 0 : now);
+          const activeView = root.dataset.activeView || 'categories';
+          const minimumInterval = reducedMotion ? 500 : activeView === 'sizes' ? 180 : 50;
+          if (now - lastRenderAt >= minimumInterval) {
+            if (activeView === 'categories') {
+              for (const canvas of visiblePreviewCanvases(battleScenes)) {
+                renderMenuBattlePreviewFrame(canvas, canvas.dataset.menuBattleScene, reducedMotion ? 0 : now);
+              }
+            } else if (activeView === 'sizes') {
+              for (const canvas of visiblePreviewCanvases(computerModeScenes)) {
+                renderMenuBattlePreviewFrame(canvas, `computerMode:${canvas.dataset.computerModePreview || 'duel'}`, reducedMotion ? 0 : now);
+              }
             }
-            reducedFrameDrawn = true;
+            lastRenderAt = now;
           }
           frameId = requestAnimationFrame(render);
         }
@@ -24129,7 +24151,7 @@
                   </button>
                   <button class="starlite-menu__selection-card starlite-menu__selection-card--mode" type="button" data-computer-open-mode aria-label="Cycle selected match mode" title="Click to cycle match mode">
                     <span class="starlite-menu__selection-kicker">SELECTED MODE</span>
-                    <span class="starlite-menu__mode-formation" data-computer-mode-formation aria-hidden="true"><i></i><b></b></span>
+                    <canvas class="starlite-menu__computer-mode-preview starlite-menu__computer-mode-preview--summary" data-computer-mode-preview="duel" data-computer-mode-summary-preview aria-hidden="true"></canvas>
                     <strong data-computer-mode-label>1v1</strong>
                     <small data-computer-mode-copy>You versus one computer commander.</small>
                     <span class="starlite-menu__selection-change">SELECT TO CHANGE</span>
@@ -24155,10 +24177,10 @@
                   </div>
                   <div class="starlite-menu__computer-choice-grid starlite-hidden" data-computer-mode-options role="group" aria-label="Choose computer match mode">
                     <div class="starlite-menu__computer-picker-title">CHOOSE THE MATCH MODE</div>
-                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="duel" aria-pressed="true"><strong>1v1</strong><small>ONE COMPUTER OPPONENT</small></button>
-                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="threeWay" aria-pressed="false"><strong>1v1v1</strong><small>TWO COMPUTER OPPONENTS</small></button>
-                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="fourWay" aria-pressed="false"><strong>1v1v1v1</strong><small>THREE COMPUTER OPPONENTS</small></button>
-                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="sandbox" aria-pressed="false"><strong>SANDBOX</strong><small>FULL TECH · ABUNDANT RESOURCES</small></button>
+                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="duel" aria-pressed="true"><canvas class="starlite-menu__computer-mode-preview" data-computer-mode-preview="duel" aria-hidden="true"></canvas><strong>1v1</strong><small>ONE COMPUTER OPPONENT</small></button>
+                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="threeWay" aria-pressed="false"><canvas class="starlite-menu__computer-mode-preview" data-computer-mode-preview="threeWay" aria-hidden="true"></canvas><strong>1v1v1</strong><small>TWO COMPUTER OPPONENTS</small></button>
+                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="fourWay" aria-pressed="false"><canvas class="starlite-menu__computer-mode-preview" data-computer-mode-preview="fourWay" aria-hidden="true"></canvas><strong>1v1v1v1</strong><small>THREE COMPUTER OPPONENTS</small></button>
+                    <button class="starlite-menu__computer-mode-choice" type="button" data-computer-mode-choice="sandbox" aria-pressed="false"><canvas class="starlite-menu__computer-mode-preview" data-computer-mode-preview="sandbox" data-menu-preview-faction="humans" aria-hidden="true"></canvas><strong>SANDBOX</strong><small>FULL TECH · ABUNDANT RESOURCES</small></button>
                   </div>
                 </div>
                 <button class="starlite-menu__computer-start" type="button" data-computer-start>START GAME</button>
@@ -24459,7 +24481,7 @@
         const computerRandomMark = root.querySelector('[data-computer-random-mark]');
         const computerModeLabel = root.querySelector('[data-computer-mode-label]');
         const computerModeCopy = root.querySelector('[data-computer-mode-copy]');
-        const computerModeFormation = root.querySelector('[data-computer-mode-formation]');
+        const computerModePreview = root.querySelector('[data-computer-mode-summary-preview]');
         const computerStartButton = root.querySelector('[data-computer-start]');
         const pvpSizeSetup = root.querySelector('[data-pvp-size-setup]');
         const tagCelebration = root.querySelector('[data-tag-celebration]');
@@ -24625,9 +24647,16 @@
           }
         }
 
+        function syncComputerModePreviewFactions() {
+          for (const preview of root.querySelectorAll('[data-computer-mode-preview]')) {
+            preview.dataset.menuPreviewFaction = soloFactionChoice;
+          }
+        }
+
         function chooseSoloFaction(choice) {
           soloFactionChoice = setFactionPickerChoice(soloFactionPicker, choice);
           syncComputerFactionSummary();
+          syncComputerModePreviewFactions();
           return soloFactionChoice;
         }
 
@@ -24985,7 +25014,11 @@
           const presentation = modeMenuPresentation(selectedComputerModeKey);
           computerModeLabel.textContent = presentation.label;
           computerModeCopy.textContent = presentation.copy;
-          computerModeFormation.dataset.count = String(presentation.count);
+          if (computerModePreview) {
+            computerModePreview.dataset.computerModePreview = selectedComputerModeKey;
+            computerModePreview.dataset.menuPreviewFaction = soloFactionChoice;
+          }
+          syncComputerModePreviewFactions();
           for (const button of computerModeOptions.querySelectorAll('[data-computer-mode-choice]')) {
             button.setAttribute('aria-pressed', String(button.dataset.computerModeChoice === selectedComputerModeKey));
           }
@@ -29677,6 +29710,8 @@ function compileShader(gl, type, source) {
       
       
       
+      let menuPreviewRenderActive = false;
+
       function activeCommandTeam() {
         return getActiveCommandTeam() || state.activeCommandTeam || 'player';
       }
@@ -35182,6 +35217,7 @@ function drawStructureUpgradeDetails(s, x, y, team) {
 
       function renderHeliasStructurePowered(s) {
   if (!s || teamFactionId(s.team, state.teamFactions) !== 'helias') return true;
+  if (menuPreviewRenderActive) return s.powered !== false;
   if (!['heliasGateway', 'heliasCyberCore', 'heliasForge', 'heliasTurret', 'heliasRoboticsFacility', 'heliasStargate', 'heliasTemple'].includes(s.type)) return true;
   const radius = BUILDING_DATA.heliasPylon?.powerRadius || 182;
   const margin = Math.hypot((s.w || 0) / 2, (s.h || 0) / 2) * .28;
@@ -35216,7 +35252,7 @@ function drawHeliasUnpoweredOverlay(s, x, y) {
 
 function drawStructure(s) {
   if (s.hp <= 0) return;
-  if (!isLocallyVisibleToTeam(activeCommandTeam(), s.x, s.y) && s.team !== activeCommandTeam()) return;
+  if (!menuPreviewRenderActive && !isLocallyVisibleToTeam(activeCommandTeam(), s.x, s.y) && s.team !== activeCommandTeam()) return;
   drawHeliasPowerField(s);
   const x = Math.floor(s.x - s.w / 2);
   const y = Math.floor(s.y - s.h / 2);
@@ -35453,7 +35489,7 @@ function drawStructure(s) {
 
       function drawUnit(u) {
         if (u.hp <= 0) return;
-        if (!isLocallyVisibleToTeam(activeCommandTeam(), u.x, u.y) && u.team !== activeCommandTeam()) return;
+        if (!menuPreviewRenderActive && !isLocallyVisibleToTeam(activeCommandTeam(), u.x, u.y) && u.team !== activeCommandTeam()) return;
         if (!renderTempleVeilDetected(u, activeCommandTeam())) return;
         const veilActive = u.type === 'heliasObserver' && (u.templeVeilCloakUntil || 0) > state.elapsed;
         if (veilActive) {
@@ -39365,6 +39401,130 @@ function drawStructure(s) {
           selectedIndex: 3
         })
       });
+
+      function menuPreviewConcreteFaction(value, elapsed = 0) {
+        const faction = String(value || '').toLowerCase();
+        if (faction === 'humans' || faction === 'insects' || faction === 'helias') return faction;
+        return ['humans', 'insects', 'helias'][Math.floor(Math.max(0, elapsed) / 3.2) % 3];
+      }
+
+      function menuPreviewBaseStructures(faction, team, centerX, centerY, full = false) {
+        const definition = (type, dx, dy, level = 1) => Object.freeze({
+          type, faction, team, x: centerX + dx, y: centerY + dy, level, powered: true
+        });
+        if (full && faction === 'insects') return Object.freeze([
+          definition('hq', 0, 0, 3),
+          definition('spawningNest', -.18, -.14, 1), definition('spitterDen', -.19, .15, 1),
+          definition('carapaceWarren', .18, -.14, 1), definition('airSpire', .19, .15, 1),
+          definition('evolutionPit', 0, .25, 1), definition('thornmawCrawler', 0, -.25, 1),
+          definition('creepTumor', .30, 0, 1), definition('gasExtractor', -.30, .02, 1)
+        ]);
+        if (full && faction === 'helias') return Object.freeze([
+          definition('hq', 0, 0, 1),
+          definition('heliasPylon', -.20, -.17, 1), definition('heliasPylon', .20, .17, 1),
+          definition('heliasGateway', -.21, .15, 2), definition('heliasCyberCore', .20, -.15, 1),
+          definition('heliasForge', 0, -.26, 1), definition('heliasRoboticsFacility', .22, .15, 2),
+          definition('heliasStargate', 0, .27, 2), definition('heliasTurret', -.31, 0, 1),
+          definition('gasExtractor', .31, 0, 1)
+        ]);
+        if (full) return Object.freeze([
+          definition('hq', 0, 0, 1),
+          definition('barracks', -.20, -.15, 3), definition('garage', -.20, .16, 3),
+          definition('airBay', .20, -.15, 2), definition('housing', .20, .16, 2),
+          definition('researchFacility', 0, .26, 1), definition('turret', 0, -.26, 2),
+          definition('supportCamp', -.31, .01, 1), definition('gasExtractor', .31, .01, 1)
+        ]);
+        if (faction === 'insects') return Object.freeze([
+          definition('hq', 0, 0, 2),
+          definition('spawningNest', -.075, .11, 1),
+          definition('thornmawCrawler', .09, .105, 1)
+        ]);
+        if (faction === 'helias') return Object.freeze([
+          definition('hq', 0, 0, 1),
+          definition('heliasPylon', -.085, .11, 1),
+          definition('heliasGateway', .09, .105, 1)
+        ]);
+        return Object.freeze([
+          definition('hq', 0, 0, 1),
+          definition('barracks', -.085, .11, 2),
+          definition('turret', .09, .105, 1)
+        ]);
+      }
+
+      function menuPreviewBaseUnits(faction, team, centerX, centerY, full = false) {
+        const side = team === 'player' || team === 'player2' ? 'left' : 'right';
+        const definition = (type, dx, dy, heading = 0) => Object.freeze({
+          type, faction, team, side, x: centerX + dx, y: centerY + dy, heading, fighting: false
+        });
+        if (faction === 'insects') return Object.freeze([
+          definition('insectQueen', -.07, -.03, 0),
+          definition('insectSwarmling', .07, -.02, Math.PI)
+        ]);
+        if (faction === 'helias') return Object.freeze([
+          definition('heliasVanguard', -.07, -.03, 0),
+          definition(full ? 'heliasObserver' : 'heliasLancer', .07, -.02, Math.PI)
+        ]);
+        return Object.freeze([
+          definition('infantry', -.07, -.03, 0),
+          definition(full ? 'jeep' : 'forager', .07, -.02, Math.PI)
+        ]);
+      }
+
+      function menuComputerModePreviewScene(modeKey, selectedFaction = 'humans', elapsed = 0) {
+        const requestedFaction = menuPreviewConcreteFaction(selectedFaction, elapsed);
+        if (modeKey === 'sandbox') {
+          const mapSkin = requestedFaction === 'helias' ? 'frozen' : requestedFaction === 'insects' ? 'normal' : 'mars';
+          const terrain = requestedFaction === 'helias' ? 'crossing' : requestedFaction === 'insects' ? 'forest' : 'ridge';
+          return {
+            mapSkin, terrain, previewZoom: .46,
+            teamFactions: { player: requestedFaction },
+            structures: menuPreviewBaseStructures(requestedFaction, 'player', .50, .49, true),
+            units: menuPreviewBaseUnits(requestedFaction, 'player', .50, .49, true),
+            selectedIndex: -1
+          };
+        }
+        const configurations = modeKey === 'threeWay'
+          ? {
+              mapSkin: 'frozen', terrain: 'crossing', previewZoom: .48,
+              bases: [
+                ['player', 'humans', .50, .20], ['enemy', 'insects', .23, .69], ['enemy2', 'helias', .77, .69]
+              ]
+            }
+          : modeKey === 'fourWay'
+            ? {
+                mapSkin: 'mars', terrain: 'ridge', previewZoom: .43,
+                bases: [
+                  ['player', 'humans', .22, .24], ['enemy', 'insects', .78, .24],
+                  ['enemy2', 'helias', .22, .72], ['enemy3', 'humans', .78, .72]
+                ]
+              }
+            : {
+                mapSkin: 'normal', terrain: 'forest', previewZoom: .53,
+                bases: [['player', 'humans', .23, .49], ['enemy', 'insects', .77, .49]]
+              };
+        const teamFactions = Object.create(null);
+        const structures = [];
+        const units = [];
+        for (const [team, faction, x, y] of configurations.bases) {
+          teamFactions[team] = faction;
+          structures.push(...menuPreviewBaseStructures(faction, team, x, y, false));
+          units.push(...menuPreviewBaseUnits(faction, team, x, y, false));
+        }
+        return {
+          mapSkin: configurations.mapSkin, terrain: configurations.terrain,
+          previewZoom: configurations.previewZoom, teamFactions,
+          structures: Object.freeze(structures), units: Object.freeze(units), selectedIndex: -1
+        };
+      }
+
+      function resolveMenuBattlePreviewScene(sceneId, targetCanvas, elapsed = 0) {
+        if (String(sceneId || '').startsWith('computerMode:')) {
+          const modeKey = String(sceneId).slice('computerMode:'.length) || 'duel';
+          return menuComputerModePreviewScene(modeKey, targetCanvas?.dataset?.menuPreviewFaction || 'humans', elapsed);
+        }
+        return MENU_BATTLE_PREVIEW_SCENES[sceneId] || null;
+      }
+
       function menuPreviewTerrainType(scene, x, y, columns, rows) {
         const nx = columns > 1 ? x / (columns - 1) : 0;
         const ny = rows > 1 ? y / (rows - 1) : 0;
@@ -39463,7 +39623,7 @@ function drawStructure(s) {
         const firingPulse = Math.max(0, Math.sin(elapsed * (definition.fighting ? 6.2 : 4.6) + index * 1.8));
         return {
           id: 91000 + index, kind: 'unit', type: definition.type,
-          team: definition.side === 'left' ? 'player2' : 'computer', faction: definition.faction,
+          team: definition.team || (definition.side === 'left' ? 'player2' : 'enemy'), faction: definition.faction,
           x, y, prevX: x, prevY: y, radius: data.radius, hp: data.hp, maxHp: data.hp,
           speed: data.speed, damage: data.damage, heal: data.heal || 0, repair: data.repair || 0,
           range: data.range, splash: data.splash || 0, cooldown: data.cooldown, cooldownLeft: 0,
@@ -39491,13 +39651,13 @@ function drawStructure(s) {
         const data = BUILDING_DATA[definition.type];
         return {
           id: 92000 + index, kind: 'structure', type: definition.type,
-          team: definition.side === 'left' ? 'player2' : 'computer', faction: definition.faction,
+          team: definition.team || (definition.side === 'left' ? 'player2' : 'enemy'), faction: definition.faction,
           x: width * definition.x, y: height * definition.y,
           w: data.w, h: data.h, hp: data.hp, maxHp: data.hp,
           sight: data.sight, level: definition.level || 1, flash: 0,
           underConstruction: false, constructionStarted: false,
           campaignActive: !!definition.campaignActive, campaignInvulnerable: true,
-          powered: true, powerDisabled: false, chronoBoostTimeLeft: 0,
+          powered: definition.powered !== false, powerDisabled: false, chronoBoostTimeLeft: 0,
           work: null, queue: [], spawnFlag: null, adrenalineAuraUntil: 0,
           recoil: 0, angle: 0, barrelAngle: 0
         };
@@ -39582,8 +39742,10 @@ function drawStructure(s) {
       }
 
       function renderMenuBattlePreviewFrame(targetCanvas, sceneId, timeMs = 0) {
-        const scene = MENU_BATTLE_PREVIEW_SCENES[sceneId];
-        if (!scene || !targetCanvas || !canvas || !ctx) return false;
+        if (!targetCanvas || !canvas || !ctx) return false;
+        const elapsed = Math.max(0, Number(timeMs) || 0) / 1000;
+        const scene = resolveMenuBattlePreviewScene(sceneId, targetCanvas, elapsed);
+        if (!scene) return false;
         const rect = targetCanvas.getBoundingClientRect();
         const width = Math.max(1, Math.round(rect.width || targetCanvas.clientWidth || 240));
         const height = Math.max(1, Math.round(rect.height || targetCanvas.clientHeight || 320));
@@ -39602,10 +39764,11 @@ function drawStructure(s) {
 
         // Show a wider tactical slice than before so the complete battle
         // composition remains visible inside the narrow portrait cards.
-        const previewZoom = width < 250 ? .72 : .78;
+        const previewZoom = Number.isFinite(scene.previewZoom)
+          ? scene.previewZoom
+          : (width < 250 ? .72 : .78);
         const scratchWidth = Math.max(1, Math.min(Math.round(width / previewZoom), canvas.width));
         const scratchHeight = Math.max(1, Math.min(Math.round(height / previewZoom), canvas.height));
-        const elapsed = Math.max(0, Number(timeMs) || 0) / 1000;
         const savedCam = { x: cam.x, y: cam.y, zoom: cam.zoom };
         const savedState = {
           elapsed: state.elapsed, mapSkin: state.mapSkin, teamFactions: state.teamFactions,
@@ -39620,7 +39783,10 @@ function drawStructure(s) {
           cam.x = 0; cam.y = 0; cam.zoom = 1;
           state.elapsed = elapsed;
           state.mapSkin = scene.mapSkin;
-          state.teamFactions = { player2: scene.leftFaction || 'humans', computer: scene.rightFaction || 'insects' };
+          state.teamFactions = scene.teamFactions || {
+            player2: scene.leftFaction || 'humans',
+            enemy: scene.rightFaction || 'insects'
+          };
           state.selected = new Set();
           state.selectedStructures = new Set();
           state.placingChronoBoostNexusId = null;
@@ -39629,6 +39795,7 @@ function drawStructure(s) {
           state.battleMarks = [];
           state.motionMarks = [];
 
+          menuPreviewRenderActive = true;
           ctx.setTransform(1, 0, 0, 1, 0, 0);
           ctx.globalAlpha = 1;
           ctx.globalCompositeOperation = 'source-over';
@@ -39674,6 +39841,7 @@ function drawStructure(s) {
           target.drawImage(canvas, 0, 0, scratchWidth, scratchHeight, 0, 0, width, height);
           return true;
         } finally {
+          menuPreviewRenderActive = false;
           ctx.restore();
           cam.x = savedCam.x; cam.y = savedCam.y; cam.zoom = savedCam.zoom;
           state.elapsed = savedState.elapsed;
