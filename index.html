@@ -8675,8 +8675,10 @@
                                 "contested": true,
                                 "decayOnContest": true,
                                 "decayRate": 0.5,
-                                "title": "Hold Northpad until extraction completes.",
-                                "narration": "Northpad is open. Get your force inside the beacon and do not give the brood a single step until the transports lift."
+                                "showHoldRequirements": true,
+                                "shortLabel": "4+ UNITS · 65s",
+                                "title": "Hold Northpad with at least 4 units for 65 seconds.",
+                                "narration": "Keep at least four friendly units inside Northpad for 65 seconds. The timer only advances while the zone is uncontested, and enemy units inside the beacon push the hold timer back."
                         }
                 ],
                 "scriptedEvents": [
@@ -8926,6 +8928,7 @@
                                 "forward": 190,
                                 "side": 10,
                                 "attackTeam": "player",
+                                "attackTag": "last-light-extraction",
                                 "narrate": true,
                                 "text": "This is the last attack. Hold Northpad, and Kestrel lives beyond tonight.",
                                 "groups": [
@@ -8951,6 +8954,48 @@
                                                 "count": 4,
                                                 "spacing": 24,
                                                 "forward": 220
+                                        }
+                                ]
+                        },
+                        {
+                                "id": "last-light-northpad-wave",
+                                "afterObjective": "grid-stabilization",
+                                "delay": 38,
+                                "action": "enemyWave",
+                                "team": "enemy",
+                                "relativeToTag": "last-light-extraction",
+                                "attackTag": "last-light-extraction",
+                                "attackTeam": "player",
+                                "narrate": true,
+                                "text": "A second brood column is converging directly on Northpad. Keep four units in the beacon and clear every hostile from the ring.",
+                                "groups": [
+                                        {
+                                                "type": "insectSwarmling",
+                                                "count": 8,
+                                                "spacing": 15,
+                                                "offsetX": 185,
+                                                "offsetY": 118
+                                        },
+                                        {
+                                                "type": "insectSpitter",
+                                                "count": 3,
+                                                "spacing": 18,
+                                                "offsetX": 220,
+                                                "offsetY": 150
+                                        },
+                                        {
+                                                "type": "insectAcidBeetle",
+                                                "count": 1,
+                                                "spacing": 22,
+                                                "offsetX": 205,
+                                                "offsetY": 82
+                                        },
+                                        {
+                                                "type": "insectWasp",
+                                                "count": 2,
+                                                "spacing": 22,
+                                                "offsetX": 242,
+                                                "offsetY": 112
                                         }
                                 ]
                         },
@@ -18563,6 +18608,42 @@
         openBuildMenu();
       }
       
+      const CAMPAIGN_AUTOSTART_STORAGE_KEY = 'starlite.campaign.autostart.v1';
+
+      function handleCampaignGameOverClick(point) {
+        if (!state.gameOver || !state.campaignMode || !state.campaignMission) return false;
+        const buttons = Array.isArray(state.campaignGameOverButtons) ? state.campaignGameOverButtons : [];
+        const hit = buttons.find(button => pointInRect(point, button.rect));
+        if (!hit) return false;
+        if (hit.action === 'next') {
+          const nextMissionId = state.victory ? state.campaignMission.nextMissionUnlocks?.[0] : null;
+          if (!nextMissionId || hit.enabled === false) return true;
+          try { globalThis.sessionStorage?.setItem(CAMPAIGN_AUTOSTART_STORAGE_KEY, nextMissionId); }
+          catch { /* The URL fallback below still carries the mission selection. */ }
+          try {
+            const url = new URL(location.href);
+            url.searchParams.set('campaignMission', nextMissionId);
+            location.href = url.href;
+          } catch {
+            location.reload();
+          }
+          return true;
+        }
+        if (hit.action === 'menu') {
+          try { globalThis.sessionStorage?.removeItem(CAMPAIGN_AUTOSTART_STORAGE_KEY); }
+          catch { /* Menu navigation does not depend on storage access. */ }
+          try {
+            const url = new URL(location.href);
+            url.searchParams.delete('campaignMission');
+            location.href = url.href;
+          } catch {
+            location.reload();
+          }
+          return true;
+        }
+        return true;
+      }
+
       // ---------------------------------------------------------------------------
       // Input: pointers (select / command / pan), wheel & pinch zoom, keyboard
       // ---------------------------------------------------------------------------
@@ -18589,6 +18670,7 @@
       canvas.addEventListener('pointerdown', evt => {
         const p = screenPos(evt);
         state.mouse = p;
+        if (handleCampaignGameOverClick(p)) return;
         pointers.set(evt.pointerId, p);
       
         if (handleSettingsClick(p)) return;
@@ -18870,7 +18952,7 @@
   __define("main.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("multiplayer.js"); const __dep7 = __require("syncChecksum.js"); const __dep8 = __require("economy.js"); const __dep9 = __require("menu.js"); const __dep10 = __require("rendering.js"); const __dep11 = __require("state.js"); const __dep12 = __require("terrain.js"); const __dep13 = __require("workerBridge.js"); const __dep14 = __require("campaignProgression.js");
-    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "getCombatSyncState", { enumerable: true, get: () => __dep1["getCombatSyncState"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep2["UNIT_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "CAMPAIGN_MISSIONS", { enumerable: true, get: () => __dep2["CAMPAIGN_MISSIONS"] }); Object.defineProperty(__imports, "campaignMissionDefinition", { enumerable: true, get: () => __dep2["campaignMissionDefinition"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep2["STORAGE_KEYS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep2["COLORS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep2["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "DEFAULT_FACTION_ID", { enumerable: true, get: () => __dep2["DEFAULT_FACTION_ID"] }); Object.defineProperty(__imports, "factionStartingUnits", { enumerable: true, get: () => __dep2["factionStartingUnits"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep2["normalizeFactionId"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep2["teamFactionId"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep3["getRandomState"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep4["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep4["setPathingSyncState"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep5["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep5["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep5["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep5["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep6["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep6["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep6["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep6["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep6["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep6["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep7["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep7["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep8["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep8["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep8["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep8["toast"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep8["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep8["productionTechLevel"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep8["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep8["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep8["insectUpgradeOrders"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep8["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep8["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep9["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep10["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep10["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep11["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep11["addStructure"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep11["getNextEntityId"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep11["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep11["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep11["cam"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep11["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep11["VIEW_W"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep11["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep11["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep11["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep11["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep11["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep11["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep11["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep11["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep11["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep11["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep11["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep11["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep12["generateTerrain"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep12["isBlocked"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep12["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep12["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep12["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep13["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep13["setDeterministicLockstepMode"] });
+    Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "getCombatSyncState", { enumerable: true, get: () => __dep1["getCombatSyncState"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep2["UNIT_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "CAMPAIGN_MISSIONS", { enumerable: true, get: () => __dep2["CAMPAIGN_MISSIONS"] }); Object.defineProperty(__imports, "campaignMissionDefinition", { enumerable: true, get: () => __dep2["campaignMissionDefinition"] }); Object.defineProperty(__imports, "campaignModeForMission", { enumerable: true, get: () => __dep2["campaignModeForMission"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep2["STORAGE_KEYS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep2["COLORS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep2["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "DEFAULT_FACTION_ID", { enumerable: true, get: () => __dep2["DEFAULT_FACTION_ID"] }); Object.defineProperty(__imports, "factionStartingUnits", { enumerable: true, get: () => __dep2["factionStartingUnits"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep2["normalizeFactionId"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep2["teamFactionId"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep3["getRandomState"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep4["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep4["setPathingSyncState"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep5["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep5["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep5["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep5["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep6["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep6["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep6["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep6["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep6["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep6["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep7["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep7["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep8["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep8["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep8["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep8["toast"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep8["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep8["productionTechLevel"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep8["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep8["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep8["insectUpgradeOrders"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep8["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep8["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep9["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep10["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep10["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep11["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep11["addStructure"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep11["getNextEntityId"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep11["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep11["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep11["cam"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep11["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep11["VIEW_W"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep11["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep11["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep11["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep11["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep11["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep11["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep11["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep11["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep11["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep11["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep11["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep11["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep12["generateTerrain"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep12["isBlocked"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep12["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep12["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep12["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep13["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep13["setDeterministicLockstepMode"] });
     Object.defineProperty(__imports, "recordCampaignMissionCompleted", { enumerable: true, get: () => __dep14["recordCampaignMissionCompleted"] }); Object.defineProperty(__imports, "recordCampaignMissionStarted", { enumerable: true, get: () => __dep14["recordCampaignMissionStarted"] });
 
     with (__imports) {
@@ -21826,9 +21908,29 @@
         requestAnimationFrame(frame);
       }
       
+      const CAMPAIGN_AUTOSTART_STORAGE_KEY = 'starlite.campaign.autostart.v1';
+
+      function consumeCampaignAutostartMode() {
+        let missionId = '';
+        try {
+          missionId = globalThis.sessionStorage?.getItem(CAMPAIGN_AUTOSTART_STORAGE_KEY) || '';
+          globalThis.sessionStorage?.removeItem(CAMPAIGN_AUTOSTART_STORAGE_KEY);
+        } catch { /* URL fallback remains available. */ }
+        try {
+          const url = new URL(location.href);
+          missionId ||= url.searchParams.get('campaignMission') || '';
+          if (url.searchParams.has('campaignMission')) {
+            url.searchParams.delete('campaignMission');
+            const query = url.searchParams.toString();
+            history.replaceState(null, '', `${url.pathname}${query ? `?${query}` : ''}${url.hash}`);
+          }
+        } catch { /* Non-browser tests can still use session storage. */ }
+        return missionId ? campaignModeForMission(missionId) : null;
+      }
+
       async function startStarLite() {
         initializePerformanceWorkers();
-        const selectedMode = await showMainMenu();
+        const selectedMode = consumeCampaignAutostartMode() || await showMainMenu();
         const mode = selectedMode;
         if (mode.pvp) setDeterministicLockstepMode(true);
         bootstrapWorld(mode);
@@ -39116,12 +39218,24 @@ function drawStructure(s) {
             ctx.beginPath(); ctx.arc(anchor.x, anchor.y, radius + 4 / cam.zoom, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress); ctx.stroke();
           }
           ctx.restore();
-          drawText(objective.optional ? 'OPTIONAL' : (objective.shortLabel || 'OBJECTIVE'), anchor.x, anchor.y - radius - 17 / cam.zoom, 9 / cam.zoom, color, 'center');
+          let markerLabel = objective.optional ? 'OPTIONAL' : (objective.shortLabel || 'OBJECTIVE');
+          if (objective.showHoldRequirements && objective.type === 'capture') {
+            const minimum = Math.max(1, Math.trunc(Number(objective.count) || 1));
+            const holdSeconds = Math.max(0, Number(objective.holdSeconds ?? objective.duration) || 0);
+            const friendly = Number(String(objectiveState.detail || '').match(/^(\d+) friendly/)?.[1]) || 0;
+            const remaining = Math.ceil(Math.max(0, holdSeconds - (Number(objectiveState.progressSeconds) || 0)));
+            markerLabel = `${friendly}/${minimum} UNITS · ${remaining}s`;
+          }
+          drawText(markerLabel, anchor.x, anchor.y - radius - 17 / cam.zoom, 9 / cam.zoom, color, 'center');
         }
       }
 
       function drawGameOver() {
-        if (!state.gameOver) return;
+        if (!state.gameOver) {
+          state.campaignGameOverButtons = [];
+          return;
+        }
+        state.campaignGameOverButtons = [];
         const winner = state.winnerTeam && state.winnerTeam !== activeCommandTeam() ? teamLabel(state.winnerTeam) : null;
         const resetKey = keybindCodeLabel(getKeybinds().resetGame);
         ctx.fillStyle = 'rgba(3,5,8,.76)';
@@ -39130,7 +39244,7 @@ function drawStructure(s) {
           const mission = state.campaignMission;
           const runtime = state.campaignRuntime || {};
           const panelW = Math.min(560, VIEW_W - 28);
-          const panelH = Math.min(390, VIEW_H - 34);
+          const panelH = Math.min(440, VIEW_H - 34);
           const panelX = (VIEW_W - panelW) / 2;
           const panelY = Math.max(17, (VIEW_H - panelH) / 2);
           drawPanel(panelX, panelY, panelW, panelH, '#151e29');
@@ -39157,7 +39271,40 @@ function drawStructure(s) {
           } else {
             drawConsoleText(runtime.outcomeReason || 'A mission-critical condition failed.', panelX + 28, panelY + 253, 11, COLORS.bad, 'left', panelW - 56, 700);
           }
-          drawText(`Press ${resetKey} to replay this mission.`, VIEW_W / 2, panelY + panelH - 35, 12, COLORS.warn, 'center');
+
+          const buttonGap = 12;
+          const buttonMargin = 28;
+          const buttonY = panelY + panelH - 72;
+          const buttonH = 34;
+          const buttonW = (panelW - buttonMargin * 2 - buttonGap) / 2;
+          const nextMissionId = state.victory ? mission.nextMissionUnlocks?.[0] : null;
+          const nextEnabled = !!nextMissionId;
+          const buttons = [
+            {
+              action: 'next', enabled: nextEnabled,
+              label: 'NEXT MISSION',
+              rect: { x: panelX + buttonMargin, y: buttonY, w: buttonW, h: buttonH }
+            },
+            {
+              action: 'menu', enabled: true, label: 'BACK TO MENU',
+              rect: { x: panelX + buttonMargin + buttonW + buttonGap, y: buttonY, w: buttonW, h: buttonH }
+            }
+          ];
+          state.campaignGameOverButtons = buttons;
+          for (const button of buttons) {
+            const hover = pointInRect(state.mouse, button.rect);
+            ctx.save();
+            ctx.globalAlpha = button.enabled ? 1 : .42;
+            ctx.fillStyle = hover && button.enabled ? '#294256' : '#1b2b39';
+            ctx.fillRect(button.rect.x, button.rect.y, button.rect.w, button.rect.h);
+            ctx.strokeStyle = button.enabled ? (button.action === 'next' ? COLORS.good : '#7da7bd') : '#54616d';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(button.rect.x + .5, button.rect.y + .5, button.rect.w - 1, button.rect.h - 1);
+            ctx.restore();
+            drawText(button.label, button.rect.x + button.rect.w / 2, button.rect.y + 9, 11,
+              button.enabled ? COLORS.text : COLORS.muted, 'center');
+          }
+          drawText(`Press ${resetKey} to replay this mission.`, VIEW_W / 2, panelY + panelH - 26, 10, COLORS.warn, 'center');
           return;
         }
         drawPanel(VIEW_W / 2 - 185, 150, 370, 190, '#1c2330');
