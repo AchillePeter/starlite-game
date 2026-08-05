@@ -5992,7 +5992,7 @@
       const ACTION_COLUMNS = 3;
       const ACTION_ROWS = 3;
       const ACTIONS_PER_PAGE = ACTION_COLUMNS * ACTION_ROWS;
-      const COMMAND_FONT_BONUS = 4;
+      const COMMAND_FONT_BONUS = 7;
       
       const MENU_TONES = {
         default:    { fill: '#273246', hover: '#35445f', border: '#607594', accent: '#9aa7bd', label: COLORS.text },
@@ -7203,7 +7203,8 @@
         const primary = selected[0];
         const data = BUILDING_DATA[primary.type] || { label: primary.type.toUpperCase() };
         const sameType = selected.every(structure => structure.type === primary.type);
-        const pad = compact ? 6 : 10;
+        const mobile = isMobileUI();
+        const pad = mobile ? 8 : compact ? 6 : 10;
         const x = zone.x + pad;
         const maxW = zone.w - pad * 2;
         const single = selected.length === 1;
@@ -7218,8 +7219,9 @@
         const canRally = operationalProduction.length === selected.length && operationalProduction.length > 0 &&
           (single || sameType || insectHiveGroup);
         const stackedActions = compact && (canSell || canCancel || canRally);
-        const buttonH = compact ? 15 : 20;
-        const buttonGap = compact ? 2 : 5;
+        const buttonH = mobile ? 44 : compact ? 15 : 20;
+        const buttonGap = mobile ? 4 : compact ? 2 : 5;
+        const stackedButtonY = zone.y + (mobile ? 31 : 25);
         let actionRight = zone.x + zone.w - pad;
         let actionWidth = 0;
         if (canRally) state.infoRallyStructureIds = operationalProduction.map(structure => structure.id);
@@ -7228,17 +7230,17 @@
           const compactW = Math.max(12, Math.floor((maxW - buttonGap * Math.max(0, count - 1)) / Math.max(1, count)));
           let actionX = x;
           if (canCancel) {
-            state.infoCancelUpgradeRect = { x: actionX, y: zone.y + 25, w: compactW, h: buttonH };
+            state.infoCancelUpgradeRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
             drawInfoActionButton(state.infoCancelUpgradeRect, 'X', 'cancel');
             actionX += compactW + buttonGap;
           }
           if (canSell) {
-            state.infoSellRect = { x: actionX, y: zone.y + 25, w: compactW, h: buttonH };
+            state.infoSellRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
             drawInfoActionButton(state.infoSellRect, '$', 'sell');
             actionX += compactW + buttonGap;
           }
           if (canRally) {
-            state.infoRallyRect = { x: actionX, y: zone.y + 25, w: compactW, h: buttonH };
+            state.infoRallyRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
             drawInfoFlagButton(state.infoRallyRect);
           }
         } else {
@@ -7269,18 +7271,22 @@
           ? `${selected.length} × ${sameType ? commandInfoLabel(data.label) : 'STRUCTURES'}`
           : commandInfoLabel(data.label);
         const levelSuffix = sameType ? ` - LEVEL ${Math.max(1, primary.level || 1)}` : '';
-        const titleY = zone.y + (compact ? 7 : 10);
-        const statusY = zone.y + (stackedActions ? 44 : compact ? 23 : 31);
+        const titleY = zone.y + (mobile ? 8 : compact ? 7 : 10);
+        const statusY = mobile && stackedActions
+          ? stackedButtonY + buttonH + 6
+          : zone.y + (stackedActions ? 44 : compact ? 23 : 31);
         drawConsoleText(`${baseTitle}${levelSuffix}`, x, titleY, compact ? 9 : 13, COLORS.text, 'left', Math.max(1, maxW - actionWidth), 800);
         drawConsoleText(structureStatus(primary), x, statusY, compact ? 7 : 9, COLORS.muted, 'left', maxW);
 
         const hp = selected.reduce((sum, structure) => sum + Math.max(0, structure.hp), 0);
         const maxHp = selected.reduce((sum, structure) => sum + Math.max(1, structure.maxHp), 0);
-        const barY = zone.y + (stackedActions ? 58 : compact ? 37 : 48);
-        drawHealthBar({ x, y: barY, w: maxW, h: compact ? 7 : 9 }, hp, maxHp, COLORS.good);
-        drawConsoleText(`HP ${Math.ceil(hp)} / ${Math.ceil(maxHp)}`, x, barY + (compact ? 10 : 12), compact ? 8 : 11, COLORS.good, 'left', maxW);
+        const barY = mobile && stackedActions
+          ? statusY + 22
+          : zone.y + (stackedActions ? 58 : compact ? 37 : 48);
+        drawHealthBar({ x, y: barY, w: maxW, h: mobile ? 10 : compact ? 7 : 9 }, hp, maxHp, COLORS.good);
+        drawConsoleText(`HP ${Math.ceil(hp)} / ${Math.ceil(maxHp)}`, x, barY + (mobile ? 13 : compact ? 10 : 12), compact ? 8 : 11, COLORS.good, 'left', maxW);
 
-        let rowY = barY + (compact ? 24 : 32);
+        let rowY = barY + (mobile ? 31 : compact ? 24 : 32);
         const productionOwner = selected.find(structure => structureProductionDisplay(structure).active) || primary;
         if (drawStructureProductionQueue(zone, productionOwner, x, rowY, maxW, compact)) return;
 
@@ -7336,14 +7342,14 @@
           }
         }
         if (narration.buttonLabel && typeof narration.buttonAction === 'function') {
-          const buttonH = 28;
+          const buttonH = 48;
           const rect = { x, y: zone.y + zone.h - buttonH - 7, w: maxW, h: buttonH };
           state.mobileNarrationButtonRect = rect;
           ctx.fillStyle = pointInRect(state.mouse, rect) ? '#40506a' : '#273246';
           ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
           ctx.strokeStyle = COLORS.warn;
           ctx.strokeRect(rect.x + .5, rect.y + .5, rect.w - 1, rect.h - 1);
-          drawConsoleText(narration.buttonLabel, rect.x + rect.w / 2, rect.y + 6, 9, COLORS.text, 'center', rect.w - 8, 900);
+          drawConsoleText(narration.buttonLabel, rect.x + rect.w / 2, rect.y + 14, 10, COLORS.text, 'center', rect.w - 10, 900);
         }
         return true;
       }
@@ -7734,6 +7740,7 @@
       function drawActionPanel() {
         const layout = consoleLayout();
         const zone = layout.actions;
+        const mobile = isMobileUI();
         const compact = layout.compact || zone.h < 130;
         drawInsetPanel(zone, '#111923');
         state.commandHitRects = [];
@@ -7743,24 +7750,24 @@
         const grid = commandGridSpec(menu);
         const pageCount = Math.max(1, Math.ceil((menu?.items.length || 0) / grid.perPage));
         state.commandPage = clamp(state.commandPage || 0, 0, pageCount - 1);
-        const headerH = compact ? 17 : 23;
-        const footerH = pageCount > 1 ? (compact ? 14 : 19) : 5;
+        const headerH = mobile ? 48 : compact ? 17 : 23;
+        const footerH = pageCount > 1 ? (mobile ? 48 : compact ? 14 : 19) : (mobile ? 8 : 5);
         const gridTop = zone.y + headerH;
         const gridBottom = zone.y + zone.h - footerH;
         const title = menu?.title || 'COMMANDS';
         const hasBack = typeof menu?.backAction === 'function';
-        const backW = hasBack ? (compact ? 34 : 48) : 0;
+        const backW = hasBack ? (mobile ? 82 : compact ? 34 : 48) : 0;
         if (hasBack) {
-          const backRect = { x: zone.x + 5, y: zone.y + 2, w: backW, h: Math.max(12, headerH - 4) };
+          const backRect = { x: zone.x + 5, y: zone.y + 2, w: backW, h: mobile ? 44 : Math.max(12, headerH - 4) };
           state.commandNavRects.push({ menu, rect: backRect, action: menu.backAction });
           ctx.fillStyle = pointInRect(state.mouse, backRect) ? '#4b5d78' : '#2d394d';
           ctx.fillRect(backRect.x, backRect.y, backRect.w, backRect.h);
           ctx.strokeStyle = '#7385a4';
           ctx.strokeRect(backRect.x + .5, backRect.y + .5, backRect.w - 1, backRect.h - 1);
-          drawConsoleText(menu.backLabel || '‹ BACK', backRect.x + backRect.w / 2, backRect.y + (compact ? 2 : 3), compact ? 7 : 9, COLORS.text, 'center', backRect.w - 4, 800);
+          drawConsoleText(menu.backLabel || '‹ BACK', backRect.x + backRect.w / 2, backRect.y + (mobile ? 11 : compact ? 2 : 3), mobile ? 10 : compact ? 7 : 9, COLORS.text, 'center', backRect.w - 6, 800);
         }
         const titleX = zone.x + 7 + (hasBack ? backW + 4 : 0);
-        drawConsoleText(title, titleX, zone.y + (compact ? 3 : 4), compact ? 9 : 11, COLORS.warn, 'left', zone.w - (titleX - zone.x) - (pageCount > 1 ? 74 : 9), 800);
+        drawConsoleText(title, titleX, zone.y + (mobile ? 13 : compact ? 3 : 4), mobile ? 11 : compact ? 9 : 11, COLORS.warn, 'left', zone.w - (titleX - zone.x) - (pageCount > 1 ? (mobile ? 104 : 74) : 9), 800);
       
         if (!menu?.items.length) {
           drawEmptyActionGrid(zone, gridTop, gridBottom, compact, grid.columns, grid.rows);
@@ -7789,9 +7796,9 @@
       
         if (pageCount > 1) {
           const footerY = zone.y + zone.h - footerH;
-          const buttonW = compact ? 30 : 42;
-          const prev = { x: zone.x + 6, y: footerY + 1, w: buttonW, h: footerH - 3 };
-          const next = { x: zone.x + zone.w - buttonW - 6, y: footerY + 1, w: buttonW, h: footerH - 3 };
+          const buttonW = mobile ? 84 : compact ? 30 : 42;
+          const prev = { x: zone.x + 6, y: footerY + 2, w: buttonW, h: mobile ? 44 : footerH - 3 };
+          const next = { x: zone.x + zone.w - buttonW - 6, y: footerY + 2, w: buttonW, h: mobile ? 44 : footerH - 3 };
           state.commandNavRects.push({ menu, rect: prev, delta: -1 }, { menu, rect: next, delta: 1 });
           for (const [rect, label, available] of [
             [prev, '‹ PREV', state.commandPage > 0],
@@ -7801,7 +7808,7 @@
             ctx.globalAlpha = available ? 1 : .4;
             ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
             ctx.globalAlpha = 1;
-            drawConsoleText(label, rect.x + rect.w / 2, rect.y + (compact ? 1 : 2), compact ? 7 : 9, available ? COLORS.text : COLORS.muted, 'center', rect.w - 4);
+            drawConsoleText(label, rect.x + rect.w / 2, rect.y + (mobile ? 11 : compact ? 1 : 2), mobile ? 10 : compact ? 7 : 9, available ? COLORS.text : COLORS.muted, 'center', rect.w - 6);
           }
           drawConsoleText(`${state.commandPage + 1} / ${pageCount}`, zone.x + zone.w / 2, footerY + (compact ? 1 : 2), compact ? 8 : 9, COLORS.muted, 'center', Math.max(1, zone.w - buttonW * 2 - 24));
         }
@@ -23814,17 +23821,19 @@
           width:100%; min-height:100%; margin:0; padding:calc(14px + env(safe-area-inset-top,0px)) 10px calc(22px + env(safe-area-inset-bottom,0px));
           display:block; overflow:visible;
         }
+        #starlite-menu.starlite-menu--mobile { font-size:16px; line-height:1.45; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__brand { margin:0 52px 14px; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__eyebrow { font-size:10px; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__title { font-size:clamp(42px,15vw,68px); }
         #starlite-menu.starlite-menu--mobile .starlite-menu__top-actions { position:fixed; top:calc(10px + env(safe-area-inset-top,0px)); right:10px; z-index:30; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__panel {
-          width:100%!important; max-width:none!important; max-height:none!important; min-height:0; margin:0 auto; padding:58px 12px 16px;
+          width:100%!important; max-width:none!important; max-height:none!important; min-height:0; margin:0 auto; padding:68px 14px 20px;
           overflow:visible!important;
         }
-        #starlite-menu.starlite-menu--mobile .starlite-menu__panel[data-view="categories"] { padding-top:16px; }
-        #starlite-menu.starlite-menu--mobile .starlite-menu__return { position:absolute; top:10px; left:10px; width:46px; height:46px; }
-        #starlite-menu.starlite-menu--mobile .starlite-menu__return + .starlite-menu__heading { min-height:46px; padding-left:52px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__panel[data-view="categories"] { padding-top:20px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__return { position:absolute; top:10px; left:10px; width:56px; height:56px; font-size:20px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__return + .starlite-menu__heading { min-height:56px; padding-left:64px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__heading { font-size:16px; line-height:1.35; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__mode-gates,
         #starlite-menu.starlite-menu--mobile .starlite-menu__modes,
         #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-grid,
@@ -23839,26 +23848,58 @@
         #starlite-menu.starlite-menu--mobile .starlite-menu__gate--campaign {
           grid-column:auto; width:100%; min-height:176px; aspect-ratio:2.15 / 1; justify-self:stretch; border-radius:15px;
         }
-        #starlite-menu.starlite-menu--mobile .starlite-menu__gate-overlay { padding:14px 16px; background:linear-gradient(90deg,rgba(2,5,7,.93),rgba(2,5,7,.30) 72%,transparent); }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__gate-overlay { padding:18px 18px; background:linear-gradient(90deg,rgba(2,5,7,.93),rgba(2,5,7,.30) 72%,transparent); }
         #starlite-menu.starlite-menu--mobile .starlite-menu__gate-copy { align-items:flex-start; }
-        #starlite-menu.starlite-menu--mobile .starlite-menu__gate strong { font-size:22px; }
-        #starlite-menu.starlite-menu--mobile .starlite-menu__shortcut-dock { display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__gate strong { font-size:25px; line-height:1.12; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__gate small { font-size:13px; line-height:1.4; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__shortcut-dock { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__shortcut-dock .starlite-menu__tag-teaser,
-        #starlite-menu.starlite-menu--mobile .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser { width:100%; min-height:64px; }
-        #starlite-menu.starlite-menu--mobile button,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser { width:100%; min-height:78px; padding:12px; }
+        #starlite-menu.starlite-menu--mobile button:not(.starlite-menu__tag-swatch),
         #starlite-menu.starlite-menu--mobile select,
-        #starlite-menu.starlite-menu--mobile input { min-height:48px; }
+        #starlite-menu.starlite-menu--mobile input,
+        #starlite-menu.starlite-menu--mobile textarea { min-height:56px; font-size:16px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__icon-button,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__info-close,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tag-tool { min-width:56px; min-height:56px; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__button,
         #starlite-menu.starlite-menu--mobile .starlite-menu__secondary,
         #starlite-menu.starlite-menu--mobile .starlite-menu__faction-card,
-        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card { width:100%; min-height:64px; }
-        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card { grid-template-columns:96px 1fr; grid-template-rows:auto auto; }
-        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-portrait { grid-row:1 / span 2; min-height:112px!important; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__selection-card,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__online-choice { width:100%; min-height:76px; padding:14px 16px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__button strong,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__faction-card strong,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card strong,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__selection-card strong,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__online-choice strong,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tag-teaser strong,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-teaser strong { font-size:18px; line-height:1.2; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__button small,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__faction-card small,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card small,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__selection-card small,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__online-choice small,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tag-teaser small,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-teaser small { font-size:13px; line-height:1.4; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__secondary,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__account-tab,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__key { font-size:15px; line-height:1.3; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__key-row { min-height:64px; gap:10px; }
+        #starlite-menu.starlite-menu--mobile label,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__status,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__copy { font-size:14px; line-height:1.5; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card { grid-template-columns:112px 1fr; grid-template-rows:auto auto; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-portrait { grid-row:1 / span 2; min-height:132px!important; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card strong,
         #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card small { text-align:left; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__tag-list,
         #starlite-menu.starlite-menu--mobile .starlite-menu__shop-grid { grid-template-columns:1fr!important; max-height:none; }
-        #starlite-menu.starlite-menu--mobile .starlite-menu__shop-card { min-height:84px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__shop-card { min-height:104px; padding:14px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__welcome-card h2 { font-size:clamp(31px,8vw,42px); }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__welcome-card p { font-size:17px; line-height:1.55; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__welcome-primary,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__welcome-secondary { min-height:60px; padding:14px 18px; font-size:16px; }
 
         @media (prefers-reduced-motion: reduce) {
           .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__gate-scene, .starlite-menu__gate-unit, .starlite-menu__gate-bolt, .starlite-menu__gate-spark, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser, .starlite-menu__new-tag, .starlite-menu__confetti-piece, .starlite-menu__tag-celebration-message { transition: none; animation: none !important; }
@@ -30201,7 +30242,7 @@ function compileShader(gl, type, source) {
       }
       
       function drawText(text, x, y, size = 16, color = COLORS.text, align = 'left') {
-        ctx.font = `${size + (isMobileUI() ? 4 : 1)}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+        ctx.font = `${size + (isMobileUI() ? 7 : 1)}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
         ctx.textAlign = align;
         ctx.textBaseline = 'top';
         ctx.fillStyle = '#090b10';
@@ -41608,13 +41649,18 @@ function drawStructure(s) {
         const top = Math.min(viewHeight / 4, safe.top);
         const bottom = Math.min(viewHeight / 4, safe.bottom);
         const usableW = Math.max(1, viewWidth - left - right);
-        const pad = clampValue(Math.round(usableW * .015), 5, 9);
-        const gap = clampValue(Math.round(usableW * .011), 4, 7);
-        const topBarH = clampValue(Math.round(viewHeight * .072), 54, 68);
-        const deckH = clampValue(Math.round(viewHeight * .17), 132, 174);
-        const actionsH = clampValue(Math.round(viewHeight * .285), 222, 286);
+        const pad = clampValue(Math.round(usableW * .017), 6, 11);
+        const gap = clampValue(Math.round(usableW * .012), 4, 8);
+        const topBarH = clampValue(Math.round(viewHeight * .078), 62, 80);
+        // Mobile readability pass: the selection deck (minimap, portrait and
+        // information panel) receives thirty percent more vertical room. The
+        // command grid also grows slightly so its smallest paged cells remain
+        // comfortable touch targets without affecting the desktop branch.
+        const deckH = clampValue(Math.round(viewHeight * .221), 150, 226);
+        const actionsH = clampValue(Math.round(viewHeight * .30), 228, 310);
+        const minimumWorldH = clampValue(Math.round(viewHeight * .28), 180, 280);
         const topBar = { x: left, y: top, w: usableW, h: topBarH };
-        const panelY = Math.max(topBar.y + topBar.h + 84, viewHeight - bottom - deckH - actionsH);
+        const panelY = Math.max(topBar.y + topBar.h + gap + minimumWorldH, viewHeight - bottom - deckH - actionsH);
         const panel = { x: left, y: panelY, w: usableW, h: Math.max(1, viewHeight - bottom - panelY) };
         const deckY = panel.y;
         const deckHeight = Math.min(deckH, panel.h);
@@ -41636,8 +41682,8 @@ function drawStructure(s) {
         const info = { x: infoX, y: innerY, w: Math.max(1, panel.x + panel.w - pad - infoX), h: innerH };
         const worldY = topBar.y + topBar.h + gap;
         const world = { x: left, y: worldY, w: usableW, h: Math.max(1, panel.y - gap - worldY) };
-        const settingsSize = Math.max(44, topBar.h - pad * 2);
-        const deselectW = clampValue(Math.round(usableW * .25), 90, 126);
+        const settingsSize = Math.max(52, topBar.h - pad * 2);
+        const deselectW = clampValue(Math.round(usableW * .27), 104, 140);
         const deselect = { x: topBar.x + pad, y: topBar.y + pad, w: deselectW, h: settingsSize };
         const settings = { x: topBar.x + topBar.w - pad - settingsSize, y: topBar.y + pad, w: settingsSize, h: settingsSize };
         const resources = { x: deselect.x + deselect.w + gap, y: topBar.y + pad, w: Math.max(1, settings.x - gap - (deselect.x + deselect.w)), h: settingsSize };
