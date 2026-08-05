@@ -22985,6 +22985,15 @@
         .starlite-menu__shop-placeholder { padding: 8px; color: #a990b9; font: 800 9px/1.45 ui-monospace, monospace; letter-spacing: .06em; text-align: center; overflow-wrap: anywhere; }
         .starlite-menu__shop-card strong { overflow: hidden; color: #f5eaff; font-size: 11px; letter-spacing: .07em; text-overflow: ellipsis; white-space: nowrap; }
         .starlite-menu__shop-card small { overflow: hidden; color: #9d8eaa; font: 700 8px ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }
+        .starlite-menu__shop-action-row { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+        .starlite-menu__shop-unlock {
+          min-height: 30px; padding: 6px 8px; border: 1px solid rgba(157,227,111,.68); border-radius: 7px;
+          color: #e8ffdc; background: rgba(83,135,50,.2); font: 850 8px/1.15 ui-monospace, monospace;
+          letter-spacing: .035em; cursor: pointer; white-space: normal;
+        }
+        .starlite-menu__shop-unlock:hover, .starlite-menu__shop-unlock:focus-visible { outline: 2px solid rgba(244,255,233,.72); outline-offset: 2px; background: rgba(109,174,66,.3); }
+        .starlite-menu__shop-unlock:disabled { border-color: rgba(157,147,166,.32); color: #8f8398; background: rgba(49,39,57,.35); cursor: default; opacity: .78; }
+        .starlite-menu__shop-card[data-owned="true"] { border-color: rgba(157,227,111,.5); box-shadow: inset 0 0 0 1px rgba(157,227,111,.12); }
         @media (max-width: 620px) { .starlite-menu__shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         .starlite-menu__tag-celebration {
           position: fixed; inset: 0; z-index: 60; overflow: hidden; display: grid; place-items: center;
@@ -23941,6 +23950,7 @@
         #starlite-menu.starlite-menu--mobile .starlite-menu__tag-list,
         #starlite-menu.starlite-menu--mobile .starlite-menu__shop-grid { grid-template-columns:1fr!important; max-height:none; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__shop-card { min-height:104px; padding:14px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__shop-unlock { min-height:44px; padding:9px 11px; font-size:11px; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__welcome-card h2 { font-size:clamp(31px,8vw,42px); }
         #starlite-menu.starlite-menu--mobile .starlite-menu__welcome-card p { font-size:17px; line-height:1.55; }
         #starlite-menu.starlite-menu--mobile .starlite-menu__welcome-primary,
@@ -24772,15 +24782,14 @@
             <section class="starlite-menu__panel starlite-hidden" data-view="tag-shop">
               <button class="starlite-menu__return" type="button" data-close-tag-shop aria-label="Return to Tag Lab" title="Return to Tag Lab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading">The shop</h2>
-              <p class="starlite-menu__pvp-copy">Asset slots are read from <code>STARLITE_TAG_SHOP_CONFIG</code>. Add your PNG files to <code>./assets/tags/</code>; missing files stay visible as placeholders.</p>
               <div class="starlite-menu__shop-grid" data-tag-shop-grid aria-label="Tag shop asset slots"></div>
               <p class="starlite-menu__status" data-tag-shop-status role="status" aria-live="polite"></p>
             </section>
             <div class="starlite-menu__rewarded-overlay starlite-hidden" data-rewarded-overlay role="dialog" aria-modal="true" aria-labelledby="starlite-rewarded-title">
               <div class="starlite-menu__rewarded-dialog">
                 <span class="starlite-menu__rewarded-badge">VOLUNTARY REWARDED AD</span>
-                <h3 id="starlite-rewarded-title">Unlock one new ground tag</h3>
-                <p>When Google has a rewarded advert ready, complete it to save this new tag. If no advert is available, the tag is saved normally. Declining an available advert returns you to Tag Lab without saving.</p>
+                <h3 id="starlite-rewarded-title" data-rewarded-title>Unlock one new ground tag</h3>
+                <p data-rewarded-copy>When Google has a rewarded advert ready, complete it to save this new tag. If no advert is available, the tag is saved normally. Declining an available advert returns you without saving.</p>
                 <div class="starlite-menu__rewarded-frame starlite-hidden" data-rewarded-frame aria-live="polite">
                   <strong>DEVELOPMENT AD PLACEHOLDER</strong>
                   <span class="starlite-menu__rewarded-countdown" data-rewarded-countdown>8</span>
@@ -25012,6 +25021,8 @@
         const tagShopGrid = root.querySelector('[data-tag-shop-grid]');
         const tagShopStatus = root.querySelector('[data-tag-shop-status]');
         const rewardedOverlay = root.querySelector('[data-rewarded-overlay]');
+        const rewardedTitle = root.querySelector('[data-rewarded-title]');
+        const rewardedCopy = root.querySelector('[data-rewarded-copy]');
         const rewardedStatus = root.querySelector('[data-rewarded-status]');
         const rewardedWatchButton = root.querySelector('[data-rewarded-watch]');
         const rewardedCancelButton = root.querySelector('[data-rewarded-cancel]');
@@ -25050,6 +25061,7 @@
         let tagDraftRewardUnlocked = false;
         let rewardedAdBusy = false;
         let rewardedAdCancel = null;
+        let rewardedAdReturnFocus = null;
         let activeView = categoryView;
         let utilityReturnView = categoryView;
         let accountUnsubscribe = null;
@@ -26049,6 +26061,113 @@
           return `${basePath.replace(/\/?$/, '/')}${path.replace(/^\//, '')}`;
         }
 
+        function tagShopTagId(item, index) {
+          const raw = String(item?.id || `shop-tag-${String(index + 1).padStart(2, '0')}`)
+            .replace(/[^a-z0-9_-]/gi, '')
+            .slice(0, 48);
+          return raw || `shop-tag-${index + 1}`;
+        }
+
+        function tagShopTagName(item, index) {
+          return String(item?.name || `SHOP TAG ${String(index + 1).padStart(2, '0')}`)
+            .replace(/[\u0000-\u001f\u007f]/g, '')
+            .trim()
+            .replace(/\s+/g, ' ')
+            .slice(0, 20) || `SHOP TAG ${index + 1}`;
+        }
+
+        function tagShopManifestDefinition(item, index) {
+          const source = item?.tag && typeof item.tag === 'object' ? item.tag : item;
+          if (!Array.isArray(source?.pixels) || source.pixels.length !== GROUND_TAG_PIXEL_SIZE * GROUND_TAG_PIXEL_SIZE) return null;
+          return normalizeGroundTagDefinition({
+            ...source,
+            id: tagShopTagId(item, index),
+            name: tagShopTagName(item, index)
+          });
+        }
+
+        function tagShopImageDefinition(item, index, image) {
+          const manifestDefinition = tagShopManifestDefinition(item, index);
+          if (manifestDefinition) return manifestDefinition;
+          if (!image?.complete || !image.naturalWidth || !image.naturalHeight) return null;
+          const canvas = document.createElement('canvas');
+          canvas.width = GROUND_TAG_PIXEL_SIZE;
+          canvas.height = GROUND_TAG_PIXEL_SIZE;
+          const context = canvas.getContext('2d', { willReadFrequently: true });
+          if (!context) return null;
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.imageSmoothingEnabled = false;
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          let data;
+          try { data = context.getImageData(0, 0, canvas.width, canvas.height).data; }
+          catch (error) {
+            console.warn('StarLite Tag Shop could not read this PNG. Keep the asset on the same origin or provide item.pixels.', error);
+            return null;
+          }
+          const pixels = [];
+          for (let offset = 0; offset < data.length; offset += 4) {
+            if (data[offset + 3] < 96) {
+              pixels.push(TRANSPARENT_GROUND_TAG_COLOR);
+              continue;
+            }
+            pixels.push(`#${data[offset].toString(16).padStart(2, '0')}${data[offset + 1].toString(16).padStart(2, '0')}${data[offset + 2].toString(16).padStart(2, '0')}`);
+          }
+          return normalizeGroundTagDefinition({
+            id: tagShopTagId(item, index),
+            name: tagShopTagName(item, index),
+            background: TRANSPARENT_GROUND_TAG_COLOR,
+            pixels
+          });
+        }
+
+        async function unlockTagShopItem(item, index, image, button) {
+          if (rewardedAdBusy || button.disabled) return;
+          const id = tagShopTagId(item, index);
+          const name = tagShopTagName(item, index);
+          if (tagDefinitions.some(tag => tag.id === id)) {
+            tagShopStatus.textContent = `${name} is already in your owned tags.`;
+            renderTagShopAssets();
+            return;
+          }
+          if (tagDefinitions.length >= MAX_OWNED_GROUND_TAGS) {
+            tagShopStatus.textContent = `You can own up to ${MAX_OWNED_GROUND_TAGS} tags. Delete one before unlocking ${name}.`;
+            return;
+          }
+          const definition = tagShopImageDefinition(item, index, image);
+          if (!definition) {
+            tagShopStatus.textContent = `${name} cannot be unlocked until its PNG asset is available.`;
+            return;
+          }
+
+          button.disabled = true;
+          button.textContent = 'CHECKING AD…';
+          tagShopStatus.textContent = `Checking for a voluntary rewarded advert for ${name}…`;
+          const outcome = await requestRewardedTagUnlock({
+            actionLabel: 'UNLOCK',
+            returnFocus: button,
+            title: `Unlock ${name}`
+          });
+          if (outcome === 'declined') {
+            tagShopStatus.textContent = `${name} was not unlocked because the available advert was declined or not completed.`;
+            renderTagShopAssets();
+            return;
+          }
+
+          const persisted = persistGroundTagDefinitions([...tagDefinitions, definition]);
+          if (!persisted) {
+            tagShopStatus.textContent = `${name} could not be unlocked because browser storage is unavailable or full.`;
+            renderTagShopAssets();
+            return;
+          }
+          tagDefinitions = persisted;
+          renderGroundTagLab();
+          renderTagShopAssets();
+          tagShopStatus.textContent = outcome === 'rewarded'
+            ? `${name} unlocked. It is now in your owned tags.`
+            : `No rewarded advert was available. ${name} was unlocked and added to your owned tags.`;
+          showTagSavedCelebration(`${name} unlocked!`);
+        }
+
         function renderTagShopAssets() {
           if (!tagShopGrid) return;
           const { basePath, items } = tagShopConfiguration();
@@ -26056,39 +26175,71 @@
           if (!items.length) {
             const empty = document.createElement('div');
             empty.className = 'starlite-menu__shop-empty';
-            empty.innerHTML = '<span class="starlite-menu__tag-teaser-mark" aria-hidden="true">★</span><strong>NO ASSET SLOTS CONFIGURED</strong><small>Add entries to STARLITE_TAG_SHOP_CONFIG.items near the top of this HTML file.</small>';
+            empty.innerHTML = '<span class="starlite-menu__tag-teaser-mark" aria-hidden="true">★</span><strong>NO TAGS AVAILABLE</strong>';
             tagShopGrid.appendChild(empty);
-            tagShopStatus.textContent = 'No Tag Shop assets are configured.';
+            tagShopStatus.textContent = 'No tags are available in the shop.';
             return;
           }
           for (let index = 0; index < items.length; index++) {
             const item = items[index] && typeof items[index] === 'object' ? items[index] : {};
-            const name = String(item.name || `SHOP TAG ${String(index + 1).padStart(2, '0')}`);
+            const name = tagShopTagName(item, index);
             const file = String(item.file || `tag-${String(index + 1).padStart(2, '0')}.png`);
             const source = tagShopAssetUrl(basePath, file);
+            const owned = tagDefinitions.some(tag => tag.id === tagShopTagId(item, index));
+            const manifestReady = !!tagShopManifestDefinition(item, index);
             const card = document.createElement('article');
             card.className = 'starlite-menu__shop-card';
-            card.dataset.assetReady = 'false';
+            card.dataset.assetReady = manifestReady ? 'true' : 'false';
+            card.dataset.owned = owned ? 'true' : 'false';
             const preview = document.createElement('div');
             preview.className = 'starlite-menu__shop-preview';
             const image = document.createElement('img');
             image.alt = `${name} preview`;
             image.decoding = 'async';
+            try {
+              const resolvedAssetUrl = new URL(source, location.href);
+              if (/^https?:$/.test(resolvedAssetUrl.protocol) && resolvedAssetUrl.origin !== location.origin) image.crossOrigin = 'anonymous';
+            } catch { /* Relative and local asset paths use the page's normal origin rules. */ }
             const placeholder = document.createElement('span');
             placeholder.className = 'starlite-menu__shop-placeholder';
             placeholder.textContent = `ADD ${file} TO ${basePath}`;
-            image.addEventListener('load', () => { card.dataset.assetReady = 'true'; });
-            image.addEventListener('error', () => { card.dataset.assetReady = 'false'; });
-            if (source) image.src = source;
-            preview.append(image, placeholder);
             const label = document.createElement('strong');
             label.textContent = name;
+            const unlockButton = document.createElement('button');
+            unlockButton.type = 'button';
+            unlockButton.className = 'starlite-menu__shop-unlock';
+            unlockButton.textContent = owned ? 'OWNED' : manifestReady ? 'WATCH AD TO UNLOCK!' : 'LOADING…';
+            unlockButton.disabled = owned || !manifestReady;
+            unlockButton.setAttribute('aria-label', owned ? `${name} already owned` : `Watch ad to unlock ${name}`);
+            unlockButton.addEventListener('click', () => unlockTagShopItem(item, index, image, unlockButton));
+            image.addEventListener('load', () => {
+              card.dataset.assetReady = 'true';
+              if (!owned) {
+                unlockButton.disabled = false;
+                unlockButton.textContent = 'WATCH AD TO UNLOCK!';
+              }
+            });
+            image.addEventListener('error', () => {
+              card.dataset.assetReady = manifestReady ? 'true' : 'false';
+              if (!owned && !manifestReady) {
+                unlockButton.disabled = true;
+                unlockButton.textContent = 'ASSET MISSING';
+              }
+            });
+            if (source) image.src = source;
+            preview.append(image, placeholder);
+            const actionRow = document.createElement('div');
+            actionRow.className = 'starlite-menu__shop-action-row';
+            actionRow.append(label, unlockButton);
             const pathLabel = document.createElement('small');
             pathLabel.textContent = `${basePath}${file}`;
-            card.append(preview, label, pathLabel);
+            card.append(preview, actionRow, pathLabel);
             tagShopGrid.appendChild(card);
           }
-          tagShopStatus.textContent = `${items.length} asset slot${items.length === 1 ? '' : 's'} configured. Missing PNGs are shown as placeholders.`;
+          const ownedCount = items.reduce((count, item, index) => count + (tagDefinitions.some(tag => tag.id === tagShopTagId(item, index)) ? 1 : 0), 0);
+          tagShopStatus.textContent = ownedCount
+            ? `${ownedCount} shop tag${ownedCount === 1 ? '' : 's'} owned. Choose another tag to unlock.`
+            : 'Choose a tag and watch a voluntary advert to unlock it. If no advert is available, it unlocks automatically.';
         }
 
         function openTagShop() {
@@ -26205,7 +26356,7 @@
           }, 1000);
         }
 
-        function requestRewardedTagUnlock() {
+        function requestRewardedTagUnlock({ actionLabel = 'SAVE', returnFocus = tagSaveButton, title = 'Unlock one new ground tag' } = {}) {
           if (rewardedAdBusy) return Promise.resolve('declined');
           const config = rewardedAdConfiguration();
           const useDevelopmentPlaceholder = isLocalRewardedAdEnvironment() && config.developmentPlaceholder;
@@ -26214,6 +26365,11 @@
           }
 
           rewardedAdBusy = true;
+          rewardedAdReturnFocus = returnFocus;
+          rewardedTitle.textContent = title;
+          const actionVerb = actionLabel === 'UNLOCK' ? 'unlock' : 'save';
+          const actionProgressive = actionLabel === 'UNLOCK' ? 'unlocking' : 'saving';
+          rewardedCopy.textContent = `When Google has a rewarded advert ready, complete it to ${actionVerb} this tag. If no advert is available, the tag is ${actionLabel === 'UNLOCK' ? 'unlocked' : 'saved'} normally. Declining an available advert returns you without ${actionProgressive} it.`;
           rewardedOverlay.classList.remove('starlite-hidden');
           rewardedFrame.classList.add('starlite-hidden');
           rewardedStatus.textContent = 'Checking whether a Google rewarded advert is available…';
@@ -26257,7 +26413,7 @@
                 session = preparedSession;
                 rewardedWatchButton.disabled = false;
                 rewardedWatchButton.dataset.ready = 'true';
-                rewardedWatchButton.textContent = 'WATCH AD TO SAVE';
+                rewardedWatchButton.textContent = `WATCH AD TO ${actionLabel}`;
                 rewardedWatchButton.onclick = async () => {
                   rewardedWatchButton.disabled = true;
                   rewardedWatchButton.dataset.ready = 'false';
@@ -26276,16 +26432,19 @@
             rewardedCancelButton.textContent = 'NOT NOW';
             rewardedWatchButton.onclick = null;
             rewardedCancelButton.onclick = null;
-            tagSaveButton.focus();
+            const focusTarget = rewardedAdReturnFocus;
+            rewardedAdReturnFocus = null;
+            if (focusTarget?.isConnected && !focusTarget.disabled) focusTarget.focus();
+            else tagSaveButton.focus();
           });
         }
 
-        function showTagSavedCelebration() {
+        function showTagSavedCelebration(messageText = 'Congratulations! Tag saved') {
           tagCelebration.replaceChildren();
           tagCelebration.classList.remove('starlite-hidden');
           const message = document.createElement('div');
           message.className = 'starlite-menu__tag-celebration-message';
-          message.textContent = 'Congratulations! Tag saved';
+          message.textContent = messageText;
           tagCelebration.appendChild(message);
           const colors = ['#ff6b6b', '#ffd166', '#a7ef74', '#64d8ff', '#a878ff', '#ffffff', '#ff8de1'];
           for (let index = 0; index < 72; index++) {
