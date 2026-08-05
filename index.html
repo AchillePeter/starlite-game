@@ -26047,6 +26047,8 @@
           root.querySelector('[data-open-tag-lab]')?.focus();
         }
 
+        let tagShopAssetRefreshToken = '';
+
         function tagShopConfiguration() {
           const raw = globalThis.STARLITE_TAG_SHOP_CONFIG || {};
           const basePath = String(raw.basePath || './assets/tags/');
@@ -26059,6 +26061,18 @@
           if (!path) return '';
           if (/^(?:[a-z]+:)?\/\//i.test(path) || path.startsWith('/') || path.startsWith('data:') || path.startsWith('blob:')) return path;
           return `${basePath.replace(/\/?$/, '/')}${path.replace(/^\//, '')}`;
+        }
+
+        function refreshedTagShopAssetUrl(source, refreshToken) {
+          if (!source || !refreshToken || source.startsWith('data:') || source.startsWith('blob:')) return source;
+          try {
+            const url = new URL(source, location.href);
+            url.searchParams.set('__starlite_tag_shop_refresh', refreshToken);
+            return url.href;
+          } catch {
+            const separator = source.includes('?') ? '&' : '?';
+            return `${source}${separator}__starlite_tag_shop_refresh=${encodeURIComponent(refreshToken)}`;
+          }
         }
 
         function tagShopTagId(item, index) {
@@ -26120,6 +26134,31 @@
           });
         }
 
+        function sameGroundTagDefinition(left, right) {
+          if (!left || !right || left.id !== right.id || left.name !== right.name || left.background !== right.background) return false;
+          if (!Array.isArray(left.pixels) || !Array.isArray(right.pixels) || left.pixels.length !== right.pixels.length) return false;
+          return left.pixels.every((color, index) => color === right.pixels[index]);
+        }
+
+        function refreshOwnedTagShopDefinition(item, index, image) {
+          const id = tagShopTagId(item, index);
+          const ownedIndex = tagDefinitions.findIndex(tag => tag.id === id);
+          if (ownedIndex < 0) return false;
+          const latestDefinition = tagShopImageDefinition(item, index, image);
+          if (!latestDefinition || sameGroundTagDefinition(tagDefinitions[ownedIndex], latestDefinition)) return false;
+          const nextDefinitions = [...tagDefinitions];
+          nextDefinitions[ownedIndex] = latestDefinition;
+          const persisted = persistGroundTagDefinitions(nextDefinitions);
+          if (!persisted) return false;
+          tagDefinitions = persisted;
+          if (tagDraft?.id === id && !tagDirty) {
+            tagDraft = normalizeGroundTagDefinition(latestDefinition);
+            tagDraftRewardUnlocked = true;
+          }
+          renderGroundTagLab();
+          return true;
+        }
+
         async function unlockTagShopItem(item, index, image, button) {
           if (rewardedAdBusy || button.disabled) return;
           const id = tagShopTagId(item, index);
@@ -26170,6 +26209,7 @@
 
         function renderTagShopAssets() {
           if (!tagShopGrid) return;
+          const refreshToken = tagShopAssetRefreshToken;
           const { basePath, items } = tagShopConfiguration();
           tagShopGrid.replaceChildren();
           if (!items.length) {
@@ -26184,9 +26224,12 @@
             const item = items[index] && typeof items[index] === 'object' ? items[index] : {};
             const name = tagShopTagName(item, index);
             const file = String(item.file || `tag-${String(index + 1).padStart(2, '0')}.png`);
-            const source = tagShopAssetUrl(basePath, file);
+            const baseSource = tagShopAssetUrl(basePath, file);
+            const source = refreshedTagShopAssetUrl(baseSource, refreshToken);
+            const manifestDefinition = tagShopManifestDefinition(item, index);
+            if (refreshToken && manifestDefinition) refreshOwnedTagShopDefinition(item, index, null);
             const owned = tagDefinitions.some(tag => tag.id === tagShopTagId(item, index));
-            const manifestReady = !!tagShopManifestDefinition(item, index);
+            const manifestReady = !!manifestDefinition;
             const card = document.createElement('article');
             card.className = 'starlite-menu__shop-card';
             card.dataset.assetReady = manifestReady ? 'true' : 'false';
@@ -26214,6 +26257,11 @@
             unlockButton.addEventListener('click', () => unlockTagShopItem(item, index, image, unlockButton));
             image.addEventListener('load', () => {
               card.dataset.assetReady = 'true';
+              if (refreshToken && refreshToken === tagShopAssetRefreshToken && owned &&
+                  refreshOwnedTagShopDefinition(item, index, image)) {
+                card.dataset.assetUpdated = 'true';
+                tagShopStatus.textContent = `${name} refreshed from the latest shop asset.`;
+              }
               if (!owned) {
                 unlockButton.disabled = false;
                 unlockButton.textContent = 'WATCH AD TO UNLOCK!';
@@ -26243,12 +26291,15 @@
         }
 
         function openTagShop() {
+          tagDefinitions = loadGroundTagDefinitions();
+          tagShopAssetRefreshToken = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
           renderTagShopAssets();
           showOnly(tagShopView);
           root.querySelector('[data-close-tag-shop]')?.focus();
         }
 
         function closeTagShop() {
+          tagShopAssetRefreshToken = '';
           showOnly(tagLabView);
           root.querySelector('[data-open-tag-shop]')?.focus();
         }
