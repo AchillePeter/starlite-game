@@ -6603,21 +6603,45 @@
       function drawMinimap() {
         const zone = consoleLayout().map;
         const now = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
-        const cacheReady = ensureMinimapCache(zone.w, zone.h);
+        if (!isMobileUI()) {
+          const cacheReady = ensureMinimapCache(zone.w, zone.h);
+          if (!cacheReady || now >= minimapNextRefreshAt) {
+            renderMinimapNow();
+            if (cacheReady) {
+              minimapCacheContext.clearRect(0, 0, minimapCacheWidth, minimapCacheHeight);
+              minimapCacheContext.drawImage(
+                canvas,
+                Math.floor(zone.x), Math.floor(zone.y), Math.ceil(zone.w), Math.ceil(zone.h),
+                0, 0, minimapCacheWidth, minimapCacheHeight
+              );
+              minimapNextRefreshAt = now + MINIMAP_REFRESH_INTERVAL_MS;
+            }
+            return;
+          }
+          ctx.drawImage(minimapCacheCanvas, Math.floor(zone.x), Math.floor(zone.y), zone.w, zone.h);
+          return;
+        }
+
+        const pixelRatio = Math.max(1, Number(state.canvasPixelRatio) || 1);
+        const cacheReady = ensureMinimapCache(zone.w * pixelRatio, zone.h * pixelRatio);
         if (!cacheReady || now >= minimapNextRefreshAt) {
           renderMinimapNow();
           if (cacheReady) {
             minimapCacheContext.clearRect(0, 0, minimapCacheWidth, minimapCacheHeight);
             minimapCacheContext.drawImage(
               canvas,
-              Math.floor(zone.x), Math.floor(zone.y), Math.ceil(zone.w), Math.ceil(zone.h),
+              Math.round(zone.x * pixelRatio), Math.round(zone.y * pixelRatio),
+              Math.max(1, Math.round(zone.w * pixelRatio)), Math.max(1, Math.round(zone.h * pixelRatio)),
               0, 0, minimapCacheWidth, minimapCacheHeight
             );
-            minimapNextRefreshAt = now + MINIMAP_REFRESH_INTERVAL_MS;
+            minimapNextRefreshAt = now + 50;
+            // Present the same cached raster on refresh frames and interim frames,
+            // preventing the direct/cached alternation that caused mobile flicker.
+            ctx.drawImage(minimapCacheCanvas, zone.x, zone.y, zone.w, zone.h);
           }
           return;
         }
-        ctx.drawImage(minimapCacheCanvas, Math.floor(zone.x), Math.floor(zone.y), zone.w, zone.h);
+        ctx.drawImage(minimapCacheCanvas, zone.x, zone.y, zone.w, zone.h);
       }
       
       function selectedUnitObjects() {
@@ -7227,21 +7251,42 @@
         if (canRally) state.infoRallyStructureIds = operationalProduction.map(structure => structure.id);
         if (stackedActions) {
           const count = Number(canSell) + Number(canCancel) + Number(canRally);
-          const compactW = Math.max(12, Math.floor((maxW - buttonGap * Math.max(0, count - 1)) / Math.max(1, count)));
-          let actionX = x;
-          if (canCancel) {
-            state.infoCancelUpgradeRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
-            drawInfoActionButton(state.infoCancelUpgradeRect, 'X', 'cancel');
-            actionX += compactW + buttonGap;
-          }
-          if (canSell) {
-            state.infoSellRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
-            drawInfoActionButton(state.infoSellRect, '$', 'sell');
-            actionX += compactW + buttonGap;
-          }
-          if (canRally) {
-            state.infoRallyRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
+          if (mobile && canRally) {
+            const gapsW = buttonGap * Math.max(0, count - 1);
+            const textActionCount = Number(canSell) + Number(canCancel);
+            const textW = textActionCount
+              ? Math.max(12, Math.floor((maxW - gapsW - buttonH) / textActionCount))
+              : 0;
+            let actionX = x;
+            if (canCancel) {
+              state.infoCancelUpgradeRect = { x: actionX, y: stackedButtonY, w: textW, h: buttonH };
+              drawInfoActionButton(state.infoCancelUpgradeRect, 'X', 'cancel');
+              actionX += textW + buttonGap;
+            }
+            if (canSell) {
+              state.infoSellRect = { x: actionX, y: stackedButtonY, w: textW, h: buttonH };
+              drawInfoActionButton(state.infoSellRect, '$', 'sell');
+              actionX += textW + buttonGap;
+            }
+            state.infoRallyRect = { x: actionX, y: stackedButtonY, w: buttonH, h: buttonH };
             drawInfoFlagButton(state.infoRallyRect);
+          } else {
+            const compactW = Math.max(12, Math.floor((maxW - buttonGap * Math.max(0, count - 1)) / Math.max(1, count)));
+            let actionX = x;
+            if (canCancel) {
+              state.infoCancelUpgradeRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
+              drawInfoActionButton(state.infoCancelUpgradeRect, 'X', 'cancel');
+              actionX += compactW + buttonGap;
+            }
+            if (canSell) {
+              state.infoSellRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
+              drawInfoActionButton(state.infoSellRect, '$', 'sell');
+              actionX += compactW + buttonGap;
+            }
+            if (canRally) {
+              state.infoRallyRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
+              drawInfoFlagButton(state.infoRallyRect);
+            }
           }
         } else {
           const sellW = 50;
@@ -28910,8 +28955,8 @@
 
   __define("portraitRenderer.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("state.js");
-    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep1["canvas"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep1["state"] });
+    const __dep0 = __require("data.js"); const __dep1 = __require("state.js"); const __dep2 = __require("uiLayout.js");
+    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep1["canvas"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep1["state"] }); Object.defineProperty(__imports, "isMobileUI", { enumerable: true, get: () => __dep2["isMobileUI"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "FACTION_BUILDING_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => FACTION_BUILDING_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "FACTION_UNIT_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => FACTION_UNIT_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "BUILDING_GLB_HOLDERS", { enumerable: true, get: () => BUILDING_GLB_HOLDERS }); Object.defineProperty(__exports, "BUILDING_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => BUILDING_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "DEFAULT_GLB_HOLDER", { enumerable: true, get: () => DEFAULT_GLB_HOLDER }); Object.defineProperty(__exports, "DEFAULT_PORTRAIT_GLB", { enumerable: true, get: () => DEFAULT_PORTRAIT_GLB }); Object.defineProperty(__exports, "GENERIC_GLB_HOLDER", { enumerable: true, get: () => GENERIC_GLB_HOLDER }); Object.defineProperty(__exports, "MAX_UNIT_PORTRAIT_LEVEL", { enumerable: true, get: () => MAX_UNIT_PORTRAIT_LEVEL }); Object.defineProperty(__exports, "PORTRAIT_ROTATION_SECONDS", { enumerable: true, get: () => PORTRAIT_ROTATION_SECONDS }); Object.defineProperty(__exports, "UNIT_GLB_HOLDERS", { enumerable: true, get: () => UNIT_GLB_HOLDERS }); Object.defineProperty(__exports, "UNIT_PORTRAIT_GLB_PLACEHOLDERS", { enumerable: true, get: () => UNIT_PORTRAIT_GLB_PLACEHOLDERS }); Object.defineProperty(__exports, "hideGLBPortrait", { enumerable: true, get: () => hideGLBPortrait }); Object.defineProperty(__exports, "holderForPortraitSubject", { enumerable: true, get: () => holderForPortraitSubject }); Object.defineProperty(__exports, "loadGLBForHolder", { enumerable: true, get: () => loadGLBForHolder }); Object.defineProperty(__exports, "loadGLBModel", { enumerable: true, get: () => loadGLBModel }); Object.defineProperty(__exports, "parseGLB", { enumerable: true, get: () => parseGLB }); Object.defineProperty(__exports, "portraitRendererStatus", { enumerable: true, get: () => portraitRendererStatus }); Object.defineProperty(__exports, "syncGLBPortrait", { enumerable: true, get: () => syncGLBPortrait });
@@ -29995,8 +30040,11 @@ function compileShader(gl, type, source) {
         const overlay = ensureOverlay();
         if (!overlay || !canvas?.getBoundingClientRect) return false;
         const canvasRect = canvas.getBoundingClientRect();
-        const widthScale = canvas.width ? canvasRect.width / canvas.width : 1;
-        const heightScale = canvas.height ? canvasRect.height / canvas.height : 1;
+        // Mobile layout frames are already expressed in viewport/CSS pixels even
+        // though the main canvas uses a DPR-scaled backing store. Applying the
+        // backing-store ratio again shrank and displaced the GLB overlay.
+        const widthScale = isMobileUI() ? 1 : (canvas.width ? canvasRect.width / canvas.width : 1);
+        const heightScale = isMobileUI() ? 1 : (canvas.height ? canvasRect.height / canvas.height : 1);
         const left = canvasRect.left + frame.x * widthScale;
         const top = canvasRect.top + frame.y * heightScale;
         const cssWidth = Math.max(1, frame.w * widthScale);
@@ -30117,6 +30165,12 @@ function compileShader(gl, type, source) {
         overlay.dataset.glb = activeHolder.loadedGlb || activeHolder.glb;
         overlay.dataset.requestedGlb = subjectHolder.glb;
         overlay.dataset.level = subjectHolder.level === null ? '' : String(subjectHolder.level);
+        if (isMobileUI() && renderer.failed) {
+          // Leave the canvas fallback/status visible instead of covering the full
+          // mobile portrait slot with an unrendered WebGL canvas.
+          overlay.style.display = 'none';
+          return subjectHolder;
+        }
         overlay.style.display = 'block';
         if (!renderer.failed) renderPortrait(now);
         return subjectHolder;
@@ -41652,18 +41706,20 @@ function drawStructure(s) {
         const pad = clampValue(Math.round(usableW * .017), 6, 11);
         const gap = clampValue(Math.round(usableW * .012), 4, 8);
         const topBarH = clampValue(Math.round(viewHeight * .078), 62, 80);
-        // Mobile readability pass: the selection deck (minimap, portrait and
-        // information panel) receives thirty percent more vertical room. The
-        // command grid also grows slightly so its smallest paged cells remain
-        // comfortable touch targets without affecting the desktop branch.
-        const deckH = clampValue(Math.round(viewHeight * .221), 150, 226);
-        const actionsH = clampValue(Math.round(viewHeight * .30), 228, 310);
-        const minimumWorldH = clampValue(Math.round(viewHeight * .28), 180, 280);
+        // Mobile-only lower console: reserve forty-five percent of the screen
+        // for the selection deck plus the 3x3 command grid. Keeping the deck at
+        // forty percent of that console preserves a useful GLB portrait viewport
+        // while leaving sixty percent for large command cells.
+        const targetPanelH = Math.max(1, Math.round(viewHeight * .45));
+        const minimumWorldH = clampValue(Math.round(viewHeight * .27), 150, 280);
         const topBar = { x: left, y: top, w: usableW, h: topBarH };
-        const panelY = Math.max(topBar.y + topBar.h + gap + minimumWorldH, viewHeight - bottom - deckH - actionsH);
+        const worldY = topBar.y + topBar.h + gap;
+        const maximumPanelH = Math.max(1, viewHeight - bottom - worldY - gap - minimumWorldH);
+        const panelH = Math.min(targetPanelH, maximumPanelH);
+        const panelY = Math.max(worldY + gap, viewHeight - bottom - panelH);
         const panel = { x: left, y: panelY, w: usableW, h: Math.max(1, viewHeight - bottom - panelY) };
         const deckY = panel.y;
-        const deckHeight = Math.min(deckH, panel.h);
+        const deckHeight = Math.max(1, Math.round(panel.h * .40));
         const actions = {
           x: panel.x,
           y: deckY + deckHeight,
@@ -41680,7 +41736,6 @@ function drawStructure(s) {
         const portrait = { x: map.x + map.w + gap, y: innerY, w: portraitW, h: innerH };
         const infoX = portrait.x + portrait.w + gap;
         const info = { x: infoX, y: innerY, w: Math.max(1, panel.x + panel.w - pad - infoX), h: innerH };
-        const worldY = topBar.y + topBar.h + gap;
         const world = { x: left, y: worldY, w: usableW, h: Math.max(1, panel.y - gap - worldY) };
         const settingsSize = Math.max(52, topBar.h - pad * 2);
         const deselectW = clampValue(Math.round(usableW * .27), 104, 140);
