@@ -26090,14 +26090,42 @@
             .slice(0, 20) || `SHOP TAG ${index + 1}`;
         }
 
-        function tagShopManifestDefinition(item, index) {
-          const source = item?.tag && typeof item.tag === 'object' ? item.tag : item;
-          if (!Array.isArray(source?.pixels) || source.pixels.length !== GROUND_TAG_PIXEL_SIZE * GROUND_TAG_PIXEL_SIZE) return null;
-          return normalizeGroundTagDefinition({
-            ...source,
+        function tagShopDefinitionContentKey(definition) {
+          const normalized = normalizeGroundTagDefinition(definition);
+          return `${normalized.name}\u0000${normalized.background}\u0000${normalized.pixels.join('')}`;
+        }
+
+        function tagShopDefinitionFingerprint(definition) {
+          const content = tagShopDefinitionContentKey(definition);
+          let first = 0x811c9dc5;
+          let second = 0x9e3779b9;
+          for (let index = 0; index < content.length; index++) {
+            const code = content.charCodeAt(index);
+            first = Math.imul(first ^ code, 0x01000193);
+            second = Math.imul(second ^ (code + index), 0x85ebca6b);
+          }
+          return `${(first >>> 0).toString(36).padStart(7, '0')}${(second >>> 0).toString(36).padStart(7, '0')}`.slice(0, 12);
+        }
+
+        function versionedTagShopDefinition(item, index, definition) {
+          const normalized = normalizeGroundTagDefinition({
+            ...definition,
             id: tagShopTagId(item, index),
             name: tagShopTagName(item, index)
           });
+          const fingerprint = tagShopDefinitionFingerprint(normalized);
+          const baseId = tagShopTagId(item, index);
+          const maximumBaseLength = Math.max(1, 48 - fingerprint.length - 1);
+          return normalizeGroundTagDefinition({
+            ...normalized,
+            id: `${baseId.slice(0, maximumBaseLength)}-${fingerprint}`
+          });
+        }
+
+        function tagShopManifestDefinition(item, index) {
+          const source = item?.tag && typeof item.tag === 'object' ? item.tag : item;
+          if (!Array.isArray(source?.pixels) || source.pixels.length !== GROUND_TAG_PIXEL_SIZE * GROUND_TAG_PIXEL_SIZE) return null;
+          return versionedTagShopDefinition(item, index, source);
         }
 
         function tagShopImageDefinition(item, index, image) {
@@ -26126,55 +26154,42 @@
             }
             pixels.push(`#${data[offset].toString(16).padStart(2, '0')}${data[offset + 1].toString(16).padStart(2, '0')}${data[offset + 2].toString(16).padStart(2, '0')}`);
           }
-          return normalizeGroundTagDefinition({
-            id: tagShopTagId(item, index),
-            name: tagShopTagName(item, index),
+          return versionedTagShopDefinition(item, index, {
             background: TRANSPARENT_GROUND_TAG_COLOR,
             pixels
           });
         }
 
-        function sameGroundTagDefinition(left, right) {
-          if (!left || !right || left.id !== right.id || left.name !== right.name || left.background !== right.background) return false;
+        function sameGroundTagContent(left, right) {
+          if (!left || !right || left.name !== right.name || left.background !== right.background) return false;
           if (!Array.isArray(left.pixels) || !Array.isArray(right.pixels) || left.pixels.length !== right.pixels.length) return false;
           return left.pixels.every((color, index) => color === right.pixels[index]);
         }
 
-        function refreshOwnedTagShopDefinition(item, index, image) {
-          const id = tagShopTagId(item, index);
-          const ownedIndex = tagDefinitions.findIndex(tag => tag.id === id);
-          if (ownedIndex < 0) return false;
-          const latestDefinition = tagShopImageDefinition(item, index, image);
-          if (!latestDefinition || sameGroundTagDefinition(tagDefinitions[ownedIndex], latestDefinition)) return false;
-          const nextDefinitions = [...tagDefinitions];
-          nextDefinitions[ownedIndex] = latestDefinition;
-          const persisted = persistGroundTagDefinitions(nextDefinitions);
-          if (!persisted) return false;
-          tagDefinitions = persisted;
-          if (tagDraft?.id === id && !tagDirty) {
-            tagDraft = normalizeGroundTagDefinition(latestDefinition);
-            tagDraftRewardUnlocked = true;
-          }
-          renderGroundTagLab();
-          return true;
+        function ownsTagShopDefinition(item, index, definition) {
+          if (!definition) return false;
+          const legacyId = tagShopTagId(item, index);
+          return tagDefinitions.some(tag =>
+            tag.id === definition.id ||
+            (tag.id === legacyId && sameGroundTagContent(tag, definition))
+          );
         }
 
         async function unlockTagShopItem(item, index, image, button) {
           if (rewardedAdBusy || button.disabled) return;
-          const id = tagShopTagId(item, index);
           const name = tagShopTagName(item, index);
-          if (tagDefinitions.some(tag => tag.id === id)) {
+          const definition = tagShopImageDefinition(item, index, image);
+          if (!definition) {
+            tagShopStatus.textContent = `${name} cannot be unlocked until its PNG asset is available.`;
+            return;
+          }
+          if (ownsTagShopDefinition(item, index, definition)) {
             tagShopStatus.textContent = `${name} is already in your owned tags.`;
             renderTagShopAssets();
             return;
           }
           if (tagDefinitions.length >= MAX_OWNED_GROUND_TAGS) {
             tagShopStatus.textContent = `You can own up to ${MAX_OWNED_GROUND_TAGS} tags. Delete one before unlocking ${name}.`;
-            return;
-          }
-          const definition = tagShopImageDefinition(item, index, image);
-          if (!definition) {
-            tagShopStatus.textContent = `${name} cannot be unlocked until its PNG asset is available.`;
             return;
           }
 
@@ -26227,8 +26242,7 @@
             const baseSource = tagShopAssetUrl(basePath, file);
             const source = refreshedTagShopAssetUrl(baseSource, refreshToken);
             const manifestDefinition = tagShopManifestDefinition(item, index);
-            if (refreshToken && manifestDefinition) refreshOwnedTagShopDefinition(item, index, null);
-            const owned = tagDefinitions.some(tag => tag.id === tagShopTagId(item, index));
+            let owned = ownsTagShopDefinition(item, index, manifestDefinition);
             const manifestReady = !!manifestDefinition;
             const card = document.createElement('article');
             card.className = 'starlite-menu__shop-card';
@@ -26256,16 +26270,14 @@
             unlockButton.setAttribute('aria-label', owned ? `${name} already owned` : `Watch ad to unlock ${name}`);
             unlockButton.addEventListener('click', () => unlockTagShopItem(item, index, image, unlockButton));
             image.addEventListener('load', () => {
-              card.dataset.assetReady = 'true';
-              if (refreshToken && refreshToken === tagShopAssetRefreshToken && owned &&
-                  refreshOwnedTagShopDefinition(item, index, image)) {
-                card.dataset.assetUpdated = 'true';
-                tagShopStatus.textContent = `${name} refreshed from the latest shop asset.`;
-              }
-              if (!owned) {
-                unlockButton.disabled = false;
-                unlockButton.textContent = 'WATCH AD TO UNLOCK!';
-              }
+              const latestDefinition = tagShopImageDefinition(item, index, image);
+              const ready = !!latestDefinition || manifestReady;
+              owned = ownsTagShopDefinition(item, index, latestDefinition || manifestDefinition);
+              card.dataset.assetReady = ready ? 'true' : 'false';
+              card.dataset.owned = owned ? 'true' : 'false';
+              unlockButton.disabled = owned || !ready;
+              unlockButton.textContent = owned ? 'OWNED' : ready ? 'WATCH AD TO UNLOCK!' : 'ASSET MISSING';
+              unlockButton.setAttribute('aria-label', owned ? `${name} already owned` : `Watch ad to unlock ${name}`);
             });
             image.addEventListener('error', () => {
               card.dataset.assetReady = manifestReady ? 'true' : 'false';
@@ -26284,10 +26296,7 @@
             card.append(preview, actionRow, pathLabel);
             tagShopGrid.appendChild(card);
           }
-          const ownedCount = items.reduce((count, item, index) => count + (tagDefinitions.some(tag => tag.id === tagShopTagId(item, index)) ? 1 : 0), 0);
-          tagShopStatus.textContent = ownedCount
-            ? `${ownedCount} shop tag${ownedCount === 1 ? '' : 's'} owned. Choose another tag to unlock.`
-            : 'Choose a tag and watch a voluntary advert to unlock it. If no advert is available, it unlocks automatically.';
+          tagShopStatus.textContent = 'Choose a new tag and watch a voluntary advert to unlock it. If no advert is available, it unlocks automatically.';
         }
 
         function openTagShop() {
