@@ -6169,7 +6169,7 @@
       function menuToneFor(item) {
         if (item.tone && MENU_TONES[item.tone]) return MENU_TONES[item.tone];
         const label = String(item.label || '').toUpperCase();
-        if (label.includes('SPAWN FLAG')) return MENU_TONES.rally;
+        if (label.includes('SPAWN FLAG') || label.includes('WARP ZONE')) return MENU_TONES.rally;
         if (label.includes('ADRENALINE')) return MENU_TONES.ability;
         if (label.startsWith('RESEARCH') || label.includes('TECHNOLOGY') || label.includes('TECH ·')) return MENU_TONES.research;
         if (label.startsWith('UPGRADE') || label.startsWith('CONVERT')) return MENU_TONES.upgrade;
@@ -6281,17 +6281,22 @@
             structure.hp > 0 && !structure.underConstruction && isProductionBuilding(structure)
           ).sort((a, b) => a.id - b.id);
           if (rallyTargets.length) {
+            const warpOnly = rallyTargets.every(structure =>
+              structure.type === 'heliasGateway' && structure.warpGate
+            );
             state.placingGroundTag = false;
             state.placingQueenAbility = null;
             state.queenAbilityUnitIds = [];
             state.placingSpawnFlag = true;
-            state.spawnFlagMode = rallyTargets[0].type;
+            state.spawnFlagMode = warpOnly ? 'warpZone' : rallyTargets[0].type;
             state.spawnFlagStructureIds = rallyTargets.map(structure => structure.id);
             state.contextMenu = null;
             const scope = rallyTargets.length > 1
-              ? `${rallyTargets.length} selected production buildings`
+              ? `${rallyTargets.length} selected ${warpOnly ? 'Warp Gates' : 'production buildings'}`
               : `this ${factionStructureLabel(rallyTargets[0].type, rallyTargets[0].team, state.teamFactions)}`;
-            toast(`Click any open ground — explored or fogged — to set the spawn flag for ${scope}.`, COLORS.warn);
+            toast(warpOnly
+              ? `Click explored open ground inside an active Pylon or Veil Eye field to set the warp zone for ${scope}.`
+              : `Click any open ground — explored or fogged — to set the spawn flag for ${scope}.`, COLORS.warn);
           }
           return true;
         }
@@ -6331,7 +6336,8 @@
       }
       
       function spawnFlagColor(type) {
-        return type === 'hq' || type === 'minersHut' ? COLORS.good
+        return type === 'warpZone' || type === 'heliasGateway' ? '#9eeeff'
+          : type === 'hq' || type === 'minersHut' ? COLORS.good
           : type === 'airBay' ? '#9cf2ff'
           : COLORS.warn;
       }
@@ -6532,11 +6538,16 @@
         const flags = new Set();
         for (const structure of structures) {
           if (structure.team !== activeCommandTeam() || structure.hp <= 0 || !structure.spawnFlag) continue;
-          const key = `${structure.spawnFlag.x}:${structure.spawnFlag.y}:${structure.type}`;
+          const warp = structure.type === 'heliasGateway' && structure.warpGate;
+          const key = `${structure.spawnFlag.x}:${structure.spawnFlag.y}:${structure.type}:${warp ? 1 : 0}`;
           if (flags.has(key)) continue;
           flags.add(key);
-          ctx.fillStyle = spawnFlagColor(structure.type);
-          ctx.fillRect(map.x + structure.spawnFlag.x * map.sx - 2, map.y + structure.spawnFlag.y * map.sy - 2, 5, 5);
+          const fx = map.x + structure.spawnFlag.x * map.sx;
+          const fy = map.y + structure.spawnFlag.y * map.sy;
+          ctx.fillStyle = spawnFlagColor(warp ? 'warpZone' : structure.type);
+          if (warp) {
+            ctx.beginPath(); ctx.moveTo(fx, fy - 3); ctx.lineTo(fx + 3, fy); ctx.lineTo(fx, fy + 3); ctx.lineTo(fx - 3, fy); ctx.closePath(); ctx.fill();
+          } else ctx.fillRect(fx - 2, fy - 2, 5, 5);
         }
       
         ctx.strokeStyle = COLORS.warn;
@@ -7062,6 +7073,22 @@
             iconType: 'turret',
             upgradeArrow: true
           };
+        } else if (structure.warpInJob) {
+          const warpedUnit = UNIT_DATA[structure.warpInJob.type];
+          active = {
+            label: `WARPING ${warpedUnit?.label || String(structure.warpInJob.type || 'UNIT').toUpperCase()}`,
+            timeLeft: structure.warpInJob.timeLeft,
+            total: structure.warpInJob.total,
+            color: '#bff7ff',
+            producer: structure,
+            item: structure.warpInJob,
+            kind: 'warpIn',
+            queueIndex: 0,
+            iconKind: 'unit',
+            iconType: structure.warpInJob.type,
+            upgradeArrow: false
+          };
+          waiting = [];
         } else if (queued.length) {
           active = unitProductionEntry(queued[0], structure, 0);
           waiting = queued.slice(1).map((item, index) => unitProductionEntry(item, structure, index + 1)).filter(Boolean);
@@ -7159,6 +7186,49 @@
       }
       
       
+      function drawWarpGateGroupProduction(zone, selected, x, rowY, maxW, compact) {
+        if (selected.length < 2 || !selected.every(structure =>
+          structure.type === 'heliasGateway' && structure.warpGate
+        )) return false;
+        const entries = selected.map((structure, index) => {
+          const entry = structureProductionDisplay(structure).active;
+          if (!entry || entry.kind !== 'warpIn') return null;
+          return { ...entry, label: `GATE ${index + 1} · ${entry.label}` };
+        }).filter(Boolean);
+        if (!entries.length) return false;
+
+        const bottom = zone.y + zone.h - (compact ? 3 : 5);
+        const availableH = bottom - rowY + 1;
+        const gap = compact ? 3 : 5;
+        const size = Math.min(compact ? 28 : 40, availableH, Math.max(18, Math.floor((maxW - gap * (Math.min(entries.length, 4) - 1)) / Math.min(entries.length, 4))));
+        if (size < 18) return false;
+        const maxVisible = Math.max(1, Math.floor((maxW + gap) / (size + gap)));
+        const visible = entries.slice(0, maxVisible);
+        let hoveredEntry = null;
+        let cursorX = x;
+        for (const entry of visible) {
+          const rect = { x: cursorX, y: rowY, w: size, h: size };
+          if (drawQueueSquare(entry, rect, true, compact)) hoveredEntry = entry;
+          cursorX += size + gap;
+        }
+        if (entries.length > visible.length && visible.length) {
+          const hidden = entries.length - visible.length;
+          const rect = { x: x + maxW - size, y: rowY, w: size, h: size };
+          ctx.fillStyle = '#121a25';
+          ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+          ctx.strokeStyle = '#56657b';
+          ctx.strokeRect(rect.x + .5, rect.y + .5, rect.w - 1, rect.h - 1);
+          drawConsoleText(`+${hidden}`, rect.x + rect.w / 2, rect.y + Math.max(1, (rect.h - 10) / 2), compact ? 7 : 10, COLORS.muted, 'center', rect.w - 4, 900);
+        }
+        const detail = hoveredEntry || entries[0];
+        const detailY = rowY + size + (compact ? 2 : 4);
+        if (detailY + (compact ? 7 : 10) <= bottom) {
+          drawConsoleText(`${detail.label} · ${Math.max(0, Math.ceil(detail.timeLeft || 0))}s${hoveredEntry ? ' · CLICK TO CANCEL' : ''}`,
+            x, detailY, compact ? 6 : 8, hoveredEntry ? COLORS.bad : COLORS.muted, 'left', maxW, 800);
+        }
+        return true;
+      }
+
       function drawInfoActionButton(rect, label, tone, enabled = true) {
         const hovered = enabled && pointInRect(state.mouse, rect);
         const palette = tone === 'sell'
@@ -7173,35 +7243,53 @@
         ctx.globalAlpha = 1;
       }
       
-      function drawInfoFlagButton(rect, enabled = true) {
+      function drawInfoFlagButton(rect, enabled = true, warp = false) {
         const hovered = enabled && pointInRect(state.mouse, rect);
         ctx.globalAlpha = enabled ? 1 : .4;
-        ctx.fillStyle = hovered ? '#4b6190' : '#3a4c72';
+        ctx.fillStyle = warp ? (hovered ? '#285b72' : '#1d4558') : (hovered ? '#4b6190' : '#3a4c72');
         ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-        ctx.strokeStyle = '#7895cf';
+        ctx.strokeStyle = warp ? '#9eeeff' : '#7895cf';
         ctx.strokeRect(rect.x + .5, rect.y + .5, Math.max(0, rect.w - 1), Math.max(0, rect.h - 1));
 
-        const poleX = Math.round(rect.x + rect.w * .36) + .5;
-        const topY = Math.round(rect.y + rect.h * .24) + .5;
-        const bottomY = Math.round(rect.y + rect.h * .78) + .5;
-        const flagW = Math.max(5, Math.round(rect.w * .28));
-        const flagH = Math.max(4, Math.round(rect.h * .28));
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#f2f6ff';
-        ctx.beginPath();
-        ctx.moveTo(poleX, topY);
-        ctx.lineTo(poleX, bottomY);
-        ctx.stroke();
-        ctx.fillStyle = '#9ec5ff';
-        ctx.beginPath();
-        ctx.moveTo(poleX + 1, topY);
-        ctx.lineTo(poleX + flagW, topY + Math.round(flagH * .34));
-        ctx.lineTo(poleX + 1, topY + flagH);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = '#f2f6ff';
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        if (warp) {
+          const cx = rect.x + rect.w / 2;
+          const cy = rect.y + rect.h / 2;
+          const radius = Math.max(6, Math.min(rect.w, rect.h) * .25);
+          ctx.strokeStyle = '#e8fdff';
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(cx, cy, radius, -.25 * Math.PI, 1.15 * Math.PI); ctx.stroke();
+          ctx.strokeStyle = '#78ddff';
+          ctx.beginPath(); ctx.arc(cx, cy, radius * .62, .7 * Math.PI, 2.1 * Math.PI); ctx.stroke();
+          ctx.fillStyle = '#d9fbff';
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - radius * .55);
+          ctx.lineTo(cx + radius * .48, cy);
+          ctx.lineTo(cx, cy + radius * .55);
+          ctx.lineTo(cx - radius * .48, cy);
+          ctx.closePath(); ctx.fill();
+        } else {
+          const poleX = Math.round(rect.x + rect.w * .36) + .5;
+          const topY = Math.round(rect.y + rect.h * .24) + .5;
+          const bottomY = Math.round(rect.y + rect.h * .78) + .5;
+          const flagW = Math.max(5, Math.round(rect.w * .28));
+          const flagH = Math.max(4, Math.round(rect.h * .28));
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#f2f6ff';
+          ctx.beginPath();
+          ctx.moveTo(poleX, topY);
+          ctx.lineTo(poleX, bottomY);
+          ctx.stroke();
+          ctx.fillStyle = '#9ec5ff';
+          ctx.beginPath();
+          ctx.moveTo(poleX + 1, topY);
+          ctx.lineTo(poleX + flagW, topY + Math.round(flagH * .34));
+          ctx.lineTo(poleX + 1, topY + flagH);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = '#f2f6ff';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
         ctx.globalAlpha = 1;
       }
 
@@ -7224,6 +7312,9 @@
         );
         const canRally = operationalProduction.length === selected.length && operationalProduction.length > 0 &&
           (single || sameType || insectHiveGroup);
+        const warpRally = canRally && operationalProduction.every(structure =>
+          structure.type === 'heliasGateway' && structure.warpGate
+        );
         const stackedActions = compact && (canSell || canCancel || canRally);
         const buttonH = mobile ? 44 : compact ? 15 : 20;
         const buttonGap = mobile ? 4 : compact ? 2 : 5;
@@ -7251,7 +7342,7 @@
               actionX += textW + buttonGap;
             }
             state.infoRallyRect = { x: actionX, y: stackedButtonY, w: buttonH, h: buttonH };
-            drawInfoFlagButton(state.infoRallyRect);
+            drawInfoFlagButton(state.infoRallyRect, true, warpRally);
           } else {
             const compactW = Math.max(12, Math.floor((maxW - buttonGap * Math.max(0, count - 1)) / Math.max(1, count)));
             let actionX = x;
@@ -7267,7 +7358,7 @@
             }
             if (canRally) {
               state.infoRallyRect = { x: actionX, y: stackedButtonY, w: compactW, h: buttonH };
-              drawInfoFlagButton(state.infoRallyRect);
+              drawInfoFlagButton(state.infoRallyRect, true, warpRally);
             }
           }
         } else {
@@ -7279,7 +7370,7 @@
           if (canRally) {
             state.infoRallyRect = { x: actionRight - rallyW, y: zone.y + 7, w: rallyW, h: buttonH };
             actionRight -= rallyW + buttonGap;
-            drawInfoFlagButton(state.infoRallyRect);
+            drawInfoFlagButton(state.infoRallyRect, true, warpRally);
           }
           if (canSell) {
             state.infoSellRect = { x: actionRight - sellW, y: zone.y + 7, w: sellW, h: buttonH };
@@ -7314,6 +7405,7 @@
         drawConsoleText(`HP ${Math.ceil(hp)} / ${Math.ceil(maxHp)}`, x, barY + (mobile ? 13 : compact ? 10 : 12), compact ? 8 : 11, COLORS.good, 'left', maxW);
 
         let rowY = barY + (mobile ? 31 : compact ? 24 : 32);
+        if (drawWarpGateGroupProduction(zone, selected, x, rowY, maxW, compact)) return;
         const productionOwner = selected.find(structure => structureProductionDisplay(structure).active) || primary;
         if (drawStructureProductionQueue(zone, productionOwner, x, rowY, maxW, compact)) return;
 
@@ -7322,7 +7414,7 @@
           (structure.researchJob ? 1 : 0) + (structure.researchQueue?.length || 0), 0);
         drawConsoleText(`QUEUE ${queue}   SIGHT ${Math.round(primary.sight || 0)}`, x, rowY, compact ? 8 : 11, COLORS.player2, 'left', maxW);
         rowY += compact ? 13 : 18;
-        if (primary.spawnFlag) drawConsoleText('SPAWN FLAG ACTIVE', x, rowY, compact ? 8 : 11, COLORS.good, 'left', maxW);
+        if (primary.spawnFlag) drawConsoleText(primary.type === 'heliasGateway' && primary.warpGate ? 'WARP ZONE ACTIVE' : 'SPAWN FLAG ACTIVE', x, rowY, compact ? 8 : 11, primary.type === 'heliasGateway' && primary.warpGate ? '#9eeeff' : COLORS.good, 'left', maxW);
         else if (primary.type === 'radarTurret') drawConsoleText(`MINIMAP DETECTION ${Math.round(primary.radarRange || BUILDING_DATA.radarTurret?.radarRange || 0)} · FOG UNAFFECTED`, x, rowY, compact ? 8 : 11, '#9cf2ff', 'left', maxW);
       }
       
@@ -14940,6 +15032,19 @@
         );
       }
 
+      function warpGateZonePoint(gateway) {
+        if (!gateway || gateway.type !== 'heliasGateway' || !gateway.warpGate || gateway.hp <= 0) return null;
+        if (gateway.spawnFlag && pointHasHeliasWarpEnergy(gateway.team, gateway.spawnFlag.x, gateway.spawnFlag.y)) {
+          return gateway.spawnFlag;
+        }
+        // CPU Warp Gates retain their previous self-deployment fallback so the
+        // player-only flag workflow does not disable Helias computer production.
+        if (isComputerTeam(gateway.team) && pointHasHeliasWarpEnergy(gateway.team, gateway.x, gateway.y)) {
+          return { x: gateway.x, y: gateway.y };
+        }
+        return null;
+      }
+
       function heliaStructureRequiresPower(type) {
         return HELIAS_POWERED_STRUCTURE_TYPES.has(type) && !HELIAS_UNPOWERED_EXEMPT_TYPES.has(type);
       }
@@ -16897,9 +17002,13 @@
           toast('A prerequisite Helias structure is required before this unit can warp in.', COLORS.warn, team);
           return false;
         }
-        const ready = group.filter(gateway => warpGateReady(gateway, type));
+        const explicitPoint = point && Number.isFinite(point.x) && Number.isFinite(point.y) ? point : null;
+        const ready = group.filter(gateway => warpGateReady(gateway, type) && (explicitPoint || warpGateZonePoint(gateway)));
         if (!ready.length) {
-          toast('Every selected Warp Gate is unpowered, materialising a unit or recharging.', COLORS.warn, team);
+          const hasActiveZone = group.some(gateway => !!warpGateZonePoint(gateway));
+          toast(hasActiveZone
+            ? 'Every selected Warp Gate is unpowered, materialising a unit or recharging.'
+            : 'Set an active warp zone with the Warp icon before queueing units.', COLORS.warn, team);
           return false;
         }
         const spawnCount = Math.max(1, Math.trunc(data.spawnCount || 1));
@@ -16911,11 +17020,6 @@
           toast('Not enough resources.', COLORS.bad, team);
           return false;
         }
-        const warpPoint = resolveWarpInPoint(team, type, point);
-        if (!warpPoint) {
-          toast(warpInPlacementError(team, type, point) || 'No open powered warp-in point is available nearby.', COLORS.warn, team);
-          return false;
-        }
         const key = `warp:${type}:${group.map(gateway => gateway.id).join(',')}`;
         const start = (state.productionRoundRobin[key] || 0) % group.length;
         let gateway = null;
@@ -16924,6 +17028,12 @@
           if (ready.includes(candidate)) { gateway = candidate; break; }
         }
         if (!gateway) return false;
+        const requestedPoint = explicitPoint || warpGateZonePoint(gateway);
+        const warpPoint = resolveWarpInPoint(team, type, requestedPoint);
+        if (!warpPoint) {
+          toast(warpInPlacementError(team, type, requestedPoint) || 'No open powered warp-in point is available near this Warp Gate zone.', COLORS.warn, team);
+          return false;
+        }
         pay(data.costM, data.costG, team);
         gateway.warpInJob = {
           type, point: warpPoint, timeLeft: HELIAS_WARP_IN_TIME, total: HELIAS_WARP_IN_TIME,
@@ -16932,8 +17042,8 @@
         gateway.warpGateCooldownLeft = warpGateCooldownFor(type, gateway);
         state.productionRoundRobin[key] = (group.indexOf(gateway) + 1) % group.length;
         addEffect('muzzleRing', { x: warpPoint.x, y: warpPoint.y, angle: 0, color: '#bff7ff', radius: 20, intensity: 1.9, life: .5 });
-        burst(warpPoint.x, warpPoint.y, '#9eeeff', 22, true, { shape: 'spark', lifeMin: .12, lifeMax: .55, sizeMin: 1, sizeMax: 4, speedMin: 22, speedMax: 105, alpha: .95 });
-        toast(`${factionUnitLabel(type, team, state.teamFactions)} materialising (${HELIAS_WARP_IN_TIME}s) · Warp Gate cooldown ${Math.ceil(gateway.warpGateCooldownLeft)}s.`, COLORS.good, team);
+        burst(warpPoint.x, warpPoint.y, '#9eeeff', 14, true, { shape: 'spark', lifeMin: .12, lifeMax: .42, sizeMin: 1, sizeMax: 3, speedMin: 18, speedMax: 82, alpha: .9 });
+        toast(`${factionUnitLabel(type, team, state.teamFactions)} queued at Warp Gate ${group.indexOf(gateway) + 1} (${HELIAS_WARP_IN_TIME}s) · cooldown ${Math.ceil(gateway.warpGateCooldownLeft)}s.`, COLORS.good, team);
         return true;
       }
 
@@ -16941,10 +17051,7 @@
         if (state.gameOver) return false;
         const d = UNIT_DATA[type];
         if (producer?.type === 'heliasGateway' && producer.warpGate) {
-          const preferred = producer.spawnFlag && pointHasHeliasWarpEnergy(producer.team, producer.spawnFlag.x, producer.spawnFlag.y)
-            ? producer.spawnFlag
-            : { x: producer.x, y: producer.y };
-          return queueWarpInAcross(type, [producer], preferred, producer.team);
+          return queueWarpInAcross(type, [producer], null, producer.team);
         }
         if (producer && !heliaStructurePowered(producer)) {
           toast(`${factionStructureLabel(producer.type, producer.team, state.teamFactions)} is unpowered. Restore a nearby Pylon before warping units.`, COLORS.warn, producer.team);
@@ -17033,8 +17140,7 @@
           .filter(s => s.team === team && s.hp > 0 && !s.underConstruction)
           .sort((a, b) => a.id - b.id);
         if (group.length && group.every(s => s.type === 'heliasGateway' && s.warpGate)) {
-          const anchor = group.find(s => s.spawnFlag && pointHasHeliasWarpEnergy(team, s.spawnFlag.x, s.spawnFlag.y))?.spawnFlag || group[0];
-          return queueWarpInAcross(type, group, anchor, team);
+          return queueWarpInAcross(type, group, null, team);
         }
         const eligible = group.filter(s => !s.warpGate && !s.conversionJob && productionTypesFor(s).includes(type));
         if (!eligible.length) {
@@ -17082,7 +17188,11 @@
         if (kind === 'research') return cancelFacilityResearchJob(producer, item);
         if (kind === 'lab') return cancelLaboratoryUpgrade(producer, item);
         if (kind === 'insectUpgrade') return cancelInsectUpgrade(producer, item);
-        if (kind === 'upgrade') {
+        if (kind === 'warpIn') {
+          if (producer.warpInJob !== item) return false;
+          producer.warpInJob = null;
+          producer.warpGateCooldownLeft = 0;
+        } else if (kind === 'upgrade') {
           if (productionTechJob(item.team, item.structureType) !== item) return false;
           clearProductionTechJob(item);
         } else {
@@ -17097,7 +17207,9 @@
         }
         const label = kind === 'upgrade'
           ? `${structureLabel(producer.type)} L${item.toLevel} research`
-          : UNIT_DATA[item.type]?.label || 'Production';
+          : kind === 'warpIn'
+            ? `${UNIT_DATA[item.type]?.label || 'Unit'} warp-in`
+            : UNIT_DATA[item.type]?.label || 'Production';
         burst(producer.x, producer.y, COLORS.bad, 9, true);
         toast(`${label} cancelled · ${refund.m}M ${refund.g}G refunded.`, COLORS.good);
         return true;
@@ -17383,8 +17495,27 @@
           if ((structure.chronoCooldownLeft || 0) > 0) structure.chronoCooldownLeft = Math.max(0, structure.chronoCooldownLeft - dt);
         }
         updateInsectMacro(dt);
+        const lostWarpZones = new Map();
         for (const gateway of structures) {
           if (gateway.type !== 'heliasGateway' || gateway.hp <= 0 || gateway.underConstruction) continue;
+          if (gateway.warpGate && gateway.spawnFlag && !pointHasHeliasWarpEnergy(gateway.team, gateway.spawnFlag.x, gateway.spawnFlag.y)) {
+            const lostPoint = gateway.spawnFlag;
+            gateway.spawnFlag = null;
+            let refundM = 0, refundG = 0;
+            if (gateway.warpInJob) {
+              refundM = gateway.warpInJob.costM || 0;
+              refundG = gateway.warpInJob.costG || 0;
+              creditTeamResources(gateway.team, refundM, refundG);
+              gateway.warpInJob = null;
+              gateway.warpGateCooldownLeft = 0;
+            }
+            const summary = lostWarpZones.get(gateway.team) || { count: 0, refundM: 0, refundG: 0 };
+            summary.count++;
+            summary.refundM += refundM;
+            summary.refundG += refundG;
+            lostWarpZones.set(gateway.team, summary);
+            burst(lostPoint.x, lostPoint.y, '#ff8f8f', 10, true, { shape: 'spark', lifeMin: .1, lifeMax: .36, sizeMin: 1, sizeMax: 3, speedMin: 18, speedMax: 70, alpha: .85 });
+          }
           if (!heliaStructurePowered(gateway)) continue;
           const gatewayDt = dt * ((gateway.chronoBoostTimeLeft || 0) > 0 ? HELIAS_CHRONO_MULTIPLIER : 1);
           if ((gateway.warpGateCooldownLeft || 0) > 0) {
@@ -17414,6 +17545,11 @@
               !(gateway.queue?.length) && heliaStructurePowered(gateway)) {
             startGatewayTransformation(gateway, true);
           }
+        }
+        for (const [team, summary] of lostWarpZones) {
+          if (!state.localCommandTeams?.includes(team)) continue;
+          const refund = summary.refundM || summary.refundG ? ` · ${summary.refundM}M ${summary.refundG}G refunded` : '';
+          toast(`${summary.count > 1 ? `${summary.count} ` : ''}WARP ZONE${summary.count > 1 ? 'S' : ''} CANCELLED · energy field lost${refund}.`, COLORS.warn, team);
         }
         for (const organism of structures) {
           if (!isInsectTeam(organism.team)) continue;
@@ -18236,6 +18372,7 @@
           const index = Math.max(0, Math.trunc(command.queueIndex || 0));
           return index === 0 ? producer.insectUpgradeJob : producer.insectUpgradeQueue?.[index - 1] || null;
         }
+        if (command.kind === 'warpIn') return producer.warpInJob || null;
         const index = Math.max(0, Math.trunc(command.queueIndex || 0));
         return producer.queue?.[index] || null;
       }
@@ -30879,33 +31016,36 @@ function compileShader(gl, type, source) {
       
 
       function spawnFlagShortLabel(type) {
-        return ({ hq: 'HQ', barracks: 'BAR', garage: 'GAR', airBay: 'AIR', supportCamp: 'SUP', minersHut: 'HUT' })[type] || 'SPAWN';
+        return ({ warpZone: 'WARP', hq: 'HQ', barracks: 'BAR', garage: 'GAR', airBay: 'AIR', supportCamp: 'SUP', minersHut: 'HUT' })[type] || 'SPAWN';
       }
       function spawnFlagColor(type) {
-        return type === 'hq' || type === 'minersHut' ? COLORS.good
+        return type === 'warpZone' || type === 'heliasGateway' ? '#9eeeff'
+          : type === 'hq' || type === 'minersHut' ? COLORS.good
           : type === 'airBay' ? '#9cf2ff'
           : COLORS.warn;
       }
       function beginSpawnFlagPlacement(source) {
         const requested = Array.isArray(source) ? source : [source];
         const targets = [...new Map(requested.filter(Boolean).map(s => [s.id, s])).values()]
-          .filter(s => s.team === activeCommandTeam() && s.hp > 0 && !s.underConstruction && isProductionBuilding(s) &&
-            !(s.type === 'heliasGateway' && s.warpGate));
-        if (!targets.length) {
-          toast('Warp Gates deploy units directly from their unit buttons; they do not use spawn flags.', COLORS.warn);
-          return false;
-        }
+          .filter(s => s.team === activeCommandTeam() && s.hp > 0 && !s.underConstruction && isProductionBuilding(s));
+        if (!targets.length) return false;
+        const warpOnly = targets.every(s => s.type === 'heliasGateway' && s.warpGate);
         state.placingGroundTag = false;
         state.placingQueenAbility = null;
         state.queenAbilityUnitIds = [];
         state.placingSpawnFlag = true;
-        state.spawnFlagMode = targets[0].type;
+        state.spawnFlagMode = warpOnly ? 'warpZone' : targets[0].type;
         state.spawnFlagStructureIds = targets.map(s => s.id);
         state.contextMenu = null;
-        const scope = targets.length > 1 ? `${targets.length} selected ${structureLabel(targets[0].type)} buildings` : `this ${structureLabel(targets[0].type)}`;
-        toast(`Click any open ground — explored or fogged — to set the spawn flag for ${scope}.`, COLORS.warn);
+        const scope = targets.length > 1
+          ? `${targets.length} selected ${warpOnly ? 'Warp Gates' : `${structureLabel(targets[0].type)} buildings`}`
+          : `this ${structureLabel(targets[0].type)}`;
+        toast(warpOnly
+          ? `Click explored open ground inside an active Pylon or Veil Eye field to set the warp zone for ${scope}.`
+          : `Click any open ground — explored or fogged — to set the spawn flag for ${scope}.`, COLORS.warn);
         return true;
       }
+
       function localWarpInPlacementStatus(type, p, team = activeCommandTeam()) {
         const data = UNIT_DATA[type];
         if (!data || !p) return { valid: false, error: 'Choose a warp-in point.' };
@@ -30980,7 +31120,17 @@ function compileShader(gl, type, source) {
           openBuildMenu();
           return true;
         }
-        if (terrain[ty][tx] !== 0) { toast('The spawn flag needs open ground.', COLORS.warn); return false; }
+        if (mode === 'warpZone') {
+          const point = { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 };
+          if (!state.explored[ty]?.[tx]) { toast('Warp zones require explored ground.', COLORS.warn); return false; }
+          if (terrain[ty][tx] !== 0) { toast('Warp zones require open ground.', COLORS.warn); return false; }
+          if (!pointHasHeliasPowerForMenu(team, point.x, point.y)) {
+            toast('Warp zones must be inside an operational Pylon field or active Veil Eye energy zone.', COLORS.warn);
+            return false;
+          }
+        } else if (terrain[ty][tx] !== 0) {
+          toast('The spawn flag needs open ground.', COLORS.warn); return false;
+        }
         if (!queueGameplayCommand({
           type: 'spawnFlag', team, structureIds, mode,
           point: { x: p.x, y: p.y }
@@ -30995,16 +31145,15 @@ function compileShader(gl, type, source) {
         const point = command.point || { x: 0, y: 0 };
         const tx = clamp(Math.floor(point.x / TILE), 0, COLS - 1);
         const ty = clamp(Math.floor(point.y / TILE), 0, ROWS - 1);
-        if (terrain[ty][tx] !== 0) { toast('The spawn flag needs open ground.', COLORS.warn); return false; }
+        if (terrain[ty][tx] !== 0) { toast(command.mode === 'warpZone' ? 'The warp zone needs open ground.' : 'The spawn flag needs open ground.', COLORS.warn); return false; }
         const flag = { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 };
         const ids = new Set(command.structureIds || []);
         const targets = structures.filter(structure =>
-          ids.has(structure.id) && structure.team === command.team && structure.hp > 0 && isProductionBuilding(structure) &&
-          !(structure.type === 'heliasGateway' && structure.warpGate)
+          ids.has(structure.id) && structure.team === command.team && structure.hp > 0 && isProductionBuilding(structure)
         );
-        if (targets.some(structure => structure.type === 'heliasGateway' && structure.warpGate) &&
-            !pointHasHeliasPowerForMenu(command.team, flag.x, flag.y)) {
-          toast('Warp Gate deployment points must remain inside an operational Pylon field.', COLORS.warn, command.team);
+        const warpTargets = targets.filter(structure => structure.type === 'heliasGateway' && structure.warpGate);
+        if (warpTargets.length && !pointHasHeliasPowerForMenu(command.team, flag.x, flag.y)) {
+          toast('Warp zones must remain inside an operational Pylon field or active Veil Eye energy zone.', COLORS.warn, command.team);
           return false;
         }
         if (!targets.length) {
@@ -31012,11 +31161,18 @@ function compileShader(gl, type, source) {
           return false;
         }
         for (const target of targets) target.spawnFlag = { ...flag };
-        burst(flag.x, flag.y, spawnFlagColor(command.mode || targets[0].type), 14, true);
-        toast(`${targets.length > 1 ? `${targets.length} × ` : ''}${structureLabel(command.mode || targets[0].type)} SPAWN FLAG set.`, COLORS.good);
+        const warpOnly = warpTargets.length === targets.length;
+        const mode = warpOnly ? 'warpZone' : command.mode || targets[0].type;
+        burst(flag.x, flag.y, spawnFlagColor(mode), warpOnly ? 18 : 14, true);
+        toast(`${targets.length > 1 ? `${targets.length} × ` : ''}${warpOnly ? 'WARP ZONE' : `${structureLabel(command.mode || targets[0].type)} SPAWN FLAG`} set.`, COLORS.good);
         return true;
       }
-      
+
+      function warpGateZoneReadyForMenu(gateway, type = null) {
+        return warpGateReady(gateway, type) && !!gateway.spawnFlag &&
+          pointHasHeliasPowerForMenu(gateway.team, gateway.spawnFlag.x, gateway.spawnFlag.y);
+      }
+
       function openProductionMenu(source, screenPt) {
         const requested = Array.isArray(source) ? source : [source];
         const group = [...new Map(requested.filter(Boolean).map(s => [s.id, s])).values()]
@@ -31046,19 +31202,21 @@ function compileShader(gl, type, source) {
             });
           }
           if (warped.length) {
-            const ready = warped.filter(gateway => warpGateReady(gateway, type));
+            const zoned = warped.filter(gateway => gateway.spawnFlag && pointHasHeliasPowerForMenu(gateway.team, gateway.spawnFlag.x, gateway.spawnFlag.y));
+            const ready = warped.filter(gateway => warpGateZoneReadyForMenu(gateway, type));
             const materialising = warped.filter(gateway => gateway.warpInJob).length;
             const recharging = warped.filter(gateway => !gateway.warpInJob && (gateway.warpGateCooldownLeft || 0) > 0).length;
-            const status = warped.length > 1 ? ` · ${ready.length}/${warped.length} ready` : '';
+            const status = warped.length > 1 ? ` · ${ready.length}/${warped.length} ready · ${zoned.length}/${warped.length} zoned` : zoned.length ? ' · zone active' : ' · set warp zone first';
             const busy = materialising || recharging
               ? ` · ${materialising ? `${materialising} materialising` : ''}${materialising && recharging ? ', ' : ''}${recharging ? `${recharging} recharging` : ''}`
               : '';
             items.push({
-              label: `WARP IN ${factionUnitLabel(type, producers[0].team, state.teamFactions)}${batchCount > 1 ? ` ×${batchCount}` : ''}`,
+              label: `WARP ${factionUnitLabel(type, producers[0].team, state.teamFactions)}${batchCount > 1 ? ` ×${batchCount}` : ''}`,
               sub: `${d.costM}M ${d.costG}G · 3s arrival · ${warpGateCooldownFor(type, warped[0])}s cooldown · ${(d.pop ?? 1) * batchCount} pop${status}${busy}`,
               tone: 'ability', costM: d.costM, costG: d.costG,
               enabled: ready.length > 0,
-              action: () => beginWarpInPlacement(type, warped)
+              command: { type: 'warpIn', team: producers[0].team, unitType: type, gatewayIds: warped.map(gateway => gateway.id) },
+              afterQueue: () => openProductionMenu(producers, screenPt)
             });
           }
         }
@@ -31085,7 +31243,7 @@ function compileShader(gl, type, source) {
           const readyStandard = standard.filter(gateway => gatewayTransformReady(gateway, true));
           if (standard.length) items.push({
             label: `TRANSFORM ${standard.length > 1 ? `${readyStandard.length}/${standard.length} ` : ''}TO WARP GATE`,
-            sub: '5s · empty, powered Gateways only · deploy units to any explored powered point',
+            sub: '5s · empty, powered Gateways only · set Warp Zones with the warp icon, then queue units across selected gates',
             tone: 'ability', enabled: readyStandard.length > 0,
             command: { type: 'transformGateway', team: productionTeam, gatewayIds: readyStandard.map(gateway => gateway.id), toWarpGate: true },
             afterQueue: () => openProductionMenu(producers, screenPt)
@@ -31670,7 +31828,7 @@ function compileShader(gl, type, source) {
           const warpJob = productionTechJob(s.team, 'heliasGateway');
           const warpSpec = PRODUCTION_TECH.heliasGateway?.upgrades?.[2];
           if (warpTechnologyResearched(s.team)) {
-            items.push({ label: 'WARP TECHNOLOGY · COMPLETE', sub: 'each powered Gateway can transform into a Warp Gate and deploy troops at any explored point inside Pylon power', tone: 'research', enabled: false, action: () => {} });
+            items.push({ label: 'WARP TECHNOLOGY · COMPLETE', sub: 'each powered Gateway can transform into a Warp Gate, receive a Warp Zone with its warp icon, and queue troops into that active field', tone: 'research', enabled: false, action: () => {} });
           } else if (warpJob) {
             items.push({ label: 'WARP TECHNOLOGY · RESEARCHING', sub: `${Math.ceil(warpJob.timeLeft)}s · Gateway training remains active`, tone: 'research', enabled: false, action: () => {} });
           } else {
@@ -39444,6 +39602,25 @@ function drawStructure(s) {
           drawText(ghost ? 'PLACE' : label, p.x, p.y + 14, 9, color, 'center');
           ctx.restore();
         };
+        const paintWarpZone = (p, ghost = false, label = 'WARP') => {
+          const pulse = 1 + Math.sin(state.elapsed * 4.2) * .12;
+          ctx.save();
+          ctx.globalAlpha = ghost ? .48 : .92;
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.strokeStyle = '#9eeeff';
+          ctx.lineWidth = 2 / cam.zoom;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 15 * pulse, state.elapsed * .9, state.elapsed * .9 + Math.PI * 1.45); ctx.stroke();
+          ctx.strokeStyle = '#d9fbff';
+          ctx.beginPath(); ctx.arc(p.x, p.y, 9 * pulse, -state.elapsed * 1.25, -state.elapsed * 1.25 + Math.PI * 1.25); ctx.stroke();
+          ctx.fillStyle = 'rgba(126,232,255,.18)';
+          ctx.beginPath(); ctx.arc(p.x, p.y, 12, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#d9fbff';
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y - 6); ctx.lineTo(p.x + 5, p.y); ctx.lineTo(p.x, p.y + 6); ctx.lineTo(p.x - 5, p.y); ctx.closePath(); ctx.fill();
+          ctx.globalCompositeOperation = 'source-over';
+          drawText(ghost ? 'PLACE WARP ZONE' : label, p.x, p.y + 19, 9, '#9eeeff', 'center');
+          ctx.restore();
+        };
         const warpMode = String(state.spawnFlagMode || '');
         if (state.placingSpawnFlag && warpMode.startsWith('warpIn:')) {
           const unitType = warpMode.slice('warpIn:'.length);
@@ -39479,24 +39656,63 @@ function drawStructure(s) {
         }
         const groupedFlags = new Map();
         for (const structure of structures) {
-          if (structure.team !== activeCommandTeam() || structure.hp <= 0 || !structure.spawnFlag || !isProductionBuilding(structure) ||
-              (structure.type === 'heliasGateway' && structure.warpGate)) continue;
-          const key = `${structure.type}:${structure.spawnFlag.x}:${structure.spawnFlag.y}`;
-          const entry = groupedFlags.get(key) || { point: structure.spawnFlag, type: structure.type, count: 0 };
+          if (structure.team !== activeCommandTeam() || structure.hp <= 0 || !structure.spawnFlag || !isProductionBuilding(structure)) continue;
+          const warp = structure.type === 'heliasGateway' && structure.warpGate;
+          const key = `${warp ? 'warp' : structure.type}:${structure.spawnFlag.x}:${structure.spawnFlag.y}`;
+          const entry = groupedFlags.get(key) || { point: structure.spawnFlag, type: structure.type, count: 0, warp };
           entry.count++;
           groupedFlags.set(key, entry);
         }
         for (const entry of groupedFlags.values()) {
-          const label = `${entry.count > 1 ? `${entry.count}× ` : ''}${spawnFlagShortLabel(entry.type)}`;
-          paintFlag(entry.point, false, label, spawnFlagColor(entry.type));
+          const label = `${entry.count > 1 ? `${entry.count}× ` : ''}${entry.warp ? 'WARP' : spawnFlagShortLabel(entry.type)}`;
+          if (entry.warp) paintWarpZone(entry.point, false, label);
+          else paintFlag(entry.point, false, label, spawnFlagColor(entry.type));
         }
         if (state.placingSpawnFlag) {
           const count = state.spawnFlagStructureIds.length;
           const label = `${count > 1 ? `${count}× ` : ''}${spawnFlagShortLabel(state.spawnFlagMode)}`;
-          paintFlag(screenToWorld(state.mouse.x, state.mouse.y), true, label, spawnFlagColor(state.spawnFlagMode));
+          const point = screenToWorld(state.mouse.x, state.mouse.y);
+          if (warpMode === 'warpZone') paintWarpZone(point, true, label);
+          else paintFlag(point, true, label, spawnFlagColor(state.spawnFlagMode));
         }
       }
-      
+
+      function drawWarpInAnimations() {
+        for (const gateway of structures) {
+          const job = gateway.warpInJob;
+          if (gateway.type !== 'heliasGateway' || !job || gateway.hp <= 0 || !job.point) continue;
+          const total = Math.max(.001, Number(job.total || 3));
+          const progress = clamp(1 - Number(job.timeLeft || 0) / total, 0, 1);
+          const p = job.point;
+          const radius = Math.max(13, (UNIT_DATA[job.type]?.radius || 9) + 10);
+          const phase = state.elapsed * 2.6 + gateway.id * .31;
+          const alpha = .38 + progress * .45;
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = alpha;
+          ctx.strokeStyle = '#8be8ff';
+          ctx.lineWidth = 2.2 / cam.zoom;
+          ctx.beginPath(); ctx.arc(p.x, p.y, radius * (1.12 - progress * .18), phase, phase + Math.PI * 1.45); ctx.stroke();
+          ctx.strokeStyle = '#e6fdff';
+          ctx.lineWidth = 1.2 / cam.zoom;
+          ctx.beginPath(); ctx.arc(p.x, p.y, radius * (.62 + progress * .2), -phase * 1.35, -phase * 1.35 + Math.PI * 1.2); ctx.stroke();
+          ctx.fillStyle = `rgba(158,238,255,${.06 + progress * .12})`;
+          ctx.beginPath(); ctx.arc(p.x, p.y, radius * (.72 + progress * .12), 0, Math.PI * 2); ctx.fill();
+          const beamH = 12 + progress * 35;
+          ctx.globalAlpha = .14 + progress * .26;
+          ctx.fillStyle = '#bff7ff';
+          ctx.fillRect(p.x - 2.5 / cam.zoom, p.y - beamH, 5 / cam.zoom, beamH * 1.75);
+          ctx.globalAlpha = alpha;
+          for (let i = 0; i < 4; i++) {
+            const a = phase + i * Math.PI / 2;
+            const r = radius * (.55 + ((i + gateway.id) % 3) * .16);
+            ctx.fillStyle = i % 2 ? '#d9fbff' : '#72d8ff';
+            ctx.fillRect(p.x + Math.cos(a) * r - 1 / cam.zoom, p.y + Math.sin(a) * r - 1 / cam.zoom, 2 / cam.zoom, 2 / cam.zoom);
+          }
+          ctx.restore();
+        }
+      }
+
       // ---- Screen-space overlays -------------------------------------------------
       function drawSelectionBox() {
         if (!state.drag || !state.drag.moved) return;
@@ -39544,13 +39760,17 @@ function drawStructure(s) {
         for (const u of units) if (u.hp > 0) dot(u, colorForTeam(u.team, 'light'));
         const minimapFlags = new Set();
         for (const structure of structures) {
-          if (structure.team !== activeCommandTeam() || structure.hp <= 0 || !structure.spawnFlag || !isProductionBuilding(structure) ||
-              (structure.type === 'heliasGateway' && structure.warpGate)) continue;
-          const key = `${structure.spawnFlag.x}:${structure.spawnFlag.y}:${structure.type}`;
+          if (structure.team !== activeCommandTeam() || structure.hp <= 0 || !structure.spawnFlag || !isProductionBuilding(structure)) continue;
+          const warp = structure.type === 'heliasGateway' && structure.warpGate;
+          const key = `${structure.spawnFlag.x}:${structure.spawnFlag.y}:${structure.type}:${warp ? 1 : 0}`;
           if (minimapFlags.has(key)) continue;
           minimapFlags.add(key);
-          ctx.fillStyle = spawnFlagColor(structure.type);
-          ctx.fillRect(mx + structure.spawnFlag.x * sx - 2, my + structure.spawnFlag.y * sy - 2, 5, 5);
+          const fx = mx + structure.spawnFlag.x * sx;
+          const fy = my + structure.spawnFlag.y * sy;
+          ctx.fillStyle = spawnFlagColor(warp ? 'warpZone' : structure.type);
+          if (warp) {
+            ctx.beginPath(); ctx.moveTo(fx, fy - 3); ctx.lineTo(fx + 3, fy); ctx.lineTo(fx, fy + 3); ctx.lineTo(fx - 3, fy); ctx.closePath(); ctx.fill();
+          } else ctx.fillRect(fx - 2, fy - 2, 5, 5);
         }
         // Camera viewport rectangle.
         ctx.strokeStyle = COLORS.warn; ctx.lineWidth = 1;
@@ -40768,6 +40988,7 @@ function drawStructure(s) {
         for (const u of units) {
           if (entityInCamera(u, isAirUnit(u) ? 64 : 36)) drawUnit(u);
         }
+        drawWarpInAnimations();
         drawEffects();
         drawFog();
         drawCampaignMissionMarkers();
