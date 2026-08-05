@@ -17941,7 +17941,7 @@
       // loader, importing this helper from rendering.js crosses the existing
       // input/rendering cycle and can capture an undefined export during startup.
       function cancelBuildingPlacement() {
-        cancelBuildingPlacement();
+        state.placingBuildingType = null;
         openBuildMenu();
       }
       
