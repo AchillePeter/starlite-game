@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -33,14 +33,30 @@
       enabled: false,
       adUnitPath: '',
       testMode: false,
-      developmentPlaceholder: true,
+      // Set true only when you explicitly want the local non-revenue test countdown.
+      // When false, an unavailable Google rewarded ad falls back to a normal tag save.
+      developmentPlaceholder: false,
       developmentSeconds: 8
+    };
+
+    // Tag Shop asset manifest. Put the image files in ./assets/tags/ and add or
+    // remove entries here. Missing files remain visible as labelled placeholders.
+    window.STARLITE_TAG_SHOP_CONFIG = window.STARLITE_TAG_SHOP_CONFIG || {
+      basePath: './assets/tags/',
+      items: [
+        { id: 'shop-tag-01', name: 'SHOP TAG 01', file: 'tag-01.png' },
+        { id: 'shop-tag-02', name: 'SHOP TAG 02', file: 'tag-02.png' },
+        { id: 'shop-tag-03', name: 'SHOP TAG 03', file: 'tag-03.png' },
+        { id: 'shop-tag-04', name: 'SHOP TAG 04', file: 'tag-04.png' },
+        { id: 'shop-tag-05', name: 'SHOP TAG 05', file: 'tag-05.png' },
+        { id: 'shop-tag-06', name: 'SHOP TAG 06', file: 'tag-06.png' }
+      ]
     };
   </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4359620363966949"
      crossorigin="anonymous"></script>
   <style>
-    :root { color-scheme: dark; }
+    :root { color-scheme: dark; --starlite-safe-top: env(safe-area-inset-top, 0px); --starlite-safe-right: env(safe-area-inset-right, 0px); --starlite-safe-bottom: env(safe-area-inset-bottom, 0px); --starlite-safe-left: env(safe-area-inset-left, 0px); }
     html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#080b10; }
     body { font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
     #game { display:block; width:100vw; height:100vh; background:#111820; touch-action:none; user-select:none; }
@@ -5945,7 +5961,7 @@
   __define("commandPanel.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("economy.js"); const __dep2 = __require("state.js"); const __dep3 = __require("commandSync.js"); const __dep4 = __require("terrain.js"); const __dep5 = __require("uiLayout.js"); const __dep6 = __require("portraitRenderer.js"); const __dep7 = __require("multiplayer.js");
-    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep0["pointInRect"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep0["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep0["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep0["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "buildingSellValue", { enumerable: true, get: () => __dep1["buildingSellValue"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep1["canAfford"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep1["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep1["incomeRates"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep1["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep1["isProductionBuilding"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep1["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep1["populationUsed"] }); Object.defineProperty(__imports, "structureHasCancelableUpgrade", { enumerable: true, get: () => __dep1["structureHasCancelableUpgrade"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep2["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep2["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep2["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep2["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep2["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep2["canvas"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep2["ctx"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep3["queueCommand"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep4["dirtTiles"] }); Object.defineProperty(__imports, "isVisibleToTeam", { enumerable: true, get: () => __dep4["isVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep4["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep4["terrain"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep4["transitionTiles"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep5["commandConsoleLayout"] }); Object.defineProperty(__imports, "hideGLBPortrait", { enumerable: true, get: () => __dep6["hideGLBPortrait"] }); Object.defineProperty(__imports, "portraitRendererStatus", { enumerable: true, get: () => __dep6["portraitRendererStatus"] }); Object.defineProperty(__imports, "syncGLBPortrait", { enumerable: true, get: () => __dep6["syncGLBPortrait"] }); Object.defineProperty(__imports, "multiplayerPingMs", { enumerable: true, get: () => __dep7["multiplayerPingMs"] });
+    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep0["pointInRect"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep0["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep0["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep0["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep0["teamColor"] }); Object.defineProperty(__imports, "buildingSellValue", { enumerable: true, get: () => __dep1["buildingSellValue"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep1["canAfford"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep1["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep1["incomeRates"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep1["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep1["isProductionBuilding"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep1["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep1["populationUsed"] }); Object.defineProperty(__imports, "structureHasCancelableUpgrade", { enumerable: true, get: () => __dep1["structureHasCancelableUpgrade"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep1["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep1["toast"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep2["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep2["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep2["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep2["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep2["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep2["canvas"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep2["ctx"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep3["queueCommand"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep4["dirtTiles"] }); Object.defineProperty(__imports, "isVisibleToTeam", { enumerable: true, get: () => __dep4["isVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep4["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep4["terrain"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep4["transitionTiles"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep5["commandConsoleLayout"] }); Object.defineProperty(__imports, "isMobileUI", { enumerable: true, get: () => __dep5["isMobileUI"] }); Object.defineProperty(__imports, "hideGLBPortrait", { enumerable: true, get: () => __dep6["hideGLBPortrait"] }); Object.defineProperty(__imports, "portraitRendererStatus", { enumerable: true, get: () => __dep6["portraitRendererStatus"] }); Object.defineProperty(__imports, "syncGLBPortrait", { enumerable: true, get: () => __dep6["syncGLBPortrait"] }); Object.defineProperty(__imports, "multiplayerPingMs", { enumerable: true, get: () => __dep7["multiplayerPingMs"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "clearCommandMenu", { enumerable: true, get: () => clearCommandMenu }); Object.defineProperty(__exports, "drawCommandPanel", { enumerable: true, get: () => drawCommandPanel }); Object.defineProperty(__exports, "drawConsoleText", { enumerable: true, get: () => drawConsoleText }); Object.defineProperty(__exports, "drawPixelResourceIcon", { enumerable: true, get: () => drawPixelResourceIcon }); Object.defineProperty(__exports, "handleCommandPanelClick", { enumerable: true, get: () => handleCommandPanelClick }); Object.defineProperty(__exports, "isCommandConsolePoint", { enumerable: true, get: () => isCommandConsolePoint }); Object.defineProperty(__exports, "menuItemEnabled", { enumerable: true, get: () => menuItemEnabled }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "setCommandMenu", { enumerable: true, get: () => setCommandMenu });
@@ -5976,7 +5992,7 @@
       const ACTION_COLUMNS = 3;
       const ACTION_ROWS = 3;
       const ACTIONS_PER_PAGE = ACTION_COLUMNS * ACTION_ROWS;
-      const COMMAND_FONT_BONUS = 1;
+      const COMMAND_FONT_BONUS = 4;
       
       const MENU_TONES = {
         default:    { fill: '#273246', hover: '#35445f', border: '#607594', accent: '#9aa7bd', label: COLORS.text },
@@ -6031,7 +6047,7 @@
       }
       
       function setFont(size, weight = 700) {
-        ctx.font = `${weight} ${size + COMMAND_FONT_BONUS}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+        ctx.font = `${weight} ${size + (isMobileUI() ? COMMAND_FONT_BONUS : 1)}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
       }
       
       function clippedText(text, maxWidth, size = 11, weight = 700) {
@@ -6100,7 +6116,9 @@
       }
       
       function isCommandConsolePoint(p) {
-        return pointInRect(p, consoleLayout().panel);
+        const layout = consoleLayout();
+        if (isMobileUI()) return pointInRect(p, layout.panel) || pointInRect(p, layout.topBar);
+        return pointInRect(p, layout.panel);
       }
       
       function storedGroundTagDefinitions() {
@@ -6168,6 +6186,7 @@
       
       function commandGridSpec(menu) {
         const itemCount = Math.max(1, Math.trunc(menu?.items?.length || 0));
+        if (isMobileUI()) return { columns: ACTION_COLUMNS, rows: ACTION_ROWS, perPage: ACTIONS_PER_PAGE };
         const visibleCount = Math.min(ACTIONS_PER_PAGE, itemCount);
         let columns = visibleCount === 1 ? 1 : visibleCount === 4 ? 2 : Math.min(ACTION_COLUMNS, visibleCount);
         let rows = Math.ceil(visibleCount / columns);
@@ -6224,6 +6243,12 @@
         }
         if (!isCommandConsolePoint(p)) return false;
         if (state.gameOver) return true;
+        if (isMobileUI() && state.mobileNarrationButtonRect && pointInRect(p, state.mobileNarrationButtonRect)) {
+          const action = state.mobileNarration?.buttonAction;
+          state.mobileNarrationButtonRect = null;
+          if (typeof action === 'function') action();
+          return true;
+        }
       
         const selectedStructures = selectedStructureObjects();
         const selectedStructure = selectedStructures.length === 1 ? selectedStructures[0] : null;
@@ -7268,6 +7293,91 @@
         else if (primary.type === 'radarTurret') drawConsoleText(`MINIMAP DETECTION ${Math.round(primary.radarRange || BUILDING_DATA.radarTurret?.radarRange || 0)} · FOG UNAFFECTED`, x, rowY, compact ? 8 : 11, '#9cf2ff', 'left', maxW);
       }
       
+      function mobileCampaignObjectiveRow() {
+        if (!state.campaignMode || state.campaignRuntime?.status !== 'active') return null;
+        const rows = [];
+        const walk = objectives => {
+          for (const objective of objectives || []) {
+            const children = objective.objectives || objective.children || objective.conditions;
+            if (Array.isArray(children) && children.length) { walk(children); continue; }
+            const objectiveState = objective.id ? state.campaignRuntime.objectiveStates?.[objective.id] : null;
+            if (!objectiveState || objectiveState.status === 'completed') continue;
+            rows.push({ objective, objectiveState });
+          }
+        };
+        walk(state.campaignMission?.objectives || []);
+        return rows.find(row => !row.objective.optional && row.objectiveState.status === 'active')
+          || rows.find(row => !row.objective.optional && row.objectiveState.status === 'pending')
+          || rows[0]
+          || null;
+      }
+
+      function drawMobileNarrationInfo(zone) {
+        state.mobileNarrationButtonRect = null;
+        const narration = state.mobileNarration;
+        if (!isMobileUI() || !narration?.visible) return false;
+        const pad = 7;
+        const x = zone.x + pad;
+        const maxW = Math.max(1, zone.w - pad * 2);
+        const speaker = narration.speaker || (narration.kind === 'campaign' ? 'MISSION COMMAND' : 'INSTRUCTOR');
+        drawConsoleText(`${speaker}${narration.progress ? ` · ${narration.progress}` : ''}`, x, zone.y + 6, 9, COLORS.warn, 'left', maxW, 900);
+        drawConsoleText(narration.title || 'TACTICAL UPDATE', x, zone.y + 25, 11, COLORS.text, 'left', maxW, 900);
+        let y = zone.y + 47;
+        const copyLines = wrappedDescription(narration.copy || '', maxW, 8, 700).slice(0, narration.objective ? 2 : 4);
+        for (const line of copyLines) {
+          drawConsoleText(line, x, y, 8, '#c9d5df', 'left', maxW, 700);
+          y += 14;
+        }
+        if (narration.objective) {
+          const objectiveLines = wrappedDescription(`◆ ${narration.objective}`, maxW, 8, 800).slice(0, 2);
+          for (const line of objectiveLines) {
+            drawConsoleText(line, x, y, 8, '#9eeeff', 'left', maxW, 800);
+            y += 14;
+          }
+        }
+        if (narration.buttonLabel && typeof narration.buttonAction === 'function') {
+          const buttonH = 28;
+          const rect = { x, y: zone.y + zone.h - buttonH - 7, w: maxW, h: buttonH };
+          state.mobileNarrationButtonRect = rect;
+          ctx.fillStyle = pointInRect(state.mouse, rect) ? '#40506a' : '#273246';
+          ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+          ctx.strokeStyle = COLORS.warn;
+          ctx.strokeRect(rect.x + .5, rect.y + .5, rect.w - 1, rect.h - 1);
+          drawConsoleText(narration.buttonLabel, rect.x + rect.w / 2, rect.y + 6, 9, COLORS.text, 'center', rect.w - 8, 900);
+        }
+        return true;
+      }
+
+      function drawMobileCampaignObjective(zone) {
+        if (!isMobileUI() || state.mobileNarration?.visible) return false;
+        if (selectedUnitObjects().length || selectedStructureObjects().length) return false;
+        const row = mobileCampaignObjectiveRow();
+        if (!row) return false;
+        const pad = 7;
+        const x = zone.x + pad;
+        const maxW = Math.max(1, zone.w - pad * 2);
+        drawConsoleText(`CAMPAIGN · ${(state.campaignMission?.title || 'MISSION').toUpperCase()}`, x, zone.y + 7, 9, '#7de8ff', 'left', maxW, 900);
+        const titleLines = wrappedDescription(row.objective.title || row.objective.id || 'Mission objective', maxW, 9, 800).slice(0, 2);
+        let y = zone.y + 30;
+        for (const line of titleLines) {
+          drawConsoleText(`◆ ${line}`, x, y, 9, row.objective.optional ? COLORS.warn : COLORS.text, 'left', maxW, 800);
+          y += 16;
+        }
+        const detail = row.objectiveState.detail || row.objective.description || '';
+        for (const line of wrappedDescription(detail, maxW, 8, 700).slice(0, 3)) {
+          drawConsoleText(line, x, y, 8, COLORS.muted, 'left', maxW, 700);
+          y += 14;
+        }
+        if (row.objectiveState.progress > 0 && row.objectiveState.progress < 1) {
+          const barY = zone.y + zone.h - 15;
+          ctx.fillStyle = 'rgba(255,255,255,.10)';
+          ctx.fillRect(x, barY, maxW, 6);
+          ctx.fillStyle = row.objective.optional ? COLORS.warn : '#7de8ff';
+          ctx.fillRect(x, barY, maxW * clamp(row.objectiveState.progress, 0, 1), 6);
+        }
+        return true;
+      }
+
       function drawInfoPanel() {
         const layout = consoleLayout();
         const zone = layout.info;
@@ -7277,6 +7387,7 @@
         state.infoRallyStructureIds = [];
         state.infoQueueHitRects = [];
         drawInsetPanel(zone, '#121b26');
+        if (drawMobileNarrationInfo(zone) || drawMobileCampaignObjective(zone)) return;
 
         const selectedUnits = selectedUnitObjects();
         const selectedStructures = selectedStructureObjects();
@@ -7819,7 +7930,12 @@
         ctx.fillStyle = 'rgba(149,181,218,.18)';
         ctx.fillRect(0, layout.panel.y + 2, CW, 2);
         drawMinimap();
-        drawGroundTagButton();
+        if (!isMobileUI()) drawGroundTagButton();
+        else {
+          state.groundTagButtonRect = null;
+          state.groundTagMenuOpen = false;
+          state.groundTagMenuRects = [];
+        }
         drawPortraitPanel();
         drawInfoPanel();
         drawActionPanel();
@@ -17730,8 +17846,8 @@
 
   __define("input.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("menu.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("pathing.js"); const __dep6 = __require("commandPanel.js"); const __dep7 = __require("rendering.js"); const __dep8 = __require("state.js"); const __dep9 = __require("terrain.js");
-    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => __dep1["MAX_GROUND_TAGS_PER_TEAM"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep2["placeCreepTumor"] }); Object.defineProperty(__imports, "commandQueenInject", { enumerable: true, get: () => __dep2["commandQueenInject"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep2["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "setQueenInjectAutocast", { enumerable: true, get: () => __dep2["setQueenInjectAutocast"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep2["startUnitMorph"] }); Object.defineProperty(__imports, "cancelUnitMorph", { enumerable: true, get: () => __dep2["cancelUnitMorph"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "queueWarpInAcross", { enumerable: true, get: () => __dep2["queueWarpInAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startGatewayTransformation", { enumerable: true, get: () => __dep2["startGatewayTransformation"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep2["startInsectUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "heliasTempleRegistry", { enumerable: true, get: () => __dep2["heliasTempleRegistry"] }); Object.defineProperty(__imports, "purchaseHeliasTempleUpgrade", { enumerable: true, get: () => __dep2["purchaseHeliasTempleUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openInsectStructureMenu", { enumerable: true, get: () => __dep7["openInsectStructureMenu"] }); Object.defineProperty(__imports, "openHeliasStructureMenu", { enumerable: true, get: () => __dep7["openHeliasStructureMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep8["addStructure"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep9["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep9["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] });
+    const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("menu.js"); const __dep4 = __require("commandSync.js"); const __dep5 = __require("pathing.js"); const __dep6 = __require("commandPanel.js"); const __dep7 = __require("rendering.js"); const __dep8 = __require("state.js"); const __dep9 = __require("terrain.js"); const __dep10 = __require("uiLayout.js");
+    Object.defineProperty(__imports, "addEffect", { enumerable: true, get: () => __dep0["addEffect"] }); Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "isAlive", { enumerable: true, get: () => __dep0["isAlive"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "MAX_GROUND_TAGS_PER_TEAM", { enumerable: true, get: () => __dep1["MAX_GROUND_TAGS_PER_TEAM"] }); Object.defineProperty(__imports, "PLAYER_MOVE_OVERRIDE", { enumerable: true, get: () => __dep1["PLAYER_MOVE_OVERRIDE"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "areHostileTeams", { enumerable: true, get: () => __dep1["areHostileTeams"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "sqrDist", { enumerable: true, get: () => __dep1["sqrDist"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "activateAdrenalineRush", { enumerable: true, get: () => __dep2["activateAdrenalineRush"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep2["assignHarvest"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelStructureUpgrade", { enumerable: true, get: () => __dep2["cancelStructureUpgrade"] }); Object.defineProperty(__imports, "clearBuildJob", { enumerable: true, get: () => __dep2["clearBuildJob"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "placeCreepTumor", { enumerable: true, get: () => __dep2["placeCreepTumor"] }); Object.defineProperty(__imports, "commandQueenInject", { enumerable: true, get: () => __dep2["commandQueenInject"] }); Object.defineProperty(__imports, "activateQueenRegenerativePulse", { enumerable: true, get: () => __dep2["activateQueenRegenerativePulse"] }); Object.defineProperty(__imports, "setQueenInjectAutocast", { enumerable: true, get: () => __dep2["setQueenInjectAutocast"] }); Object.defineProperty(__imports, "startUnitMorph", { enumerable: true, get: () => __dep2["startUnitMorph"] }); Object.defineProperty(__imports, "cancelUnitMorph", { enumerable: true, get: () => __dep2["cancelUnitMorph"] }); Object.defineProperty(__imports, "gasExtractionReady", { enumerable: true, get: () => __dep2["gasExtractionReady"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "isHarvestableResource", { enumerable: true, get: () => __dep2["isHarvestableResource"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "queueWarpInAcross", { enumerable: true, get: () => __dep2["queueWarpInAcross"] }); Object.defineProperty(__imports, "sellBuilding", { enumerable: true, get: () => __dep2["sellBuilding"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "startGatewayTransformation", { enumerable: true, get: () => __dep2["startGatewayTransformation"] }); Object.defineProperty(__imports, "startInsectUpgrade", { enumerable: true, get: () => __dep2["startInsectUpgrade"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "heliasTempleRegistry", { enumerable: true, get: () => __dep2["heliasTempleRegistry"] }); Object.defineProperty(__imports, "purchaseHeliasTempleUpgrade", { enumerable: true, get: () => __dep2["purchaseHeliasTempleUpgrade"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "actionForKeyboardEvent", { enumerable: true, get: () => __dep3["actionForKeyboardEvent"] }); Object.defineProperty(__imports, "isMenuOpen", { enumerable: true, get: () => __dep3["isMenuOpen"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep4["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep4["queueCommand"] }); Object.defineProperty(__imports, "clearUnitRoute", { enumerable: true, get: () => __dep5["clearUnitRoute"] }); Object.defineProperty(__imports, "requestSharedGroupRoute", { enumerable: true, get: () => __dep5["requestSharedGroupRoute"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep6["clearCommandMenu"] }); Object.defineProperty(__imports, "handleCommandPanelClick", { enumerable: true, get: () => __dep6["handleCommandPanelClick"] }); Object.defineProperty(__imports, "menuItemEnabled", { enumerable: true, get: () => __dep6["menuItemEnabled"] }); Object.defineProperty(__imports, "minimapGeom", { enumerable: true, get: () => __dep6["minimapGeom"] }); Object.defineProperty(__imports, "minimapToWorld", { enumerable: true, get: () => __dep6["minimapToWorld"] }); Object.defineProperty(__imports, "applySpawnFlagCommand", { enumerable: true, get: () => __dep7["applySpawnFlagCommand"] }); Object.defineProperty(__imports, "gasNodeForExtractor", { enumerable: true, get: () => __dep7["gasNodeForExtractor"] }); Object.defineProperty(__imports, "handleQueueStripClick", { enumerable: true, get: () => __dep7["handleQueueStripClick"] }); Object.defineProperty(__imports, "handleSettingsClick", { enumerable: true, get: () => __dep7["handleSettingsClick"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep7["openBuildMenu"] }); Object.defineProperty(__imports, "openConstructionMenu", { enumerable: true, get: () => __dep7["openConstructionMenu"] }); Object.defineProperty(__imports, "openGasExtractorMenu", { enumerable: true, get: () => __dep7["openGasExtractorMenu"] }); Object.defineProperty(__imports, "openGasLeakMenu", { enumerable: true, get: () => __dep7["openGasLeakMenu"] }); Object.defineProperty(__imports, "openHQMenu", { enumerable: true, get: () => __dep7["openHQMenu"] }); Object.defineProperty(__imports, "openInsectStructureMenu", { enumerable: true, get: () => __dep7["openInsectStructureMenu"] }); Object.defineProperty(__imports, "openHeliasStructureMenu", { enumerable: true, get: () => __dep7["openHeliasStructureMenu"] }); Object.defineProperty(__imports, "openHousingMenu", { enumerable: true, get: () => __dep7["openHousingMenu"] }); Object.defineProperty(__imports, "openLaboratoryMenu", { enumerable: true, get: () => __dep7["openLaboratoryMenu"] }); Object.defineProperty(__imports, "openMinersHutMenu", { enumerable: true, get: () => __dep7["openMinersHutMenu"] }); Object.defineProperty(__imports, "openProductionMenu", { enumerable: true, get: () => __dep7["openProductionMenu"] }); Object.defineProperty(__imports, "openResearchFacilityMenu", { enumerable: true, get: () => __dep7["openResearchFacilityMenu"] }); Object.defineProperty(__imports, "openUpgradeMenu", { enumerable: true, get: () => __dep7["openUpgradeMenu"] }); Object.defineProperty(__imports, "placePendingBuilding", { enumerable: true, get: () => __dep7["placePendingBuilding"] }); Object.defineProperty(__imports, "resetGame", { enumerable: true, get: () => __dep7["resetGame"] }); Object.defineProperty(__imports, "setSpawnFlag", { enumerable: true, get: () => __dep7["setSpawnFlag"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep8["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep8["CW"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep8["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep8["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep8["cam"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep8["canvas"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep8["centerCamOn"] }); Object.defineProperty(__imports, "clampCam", { enumerable: true, get: () => __dep8["clampCam"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep8["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep8["minZoom"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep8["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep8["screenToWorld"] }); Object.defineProperty(__imports, "setZoom", { enumerable: true, get: () => __dep8["setZoom"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep8["addStructure"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep8["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep8["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep8["units"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep9["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep9["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "isVisiblePoint", { enumerable: true, get: () => __dep9["isVisiblePoint"] }); Object.defineProperty(__imports, "isMobileUI", { enumerable: true, get: () => __dep10["isMobileUI"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activateNextQueuedUnitOrder", { enumerable: true, get: () => activateNextQueuedUnitOrder }); Object.defineProperty(__exports, "applyGameCommand", { enumerable: true, get: () => applyGameCommand }); Object.defineProperty(__exports, "canAttackTarget", { enumerable: true, get: () => canAttackTarget }); Object.defineProperty(__exports, "clearSelection", { enumerable: true, get: () => clearSelection }); Object.defineProperty(__exports, "commandUnits", { enumerable: true, get: () => commandUnits }); Object.defineProperty(__exports, "selectedUnits", { enumerable: true, get: () => selectedUnits }); Object.defineProperty(__exports, "updateCamera", { enumerable: true, get: () => updateCamera });
@@ -17773,7 +17889,7 @@
       // loader, importing this helper from rendering.js crosses the existing
       // input/rendering cycle and can capture an undefined export during startup.
       function cancelBuildingPlacement() {
-        state.placingBuildingType = null;
+        cancelBuildingPlacement();
         openBuildMenu();
       }
       
@@ -18652,6 +18768,40 @@
       let pinch = null;               // two-finger pinch/pan
       const keys = new Set();
       let edgePan = { x: 0, y: 0 };
+
+      function worldViewportRect() {
+        return {
+          x: Number(state.mobileWorldViewportX) || 0,
+          y: isMobileUI() ? (Number(state.mobileWorldViewportY) || 0) : 0,
+          w: VIEW_W,
+          h: VIEW_H
+        };
+      }
+
+      function pointInWorldViewport(p) {
+        return pointInRect(p, worldViewportRect());
+      }
+
+      function resetMobileCommandState() {
+        state.drag = null;
+        clearSelection();
+        state.contextMenu = null;
+        clearCommandMenu();
+        state.placingQueenAbility = null;
+        state.placingChronoBoostNexusId = null;
+        state.queenAbilityUnitIds = [];
+        state.placingBuildingType = null;
+        state.placingSpawnFlag = false;
+        state.placingGroundTag = false;
+        state.groundTagMenuOpen = false;
+        state.groundTagMenuRects = [];
+        state.spawnFlagMode = null;
+        state.spawnFlagStructureIds = [];
+        state.lastUnitClick = { time: 0, id: null };
+        state.lastStructureClick = { time: 0, id: null };
+        if (state.pendingClick) { clearTimeout(state.pendingClick); state.pendingClick = null; }
+        openBuildMenu();
+      }
       
       function updateEdgePanFromPoint(p) {
         edgePan.x = edgePan.y = 0;
@@ -18660,6 +18810,16 @@
         // Camera movement is tied only to the actual browser/canvas perimeter. The
         // boundary between the battlefield and command console is deliberately not
         // an edge-scroll trigger.
+        if (isMobileUI()) {
+          const world = worldViewportRect();
+          if (!pointInRect(p, world)) return;
+          const margin = 22;
+          if (p.x <= world.x + margin) edgePan.x = -1;
+          else if (p.x >= world.x + world.w - margin) edgePan.x = 1;
+          if (p.y <= world.y + margin) edgePan.y = -1;
+          else if (p.y >= world.y + world.h - margin) edgePan.y = 1;
+          return;
+        }
         const margin = 22;
         if (p.x <= margin) edgePan.x = -1;
         else if (p.x >= CW - margin) edgePan.x = 1;
@@ -18671,9 +18831,13 @@
         const p = screenPos(evt);
         state.mouse = p;
         if (handleCampaignGameOverClick(p)) return;
+        if (isMobileUI() && state.mobileDeselectRect && pointInRect(p, state.mobileDeselectRect)) {
+          resetMobileCommandState();
+          return;
+        }
         pointers.set(evt.pointerId, p);
       
-        if (handleSettingsClick(p)) return;
+        if (handleSettingsClick(p)) { pointers.delete(evt.pointerId); return; }
       
         // Right-click cancels placement, clears selection, and restores construction commands.
         if (evt.button === 2) {
@@ -18698,11 +18862,13 @@
         }
       
         // Two pointers on the field -> pinch zoom/pan.
-        if (pointers.size === 2) {
+        if (pointers.size === 2 && (!isMobileUI() || [...pointers.values()].every(pointInWorldViewport))) {
           const pts = [...pointers.values()];
+          const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
           pinch = {
             d: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
-            mid: { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 },
+            mid,
+            world: isMobileUI() ? screenToWorld(mid.x, mid.y) : null,
             zoom: cam.zoom, camx: cam.x, camy: cam.y
           };
           state.drag = null; camPan = null;
@@ -18786,8 +18952,15 @@
           const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
           cam.zoom = clamp(pinch.zoom * (d / pinch.d), minZoom, maxZoom);
           // Keep the world point under the pinch midpoint stable, plus midpoint drag.
-          cam.x = pinch.camx + (pinch.mid.x - mid.x) / cam.zoom;
-          cam.y = pinch.camy + (pinch.mid.y - mid.y) / cam.zoom;
+          if (isMobileUI() && pinch.world) {
+            const worldX = Number(state.mobileWorldViewportX) || 0;
+            const worldY = Number(state.mobileWorldViewportY) || 0;
+            cam.x = pinch.world.x - (mid.x - worldX) / cam.zoom;
+            cam.y = pinch.world.y - (mid.y - worldY) / cam.zoom;
+          } else {
+            cam.x = pinch.camx + (pinch.mid.x - mid.x) / cam.zoom;
+            cam.y = pinch.camy + (pinch.mid.y - mid.y) / cam.zoom;
+          }
           clampCam();
           return;
         }
@@ -18814,7 +18987,7 @@
           state.drag.x2 = p.x; state.drag.y2 = p.y;
           const moved = Math.hypot(state.drag.x2 - state.drag.x1, state.drag.y2 - state.drag.y1) > 7;
           if (state.drag.placement && state.drag.fromCommand) {
-            const overWorld = p.x >= 0 && p.x < VIEW_W && p.y >= 0 && p.y < VIEW_H;
+            const overWorld = pointInWorldViewport(p);
             if (moved && overWorld) state.drag.draggedToWorld = true;
           } else if (!state.drag.placement && moved) {
             state.drag.moved = true;
@@ -18853,7 +19026,7 @@
         d.y2 = release.y;
         state.drag = null;
         if (d.placement) {
-          const overWorld = d.x2 >= 0 && d.x2 < VIEW_W && d.y2 >= 0 && d.y2 < VIEW_H;
+          const overWorld = pointInWorldViewport({ x: d.x2, y: d.y2 });
           const draggedFromCommand = d.draggedToWorld || (overWorld && Math.hypot(d.x2 - d.x1, d.y2 - d.y1) > 7);
           // A press-and-release on a construction button arms click-and-click mode.
           // Dragging that same press into the battlefield instead places on drop.
@@ -18875,6 +19048,7 @@
         evt.preventDefault();
         if (state.settingsOpen) return;
         const p = screenPos(evt);
+        if (isMobileUI() && !pointInWorldViewport(p)) return;
         setZoom(cam.zoom * (evt.deltaY < 0 ? 1.12 : 1 / 1.12), p.x, p.y);
       }, { passive: false });
       
@@ -18951,9 +19125,9 @@
 
   __define("main.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("multiplayer.js"); const __dep7 = __require("syncChecksum.js"); const __dep8 = __require("economy.js"); const __dep9 = __require("menu.js"); const __dep10 = __require("rendering.js"); const __dep11 = __require("state.js"); const __dep12 = __require("terrain.js"); const __dep13 = __require("workerBridge.js"); const __dep14 = __require("campaignProgression.js");
+    const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("multiplayer.js"); const __dep7 = __require("syncChecksum.js"); const __dep8 = __require("economy.js"); const __dep9 = __require("menu.js"); const __dep10 = __require("rendering.js"); const __dep11 = __require("state.js"); const __dep12 = __require("terrain.js"); const __dep13 = __require("workerBridge.js"); const __dep14 = __require("campaignProgression.js"); const __dep15 = __require("uiLayout.js");
     Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "getCombatSyncState", { enumerable: true, get: () => __dep1["getCombatSyncState"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep2["UNIT_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "CAMPAIGN_MISSIONS", { enumerable: true, get: () => __dep2["CAMPAIGN_MISSIONS"] }); Object.defineProperty(__imports, "campaignMissionDefinition", { enumerable: true, get: () => __dep2["campaignMissionDefinition"] }); Object.defineProperty(__imports, "campaignModeForMission", { enumerable: true, get: () => __dep2["campaignModeForMission"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep2["STORAGE_KEYS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep2["COLORS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep2["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "DEFAULT_FACTION_ID", { enumerable: true, get: () => __dep2["DEFAULT_FACTION_ID"] }); Object.defineProperty(__imports, "factionStartingUnits", { enumerable: true, get: () => __dep2["factionStartingUnits"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep2["normalizeFactionId"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep2["teamFactionId"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep3["getRandomState"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep4["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep4["setPathingSyncState"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep5["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep5["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep5["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep5["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep6["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep6["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep6["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep6["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep6["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep6["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep7["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep7["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep8["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep8["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep8["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep8["toast"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep8["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep8["productionTechLevel"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep8["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep8["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep8["insectUpgradeOrders"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep8["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep8["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep9["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep10["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep10["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep11["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep11["addStructure"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep11["getNextEntityId"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep11["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep11["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep11["cam"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep11["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep11["VIEW_W"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep11["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep11["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep11["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep11["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep11["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep11["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep11["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep11["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep11["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep11["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep11["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep11["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep12["generateTerrain"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep12["isBlocked"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep12["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep12["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep12["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep13["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep13["setDeterministicLockstepMode"] });
-    Object.defineProperty(__imports, "recordCampaignMissionCompleted", { enumerable: true, get: () => __dep14["recordCampaignMissionCompleted"] }); Object.defineProperty(__imports, "recordCampaignMissionStarted", { enumerable: true, get: () => __dep14["recordCampaignMissionStarted"] });
+    Object.defineProperty(__imports, "recordCampaignMissionCompleted", { enumerable: true, get: () => __dep14["recordCampaignMissionCompleted"] }); Object.defineProperty(__imports, "recordCampaignMissionStarted", { enumerable: true, get: () => __dep14["recordCampaignMissionStarted"] }); Object.defineProperty(__imports, "isMobileUI", { enumerable: true, get: () => __dep15["isMobileUI"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "activeGameMode", { enumerable: true, get: () => activeGameMode }); Object.defineProperty(__exports, "bootstrapWorld", { enumerable: true, get: () => bootstrapWorld }); Object.defineProperty(__exports, "competitiveSpawnLayout", { enumerable: true, get: () => competitiveSpawnLayout }); Object.defineProperty(__exports, "enemyHQ", { enumerable: true, get: () => enemyHQ }); Object.defineProperty(__exports, "enemyHQs", { enumerable: true, get: () => enemyHQs }); Object.defineProperty(__exports, "getActiveTeams", { enumerable: true, get: () => getActiveTeams }); Object.defineProperty(__exports, "getHQForTeam", { enumerable: true, get: () => getHQForTeam }); Object.defineProperty(__exports, "getLivingHQs", { enumerable: true, get: () => getLivingHQs }); Object.defineProperty(__exports, "getNearestHostileHQ", { enumerable: true, get: () => getNearestHostileHQ }); Object.defineProperty(__exports, "matchSeedForMode", { enumerable: true, get: () => matchSeedForMode }); Object.defineProperty(__exports, "normalizedGameCode", { enumerable: true, get: () => normalizedGameCode }); Object.defineProperty(__exports, "playerHQ", { enumerable: true, get: () => playerHQ }); Object.defineProperty(__exports, "setLocalCommandTeam", { enumerable: true, get: () => setLocalCommandTeam }); Object.defineProperty(__exports, "startStarLite", { enumerable: true, get: () => startStarLite });
@@ -19544,6 +19718,7 @@
         state.campaignTechnologyAvailability = cloneCampaignTechnologyAvailability(mission?.availableTechnologies);
         state.campaignNarrationVisible = false;
         state.campaignNarrationSpeaker = '';
+        state.mobileNarration = null;
         state.campaignRuntime = mission ? {
           missionId: mission.id,
           status: 'active',
@@ -19827,6 +20002,10 @@
       
         resize();
         window.addEventListener('resize', resize);
+        if (isMobileUI() && globalThis.visualViewport && !globalThis.__STARLITE_MOBILE_VIEWPORT_RESIZE__) {
+          globalThis.__STARLITE_MOBILE_VIEWPORT_RESIZE__ = true;
+          globalThis.visualViewport.addEventListener('resize', resize, { passive: true });
+        }
         // Begin closer to the command core so the opening view immediately reads
         // as a base rather than a distant strategic overview. Compact screens use a
         // slightly softer zoom to preserve enough surrounding construction space.
@@ -20727,7 +20906,20 @@
       function setCampaignNarrationMessage({ title, copy, objective = '', progress = '', button = null }) {
         if (!campaignNarration?.ui) return;
         const ui = campaignNarration.ui;
-        ui.root.hidden = false;
+        if (isMobileUI()) {
+          state.mobileNarration = {
+            kind: 'campaign', visible: true,
+            speaker: campaignNarration.config.speaker,
+            title: title || state.campaignMission?.title || 'Mission update',
+            copy: copy || '', objective: objective || '', progress: progress || 'CAMPAIGN',
+            buttonLabel: button?.label || '', buttonAction: button?.onClick || null
+          };
+          ui.root.hidden = true;
+          ui.arrowRoot.hidden = true;
+        } else {
+          state.mobileNarration = null;
+          ui.root.hidden = false;
+        }
         ui.title.textContent = title || state.campaignMission?.title || 'Mission update';
         ui.copy.textContent = copy || '';
         ui.progress.textContent = progress || 'CAMPAIGN';
@@ -20930,6 +21122,7 @@
           campaignNarration.temporaryActive = false;
           if (!activateNextCampaignNarration()) {
             campaignNarration.ui.root.hidden = true;
+            state.mobileNarration = null;
             state.campaignNarrationVisible = false;
           }
           return;
@@ -21292,14 +21485,34 @@
         return ui;
       }
 
+      function setFactionTutorialObjective(value) {
+        if (!factionTutorial?.ui) return;
+        const text = String(value || '');
+        factionTutorial.ui.objective.textContent = text;
+        factionTutorial.ui.objective.hidden = !text;
+        if (isMobileUI() && state.mobileNarration?.kind === 'tutorial') state.mobileNarration.objective = text;
+      }
+
       function setFactionTutorialMessage({ title, copy, objective = '', progress = '', button = null }) {
         if (!factionTutorial?.ui) return;
         const ui = factionTutorial.ui;
+        if (isMobileUI()) {
+          state.mobileNarration = {
+            kind: 'tutorial', visible: true,
+            speaker: factionTutorial.config.speaker,
+            title: title || 'Tutorial', copy: copy || '', objective: objective || '', progress: progress || '',
+            buttonLabel: button?.label || '', buttonAction: button?.onClick || null
+          };
+          ui.root.hidden = true;
+          ui.arrowRoot.hidden = false;
+        } else {
+          state.mobileNarration = null;
+          ui.root.hidden = false;
+        }
         ui.title.textContent = title;
         ui.copy.textContent = copy;
         ui.progress.textContent = progress;
-        ui.objective.textContent = objective;
-        ui.objective.hidden = !objective;
+        setFactionTutorialObjective(objective);
         ui.actions.replaceChildren();
         if (button) {
           const control = document.createElement('button');
@@ -21680,6 +21893,7 @@
         tutorial.ui?.root?.remove();
         factionTutorial = null;
         state.tutorialMode = null;
+        state.mobileNarration = null;
       }
 
       function completeFactionTutorial() {
@@ -21717,7 +21931,7 @@
           if (!structure) return;
           if (structure.underConstruction) {
             const remaining = Math.max(0, Math.ceil(structure.buildTimeLeft || 0));
-            factionTutorial.ui.objective.textContent = target.waiting(remaining);
+            setFactionTutorialObjective(target.waiting(remaining));
             return;
           }
           if (index + 1 < config.buildSequence.length) openFactionTutorialBuildObjective(index + 1);
@@ -21751,7 +21965,7 @@
             if (!structure) return;
             if (structure.underConstruction) {
               const remaining = Math.max(0, Math.ceil(structure.buildTimeLeft || 0));
-              factionTutorial.ui.objective.textContent = target.waiting ? target.waiting(remaining) : target.objective;
+              setFactionTutorialObjective(target.waiting ? target.waiting(remaining) : target.objective);
               return;
             }
             complete = true;
@@ -21759,7 +21973,7 @@
             complete = productionTechLevel('player', target.structureType) >= target.targetLevel;
             if (!complete) {
               const job = productionTechJob('player', target.structureType);
-              if (job?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(job.timeLeft)));
+              if (job?.timeLeft > 0 && target.waiting) setFactionTutorialObjective(target.waiting(Math.max(0, Math.ceil(job.timeLeft))));
             }
           } else if (target.kind === 'unitUpgrade') {
             complete = completedUnitUpgradeLevel(target.unitType, 'player') >= target.targetLevel;
@@ -21767,19 +21981,19 @@
               const lab = tutorialStructure(target.facilityType);
               const order = [lab?.labJob, ...(Array.isArray(lab?.labQueue) ? lab.labQueue : [])]
                 .find(job => job?.unitType === target.unitType && (job.upgradeLevel || 1) >= target.targetLevel);
-              if (order?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(order.timeLeft)));
+              if (order?.timeLeft > 0 && target.waiting) setFactionTutorialObjective(target.waiting(Math.max(0, Math.ceil(order.timeLeft))));
             }
           } else if (target.kind === 'hiveEvolution') {
             complete = (playerHQ?.level || 1) >= target.targetLevel;
             if (!complete && playerHQ?.hiveEvolutionJob?.timeLeft > 0 && target.waiting) {
-              factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(playerHQ.hiveEvolutionJob.timeLeft)));
+              setFactionTutorialObjective(target.waiting(Math.max(0, Math.ceil(playerHQ.hiveEvolutionJob.timeLeft))));
             }
           } else if (target.kind === 'insectUpgrade') {
             complete = completedInsectUpgradeLevel(target.branch, 'player') >= target.targetLevel;
             if (!complete) {
               const organ = tutorialStructure(target.facilityType);
               const order = insectUpgradeOrders(organ).find(job => job?.upgradeId === target.upgradeId);
-              if (order?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(order.timeLeft)));
+              if (order?.timeLeft > 0 && target.waiting) setFactionTutorialObjective(target.waiting(Math.max(0, Math.ceil(order.timeLeft))));
             }
           } else if (target.kind === 'morphUnit') {
             const targetCount = units.filter(unit => unit.hp > 0 && unit.team === 'player' && unit.type === target.toType).length;
@@ -21787,7 +22001,7 @@
             if (!complete) {
               const source = units.find(unit => unit.id === factionTutorial.advancedMorphSourceId && unit.hp > 0);
               if (source?.morphJob?.toType === target.toType && source.morphJob.timeLeft > 0 && target.waiting) {
-                factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(source.morphJob.timeLeft)));
+                setFactionTutorialObjective(target.waiting(Math.max(0, Math.ceil(source.morphJob.timeLeft))));
               }
             }
           } else if (target.kind === 'trainUnit') {
@@ -21796,14 +22010,14 @@
             if (!complete) {
               const producer = target.producerType === 'hq' ? playerHQ : tutorialStructure(target.producerType);
               const order = producer?.queue?.find(job => job?.type === target.unitType);
-              if (order?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(order.timeLeft)));
+              if (order?.timeLeft > 0 && target.waiting) setFactionTutorialObjective(target.waiting(Math.max(0, Math.ceil(order.timeLeft))));
             }
           } else if (target.kind === 'heliasForgeUpgrade') {
             complete = !!heliasForgeRegistry('player')[target.branch];
             if (!complete) {
               const forge = tutorialStructure(target.facilityType);
               const order = heliasForgeUpgradeOrders(forge).find(job => job?.upgradeId === target.upgradeId);
-              if (order?.timeLeft > 0 && target.waiting) factionTutorial.ui.objective.textContent = target.waiting(Math.max(0, Math.ceil(order.timeLeft)));
+              if (order?.timeLeft > 0 && target.waiting) setFactionTutorialObjective(target.waiting(Math.max(0, Math.ceil(order.timeLeft))));
             }
           }
           if (complete) {
@@ -21822,6 +22036,7 @@
         factionTutorial?.ui?.root?.remove();
         factionTutorial?.ui?.arrowRoot?.remove();
         factionTutorial = null;
+        state.mobileNarration = null;
         const faction = ['humans', 'insects', 'helias'].includes(mode?.tutorial) ? mode.tutorial : null;
         if (!faction) return;
         const config = tutorialConfigFor(faction);
@@ -21959,9 +22174,9 @@
 
   __define("menu.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js"); const __dep3 = __require("account.js"); const __dep4 = __require("portraitRenderer.js"); const __dep5 = __require("campaignProgression.js");
+    const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("multiplayer.js"); const __dep3 = __require("account.js"); const __dep4 = __require("portraitRenderer.js"); const __dep5 = __require("campaignProgression.js"); const __dep6 = __require("uiLayout.js");
     Object.defineProperty(__imports, "DEFAULT_GROUND_TAG", { enumerable: true, get: () => __dep0["DEFAULT_GROUND_TAG"] }); Object.defineProperty(__imports, "DEFAULT_KEYBINDS", { enumerable: true, get: () => __dep0["DEFAULT_KEYBINDS"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep0["normalizeFactionId"] }); Object.defineProperty(__imports, "GROUND_TAG_COLORS", { enumerable: true, get: () => __dep0["GROUND_TAG_COLORS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep0["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "MAX_OWNED_GROUND_TAGS", { enumerable: true, get: () => __dep0["MAX_OWNED_GROUND_TAGS"] }); Object.defineProperty(__imports, "GAME_MODES", { enumerable: true, get: () => __dep0["GAME_MODES"] }); Object.defineProperty(__imports, "GAME_MODE_ORDER", { enumerable: true, get: () => __dep0["GAME_MODE_ORDER"] }); Object.defineProperty(__imports, "CAMPAIGN_MISSIONS", { enumerable: true, get: () => __dep0["CAMPAIGN_MISSIONS"] }); Object.defineProperty(__imports, "CAMPAIGN_MISSION_ORDER", { enumerable: true, get: () => __dep0["CAMPAIGN_MISSION_ORDER"] }); Object.defineProperty(__imports, "campaignModeForMission", { enumerable: true, get: () => __dep0["campaignModeForMission"] }); Object.defineProperty(__imports, "KEYBIND_DEFINITIONS", { enumerable: true, get: () => __dep0["KEYBIND_DEFINITIONS"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep0["STORAGE_KEYS"] }); Object.defineProperty(__imports, "normalizeGroundTagCollection", { enumerable: true, get: () => __dep0["normalizeGroundTagCollection"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep1["createRandomSeed"] }); Object.defineProperty(__imports, "closeMultiplayer", { enumerable: true, get: () => __dep2["closeMultiplayer"] }); Object.defineProperty(__imports, "closePublicLobbyDirectory", { enumerable: true, get: () => __dep2["closePublicLobbyDirectory"] }); Object.defineProperty(__imports, "connectMultiplayer", { enumerable: true, get: () => __dep2["connectMultiplayer"] }); Object.defineProperty(__imports, "openPublicLobbyDirectory", { enumerable: true, get: () => __dep2["openPublicLobbyDirectory"] }); Object.defineProperty(__imports, "refreshPublicLobbyDirectory", { enumerable: true, get: () => __dep2["refreshPublicLobbyDirectory"] }); Object.defineProperty(__imports, "setMultiplayerFaction", { enumerable: true, get: () => __dep2["setMultiplayerFaction"] }); Object.defineProperty(__imports, "setMultiplayerReady", { enumerable: true, get: () => __dep2["setMultiplayerReady"] }); Object.defineProperty(__imports, "startMultiplayerMatch", { enumerable: true, get: () => __dep2["startMultiplayerMatch"] }); Object.defineProperty(__imports, "initializeAccountSync", { enumerable: true, get: () => __dep3["initializeAccountSync"] }); Object.defineProperty(__imports, "scheduleAccountSync", { enumerable: true, get: () => __dep3["scheduleAccountSync"] }); Object.defineProperty(__imports, "signInAccount", { enumerable: true, get: () => __dep3["signInAccount"] }); Object.defineProperty(__imports, "signInWithGoogleAccount", { enumerable: true, get: () => __dep3["signInWithGoogleAccount"] }); Object.defineProperty(__imports, "signOutAccount", { enumerable: true, get: () => __dep3["signOutAccount"] }); Object.defineProperty(__imports, "signUpAccount", { enumerable: true, get: () => __dep3["signUpAccount"] }); Object.defineProperty(__imports, "subscribeAccount", { enumerable: true, get: () => __dep3["subscribeAccount"] }); Object.defineProperty(__imports, "syncAccountNow", { enumerable: true, get: () => __dep3["syncAccountNow"] }); Object.defineProperty(__imports, "loadGLBModel", { enumerable: true, get: () => __dep4["loadGLBModel"] });
-    Object.defineProperty(__imports, "CAMPAIGN_MEDAL_DEFINITIONS", { enumerable: true, get: () => __dep5["CAMPAIGN_MEDAL_DEFINITIONS"] }); Object.defineProperty(__imports, "CAMPAIGN_COSMETIC_DEFINITIONS", { enumerable: true, get: () => __dep5["CAMPAIGN_COSMETIC_DEFINITIONS"] }); Object.defineProperty(__imports, "campaignMissionProgress", { enumerable: true, get: () => __dep5["campaignMissionProgress"] }); Object.defineProperty(__imports, "campaignProgressSummary", { enumerable: true, get: () => __dep5["campaignProgressSummary"] }); Object.defineProperty(__imports, "loadCampaignProgression", { enumerable: true, get: () => __dep5["loadCampaignProgression"] }); Object.defineProperty(__imports, "resetCampaignProgression", { enumerable: true, get: () => __dep5["resetCampaignProgression"] }); Object.defineProperty(__imports, "selectCampaignCosmetic", { enumerable: true, get: () => __dep5["selectCampaignCosmetic"] });
+    Object.defineProperty(__imports, "CAMPAIGN_MEDAL_DEFINITIONS", { enumerable: true, get: () => __dep5["CAMPAIGN_MEDAL_DEFINITIONS"] }); Object.defineProperty(__imports, "CAMPAIGN_COSMETIC_DEFINITIONS", { enumerable: true, get: () => __dep5["CAMPAIGN_COSMETIC_DEFINITIONS"] }); Object.defineProperty(__imports, "campaignMissionProgress", { enumerable: true, get: () => __dep5["campaignMissionProgress"] }); Object.defineProperty(__imports, "campaignProgressSummary", { enumerable: true, get: () => __dep5["campaignProgressSummary"] }); Object.defineProperty(__imports, "loadCampaignProgression", { enumerable: true, get: () => __dep5["loadCampaignProgression"] }); Object.defineProperty(__imports, "resetCampaignProgression", { enumerable: true, get: () => __dep5["resetCampaignProgression"] }); Object.defineProperty(__imports, "selectCampaignCosmetic", { enumerable: true, get: () => __dep5["selectCampaignCosmetic"] }); Object.defineProperty(__imports, "isMobileUI", { enumerable: true, get: () => __dep6["isMobileUI"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "actionForKeyboardEvent", { enumerable: true, get: () => actionForKeyboardEvent }); Object.defineProperty(__exports, "getKeybinds", { enumerable: true, get: () => getKeybinds }); Object.defineProperty(__exports, "isMenuOpen", { enumerable: true, get: () => isMenuOpen }); Object.defineProperty(__exports, "keybindCodeLabel", { enumerable: true, get: () => keybindCodeLabel }); Object.defineProperty(__exports, "matchesKeybind", { enumerable: true, get: () => matchesKeybind }); Object.defineProperty(__exports, "resetKeybinds", { enumerable: true, get: () => resetKeybinds }); Object.defineProperty(__exports, "showMainMenu", { enumerable: true, get: () => showMainMenu });
@@ -22700,6 +22915,25 @@
         }
         .starlite-menu__shop-empty strong { color: #f5ddff; font-size: 15px; letter-spacing: .08em; }
         .starlite-menu__shop-empty small { max-width: 490px; font-size: 11px; line-height: 1.55; }
+        .starlite-menu__shop-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+        .starlite-menu__shop-card {
+          min-width: 0; padding: 10px; display: grid; gap: 8px; border: 1px solid rgba(205,155,255,.32);
+          border-radius: 11px; color: #dfd0eb; background: linear-gradient(155deg, rgba(111,52,139,.14), rgba(8,14,20,.6));
+        }
+        .starlite-menu__shop-preview {
+          position: relative; aspect-ratio: 1; overflow: hidden; display: grid; place-items: center;
+          border: 1px dashed rgba(205,155,255,.48); border-radius: 9px; background-color: #111720;
+          background-image: linear-gradient(45deg, rgba(255,255,255,.045) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,.045) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(255,255,255,.045) 75%), linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.045) 75%);
+          background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+        }
+        .starlite-menu__shop-preview img { display: none; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+        .starlite-menu__shop-card[data-asset-ready="true"] .starlite-menu__shop-preview { border-style: solid; border-color: rgba(157,227,111,.52); }
+        .starlite-menu__shop-card[data-asset-ready="true"] .starlite-menu__shop-preview img { display: block; }
+        .starlite-menu__shop-card[data-asset-ready="true"] .starlite-menu__shop-placeholder { display: none; }
+        .starlite-menu__shop-placeholder { padding: 8px; color: #a990b9; font: 800 9px/1.45 ui-monospace, monospace; letter-spacing: .06em; text-align: center; overflow-wrap: anywhere; }
+        .starlite-menu__shop-card strong { overflow: hidden; color: #f5eaff; font-size: 11px; letter-spacing: .07em; text-overflow: ellipsis; white-space: nowrap; }
+        .starlite-menu__shop-card small { overflow: hidden; color: #9d8eaa; font: 700 8px ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }
+        @media (max-width: 620px) { .starlite-menu__shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         .starlite-menu__tag-celebration {
           position: fixed; inset: 0; z-index: 60; overflow: hidden; display: grid; place-items: center;
           pointer-events: none; background: radial-gradient(circle at 50% 48%, rgba(157,227,111,.12), transparent 42%);
@@ -23568,6 +23802,64 @@
           .starlite-menu__shortcut-dock .starlite-menu__tag-teaser,
           .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser { min-height:48px; }
         }
+
+
+        /* The mobile app layout is applied only when the shared isMobileUI() gate
+           adds this class. Colours, type, panel fills, borders and animated battle
+           canvases continue to use the existing desktop cosmetics unchanged. */
+        #starlite-menu.starlite-menu--mobile { overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; }
+        #starlite-menu.starlite-menu--mobile > canvas,
+        #starlite-menu.starlite-menu--mobile > .starlite-menu__shade { position:fixed; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__layout {
+          width:100%; min-height:100%; margin:0; padding:calc(14px + env(safe-area-inset-top,0px)) 10px calc(22px + env(safe-area-inset-bottom,0px));
+          display:block; overflow:visible;
+        }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__brand { margin:0 52px 14px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__eyebrow { font-size:10px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__title { font-size:clamp(42px,15vw,68px); }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__top-actions { position:fixed; top:calc(10px + env(safe-area-inset-top,0px)); right:10px; z-index:30; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__panel {
+          width:100%!important; max-width:none!important; max-height:none!important; min-height:0; margin:0 auto; padding:58px 12px 16px;
+          overflow:visible!important;
+        }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__panel[data-view="categories"] { padding-top:16px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__return { position:absolute; top:10px; left:10px; width:46px; height:46px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__return + .starlite-menu__heading { min-height:46px; padding-left:52px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__mode-gates,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__modes,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-grid,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__campaign-grid,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__faction-grid,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__online-choice,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tag-layout,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__campaign-command,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__campaign-briefing-layout,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__branch-actions { grid-template-columns:1fr!important; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__gate,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__gate--campaign {
+          grid-column:auto; width:100%; min-height:176px; aspect-ratio:2.15 / 1; justify-self:stretch; border-radius:15px;
+        }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__gate-overlay { padding:14px 16px; background:linear-gradient(90deg,rgba(2,5,7,.93),rgba(2,5,7,.30) 72%,transparent); }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__gate-copy { align-items:flex-start; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__gate strong { font-size:22px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__shortcut-dock { display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__shortcut-dock .starlite-menu__tag-teaser,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__shortcut-dock .starlite-menu__tutorial-teaser { width:100%; min-height:64px; }
+        #starlite-menu.starlite-menu--mobile button,
+        #starlite-menu.starlite-menu--mobile select,
+        #starlite-menu.starlite-menu--mobile input { min-height:48px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__button,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__secondary,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__faction-card,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card { width:100%; min-height:64px; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card { grid-template-columns:96px 1fr; grid-template-rows:auto auto; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-portrait { grid-row:1 / span 2; min-height:112px!important; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card strong,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tutorial-card small { text-align:left; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__tag-list,
+        #starlite-menu.starlite-menu--mobile .starlite-menu__shop-grid { grid-template-columns:1fr!important; max-height:none; }
+        #starlite-menu.starlite-menu--mobile .starlite-menu__shop-card { min-height:84px; }
+
         @media (prefers-reduced-motion: reduce) {
           .starlite-menu__button, .starlite-menu__key, .starlite-menu__gate, .starlite-menu__gate-scene, .starlite-menu__gate-unit, .starlite-menu__gate-bolt, .starlite-menu__gate-spark, .starlite-menu__tag-teaser, .starlite-menu__tutorial-teaser, .starlite-menu__new-tag, .starlite-menu__confetti-piece, .starlite-menu__tag-celebration-message { transition: none; animation: none !important; }
         }
@@ -24173,6 +24465,7 @@
         const menuVolume = loadMenuVolume();
         const root = document.createElement('div');
         root.id = 'starlite-menu';
+        root.classList.toggle('starlite-menu--mobile', isMobileUI());
         root.dataset.activeView = 'categories';
         root.setAttribute('role', 'dialog');
         root.setAttribute('aria-modal', 'true');
@@ -24393,18 +24686,15 @@
             <section class="starlite-menu__panel starlite-hidden" data-view="tag-shop">
               <button class="starlite-menu__return" type="button" data-close-tag-shop aria-label="Return to Tag Lab" title="Return to Tag Lab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"></path><path d="M4 12h16"></path></svg></button>
               <h2 class="starlite-menu__heading">The shop</h2>
-              <p class="starlite-menu__pvp-copy">Premade tags will appear here. Each tag can be voluntarily unlocked by watching one rewarded advert.</p>
-              <div class="starlite-menu__shop-empty">
-                <span class="starlite-menu__tag-teaser-mark" aria-hidden="true">★</span>
-                <strong>SHOP COLLECTION COMING SOON</strong>
-                <small>No premade tags are bundled yet. This panel is ready for the tag packs you upload later, including one-ad unlock buttons and ownership checks.</small>
-              </div>
+              <p class="starlite-menu__pvp-copy">Asset slots are read from <code>STARLITE_TAG_SHOP_CONFIG</code>. Add your PNG files to <code>./assets/tags/</code>; missing files stay visible as placeholders.</p>
+              <div class="starlite-menu__shop-grid" data-tag-shop-grid aria-label="Tag shop asset slots"></div>
+              <p class="starlite-menu__status" data-tag-shop-status role="status" aria-live="polite"></p>
             </section>
             <div class="starlite-menu__rewarded-overlay starlite-hidden" data-rewarded-overlay role="dialog" aria-modal="true" aria-labelledby="starlite-rewarded-title">
               <div class="starlite-menu__rewarded-dialog">
                 <span class="starlite-menu__rewarded-badge">VOLUNTARY REWARDED AD</span>
                 <h3 id="starlite-rewarded-title">Unlock one new ground tag</h3>
-                <p>Watch one short advert to save this new tag. Editing tags you already own remains free, and declining simply returns you to Tag Lab.</p>
+                <p>When Google has a rewarded advert ready, complete it to save this new tag. If no advert is available, the tag is saved normally. Declining an available advert returns you to Tag Lab without saving.</p>
                 <div class="starlite-menu__rewarded-frame starlite-hidden" data-rewarded-frame aria-live="polite">
                   <strong>DEVELOPMENT AD PLACEHOLDER</strong>
                   <span class="starlite-menu__rewarded-countdown" data-rewarded-countdown>8</span>
@@ -24633,6 +24923,8 @@
         const tagEraserButton = root.querySelector('[data-tag-eraser]');
         const tagSaveButton = root.querySelector('[data-save-tag]');
         const tagStatus = root.querySelector('[data-tag-status]');
+        const tagShopGrid = root.querySelector('[data-tag-shop-grid]');
+        const tagShopStatus = root.querySelector('[data-tag-shop-status]');
         const rewardedOverlay = root.querySelector('[data-rewarded-overlay]');
         const rewardedStatus = root.querySelector('[data-rewarded-status]');
         const rewardedWatchButton = root.querySelector('[data-rewarded-watch]');
@@ -25282,13 +25574,20 @@
           return `TAG ${Math.min(MAX_OWNED_GROUND_TAGS, tagDefinitions.length + 1)}`;
         }
 
+        function rewardedAdMayBeRequested() {
+          const config = rewardedAdConfiguration();
+          return config.enabled || config.testMode || (isLocalRewardedAdEnvironment() && config.developmentPlaceholder);
+        }
+
         function renderGroundTagLab() {
           syncTagBackgroundControls();
           setTagEraser(tagEraser);
           syncTagPenControls();
           tagSaveButton.dataset.active = String(tagDirty);
           const existingDraft = tagDefinitions.some(tag => tag.id === tagDraft.id);
-          tagSaveButton.textContent = existingDraft || tagDraftRewardUnlocked ? 'SAVE TAG' : 'WATCH AD + SAVE';
+          tagSaveButton.textContent = existingDraft || tagDraftRewardUnlocked || !rewardedAdMayBeRequested()
+            ? 'SAVE TAG'
+            : 'WATCH AD + SAVE';
           drawGroundTagCanvas(tagCanvas, tagDraft);
           tagList.replaceChildren();
           if (!tagDefinitions.length) {
@@ -25650,7 +25949,64 @@
           root.querySelector('[data-open-tag-lab]')?.focus();
         }
 
+        function tagShopConfiguration() {
+          const raw = globalThis.STARLITE_TAG_SHOP_CONFIG || {};
+          const basePath = String(raw.basePath || './assets/tags/');
+          const items = Array.isArray(raw.items) ? raw.items : [];
+          return { basePath, items };
+        }
+
+        function tagShopAssetUrl(basePath, file) {
+          const path = String(file || '').trim();
+          if (!path) return '';
+          if (/^(?:[a-z]+:)?\/\//i.test(path) || path.startsWith('/') || path.startsWith('data:') || path.startsWith('blob:')) return path;
+          return `${basePath.replace(/\/?$/, '/')}${path.replace(/^\//, '')}`;
+        }
+
+        function renderTagShopAssets() {
+          if (!tagShopGrid) return;
+          const { basePath, items } = tagShopConfiguration();
+          tagShopGrid.replaceChildren();
+          if (!items.length) {
+            const empty = document.createElement('div');
+            empty.className = 'starlite-menu__shop-empty';
+            empty.innerHTML = '<span class="starlite-menu__tag-teaser-mark" aria-hidden="true">★</span><strong>NO ASSET SLOTS CONFIGURED</strong><small>Add entries to STARLITE_TAG_SHOP_CONFIG.items near the top of this HTML file.</small>';
+            tagShopGrid.appendChild(empty);
+            tagShopStatus.textContent = 'No Tag Shop assets are configured.';
+            return;
+          }
+          for (let index = 0; index < items.length; index++) {
+            const item = items[index] && typeof items[index] === 'object' ? items[index] : {};
+            const name = String(item.name || `SHOP TAG ${String(index + 1).padStart(2, '0')}`);
+            const file = String(item.file || `tag-${String(index + 1).padStart(2, '0')}.png`);
+            const source = tagShopAssetUrl(basePath, file);
+            const card = document.createElement('article');
+            card.className = 'starlite-menu__shop-card';
+            card.dataset.assetReady = 'false';
+            const preview = document.createElement('div');
+            preview.className = 'starlite-menu__shop-preview';
+            const image = document.createElement('img');
+            image.alt = `${name} preview`;
+            image.decoding = 'async';
+            const placeholder = document.createElement('span');
+            placeholder.className = 'starlite-menu__shop-placeholder';
+            placeholder.textContent = `ADD ${file} TO ${basePath}`;
+            image.addEventListener('load', () => { card.dataset.assetReady = 'true'; });
+            image.addEventListener('error', () => { card.dataset.assetReady = 'false'; });
+            if (source) image.src = source;
+            preview.append(image, placeholder);
+            const label = document.createElement('strong');
+            label.textContent = name;
+            const pathLabel = document.createElement('small');
+            pathLabel.textContent = `${basePath}${file}`;
+            card.append(preview, label, pathLabel);
+            tagShopGrid.appendChild(card);
+          }
+          tagShopStatus.textContent = `${items.length} asset slot${items.length === 1 ? '' : 's'} configured. Missing PNGs are shown as placeholders.`;
+        }
+
         function openTagShop() {
+          renderTagShopAssets();
           showOnly(tagShopView);
           root.querySelector('[data-close-tag-shop]')?.focus();
         }
@@ -25764,11 +26120,17 @@
         }
 
         function requestRewardedTagUnlock() {
-          if (rewardedAdBusy) return Promise.resolve(false);
+          if (rewardedAdBusy) return Promise.resolve('declined');
+          const config = rewardedAdConfiguration();
+          const useDevelopmentPlaceholder = isLocalRewardedAdEnvironment() && config.developmentPlaceholder;
+          if (!useDevelopmentPlaceholder && !config.enabled && !config.testMode) {
+            return Promise.resolve('unavailable');
+          }
+
           rewardedAdBusy = true;
           rewardedOverlay.classList.remove('starlite-hidden');
           rewardedFrame.classList.add('starlite-hidden');
-          rewardedStatus.textContent = 'Preparing a voluntary rewarded advert…';
+          rewardedStatus.textContent = 'Checking whether a Google rewarded advert is available…';
           rewardedWatchButton.disabled = true;
           rewardedWatchButton.dataset.ready = 'false';
           rewardedWatchButton.textContent = 'PREPARING AD…';
@@ -25778,7 +26140,7 @@
           return new Promise(resolve => {
             let session = null;
             let resolved = false;
-            const finish = result => {
+            const finish = outcome => {
               if (resolved) return;
               resolved = true;
               rewardedAdCancel = null;
@@ -25788,20 +26150,18 @@
               rewardedWatchButton.disabled = true;
               rewardedWatchButton.dataset.ready = 'false';
               rewardedCancelButton.disabled = false;
-              if (!result && session) session.cancel();
-              resolve(!!result);
+              if (outcome !== 'rewarded' && session) session.cancel();
+              resolve(outcome);
             };
-            rewardedAdCancel = finish;
+            rewardedAdCancel = result => finish(result ? 'rewarded' : 'declined');
+            rewardedCancelButton.onclick = () => finish('declined');
 
-            rewardedCancelButton.onclick = () => finish(false);
-
-            const config = rewardedAdConfiguration();
-            if (isLocalRewardedAdEnvironment() && config.developmentPlaceholder) {
+            if (useDevelopmentPlaceholder) {
               rewardedStatus.textContent = 'Local test mode is ready. This placeholder verifies the flow but earns no revenue.';
               rewardedWatchButton.disabled = false;
               rewardedWatchButton.dataset.ready = 'true';
               rewardedWatchButton.textContent = 'WATCH TEST AD';
-              rewardedWatchButton.onclick = () => runDevelopmentRewardedPlaceholder(finish);
+              rewardedWatchButton.onclick = () => runDevelopmentRewardedPlaceholder(result => finish(result ? 'rewarded' : 'declined'));
               return;
             }
 
@@ -25811,23 +26171,20 @@
                 session = preparedSession;
                 rewardedWatchButton.disabled = false;
                 rewardedWatchButton.dataset.ready = 'true';
-                rewardedWatchButton.textContent = 'WATCH AD TO UNLOCK';
+                rewardedWatchButton.textContent = 'WATCH AD TO SAVE';
                 rewardedWatchButton.onclick = async () => {
                   rewardedWatchButton.disabled = true;
                   rewardedWatchButton.dataset.ready = 'false';
                   rewardedWatchButton.textContent = 'AD PLAYING…';
                   rewardedCancelButton.disabled = true;
                   const granted = await session.show();
-                  finish(granted);
+                  finish(granted ? 'rewarded' : 'declined');
                 };
               })
               .catch(error => {
                 if (resolved) return;
-                rewardedStatus.textContent = `${error?.message || 'Rewarded advert unavailable.'} No tag was unlocked.`;
-                rewardedWatchButton.disabled = true;
-                rewardedWatchButton.dataset.ready = 'false';
-                rewardedWatchButton.textContent = 'AD UNAVAILABLE';
-                rewardedCancelButton.textContent = 'CLOSE';
+                console.info('StarLite rewarded advert unavailable; saving tag without an advert.', error);
+                finish('unavailable');
               });
           }).finally(() => {
             rewardedCancelButton.textContent = 'NOT NOW';
@@ -26010,14 +26367,16 @@
           const existing = tagDefinitions.some(tag => tag.id === tagDraft.id);
           let rewardJustGranted = false;
           if (!existing && !tagDraftRewardUnlocked) {
-            const granted = await requestRewardedTagUnlock();
-            if (!granted) {
-              tagStatus.textContent = 'New tag not saved. The voluntary advert was declined, unavailable, or not completed.';
+            const outcome = await requestRewardedTagUnlock();
+            if (outcome === 'declined') {
+              tagStatus.textContent = 'New tag not saved because the available rewarded advert was declined or not completed.';
               return;
             }
             tagDraftRewardUnlocked = true;
-            rewardJustGranted = true;
-            tagStatus.textContent = 'Advert completed. Saving your unlocked tag…';
+            rewardJustGranted = outcome === 'rewarded';
+            tagStatus.textContent = outcome === 'rewarded'
+              ? 'Advert completed. Saving your unlocked tag…'
+              : 'No Google rewarded advert is available. Saving the tag normally…';
           }
           persistCurrentGroundTagDraft({ celebrate: rewardJustGranted });
         });
@@ -29805,8 +30164,8 @@ function compileShader(gl, type, source) {
 
   __define("rendering.js", function (__exports, __require) {
     const __imports = Object.create(null);
-    const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("main.js"); const __dep4 = __require("menu.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("state.js"); const __dep7 = __require("terrain.js"); const __dep8 = __require("commandPanel.js");
-    Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "INSECT_HIVE_EVOLUTION", { enumerable: true, get: () => __dep1["INSECT_HIVE_EVOLUTION"] }); Object.defineProperty(__imports, "INSECT_UPGRADES", { enumerable: true, get: () => __dep1["INSECT_UPGRADES"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "factionBuildMenuEntries", { enumerable: true, get: () => __dep1["factionBuildMenuEntries"] }); Object.defineProperty(__imports, "factionProductionTypes", { enumerable: true, get: () => __dep1["factionProductionTypes"] }); Object.defineProperty(__imports, "factionUnitRequirements", { enumerable: true, get: () => __dep1["factionUnitRequirements"] }); Object.defineProperty(__imports, "factionCanUseBuilding", { enumerable: true, get: () => __dep1["factionCanUseBuilding"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep1["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep1["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveEvolutionSpec", { enumerable: true, get: () => __dep1["insectHiveEvolutionSpec"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep1["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "campaignTechnologyAllows", { enumerable: true, get: () => __dep2["campaignTechnologyAllows"] }); Object.defineProperty(__imports, "HELIAS_FORGE_UPGRADES", { enumerable: true, get: () => __dep2["HELIAS_FORGE_UPGRADES"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep2["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep2["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "HELIAS_TEMPLE_UPGRADES", { enumerable: true, get: () => __dep2["HELIAS_TEMPLE_UPGRADES"] }); Object.defineProperty(__imports, "heliasTempleRegistry", { enumerable: true, get: () => __dep2["heliasTempleRegistry"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "committedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["committedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "insectHiveLarvae", { enumerable: true, get: () => __dep2["insectHiveLarvae"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep2["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "creepTumorPlacementStatus", { enumerable: true, get: () => __dep2["creepTumorPlacementStatus"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep2["insectUpgradeOrders"] }); Object.defineProperty(__imports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => __dep2["insectUpgradeRequirementStatus"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "queueWarpInAcross", { enumerable: true, get: () => __dep2["queueWarpInAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "gatewayTransformReady", { enumerable: true, get: () => __dep2["gatewayTransformReady"] }); Object.defineProperty(__imports, "warpGateReady", { enumerable: true, get: () => __dep2["warpGateReady"] }); Object.defineProperty(__imports, "warpGateCooldownFor", { enumerable: true, get: () => __dep2["warpGateCooldownFor"] }); Object.defineProperty(__imports, "warpTechnologyResearched", { enumerable: true, get: () => __dep2["warpTechnologyResearched"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "unitMorphOptions", { enumerable: true, get: () => __dep2["unitMorphOptions"] }); Object.defineProperty(__imports, "unitMorphRequirementStatus", { enumerable: true, get: () => __dep2["unitMorphRequirementStatus"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep6["canvas"] }); Object.defineProperty(__imports, "resizeGameCanvas", { enumerable: true, get: () => __dep6["resize"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep7["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep7["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep8["clearCommandMenu"] }); Object.defineProperty(__imports, "isCommandConsolePoint", { enumerable: true, get: () => __dep8["isCommandConsolePoint"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawConsoleText", { enumerable: true, get: () => __dep8["drawConsoleText"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] });
+    const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("main.js"); const __dep4 = __require("menu.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("state.js"); const __dep7 = __require("terrain.js"); const __dep8 = __require("commandPanel.js"); const __dep9 = __require("uiLayout.js");
+    Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "INSECT_HIVE_EVOLUTION", { enumerable: true, get: () => __dep1["INSECT_HIVE_EVOLUTION"] }); Object.defineProperty(__imports, "INSECT_UPGRADES", { enumerable: true, get: () => __dep1["INSECT_UPGRADES"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "factionBuildMenuEntries", { enumerable: true, get: () => __dep1["factionBuildMenuEntries"] }); Object.defineProperty(__imports, "factionProductionTypes", { enumerable: true, get: () => __dep1["factionProductionTypes"] }); Object.defineProperty(__imports, "factionUnitRequirements", { enumerable: true, get: () => __dep1["factionUnitRequirements"] }); Object.defineProperty(__imports, "factionCanUseBuilding", { enumerable: true, get: () => __dep1["factionCanUseBuilding"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep1["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep1["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveEvolutionSpec", { enumerable: true, get: () => __dep1["insectHiveEvolutionSpec"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep1["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "campaignTechnologyAllows", { enumerable: true, get: () => __dep2["campaignTechnologyAllows"] }); Object.defineProperty(__imports, "HELIAS_FORGE_UPGRADES", { enumerable: true, get: () => __dep2["HELIAS_FORGE_UPGRADES"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep2["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep2["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "HELIAS_TEMPLE_UPGRADES", { enumerable: true, get: () => __dep2["HELIAS_TEMPLE_UPGRADES"] }); Object.defineProperty(__imports, "heliasTempleRegistry", { enumerable: true, get: () => __dep2["heliasTempleRegistry"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "committedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["committedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "insectHiveLarvae", { enumerable: true, get: () => __dep2["insectHiveLarvae"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep2["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "creepTumorPlacementStatus", { enumerable: true, get: () => __dep2["creepTumorPlacementStatus"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep2["insectUpgradeOrders"] }); Object.defineProperty(__imports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => __dep2["insectUpgradeRequirementStatus"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "queueWarpInAcross", { enumerable: true, get: () => __dep2["queueWarpInAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "gatewayTransformReady", { enumerable: true, get: () => __dep2["gatewayTransformReady"] }); Object.defineProperty(__imports, "warpGateReady", { enumerable: true, get: () => __dep2["warpGateReady"] }); Object.defineProperty(__imports, "warpGateCooldownFor", { enumerable: true, get: () => __dep2["warpGateCooldownFor"] }); Object.defineProperty(__imports, "warpTechnologyResearched", { enumerable: true, get: () => __dep2["warpTechnologyResearched"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "unitMorphOptions", { enumerable: true, get: () => __dep2["unitMorphOptions"] }); Object.defineProperty(__imports, "unitMorphRequirementStatus", { enumerable: true, get: () => __dep2["unitMorphRequirementStatus"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep6["canvas"] }); Object.defineProperty(__imports, "resizeGameCanvas", { enumerable: true, get: () => __dep6["resize"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep7["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep7["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep8["clearCommandMenu"] }); Object.defineProperty(__imports, "isCommandConsolePoint", { enumerable: true, get: () => __dep8["isCommandConsolePoint"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawConsoleText", { enumerable: true, get: () => __dep8["drawConsoleText"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep9["commandConsoleLayout"] }); Object.defineProperty(__imports, "isMobileUI", { enumerable: true, get: () => __dep9["isMobileUI"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "applySpawnFlagCommand", { enumerable: true, get: () => applySpawnFlagCommand }); Object.defineProperty(__exports, "draw", { enumerable: true, get: () => draw }); Object.defineProperty(__exports, "renderMenuBattlePreviewFrame", { enumerable: true, get: () => renderMenuBattlePreviewFrame }); Object.defineProperty(__exports, "gasNodeForExtractor", { enumerable: true, get: () => gasNodeForExtractor }); Object.defineProperty(__exports, "handleMenuClick", { enumerable: true, get: () => handleMenuClick }); Object.defineProperty(__exports, "handleSettingsClick", { enumerable: true, get: () => handleSettingsClick }); Object.defineProperty(__exports, "handleQueueStripClick", { enumerable: true, get: () => handleQueueStripClick }); Object.defineProperty(__exports, "minimapGeom", { enumerable: true, get: () => minimapGeom }); Object.defineProperty(__exports, "minimapToWorld", { enumerable: true, get: () => minimapToWorld }); Object.defineProperty(__exports, "openBuildMenu", { enumerable: true, get: () => openBuildMenu }); Object.defineProperty(__exports, "placePendingBuilding", { enumerable: true, get: () => placePendingBuilding }); Object.defineProperty(__exports, "openConstructionMenu", { enumerable: true, get: () => openConstructionMenu }); Object.defineProperty(__exports, "openGasExtractorMenu", { enumerable: true, get: () => openGasExtractorMenu }); Object.defineProperty(__exports, "openGasLeakMenu", { enumerable: true, get: () => openGasLeakMenu }); Object.defineProperty(__exports, "openHQMenu", { enumerable: true, get: () => openHQMenu }); Object.defineProperty(__exports, "openInsectStructureMenu", { enumerable: true, get: () => openInsectStructureMenu }); Object.defineProperty(__exports, "openHeliasStructureMenu", { enumerable: true, get: () => openHeliasStructureMenu }); Object.defineProperty(__exports, "openHousingMenu", { enumerable: true, get: () => openHousingMenu }); Object.defineProperty(__exports, "openLaboratoryMenu", { enumerable: true, get: () => openLaboratoryMenu }); Object.defineProperty(__exports, "openMinersHutMenu", { enumerable: true, get: () => openMinersHutMenu }); Object.defineProperty(__exports, "openProductionMenu", { enumerable: true, get: () => openProductionMenu }); Object.defineProperty(__exports, "openResearchFacilityMenu", { enumerable: true, get: () => openResearchFacilityMenu }); Object.defineProperty(__exports, "openUpgradeMenu", { enumerable: true, get: () => openUpgradeMenu }); Object.defineProperty(__exports, "resetGame", { enumerable: true, get: () => resetGame }); Object.defineProperty(__exports, "setSpawnFlag", { enumerable: true, get: () => setSpawnFlag });
@@ -29842,7 +30201,7 @@ function compileShader(gl, type, source) {
       }
       
       function drawText(text, x, y, size = 16, color = COLORS.text, align = 'left') {
-        ctx.font = `${size + 1}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+        ctx.font = `${size + (isMobileUI() ? 4 : 1)}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
         ctx.textAlign = align;
         ctx.textBaseline = 'top';
         ctx.fillStyle = '#090b10';
@@ -38925,6 +39284,44 @@ function drawStructure(s) {
       }
       
       function drawResourceHud() {
+        if (isMobileUI()) {
+          const layout = commandConsoleLayout(CW, CH);
+          const top = layout.topBar;
+          const deselect = layout.deselect;
+          const resource = layout.resources;
+          const settingsRect = layout.settings;
+          drawPanel(top.x, top.y, top.w, top.h, 'rgba(18,24,33,.98)');
+          state.mobileDeselectRect = deselect;
+          ctx.fillStyle = pointInRect(state.mouse, deselect) ? '#633442' : '#4f2b36';
+          ctx.fillRect(deselect.x, deselect.y, deselect.w, deselect.h);
+          ctx.strokeStyle = '#d87083';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(deselect.x + 1, deselect.y + 1, deselect.w - 2, deselect.h - 2);
+          drawText('DESELECT', deselect.x + deselect.w / 2, deselect.y + Math.max(10, (deselect.h - 22) / 2), 13, '#fff0f3', 'center');
+
+          drawPanel(resource.x, resource.y, resource.w, resource.h, 'rgba(12,19,27,.96)');
+          const team = activeCommandTeam();
+          const wallet = teamEconomyState(team);
+          const popUsed = populationUsed(team);
+          const popCap = populationCap(team);
+          const thirds = resource.w / 3;
+          const iconY = resource.y + Math.max(8, (resource.h - 14) / 2);
+          const mineralIcon = drawPixelResourceIcon('mineral', resource.x + 7, iconY, 2);
+          const gasIcon = drawPixelResourceIcon('gas', resource.x + thirds + 7, iconY, 2);
+          drawText(Math.floor(wallet.minerals), resource.x + 7 + mineralIcon.w + 5, resource.y + Math.max(10, (resource.h - 20) / 2), 13, COLORS.mineral);
+          drawText(Math.floor(wallet.gas), resource.x + thirds + 7 + gasIcon.w + 5, resource.y + Math.max(10, (resource.h - 20) / 2), 13, COLORS.gas);
+          const popColor = popUsed >= popCap ? COLORS.warn : COLORS.good;
+          drawText('POP', resource.x + thirds * 2 + 7, resource.y + 6, 8, COLORS.muted);
+          drawText(`${popUsed}/${popCap}`, resource.x + thirds * 2 + 7, resource.y + 22, 13, popColor);
+
+          state.settingsButtonRect = settingsRect;
+          drawPanel(settingsRect.x, settingsRect.y, settingsRect.w, settingsRect.h,
+            state.settingsOpen ? 'rgba(52,77,104,.98)' : 'rgba(18,24,33,.94)');
+          drawPixelGear(settingsRect.x + Math.floor(settingsRect.w * .23), settingsRect.y + Math.floor(settingsRect.h * .23),
+            Math.floor(settingsRect.w * .54), state.settingsOpen ? COLORS.player2 : COLORS.text);
+          return;
+        }
+        state.mobileDeselectRect = null;
         const compact = VIEW_W < 500;
         const panelH = compact ? 38 : 46;
         const buttonSize = panelH;
@@ -39105,9 +39502,13 @@ function drawStructure(s) {
       }
 
       function drawTopNotices(baseY = 108) {
+        const mobileUI = isMobileUI();
+        const noticeOriginX = mobileUI ? (Number(state.mobileWorldViewportX) || 0) : 0;
+        if (mobileUI) baseY = (Number(state.mobileWorldViewportY) || 0) + 8;
         const hasMessage = state.messageTimer > 0 && !!state.message;
         const messageIsWarning = hasMessage && (state.messageColor === COLORS.warn || state.messageColor === COLORS.bad);
-        const showMessage = hasMessage && (!messageIsWarning || state.warningsEnabled !== false);
+        const narrativeDeckActive = mobileUI && (state.mobileNarration?.visible || state.campaignMode || state.tutorialMode);
+        const showMessage = hasMessage && !narrativeDeckActive && (!messageIsWarning || state.warningsEnabled !== false);
         let occupied = 0;
 
         if (showMessage) {
@@ -39115,7 +39516,7 @@ function drawStructure(s) {
           const margin = 12;
           const messageW = Math.min(messageIsWarning ? 560 : 420, VIEW_W - margin * 2);
           const messageH = messageIsWarning ? 36 : 30;
-          const messageX = Math.round((VIEW_W - messageW) / 2);
+          const messageX = noticeOriginX + Math.round((VIEW_W - messageW) / 2);
           const messageY = baseY;
           ctx.save();
           ctx.globalAlpha = alpha;
@@ -39136,7 +39537,7 @@ function drawStructure(s) {
 
         if (state.multiplayerStatus) {
           const statusW = Math.min(420, VIEW_W - 24);
-          const statusX = Math.round((VIEW_W - statusW) / 2);
+          const statusX = noticeOriginX + Math.round((VIEW_W - statusW) / 2);
           const statusY = baseY + occupied;
           drawPanel(statusX, statusY, statusW, 30,
             state.multiplayerPaused ? 'rgba(65,18,24,.95)' : 'rgba(18,42,52,.92)');
@@ -39144,7 +39545,7 @@ function drawStructure(s) {
             state.multiplayerPaused ? COLORS.bad : '#7de8ff', 'center', statusW - 20, 800);
           occupied += 36;
         }
-        const campaignRows = campaignObjectiveRowsForHud();
+        const campaignRows = mobileUI ? [] : campaignObjectiveRowsForHud();
         if (campaignRows.length && state.campaignRuntime?.status === 'active') {
           const panelW = Math.min(520, VIEW_W - 24);
           const rowH = 26;
@@ -40048,9 +40449,11 @@ function drawStructure(s) {
         // World, under the camera transform, clipped to the viewport.
         const shakeX = state.cameraShake ? (Math.random() * 2 - 1) * state.cameraShake : 0;
         const shakeY = state.cameraShake ? (Math.random() * 2 - 1) * state.cameraShake : 0;
+        const worldViewportX = isMobileUI() ? (Number(state.mobileWorldViewportX) || 0) : 0;
+        const worldViewportY = isMobileUI() ? (Number(state.mobileWorldViewportY) || 0) : 0;
         ctx.save();
-        ctx.beginPath(); ctx.rect(0, 0, VIEW_W, VIEW_H); ctx.clip();
-        ctx.translate(Math.round(shakeX), Math.round(shakeY));
+        ctx.beginPath(); ctx.rect(worldViewportX, worldViewportY, VIEW_W, VIEW_H); ctx.clip();
+        ctx.translate(Math.round(worldViewportX + shakeX), Math.round(worldViewportY + shakeY));
         ctx.scale(cam.zoom, cam.zoom);
         ctx.translate(-cam.x, -cam.y);
       
@@ -40097,7 +40500,7 @@ function drawStructure(s) {
   __define("state.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("terrain.js"); const __dep4 = __require("uiLayout.js");
-    Object.defineProperty(__imports, "BLOC_AMOUNT", { enumerable: true, get: () => __dep0["BLOC_AMOUNT"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => __dep0["CENTER_STOCK_BONUS"] }); Object.defineProperty(__imports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => __dep0["CENTER_YIELD_BONUS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep0["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep0["LOAD_GAS"] }); Object.defineProperty(__imports, "LOAD_MINERAL", { enumerable: true, get: () => __dep0["LOAD_MINERAL"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => __dep0["RESOURCE_FIELD_BUILD_RADIUS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => __dep0["UNIT_UPGRADE_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => __dep0["ZOOM_OUT_DUEL_FRACTION"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isAirUnitType", { enumerable: true, get: () => __dep0["isAirUnitType"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "isHumanTeam", { enumerable: true, get: () => __dep0["isHumanTeam"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep0["unitUpgradeData"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "applyUnitUpgradeEffect", { enumerable: true, get: () => __dep2["applyUnitUpgradeEffect"] }); Object.defineProperty(__imports, "applyCompletedInsectUpgradesToUnit", { enumerable: true, get: () => __dep2["applyCompletedInsectUpgradesToUnit"] }); Object.defineProperty(__imports, "applyCompletedHeliasForgeUpgradesToUnit", { enumerable: true, get: () => __dep2["applyCompletedHeliasForgeUpgradesToUnit"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep3["isBlocked"] }); Object.defineProperty(__imports, "commandConsoleHeight", { enumerable: true, get: () => __dep4["commandConsoleHeight"] });
+    Object.defineProperty(__imports, "BLOC_AMOUNT", { enumerable: true, get: () => __dep0["BLOC_AMOUNT"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "CENTER_STOCK_BONUS", { enumerable: true, get: () => __dep0["CENTER_STOCK_BONUS"] }); Object.defineProperty(__imports, "CENTER_YIELD_BONUS", { enumerable: true, get: () => __dep0["CENTER_YIELD_BONUS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep0["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep0["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep0["LOAD_GAS"] }); Object.defineProperty(__imports, "LOAD_MINERAL", { enumerable: true, get: () => __dep0["LOAD_MINERAL"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep0["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "RESOURCE_FIELD_BUILD_RADIUS", { enumerable: true, get: () => __dep0["RESOURCE_FIELD_BUILD_RADIUS"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep0["UNIT_DATA"] }); Object.defineProperty(__imports, "UNIT_UPGRADE_DATA", { enumerable: true, get: () => __dep0["UNIT_UPGRADE_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "ZOOM_OUT_DUEL_FRACTION", { enumerable: true, get: () => __dep0["ZOOM_OUT_DUEL_FRACTION"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "isAirUnitType", { enumerable: true, get: () => __dep0["isAirUnitType"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep0["isComputerTeam"] }); Object.defineProperty(__imports, "isHumanTeam", { enumerable: true, get: () => __dep0["isHumanTeam"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep0["unitUpgradeData"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep0["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "applyUnitUpgradeEffect", { enumerable: true, get: () => __dep2["applyUnitUpgradeEffect"] }); Object.defineProperty(__imports, "applyCompletedInsectUpgradesToUnit", { enumerable: true, get: () => __dep2["applyCompletedInsectUpgradesToUnit"] }); Object.defineProperty(__imports, "applyCompletedHeliasForgeUpgradesToUnit", { enumerable: true, get: () => __dep2["applyCompletedHeliasForgeUpgradesToUnit"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep3["isBlocked"] }); Object.defineProperty(__imports, "commandConsoleHeight", { enumerable: true, get: () => __dep4["commandConsoleHeight"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep4["commandConsoleLayout"] }); Object.defineProperty(__imports, "isMobileUI", { enumerable: true, get: () => __dep4["isMobileUI"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "CH", { enumerable: true, get: () => CH }); Object.defineProperty(__exports, "CW", { enumerable: true, get: () => CW }); Object.defineProperty(__exports, "VIEW_H", { enumerable: true, get: () => VIEW_H }); Object.defineProperty(__exports, "VIEW_W", { enumerable: true, get: () => VIEW_W }); Object.defineProperty(__exports, "addResourceField", { enumerable: true, get: () => addResourceField }); Object.defineProperty(__exports, "addStructure", { enumerable: true, get: () => addStructure }); Object.defineProperty(__exports, "addUnit", { enumerable: true, get: () => addUnit }); Object.defineProperty(__exports, "applyRenderInterpolation", { enumerable: true, get: () => applyRenderInterpolation }); Object.defineProperty(__exports, "cam", { enumerable: true, get: () => cam }); Object.defineProperty(__exports, "canvas", { enumerable: true, get: () => canvas }); Object.defineProperty(__exports, "centerCamOn", { enumerable: true, get: () => centerCamOn }); Object.defineProperty(__exports, "getNextEntityId", { enumerable: true, get: () => getNextEntityId }); Object.defineProperty(__exports, "clampCam", { enumerable: true, get: () => clampCam }); Object.defineProperty(__exports, "ctx", { enumerable: true, get: () => ctx }); Object.defineProperty(__exports, "maxZoom", { enumerable: true, get: () => maxZoom }); Object.defineProperty(__exports, "minZoom", { enumerable: true, get: () => minZoom }); Object.defineProperty(__exports, "resize", { enumerable: true, get: () => resize }); Object.defineProperty(__exports, "resourceFields", { enumerable: true, get: () => resourceFields }); Object.defineProperty(__exports, "resourceNodes", { enumerable: true, get: () => resourceNodes }); Object.defineProperty(__exports, "resetVisibilityGrids", { enumerable: true, get: () => resetVisibilityGrids }); Object.defineProperty(__exports, "registerUnitPlacementSpatialQuery", { enumerable: true, get: () => registerUnitPlacementSpatialQuery }); Object.defineProperty(__exports, "restoreSimulationPositions", { enumerable: true, get: () => restoreSimulationPositions }); Object.defineProperty(__exports, "screenToWorld", { enumerable: true, get: () => screenToWorld }); Object.defineProperty(__exports, "setNextEntityId", { enumerable: true, get: () => setNextEntityId }); Object.defineProperty(__exports, "setZoom", { enumerable: true, get: () => setZoom }); Object.defineProperty(__exports, "snapshotSimulationState", { enumerable: true, get: () => snapshotSimulationState }); Object.defineProperty(__exports, "state", { enumerable: true, get: () => state }); Object.defineProperty(__exports, "structures", { enumerable: true, get: () => structures }); Object.defineProperty(__exports, "units", { enumerable: true, get: () => units });
@@ -40145,9 +40548,13 @@ function drawStructure(s) {
         cam.y = clamp(cam.y, 0, Math.max(0, WORLD_H - vh));
       }
       function screenToWorld(sx, sy) {
-        return { x: sx / cam.zoom + cam.x, y: sy / cam.zoom + cam.y };
+        const viewportX = isMobileUI() ? (Number(state.mobileWorldViewportX) || 0) : 0;
+        const viewportY = isMobileUI() ? (Number(state.mobileWorldViewportY) || 0) : 0;
+        return { x: (sx - viewportX) / cam.zoom + cam.x, y: (sy - viewportY) / cam.zoom + cam.y };
       }
-      function setZoom(z, sx = VIEW_W / 2, sy = VIEW_H / 2) {
+      function setZoom(z, sx, sy) {
+        if (!Number.isFinite(sx)) sx = (isMobileUI() ? (Number(state.mobileWorldViewportX) || 0) : 0) + VIEW_W / 2;
+        if (!Number.isFinite(sy)) sy = (isMobileUI() ? (Number(state.mobileWorldViewportY) || 0) : 0) + VIEW_H / 2;
         const before = screenToWorld(sx, sy);
         cam.zoom = clamp(z, minZoom, maxZoom);
         const after = screenToWorld(sx, sy);
@@ -40163,6 +40570,39 @@ function drawStructure(s) {
       
       // Fit the drawing buffer to the whole window and recompute zoom bounds.
       function resize() {
+        if (isMobileUI()) {
+          const viewport = globalThis.visualViewport;
+          const cw = viewport?.width || canvas.clientWidth || window.innerWidth;
+          const ch = viewport?.height || canvas.clientHeight || window.innerHeight;
+          const rootStyle = getComputedStyle(document.documentElement);
+          const safeValue = name => Math.max(0, parseFloat(rootStyle.getPropertyValue(name)) || 0);
+          globalThis.__STARLITE_SAFE_AREA__ = {
+            top: safeValue('--starlite-safe-top'),
+            right: safeValue('--starlite-safe-right'),
+            bottom: safeValue('--starlite-safe-bottom'),
+            left: safeValue('--starlite-safe-left')
+          };
+          CW = Math.max(320, Math.round(cw));
+          CH = Math.max(180, Math.round(ch));
+          const dpr = clamp(Number(globalThis.devicePixelRatio) || 1, 1, 3);
+          canvas.style.width = `${CW}px`;
+          canvas.style.height = `${CH}px`;
+          canvas.width = Math.max(1, Math.round(CW * dpr));
+          canvas.height = Math.max(1, Math.round(CH * dpr));
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          const layout = commandConsoleLayout(CW, CH);
+          VIEW_W = layout.world.w;
+          VIEW_H = layout.world.h;
+          state.mobileWorldViewportY = layout.world.y;
+          state.mobileWorldViewportX = layout.world.x;
+          state.canvasPixelRatio = dpr;
+          minZoom = minimumZoomForViewport();
+          maxZoom = Math.max(2.4, minZoom * 1.6);
+          cam.zoom = clamp(cam.zoom, minZoom, maxZoom);
+          ctx.imageSmoothingEnabled = false;
+          clampCam();
+          return;
+        }
         const cw = canvas.clientWidth || window.innerWidth;
         const ch = canvas.clientHeight || window.innerHeight;
         CW = Math.max(320, Math.round(cw));
@@ -41120,7 +41560,7 @@ function drawStructure(s) {
     
 
     with (__imports) {
-      Object.defineProperty(__exports, "COMMAND_PANEL_MAX_HEIGHT", { enumerable: true, get: () => COMMAND_PANEL_MAX_HEIGHT }); Object.defineProperty(__exports, "commandConsoleHeight", { enumerable: true, get: () => commandConsoleHeight }); Object.defineProperty(__exports, "commandConsoleLayout", { enumerable: true, get: () => commandConsoleLayout }); Object.defineProperty(__exports, "fitAspectRect", { enumerable: true, get: () => fitAspectRect });
+      Object.defineProperty(__exports, "COMMAND_PANEL_MAX_HEIGHT", { enumerable: true, get: () => COMMAND_PANEL_MAX_HEIGHT }); Object.defineProperty(__exports, "commandConsoleHeight", { enumerable: true, get: () => commandConsoleHeight }); Object.defineProperty(__exports, "commandConsoleLayout", { enumerable: true, get: () => commandConsoleLayout }); Object.defineProperty(__exports, "fitAspectRect", { enumerable: true, get: () => fitAspectRect }); Object.defineProperty(__exports, "isMobileUI", { enumerable: true, get: () => isMobileUI }); Object.defineProperty(__exports, "mobileSafeAreaInsets", { enumerable: true, get: () => mobileSafeAreaInsets });
       // Responsive geometry for the persistent StarCraft-style command console.
       // This module deliberately has no game-state imports so camera/state code can
       // use it without introducing a circular dependency.
@@ -41130,8 +41570,29 @@ function drawStructure(s) {
       const COMMAND_PANEL_COMPACT_HEIGHT = 104;
       
       const clampValue = (value, min, max) => Math.max(min, Math.min(max, value));
+
+      function isMobileUI() {
+        const viewportWidth = Math.max(0, Number(globalThis.visualViewport?.width) || Number(globalThis.innerWidth) || Number(globalThis.document?.documentElement?.clientWidth) || 0);
+        const coarsePointer = !!globalThis.matchMedia?.('(pointer: coarse)')?.matches;
+        const touchPoints = Math.max(0, Number(globalThis.navigator?.maxTouchPoints) || 0);
+        return (coarsePointer && touchPoints > 0) || viewportWidth < 720;
+      }
+
+      function mobileSafeAreaInsets() {
+        const stored = globalThis.__STARLITE_SAFE_AREA__;
+        return {
+          top: Math.max(0, Number(stored?.top) || 0),
+          right: Math.max(0, Number(stored?.right) || 0),
+          bottom: Math.max(0, Number(stored?.bottom) || 0),
+          left: Math.max(0, Number(stored?.left) || 0)
+        };
+      }
       
       function commandConsoleHeight(viewWidth, viewHeight) {
+        if (isMobileUI()) {
+          const layout = mobileCommandConsoleLayout(viewWidth, viewHeight);
+          return Math.max(1, viewHeight - layout.world.h);
+        }
         const compact = viewWidth < 720 || viewHeight < 520;
         const desired = Math.round(viewHeight * (compact ? .31 : .27));
         const preferredMinimum = compact ? COMMAND_PANEL_COMPACT_HEIGHT : COMMAND_PANEL_MIN_HEIGHT;
@@ -41139,8 +41600,69 @@ function drawStructure(s) {
         const available = Math.max(COMMAND_PANEL_COMPACT_HEIGHT, viewHeight - minimumWorldHeight);
         return Math.round(clampValue(desired, preferredMinimum, Math.min(COMMAND_PANEL_MAX_HEIGHT, available)));
       }
+
+      function mobileCommandConsoleLayout(viewWidth, viewHeight) {
+        const safe = mobileSafeAreaInsets();
+        const left = Math.min(viewWidth / 3, safe.left);
+        const right = Math.min(viewWidth / 3, safe.right);
+        const top = Math.min(viewHeight / 4, safe.top);
+        const bottom = Math.min(viewHeight / 4, safe.bottom);
+        const usableW = Math.max(1, viewWidth - left - right);
+        const pad = clampValue(Math.round(usableW * .015), 5, 9);
+        const gap = clampValue(Math.round(usableW * .011), 4, 7);
+        const topBarH = clampValue(Math.round(viewHeight * .072), 54, 68);
+        const deckH = clampValue(Math.round(viewHeight * .17), 132, 174);
+        const actionsH = clampValue(Math.round(viewHeight * .285), 222, 286);
+        const topBar = { x: left, y: top, w: usableW, h: topBarH };
+        const panelY = Math.max(topBar.y + topBar.h + 84, viewHeight - bottom - deckH - actionsH);
+        const panel = { x: left, y: panelY, w: usableW, h: Math.max(1, viewHeight - bottom - panelY) };
+        const deckY = panel.y;
+        const deckHeight = Math.min(deckH, panel.h);
+        const actions = {
+          x: panel.x,
+          y: deckY + deckHeight,
+          w: panel.w,
+          h: Math.max(1, panel.h - deckHeight)
+        };
+        const innerX = panel.x + pad;
+        const innerY = deckY + pad;
+        const innerW = Math.max(1, panel.w - pad * 2);
+        const innerH = Math.max(1, deckHeight - pad * 2);
+        const mapW = clampValue(Math.round(innerW * .28), 88, Math.max(88, innerW * .34));
+        const portraitW = clampValue(Math.round(innerW * .22), 70, Math.max(70, innerW * .27));
+        const map = { x: innerX, y: innerY, w: mapW, h: innerH };
+        const portrait = { x: map.x + map.w + gap, y: innerY, w: portraitW, h: innerH };
+        const infoX = portrait.x + portrait.w + gap;
+        const info = { x: infoX, y: innerY, w: Math.max(1, panel.x + panel.w - pad - infoX), h: innerH };
+        const worldY = topBar.y + topBar.h + gap;
+        const world = { x: left, y: worldY, w: usableW, h: Math.max(1, panel.y - gap - worldY) };
+        const settingsSize = Math.max(44, topBar.h - pad * 2);
+        const deselectW = clampValue(Math.round(usableW * .25), 90, 126);
+        const deselect = { x: topBar.x + pad, y: topBar.y + pad, w: deselectW, h: settingsSize };
+        const settings = { x: topBar.x + topBar.w - pad - settingsSize, y: topBar.y + pad, w: settingsSize, h: settingsSize };
+        const resources = { x: deselect.x + deselect.w + gap, y: topBar.y + pad, w: Math.max(1, settings.x - gap - (deselect.x + deselect.w)), h: settingsSize };
+        return {
+          compact: true,
+          mobile: true,
+          safe,
+          panel,
+          map,
+          portrait,
+          info,
+          actions,
+          topBar,
+          deselect,
+          resources,
+          settings,
+          world,
+          outerPanelLift: 0,
+          pad,
+          gap
+        };
+      }
       
       function commandConsoleLayout(viewWidth, viewHeight) {
+        if (isMobileUI()) return mobileCommandConsoleLayout(viewWidth, viewHeight);
         const panelH = commandConsoleHeight(viewWidth, viewHeight);
         const panel = { x: 0, y: viewHeight - panelH, w: viewWidth, h: panelH };
         const compact = viewWidth < 720;
