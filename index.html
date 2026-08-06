@@ -34984,6 +34984,24 @@ function drawInsectTechBranchStructure(s, x, y, team, light, flash) {
   drawStructureLabel(label, s, y, labelColor, 9);
 }
 
+// Canonical live-render routing for the four upgraded Zglenglo bio-tech organisms.
+// Keeping the mapping in one place prevents a future generic structure branch from
+// silently replacing their detailed anatomy or their state.elapsed animations.
+const ZGLENGLO_BIO_TECH_RENDERERS = Object.freeze({
+  evolutionPit: drawEvolutionPitStructure,
+  spitterDen: drawInsectTechBranchStructure,
+  carapaceWarren: drawInsectTechBranchStructure,
+  airSpire: drawInsectTechBranchStructure
+});
+
+function drawZglengloBioTechStructure(s, x, y, team, light, flash) {
+  if (teamFactionId(s.team, state.teamFactions) !== 'insects') return false;
+  const renderer = ZGLENGLO_BIO_TECH_RENDERERS[s.type];
+  if (!renderer) return false;
+  renderer(s, x, y, team, light, flash);
+  return true;
+}
+
 
 function drawHeliasPylonStructure(s, x, y, team, light, flash) {
   drawBuildingShadow(x - 1, y + 10, s.w + 2, Math.max(10, s.h - 9));
@@ -36889,8 +36907,7 @@ function drawStructure(s) {
   } else if ((s.type === 'hq' || s.type === 'broodHive') && teamFactionId(s.team, state.teamFactions) === 'insects') drawInsectHiveStructure(s, x, y, team, light, flash);
   else if (s.type === 'gasExtractor' && teamFactionId(s.team, state.teamFactions) === 'insects') drawInsectGasExtractorStructure(s, x, y, team, light, flash);
   else if (s.type === 'spawningNest') drawSpawningNestStructure(s, x, y, team, light, flash);
-  else if (s.type === 'evolutionPit') drawEvolutionPitStructure(s, x, y, team, light, flash);
-  else if (['spitterDen', 'carapaceWarren', 'airSpire'].includes(s.type)) drawInsectTechBranchStructure(s, x, y, team, light, flash);
+  else if (drawZglengloBioTechStructure(s, x, y, team, light, flash)) { /* dedicated renderer applied */ }
   else if (s.type === 'creepTumor') drawCreepTumorStructure(s, x, y, team, light, flash);
   else if (s.type === 'thornmawCrawler') drawInsectDefenseStructure(s, x, y, team, light, flash, false);
   else if (s.type === 'skysporeSentinel') drawInsectDefenseStructure(s, x, y, team, light, flash, true);
