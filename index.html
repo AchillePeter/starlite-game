@@ -24391,14 +24391,32 @@
 
         function drawBroodHive(x, y, time) {
           ctx.save(); ctx.translate(x, y); ctx.globalAlpha = .72;
-          const pulse = 1 + Math.sin(time * .004) * .05; ctx.scale(pulse, pulse);
-          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 23, 43, 12, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#6f4a75'; ctx.strokeStyle = '#23152a'; ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.ellipse(0, 0, 32, 28, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = '#8cbc52';
-          for (const [ox, oy, r] of [[-18,-12,8],[16,-9,7],[-7,7,10],[18,11,6]]) { ctx.beginPath(); ctx.arc(ox, oy, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
-          ctx.strokeStyle = '#9bff5f'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.moveTo(-25, 13); ctx.lineTo(-45, 30); ctx.moveTo(24, 13); ctx.lineTo(45, 30); ctx.moveTo(-6, 23); ctx.lineTo(-10, 42); ctx.stroke();
+          const pulse = 1 + Math.sin(time * .004) * .05;
+          const orbit = time * .001;
+          ctx.scale(pulse, pulse);
+          ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, 25, 48, 13, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#3f1c39'; ctx.strokeStyle = '#23152a'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.ellipse(0, 4, 38, 27, -.04, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#63305a'; ctx.beginPath(); ctx.ellipse(0, -2, 30, 24, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#7c4166';
+          for (const [ox, oy, rx, ry] of [[-24,-9,9,8],[-14,-18,8,6],[0,-20,9,7],[18,-14,8,6],[27,-3,7,6],[-18,10,8,7],[6,11,10,8],[24,10,8,6]]) {
+            ctx.beginPath(); ctx.ellipse(ox, oy, rx, ry, ox * .01, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          }
+          ctx.fillStyle = 'rgba(184,255,99,.18)'; ctx.beginPath(); ctx.ellipse(0, -3, 18, 13, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#b8ff63'; ctx.beginPath(); ctx.arc(0, -3, 9, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#d8ff9c'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -3, 14, 0, Math.PI * 2); ctx.stroke();
+          for (let i = 0; i < 5; i++) {
+            const a = orbit + i / 5 * Math.PI * 2;
+            ctx.fillStyle = 'rgba(184,255,99,.55)';
+            ctx.beginPath(); ctx.arc(Math.cos(a) * 21, -3 + Math.sin(a) * 14, 2.2, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.strokeStyle = '#9bff5f'; ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(-23, 10); ctx.quadraticCurveTo(-39, 16, -34, 31);
+          ctx.moveTo(23, 10); ctx.quadraticCurveTo(39, 16, 34, 31);
+          ctx.moveTo(-15, -2); ctx.quadraticCurveTo(-26, -13, -14, -22);
+          ctx.moveTo(15, -2); ctx.quadraticCurveTo(26, -13, 14, -22);
+          ctx.stroke();
           ctx.restore();
         }
 
@@ -30613,6 +30631,10 @@ function compileShader(gl, type, source) {
       
       
       let menuPreviewRenderActive = false;
+      const HELIAS_POWER_FIELD_MASK_SCALE = .5;
+      let heliasPowerFieldMaskCanvas = null;
+      let heliasPowerFieldMaskContext = null;
+      let heliasPowerFieldMaskKey = '';
 
       function activeCommandTeam() {
         return getActiveCommandTeam() || state.activeCommandTeam || 'player';
@@ -34211,103 +34233,183 @@ function drawStructureLabel(text, s, y, color, size = 9) {
 function drawInsectHiveStructure(s, x, y, team, light, flash) {
   const level = Math.max(1, Math.min(3, Math.trunc(s.level || 1)));
   const pulse = .72 + Math.sin(state.elapsed * 3.6 + s.id * .31) * .16;
-  drawBuildingShadow(x - 5, y + 8, s.w + 10, s.h - 4);
+  const throb = .86 + Math.sin(state.elapsed * 2.1 + s.id * .19) * .06;
+  drawBuildingShadow(x - 7, y + 9, s.w + 14, s.h - 3);
   ctx.save();
-  ctx.fillStyle = '#160d18';
+  ctx.fillStyle = '#120912';
   ctx.beginPath();
-  ctx.ellipse(s.x, s.y + 4, s.w * .52, s.h * .48, 0, 0, Math.PI * 2);
+  ctx.ellipse(s.x, s.y + 8, s.w * .6, s.h * .34, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = flash ? '#ffffff' : '#5b294f';
+  const pustules = [
+    { ox: -25, oy: -6, rx: 8, ry: 7, tint: '#5b294f' },
+    { ox: -14, oy: -14, rx: 7, ry: 6, tint: '#71325f' },
+    { ox: 0, oy: -17, rx: 9, ry: 7, tint: '#643058' },
+    { ox: 18, oy: -12, rx: 8, ry: 6, tint: '#6f365f' },
+    { ox: 27, oy: -2, rx: 7, ry: 6, tint: '#5f2b52' },
+    { ox: -20, oy: 7, rx: 8, ry: 7, tint: '#4d2244' },
+    { ox: 4, oy: 9, rx: 10, ry: 8, tint: '#57284b' },
+    { ox: 24, oy: 9, rx: 8, ry: 6, tint: '#4e2343' }
+  ];
+  ctx.fillStyle = flash ? '#ffffff' : '#3d1b38';
   ctx.beginPath();
-  ctx.ellipse(s.x, s.y + 2, s.w * .45, s.h * .42, 0, 0, Math.PI * 2);
+  ctx.ellipse(s.x, s.y + 3, s.w * .52, s.h * .47, -.06, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#2a1328';
-  for (let i = 0; i < 6; i++) {
-    const angle = i / 6 * Math.PI * 2 + .25;
-    const px = s.x + Math.cos(angle) * 21;
-    const py = s.y + 2 + Math.sin(angle) * 16;
-    ctx.beginPath(); ctx.arc(px, py, 6 + (i % 2), 0, Math.PI * 2); ctx.fill();
-  }
-  ctx.globalAlpha = pulse;
-  ctx.fillStyle = '#b8ff63';
-  ctx.beginPath(); ctx.arc(s.x, s.y + 1, 9, 0, Math.PI * 2); ctx.fill();
-  ctx.globalAlpha = 1;
-  ctx.strokeStyle = '#d8ff9c';
-  ctx.lineWidth = 1.4 / cam.zoom;
-  ctx.beginPath(); ctx.arc(s.x, s.y + 1, 13, 0, Math.PI * 2); ctx.stroke();
-  ctx.fillStyle = '#0a080c';
-  ctx.beginPath(); ctx.ellipse(s.x, y + s.h - 7, 11, 6, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#7d3a68';
-  ctx.fillRect(s.x - 7, y + s.h - 9, 14, 4);
-  for (const side of [-1, 1]) {
-    ctx.strokeStyle = '#34152e';
-    ctx.lineWidth = 5 / cam.zoom;
+  ctx.fillStyle = flash ? '#ffffff' : '#5c2a51';
+  ctx.beginPath();
+  ctx.ellipse(s.x, s.y - 1, s.w * .42, s.h * .37, -.04, 0, Math.PI * 2);
+  ctx.fill();
+  for (const pustule of pustules) {
+    ctx.fillStyle = pustule.tint;
     ctx.beginPath();
-    ctx.moveTo(s.x + side * 18, s.y + 10);
-    ctx.quadraticCurveTo(s.x + side * 34, s.y + 18, s.x + side * 28, s.y + 29);
+    ctx.ellipse(s.x + pustule.ox, s.y + pustule.oy, pustule.rx, pustule.ry, pustule.ox * .01, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#2a1328';
+    ctx.lineWidth = 1.2 / cam.zoom;
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#281224';
+  ctx.beginPath();
+  ctx.ellipse(s.x - 12, s.y + 2, 10, 9, -.18, 0, Math.PI * 2);
+  ctx.ellipse(s.x + 12, s.y + 2, 10, 9, .18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#0c0810';
+  ctx.beginPath();
+  ctx.ellipse(s.x, y + s.h - 7, 13, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#8a416f';
+  ctx.fillRect(Math.round(s.x - 9), Math.round(y + s.h - 10), 18, 4);
+  ctx.strokeStyle = '#2e1429';
+  ctx.lineWidth = 3 / cam.zoom;
+  ctx.beginPath();
+  ctx.moveTo(s.x - 13, y + s.h - 8); ctx.quadraticCurveTo(s.x - 4, y + s.h - 4, s.x - 2, y + s.h + 2);
+  ctx.moveTo(s.x + 13, y + s.h - 8); ctx.quadraticCurveTo(s.x + 4, y + s.h - 4, s.x + 2, y + s.h + 2);
+  ctx.stroke();
+  for (let side of [-1, 1]) {
+    ctx.strokeStyle = '#311429';
+    ctx.lineWidth = 6 / cam.zoom;
+    ctx.beginPath();
+    ctx.moveTo(s.x + side * 20, s.y + 8);
+    ctx.quadraticCurveTo(s.x + side * 35, s.y + 14, s.x + side * 31, s.y + 28);
+    ctx.quadraticCurveTo(s.x + side * 27, s.y + 33, s.x + side * 16, s.y + 30);
     ctx.stroke();
     ctx.strokeStyle = team;
     ctx.lineWidth = 2 / cam.zoom;
     ctx.stroke();
+    ctx.strokeStyle = '#2e1429';
+    ctx.lineWidth = 4 / cam.zoom;
+    ctx.beginPath();
+    ctx.moveTo(s.x + side * 14, s.y - 2);
+    ctx.quadraticCurveTo(s.x + side * 24, s.y - 14, s.x + side * 12, s.y - 21);
+    ctx.stroke();
   }
+  ctx.globalAlpha = .18 + pulse * .14;
+  ctx.fillStyle = '#b8ff63';
+  ctx.beginPath();
+  ctx.ellipse(s.x, s.y - 2, 19, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = pulse;
+  ctx.fillStyle = '#b8ff63';
+  ctx.beginPath(); ctx.arc(s.x, s.y - 2, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = .55;
+  ctx.beginPath(); ctx.arc(s.x, s.y - 2, 15 + Math.sin(state.elapsed * 4.2 + s.id) * .8, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = '#d8ff9c';
+  ctx.lineWidth = 1.5 / cam.zoom;
+  ctx.beginPath(); ctx.arc(s.x, s.y - 2, 15, 0, Math.PI * 2); ctx.stroke();
+  for (let i = 0; i < 5; i++) {
+    const angle = state.elapsed * .8 + i / 5 * Math.PI * 2;
+    const radius = 22 + Math.sin(state.elapsed * 2.2 + i) * 1.5;
+    ctx.fillStyle = '#a2f060';
+    ctx.globalAlpha = .45 + .15 * Math.sin(state.elapsed * 3 + i);
+    ctx.beginPath();
+    ctx.arc(s.x + Math.cos(angle) * radius, s.y - 2 + Math.sin(angle) * (radius * .7), 2.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
   ctx.restore();
   const larvaCount = Math.min(12, Math.max(0, Math.trunc(s.larvaCount || 0)));
   for (let i = 0; i < larvaCount; i++) {
     const angle = i / Math.max(1, larvaCount) * Math.PI * 2 + s.id * .37;
     const ring = i >= 8 ? 1.22 : 1;
-    const lx = s.x + Math.cos(angle) * (s.w * .55 + 7) * ring;
-    const ly = s.y + 7 + Math.sin(angle) * (s.h * .42 + 5) * ring;
+    const lx = s.x + Math.cos(angle) * (s.w * .58 + 8) * ring;
+    const ly = s.y + 8 + Math.sin(angle) * (s.h * .45 + 6) * ring;
     ctx.save();
     ctx.translate(lx, ly);
     ctx.rotate(angle + Math.PI / 2);
-    ctx.fillStyle = '#120b15';
-    ctx.beginPath(); ctx.ellipse(0, 0, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#a95d8f';
-    ctx.beginPath(); ctx.ellipse(0, 0, 3.5, 2, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#b8ff63'; ctx.fillRect(2, -1, 2, 2);
+    ctx.scale(throb, throb);
+    ctx.fillStyle = '#110915';
+    ctx.beginPath(); ctx.ellipse(0, 0, 5.5, 3.2, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#a45a8b';
+    ctx.beginPath(); ctx.ellipse(0, 0, 4, 2.2, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#d8ff9c';
+    ctx.fillRect(2, -1, 2, 2);
     ctx.restore();
   }
   const larvaCocoons = (s.queue || []).filter(item => item.consumedLarva);
   for (let i = 0; i < larvaCocoons.length; i++) {
     const item = larvaCocoons[i];
     const angle = i / Math.max(1, larvaCocoons.length) * Math.PI * 2 + s.id * .53 + .31;
-    const radiusX = s.w * .72 + 13 + (i % 2) * 6;
-    const radiusY = s.h * .54 + 10 + (i % 2) * 4;
+    const radiusX = s.w * .74 + 15 + (i % 2) * 6;
+    const radiusY = s.h * .56 + 10 + (i % 2) * 4;
     const cx = s.x + Math.cos(angle) * radiusX;
-    const cy = s.y + 8 + Math.sin(angle) * radiusY;
+    const cy = s.y + 10 + Math.sin(angle) * radiusY;
     const progress = clamp(1 - Number(item.timeLeft || 0) / Math.max(.001, Number(item.total || 1)), 0, 1);
-    const pulse = 1 + Math.sin(state.elapsed * 5 + i * 1.7 + s.id) * .08;
+    const cocoonPulse = 1 + Math.sin(state.elapsed * 5 + i * 1.7 + s.id) * .08;
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(angle + Math.PI / 2);
-    ctx.scale(pulse, pulse);
-    ctx.fillStyle = '#130914';
-    ctx.beginPath(); ctx.ellipse(0, 0, 7, 5, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#5c274f';
-    ctx.beginPath(); ctx.ellipse(0, 0, 5.5, 3.8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.scale(cocoonPulse, cocoonPulse);
+    ctx.fillStyle = '#120916';
+    ctx.beginPath(); ctx.ellipse(0, 0, 8, 5.8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#57274d';
+    ctx.beginPath(); ctx.ellipse(0, 0, 6.1, 4.1, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#2e1429'; ctx.lineWidth = 1 / cam.zoom;
+    for (let rib = -1; rib <= 1; rib++) {
+      ctx.beginPath(); ctx.moveTo(rib * 1.6, -3.5); ctx.quadraticCurveTo(rib * 3.2, 0, rib * 1.6, 3.5); ctx.stroke();
+    }
     ctx.globalAlpha = .45 + progress * .5;
     ctx.fillStyle = '#b8ff63';
-    ctx.beginPath(); ctx.ellipse(1, 0, 2 + progress * 1.6, 1.4 + progress, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(1, 0, 2.2 + progress * 1.7, 1.5 + progress, 0, 0, Math.PI * 2); ctx.fill();
     ctx.globalAlpha = 1;
     ctx.strokeStyle = '#d8ff9c';
     ctx.lineWidth = 1 / cam.zoom;
-    ctx.beginPath(); ctx.arc(0, 0, 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, 8.5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress); ctx.stroke();
     ctx.restore();
   }
   if (level >= 2) {
     for (const side of [-1, 1]) {
       ctx.fillStyle = '#35152f';
-      ctx.beginPath(); ctx.moveTo(s.x + side * 20, s.y - 7); ctx.lineTo(s.x + side * 31, s.y - 24); ctx.lineTo(s.x + side * 26, s.y + 2); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = team; ctx.fillRect(s.x + side * 25 - 1, s.y - 15, 2, 8);
+      ctx.beginPath();
+      ctx.moveTo(s.x + side * 21, s.y - 6);
+      ctx.lineTo(s.x + side * 34, s.y - 26);
+      ctx.lineTo(s.x + side * 26, s.y + 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = team;
+      ctx.fillRect(Math.round(s.x + side * 28 - 1), Math.round(s.y - 16), 2, 10);
+      ctx.fillStyle = '#d7e9a0';
+      ctx.globalAlpha = .35 + pulse * .22;
+      ctx.beginPath(); ctx.arc(s.x + side * 23, s.y - 10, 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
     }
   }
   if (level >= 3) {
-    ctx.strokeStyle = '#b8ff63'; ctx.lineWidth = 2 / cam.zoom;
-    ctx.beginPath(); ctx.arc(s.x, s.y + 1, 19, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = '#b8ff63';
+    ctx.lineWidth = 2 / cam.zoom;
+    ctx.beginPath(); ctx.arc(s.x, s.y - 2, 21, 0, Math.PI * 2); ctx.stroke();
     for (let i = 0; i < 4; i++) {
       const angle = i / 4 * Math.PI * 2 + Math.PI / 4;
       ctx.fillStyle = '#49203f';
-      ctx.beginPath(); ctx.moveTo(s.x + Math.cos(angle) * 24, s.y + Math.sin(angle) * 18); ctx.lineTo(s.x + Math.cos(angle) * 39, s.y + Math.sin(angle) * 31); ctx.lineTo(s.x + Math.cos(angle + .16) * 27, s.y + Math.sin(angle + .16) * 20); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(s.x + Math.cos(angle) * 25, s.y + Math.sin(angle) * 18);
+      ctx.lineTo(s.x + Math.cos(angle) * 40, s.y + Math.sin(angle) * 31);
+      ctx.lineTo(s.x + Math.cos(angle + .16) * 28, s.y + Math.sin(angle + .16) * 20);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#d7e9a0';
+      ctx.globalAlpha = .45;
+      ctx.beginPath(); ctx.arc(s.x + Math.cos(angle) * 31, s.y + Math.sin(angle) * 24, 2.4, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
     }
   }
   if ((s.larvaInjectTimeLeft || 0) > 0) {
@@ -34346,28 +34448,82 @@ function drawInsectGasExtractorStructure(s, x, y, team, light, flash) {
 
 function drawSpawningNestStructure(s, x, y, team, light, flash) {
   const pulse = .7 + Math.sin(state.elapsed * 3.8 + s.id * .4) * .16;
-  drawBuildingShadow(x - 4, y + 8, s.w + 8, s.h - 5);
+  const eggPulse = .8 + Math.sin(state.elapsed * 4.6 + s.id * .51) * .14;
+  drawBuildingShadow(x - 5, y + 8, s.w + 10, s.h - 4);
   ctx.save();
-  ctx.fillStyle = '#170c17';
-  ctx.beginPath(); ctx.ellipse(s.x, s.y + 5, 27, 20, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = flash ? '#ffffff' : '#71345f';
-  ctx.beginPath(); ctx.ellipse(s.x, s.y + 3, 22, 16, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#2c1228';
-  ctx.beginPath(); ctx.ellipse(s.x, s.y + 6, 13, 9, 0, 0, Math.PI * 2); ctx.fill();
-  for (let i = 0; i < 7; i++) {
-    const angle = i / 7 * Math.PI * 2;
-    const ex = s.x + Math.cos(angle) * 16;
-    const ey = s.y + 4 + Math.sin(angle) * 11;
-    ctx.globalAlpha = pulse;
+  ctx.fillStyle = '#130a14';
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 7, 29, 19, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = flash ? '#ffffff' : '#512244';
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 3, 24, 16, -.08, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#7a395f';
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 1, 18, 12, -.06, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#2d1329';
+  ctx.beginPath(); ctx.ellipse(s.x, s.y + 7, 14, 9, 0, 0, Math.PI * 2); ctx.fill();
+  const eggClusters = [
+    [-16, -1, 4.2, 5.6, -.35], [-8, -7, 3.6, 4.8, -.18], [1, -8, 4, 5.4, 0], [11, -5, 3.6, 5, .2],
+    [17, 2, 4.2, 5.6, .36], [9, 8, 4, 5.3, .25], [0, 10, 4.4, 5.7, 0], [-10, 8, 3.8, 5.1, -.23], [-18, 5, 3.8, 5.1, -.35]
+  ];
+  for (let i = 0; i < eggClusters.length; i++) {
+    const [ox, oy, rx, ry, rot] = eggClusters[i];
+    const alpha = .38 + pulse * .24 + (i % 3) * .03;
+    ctx.globalAlpha = alpha;
     ctx.fillStyle = '#d7e9a0';
-    ctx.beginPath(); ctx.ellipse(ex, ey, 3.5, 5, angle, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(s.x + ox, s.y + oy, rx, ry, rot, 0, Math.PI * 2); ctx.fill();
     ctx.globalAlpha = 1;
+    ctx.strokeStyle = '#74603d';
+    ctx.lineWidth = .9 / cam.zoom;
+    ctx.stroke();
   }
+  for (let i = 0; i < 5; i++) {
+    const angle = state.elapsed * .7 + i / 5 * Math.PI * 2;
+    ctx.fillStyle = '#f0ffc2';
+    ctx.globalAlpha = .16 + eggPulse * .08;
+    ctx.beginPath();
+    ctx.arc(s.x + Math.cos(angle) * 14, s.y + 2 + Math.sin(angle) * 9, 2.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
   for (const side of [-1, 1]) {
-    ctx.fillStyle = '#4c2143';
-    ctx.beginPath(); ctx.moveTo(s.x + side * 18, s.y - 5); ctx.lineTo(s.x + side * 30, s.y - 18); ctx.lineTo(s.x + side * 23, s.y + 3); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#4b2142';
+    ctx.beginPath();
+    ctx.moveTo(s.x + side * 18, s.y - 4);
+    ctx.lineTo(s.x + side * 31, s.y - 19);
+    ctx.lineTo(s.x + side * 24, s.y + 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#32152d';
+    ctx.beginPath();
+    ctx.moveTo(s.x + side * 10, s.y + 3);
+    ctx.lineTo(s.x + side * 21, s.y + 16);
+    ctx.lineTo(s.x + side * 9, s.y + 13);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.strokeStyle = '#2c1228';
+  ctx.lineWidth = 2 / cam.zoom;
+  for (const rib of [-1, 0, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(s.x + rib * 7, s.y - 6);
+    ctx.quadraticCurveTo(s.x + rib * 4, s.y + 1, s.x + rib * 7, s.y + 10);
+    ctx.stroke();
   }
   ctx.restore();
+  if ((s.queue || []).length) {
+    const eggs = Math.min(4, s.queue.length);
+    for (let i = 0; i < eggs; i++) {
+      const offset = i - (eggs - 1) / 2;
+      ctx.save();
+      ctx.translate(s.x + offset * 9, y + s.h + 1);
+      ctx.scale(eggPulse, eggPulse);
+      ctx.fillStyle = '#180d17';
+      ctx.beginPath(); ctx.ellipse(0, 0, 5.5, 3.8, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#d7e9a0';
+      ctx.globalAlpha = .45 + pulse * .25;
+      ctx.beginPath(); ctx.ellipse(0, -0.4, 3.2, 2.1, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+  }
   drawStructureLabel('SPAWNING NEST', s, y, '#d7e9a0', 9);
 }
 
@@ -34626,6 +34782,42 @@ function drawHeliasGatewayStructure(s, x, y, team, light, flash) {
       ctx.lineTo(Math.cos(a + .12) * 33, Math.sin(a + .12) * 27);
       ctx.lineTo(Math.cos(a - .12) * 33, Math.sin(a - .12) * 27); ctx.closePath(); ctx.fill();
     }
+    ctx.restore();
+  }
+
+  // Once materialisation finishes, the upper phase crown visibly recharges until
+  // the Warp Gate cooldown reaches zero. This is presentation-only and reads the
+  // existing deterministic cooldown state, so multiplayer simulation is untouched.
+  const warpCooldownLeft = Math.max(0, Number(s.warpGateCooldownLeft) || 0);
+  if (warpGate && !s.warpInJob && warpCooldownLeft > 0) {
+    const crownY = y + 8;
+    const phase = state.elapsed * (2.1 + Math.min(1.4, warpCooldownLeft * .055)) + s.id * .19;
+    const pulse = .62 + Math.sin(state.elapsed * 6.2 + s.id) * .18;
+    ctx.save();
+    ctx.translate(s.x, crownY);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = 'rgba(4,12,24,.92)';
+    ctx.beginPath(); ctx.arc(0, 0, 7.2, 0, Math.PI * 2); ctx.fill();
+    for (let index = 0; index < 8; index++) {
+      const angle = index * Math.PI / 4 + phase;
+      const active = index === (Math.floor(state.elapsed * 5 + s.id) & 7);
+      ctx.strokeStyle = active ? '#f3fdff' : index % 2 ? '#72d8ff' : '#d9c06c';
+      ctx.globalAlpha = active ? .96 : .28 + pulse * .28;
+      ctx.lineWidth = (active ? 2.2 : 1.25) / cam.zoom;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(angle) * 7.8, Math.sin(angle) * 7.8);
+      ctx.lineTo(Math.cos(angle) * 11.8, Math.sin(angle) * 11.8);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = .82;
+    ctx.strokeStyle = '#9eeeff';
+    ctx.lineWidth = 1.45 / cam.zoom;
+    ctx.beginPath();
+    ctx.arc(0, 0, 9.8, phase, phase + Math.PI * (1.05 + Math.min(.75, warpCooldownLeft * .035)));
+    ctx.stroke();
+    ctx.globalAlpha = .75 + pulse * .2;
+    ctx.fillStyle = '#dffbff';
+    ctx.beginPath(); ctx.arc(0, 0, 2.2 + pulse * .7, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
 
@@ -36004,13 +36196,78 @@ function drawStructureUpgradeDetails(s, x, y, team) {
         }
       }
 
+      function ensureHeliasPowerFieldMask() {
+        const width = Math.max(1, Math.ceil(WORLD_W * HELIAS_POWER_FIELD_MASK_SCALE));
+        const height = Math.max(1, Math.ceil(WORLD_H * HELIAS_POWER_FIELD_MASK_SCALE));
+        if (!heliasPowerFieldMaskCanvas) {
+          heliasPowerFieldMaskCanvas = document.createElement('canvas');
+          heliasPowerFieldMaskContext = heliasPowerFieldMaskCanvas.getContext('2d');
+        }
+        if (!heliasPowerFieldMaskContext) return null;
+        if (heliasPowerFieldMaskCanvas.width !== width || heliasPowerFieldMaskCanvas.height !== height) {
+          heliasPowerFieldMaskCanvas.width = width;
+          heliasPowerFieldMaskCanvas.height = height;
+          heliasPowerFieldMaskKey = '';
+        }
+        return { canvas: heliasPowerFieldMaskCanvas, context: heliasPowerFieldMaskContext, width, height };
+      }
+
+      function drawHeliasPowerFieldTint() {
+        if (menuPreviewRenderActive) return;
+        const team = activeCommandTeam();
+        const pylons = structures.filter(pylon =>
+          pylon.team === team && pylon.type === 'heliasPylon' && pylon.hp > 0 && !pylon.underConstruction
+        );
+        if (!pylons.length) return;
+        const mask = ensureHeliasPowerFieldMask();
+        if (!mask) return;
+        const radius = BUILDING_DATA.heliasPylon.powerRadius || 182;
+        const key = `${team}:${mask.width}x${mask.height}:${pylons.map(pylon => `${pylon.id},${Math.round(pylon.x * 10)},${Math.round(pylon.y * 10)}`).join(';')}`;
+        if (key !== heliasPowerFieldMaskKey) {
+          const maskCtx = mask.context;
+          maskCtx.setTransform(1, 0, 0, 1, 0, 0);
+          maskCtx.clearRect(0, 0, mask.width, mask.height);
+          maskCtx.globalCompositeOperation = 'lighter';
+          // Each Pylon contributes exactly one third of the mask opacity. Additive
+          // compositing clamps at one, so a fourth or later overlap cannot add tint.
+          maskCtx.fillStyle = 'rgba(255,255,255,.3333333333)';
+          for (const pylon of pylons) {
+            maskCtx.beginPath();
+            maskCtx.arc(
+              pylon.x * HELIAS_POWER_FIELD_MASK_SCALE,
+              pylon.y * HELIAS_POWER_FIELD_MASK_SCALE,
+              radius * HELIAS_POWER_FIELD_MASK_SCALE,
+              0, Math.PI * 2
+            );
+            maskCtx.fill();
+          }
+          maskCtx.globalCompositeOperation = 'source-in';
+          maskCtx.fillStyle = '#72d8ff';
+          maskCtx.fillRect(0, 0, mask.width, mask.height);
+          maskCtx.globalCompositeOperation = 'source-over';
+          heliasPowerFieldMaskKey = key;
+        }
+        const previousSmoothing = ctx.imageSmoothingEnabled;
+        ctx.save();
+        ctx.globalAlpha = .235 + Math.sin(state.elapsed * 2.2) * .012;
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(mask.canvas, 0, 0, mask.width, mask.height, 0, 0, WORLD_W, WORLD_H);
+        ctx.restore();
+        ctx.imageSmoothingEnabled = previousSmoothing;
+      }
+
       function drawHeliasPowerField(s) {
         if (s.type !== 'heliasPylon' || s.hp <= 0 || s.underConstruction) return;
         const radius = BUILDING_DATA.heliasPylon.powerRadius || 182;
         ctx.save();
-        ctx.globalAlpha = .08 + Math.sin(state.elapsed * 2.2 + s.id) * .018;
-        ctx.fillStyle = '#72d8ff';
-        ctx.beginPath(); ctx.arc(s.x, s.y, radius, 0, Math.PI * 2); ctx.fill();
+        // Menu previews and visible rival Pylons keep their original direct fill.
+        // Friendly gameplay fields are filled once by drawHeliasPowerFieldTint(),
+        // which caps the blue tint after three overlaps.
+        if (menuPreviewRenderActive || s.team !== activeCommandTeam()) {
+          ctx.globalAlpha = .08 + Math.sin(state.elapsed * 2.2 + s.id) * .018;
+          ctx.fillStyle = '#72d8ff';
+          ctx.beginPath(); ctx.arc(s.x, s.y, radius, 0, Math.PI * 2); ctx.fill();
+        }
         ctx.globalAlpha = .34;
         ctx.strokeStyle = '#9eeeff'; ctx.lineWidth = 1.2 / cam.zoom;
         ctx.beginPath(); ctx.arc(s.x, s.y, radius, 0, Math.PI * 2); ctx.stroke();
@@ -40981,6 +41238,7 @@ function drawStructure(s) {
         for (const n of resourceNodes) {
           if (entityInCamera(n, 24)) drawNode(n);
         }
+        drawHeliasPowerFieldTint();
         for (const s of structures) {
           if (entityInCamera(s, 42)) drawStructure(s);
         }
@@ -41633,7 +41891,7 @@ function drawStructure(s) {
   __define("terrain.js", function (__exports, __require) {
     const __imports = Object.create(null);
     const __dep0 = __require("data.js"); const __dep1 = __require("prng.js"); const __dep2 = __require("state.js"); const __dep3 = __require("commandSync.js"); const __dep4 = __require("workerBridge.js");
-    Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "HUMAN_TEAM", { enumerable: true, get: () => __dep0["HUMAN_TEAM"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep0["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "insectHiveEvolutionSpec", { enumerable: true, get: () => __dep0["insectHiveEvolutionSpec"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep2["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "syncPathfindingTerrain", { enumerable: true, get: () => __dep4["syncPathfindingTerrain"] });
+    Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep0["BUILDING_DATA"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep0["COLS"] }); Object.defineProperty(__imports, "DUEL_WORLD_H", { enumerable: true, get: () => __dep0["DUEL_WORLD_H"] }); Object.defineProperty(__imports, "DUEL_WORLD_W", { enumerable: true, get: () => __dep0["DUEL_WORLD_W"] }); Object.defineProperty(__imports, "HUMAN_TEAM", { enumerable: true, get: () => __dep0["HUMAN_TEAM"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep0["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep0["TILE"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep0["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep0["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep0["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep0["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep0["isAirUnit"] }); Object.defineProperty(__imports, "insectHiveEvolutionSpec", { enumerable: true, get: () => __dep0["insectHiveEvolutionSpec"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep0["teamFactionId"] }); Object.defineProperty(__imports, "rand", { enumerable: true, get: () => __dep1["rand"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep1["random"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep2["resourceNodes"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep2["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep2["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep2["units"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep3["getActiveCommandTeam"] }); Object.defineProperty(__imports, "syncPathfindingTerrain", { enumerable: true, get: () => __dep4["syncPathfindingTerrain"] });
 
     with (__imports) {
       Object.defineProperty(__exports, "computePath", { enumerable: true, get: () => computePath }); Object.defineProperty(__exports, "dirtTiles", { enumerable: true, get: () => dirtTiles }); Object.defineProperty(__exports, "generateTerrain", { enumerable: true, get: () => generateTerrain }); Object.defineProperty(__exports, "isBlocked", { enumerable: true, get: () => isBlocked }); Object.defineProperty(__exports, "isLocallyVisibleToTeam", { enumerable: true, get: () => isLocallyVisibleToTeam }); Object.defineProperty(__exports, "isVisiblePoint", { enumerable: true, get: () => isVisiblePoint }); Object.defineProperty(__exports, "isVisibleToTeam", { enumerable: true, get: () => isVisibleToTeam }); Object.defineProperty(__exports, "nearestOpenTile", { enumerable: true, get: () => nearestOpenTile }); Object.defineProperty(__exports, "recomputeVisibility", { enumerable: true, get: () => recomputeVisibility }); Object.defineProperty(__exports, "resetTerrainGrid", { enumerable: true, get: () => resetTerrainGrid }); Object.defineProperty(__exports, "safeZones", { enumerable: true, get: () => safeZones }); Object.defineProperty(__exports, "sandTiles", { enumerable: true, get: () => sandTiles }); Object.defineProperty(__exports, "shotClear", { enumerable: true, get: () => shotClear }); Object.defineProperty(__exports, "terrain", { enumerable: true, get: () => terrain }); Object.defineProperty(__exports, "terrainRevision", { enumerable: true, get: () => terrainRevision }); Object.defineProperty(__exports, "transitionTiles", { enumerable: true, get: () => transitionTiles }); Object.defineProperty(__exports, "walkClear", { enumerable: true, get: () => walkClear });
@@ -41976,8 +42234,8 @@ function drawStructure(s) {
       function recomputeVisibility(team = getActiveCommandTeam() || state.activeCommandTeam || HUMAN_TEAM) {
         if (typeof globalThis !== 'undefined' && Number.isFinite(globalThis.__fogRecomputeCount)) globalThis.__fogRecomputeCount++;
         for (let y = 0; y < ROWS; y++) state.visible[y].fill(false);
-        const reveal = r => {
-          const rad = effectiveSightRadius(r);
+        const reveal = (r, radiusOverride = null) => {
+          const rad = Number.isFinite(radiusOverride) ? Math.max(0, radiusOverride) : effectiveSightRadius(r);
           const radSquared = rad * rad;
           const minX = clamp(Math.floor((r.x - rad) / TILE), 0, COLS - 1);
           const maxX = clamp(Math.ceil((r.x + rad) / TILE), 0, COLS - 1);
@@ -41998,7 +42256,11 @@ function drawStructure(s) {
           if (unit.team === team && unit.hp > 0 && !unit.campaignVisionDisabled) reveal(unit);
         }
         for (const structure of structures) {
-          if (structure.team === team && structure.hp > 0 && !structure.underConstruction && !structure.campaignVisionDisabled) reveal(structure);
+          if (structure.team !== team || structure.hp <= 0 || structure.underConstruction || structure.campaignVisionDisabled) continue;
+          const pylonVisionRadius = structure.type === 'heliasPylon' && teamFactionId(team, state.teamFactions) === 'helias'
+            ? (BUILDING_DATA.heliasPylon?.powerRadius || 182)
+            : null;
+          reveal(structure, pylonVisionRadius);
         }
         if (teamFactionId(team, state.teamFactions) === 'insects') {
           const revealCreep = (x, y, rad) => {
