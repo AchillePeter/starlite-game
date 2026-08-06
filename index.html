@@ -4651,12 +4651,40 @@
         return { active: true, cycling: true, cycleCompleted, arrived };
       }
       
+      const INSECT_OVERLORD_CREEP_RETRACTION_TIME = 8;
+
+      function updateOverlordCreepRetraction(u, dt) {
+        if (!u || u.type !== 'insectOverlord') return;
+        const destination = u.destination || u;
+        const fieldActive = !u.movementOrderActive && dist(u, destination) <= 6;
+        const duration = Math.max(.001, Number(u.overlordCreepRetractionDuration) || INSECT_OVERLORD_CREEP_RETRACTION_TIME);
+        u.overlordCreepRetractionDuration = duration;
+
+        if (fieldActive) {
+          u.overlordCreepFieldActive = true;
+        } else {
+          // Capture the last deployed position once, exactly when movement begins.
+          // The residual field then contracts in place while the Overlord travels.
+          if (u.overlordCreepFieldActive !== false) {
+            u.overlordCreepRetractionX = u.x;
+            u.overlordCreepRetractionY = u.y;
+            u.overlordCreepRetractionTimeLeft = duration;
+          }
+          u.overlordCreepFieldActive = false;
+        }
+
+        if ((u.overlordCreepRetractionTimeLeft || 0) > 0) {
+          u.overlordCreepRetractionTimeLeft = Math.max(0, u.overlordCreepRetractionTimeLeft - dt);
+        }
+      }
+
       function updateUnit(u, dt) {
         u.frameX = u.x;
         u.frameY = u.y;
         u.moving = false;
         u.moveSpeed = 0;
         if (u.hp <= 0) return;
+        updateOverlordCreepRetraction(u, dt);
         u.templeAbilityCooldownLeft = Math.max(0, (u.templeAbilityCooldownLeft || 0) - dt);
         if (u.type === 'heliasVanguard') {
           u.phaseChargeCooldownLeft = Math.max(0, (u.phaseChargeCooldownLeft || 0) - dt);
@@ -14985,6 +15013,7 @@
       const INSECT_QUEEN_PULSE_HEAL_FRACTION = .18;
       const INSECT_QUEEN_PULSE_REGEN_DURATION = 8;
       const INSECT_OVERLORD_CREEP_RADIUS = 92;
+      const INSECT_OVERLORD_CREEP_RETRACTION_TIME = 8;
       const INSECT_CREEP_TUMOR_RADIUS = 150;
       const INSECT_CREEP_TUMOR_BUILD_TIME = 6;
       const INSECT_CREEP_TUMOR_SPREAD_RANGE = 178;
@@ -15165,6 +15194,14 @@
           !overlord.movementOrderActive && dist(overlord, overlord.destination || overlord) <= 6;
       }
 
+      function overlordCreepRetractionRadius(overlord) {
+        if (!overlord || overlord.type !== 'insectOverlord' || overlord.hp <= 0 ||
+            !Number.isFinite(overlord.overlordCreepRetractionX) || !Number.isFinite(overlord.overlordCreepRetractionY)) return 0;
+        const total = Math.max(.001, Number(overlord.overlordCreepRetractionDuration) || INSECT_OVERLORD_CREEP_RETRACTION_TIME);
+        const factor = clamp((Number(overlord.overlordCreepRetractionTimeLeft) || 0) / total, 0, 1);
+        return INSECT_OVERLORD_CREEP_RADIUS * factor;
+      }
+
       function isCreepTumor(structure) {
         return !!structure && structure.type === 'creepTumor' && structure.hp > 0 && isInsectTeam(structure.team);
       }
@@ -15199,8 +15236,12 @@
           if (radius > 0 && (tumor.x - x) ** 2 + (tumor.y - y) ** 2 <= radius ** 2) return true;
         }
         for (const unit of units) {
-          if (unit.team !== team || !overlordCreepActive(unit)) continue;
-          if ((unit.x - x) ** 2 + (unit.y - y) ** 2 <= INSECT_OVERLORD_CREEP_RADIUS ** 2) return true;
+          if (unit.team !== team || unit.type !== 'insectOverlord' || unit.hp <= 0) continue;
+          if (overlordCreepActive(unit) &&
+              (unit.x - x) ** 2 + (unit.y - y) ** 2 <= INSECT_OVERLORD_CREEP_RADIUS ** 2) return true;
+          const retractingRadius = overlordCreepRetractionRadius(unit);
+          if (retractingRadius > 0 &&
+              (unit.overlordCreepRetractionX - x) ** 2 + (unit.overlordCreepRetractionY - y) ** 2 <= retractingRadius ** 2) return true;
         }
         return false;
       }
@@ -17348,7 +17389,17 @@
         }
         state.spawnFlagStructureIds = (state.spawnFlagStructureIds || []).filter(id => id !== s.id);
         state.selectedStructures.delete(s.id);
-        structures.splice(index, 1);
+        const retractingCreepTumor = s.type === 'creepTumor' && !s.underConstruction && isInsectTeam(s.team);
+        if (retractingCreepTumor) {
+          // Keep the zero-health entity only as a shrinking creep source. All normal
+          // targeting, placement and combat systems already ignore dead structures.
+          s.hp = 0;
+          s.creepDecayDuration = Math.max(.001, Number(s.creepDecayDuration) || INSECT_CREEP_TUMOR_DECAY_TIME);
+          s.creepDecayTimeLeft = s.creepDecayDuration;
+          s.creepTumorSold = true;
+        } else {
+          structures.splice(index, 1);
+        }
         creditTeamResources(s.team, totalM, totalG);
         state.requestBuildMenu = true;
         burst(s.x, s.y, '#9b8658', 14, true, {
@@ -32448,6 +32499,8 @@ function compileShader(gl, type, source) {
       let creepCacheContext = null;
       let creepCacheKey = '';
       let creepTileMask = null;
+      let creepBlendMaskCanvas = null;
+      let creepBlendMaskContext = null;
 
       function createTerrainCacheCanvas(width, height) {
         if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(width, height);
@@ -34422,26 +34475,117 @@ function drawInsectHiveStructure(s, x, y, team, light, flash) {
 }
 
 function drawInsectGasExtractorStructure(s, x, y, team, light, flash) {
-  const pulse = .68 + Math.sin(state.elapsed * 4.2 + s.id) * .2;
-  drawBuildingShadow(x - 3, y + 7, s.w + 6, s.h - 4);
+  const time = state.elapsed;
+  const breathe = 1 + Math.sin(time * 2.7 + s.id * .43) * .055;
+  const pump = .5 + Math.sin(time * 5.2 + s.id * .61) * .5;
+  const node = resourceNodes.find(candidate => candidate.id === s.resourceNodeId && candidate.type === 'gas') || null;
+  const gasStrength = node ? clamp((Number(node.amount) || 0) / Math.max(1, Number(node.capacity) || Number(node.amount) || 1), .25, 1) : .75;
+  drawBuildingShadow(x - 6, y + 8, s.w + 12, s.h - 1);
+
   ctx.save();
-  ctx.fillStyle = '#150b16';
-  ctx.beginPath(); ctx.ellipse(s.x, s.y + 7, 22, 17, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = flash ? '#ffffff' : '#653058';
-  ctx.beginPath(); ctx.ellipse(s.x, s.y + 3, 17, 20, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#34162f';
-  for (let i = -1; i <= 1; i++) {
-    ctx.beginPath(); ctx.ellipse(s.x + i * 8, s.y + 1 + Math.abs(i) * 3, 4, 13, i * .22, 0, Math.PI * 2); ctx.fill();
+  ctx.translate(s.x, s.y + 4);
+
+  // Rooted intake proboscises visibly clamp onto the gas fissure.
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 7; i++) {
+    const angle = i / 7 * Math.PI * 2 + s.id * .19;
+    const sway = Math.sin(time * 2.1 + i * 1.3 + s.id) * 2.2;
+    const innerX = Math.cos(angle) * 10;
+    const innerY = 5 + Math.sin(angle) * 7;
+    const outerX = Math.cos(angle) * (24 + (i % 2) * 4);
+    const outerY = 10 + Math.sin(angle) * (16 + (i % 3));
+    ctx.strokeStyle = '#170a15';
+    ctx.lineWidth = 7 / cam.zoom;
+    ctx.beginPath();
+    ctx.moveTo(innerX, innerY);
+    ctx.quadraticCurveTo(Math.cos(angle + .18) * 18, 9 + Math.sin(angle) * 11 + sway, outerX, outerY);
+    ctx.stroke();
+    ctx.strokeStyle = i % 2 ? '#552247' : '#69305a';
+    ctx.lineWidth = 4 / cam.zoom;
+    ctx.stroke();
+    ctx.strokeStyle = team;
+    ctx.globalAlpha = .28 + pump * .25;
+    ctx.lineWidth = 1 / cam.zoom;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
   }
-  ctx.globalAlpha = pulse;
-  ctx.fillStyle = '#c69aff';
-  ctx.beginPath(); ctx.arc(s.x, s.y - 2, 6, 0, Math.PI * 2); ctx.fill();
+
+  // Main expandable reservoir: lower digestion bladder plus upper gas sac.
+  ctx.scale(breathe, 1 / breathe);
+  ctx.fillStyle = '#120913';
+  ctx.beginPath(); ctx.ellipse(0, 6, 23, 20, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = flash ? '#ffffff' : '#5c294f';
+  ctx.beginPath(); ctx.ellipse(0, 4, 19, 18, -.05, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#7b3966';
+  ctx.beginPath(); ctx.ellipse(-2, -2, 15, 14, -.12, 0, Math.PI * 2); ctx.fill();
+
+  // Peristaltic ribs squeeze gas upward through the central throat.
+  ctx.strokeStyle = '#2a1025';
+  ctx.lineWidth = 2.2 / cam.zoom;
+  for (let rib = -2; rib <= 2; rib++) {
+    const offset = rib * 5.5;
+    const squeeze = Math.sin(time * 4.4 + rib * .9 + s.id) * 1.5;
+    ctx.beginPath();
+    ctx.moveTo(offset - 2, -13);
+    ctx.quadraticCurveTo(offset + squeeze, 1, offset + 2, 16);
+    ctx.stroke();
+  }
+
+  // Three translucent storage bladders make its harvesting purpose readable.
+  const bladders = [
+    { x: -9, y: 4, rx: 5.5, ry: 8.5, phase: 0 },
+    { x: 1, y: 2, rx: 6.5, ry: 10, phase: 1.8 },
+    { x: 10, y: 6, rx: 4.8, ry: 7.5, phase: 3.4 }
+  ];
+  for (const bladder of bladders) {
+    const bladderPulse = 1 + Math.sin(time * 3.8 + bladder.phase + s.id * .2) * .08;
+    ctx.save();
+    ctx.translate(bladder.x, bladder.y);
+    ctx.scale(bladderPulse, 1 / bladderPulse);
+    ctx.fillStyle = 'rgba(32,12,35,.82)';
+    ctx.beginPath(); ctx.ellipse(0, 0, bladder.rx + 1.5, bladder.ry + 1.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = .38 + pump * .28 * gasStrength;
+    ctx.fillStyle = '#c69aff';
+    ctx.beginPath(); ctx.ellipse(0, 1, bladder.rx, bladder.ry, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = .42;
+    ctx.fillStyle = '#eff0ff';
+    ctx.beginPath(); ctx.ellipse(-1.5, -3, bladder.rx * .28, bladder.ry * .24, -.3, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
   ctx.globalAlpha = 1;
-  for (const side of [-1, 1]) {
-    ctx.strokeStyle = '#35152f'; ctx.lineWidth = 5 / cam.zoom;
-    ctx.beginPath(); ctx.moveTo(s.x + side * 10, s.y + 11); ctx.quadraticCurveTo(s.x + side * 24, s.y + 18, s.x + side * 19, s.y + 27); ctx.stroke();
-    ctx.strokeStyle = team; ctx.lineWidth = 2 / cam.zoom; ctx.stroke();
+
+  // A valve-flower opens and closes as the sac pumps harvested gas inward.
+  ctx.save();
+  ctx.translate(0, -15);
+  const valveOpen = .45 + pump * .55;
+  for (let petal = 0; petal < 5; petal++) {
+    ctx.save();
+    ctx.rotate(petal / 5 * Math.PI * 2 + time * .05);
+    ctx.fillStyle = petal % 2 ? '#4a1d40' : '#612752';
+    ctx.beginPath();
+    ctx.moveTo(0, 1);
+    ctx.quadraticCurveTo(4 + valveOpen * 3, -4, 2.5, -10 - valveOpen * 3);
+    ctx.quadraticCurveTo(-2, -5, 0, 1);
+    ctx.fill();
+    ctx.restore();
   }
+  ctx.globalAlpha = .58 + pump * .34;
+  ctx.fillStyle = '#d7b7ff';
+  ctx.beginPath(); ctx.arc(0, -2, 3.2 + pump * 1.6, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // Rising gas pearls are render-only and loop deterministically.
+  for (let bubble = 0; bubble < 5; bubble++) {
+    const phase = (time * (.32 + bubble * .025) + bubble * .21 + s.id * .037) % 1;
+    const side = Math.sin(bubble * 2.7 + s.id) * 7;
+    ctx.globalAlpha = (1 - phase) * (.22 + gasStrength * .28);
+    ctx.strokeStyle = '#e5d4ff';
+    ctx.lineWidth = 1 / cam.zoom;
+    ctx.beginPath();
+    ctx.arc(side + Math.sin(time * 1.5 + bubble) * 2, -18 - phase * 18, 1.2 + phase * 1.8, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
   ctx.restore();
   drawStructureLabel('EXTRACTOR SAC', s, y, '#c69aff', 9);
 }
@@ -36531,59 +36675,194 @@ function drawStructureUpgradeDetails(s, x, y, team) {
       }
 
       function drawInsectDefenseStructure(s, x, y, team, light, flash, antiAir = false) {
+        const time = state.elapsed;
         const angle = Number.isFinite(s.barrelAngle) ? s.barrelAngle : -Math.PI / 2;
         const recoil = clamp(Number(s.recoil) || 0, 0, 1);
-        const pulse = .5 + Math.sin(state.elapsed * 4 + s.id * .7) * .5;
+        const breathe = 1 + Math.sin(time * 2.45 + s.id * .37) * .045;
+        const pulse = .5 + Math.sin(time * (antiAir ? 5.1 : 4.2) + s.id * .7) * .5;
+        drawBuildingShadow(x - 5, y + 8, s.w + 10, s.h - 1);
+
         ctx.save();
-        ctx.translate(s.x, s.y);
-        ctx.fillStyle = 'rgba(38,13,34,.9)';
-        ctx.beginPath(); ctx.ellipse(0, 7, 20, 14, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#251018'; ctx.lineWidth = 4 / cam.zoom;
-        for (let i = 0; i < 6; i++) {
-          const a = i / 6 * Math.PI * 2;
-          ctx.beginPath(); ctx.moveTo(Math.cos(a) * 9, Math.sin(a) * 7 + 5); ctx.lineTo(Math.cos(a) * 22, Math.sin(a) * 16 + 7); ctx.stroke();
-        }
-        ctx.fillStyle = flash ? '#ffffff' : '#884068';
-        ctx.beginPath(); ctx.ellipse(0, 1, 15, 13, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#d6ff78'; ctx.lineWidth = 2 / cam.zoom;
-        ctx.beginPath(); ctx.ellipse(0, 1, 11, 9, 0, 0, Math.PI * 2); ctx.stroke();
-        if (!antiAir) {
-          ctx.save();
-          ctx.rotate(angle);
-          const flex = Math.sin(state.elapsed * 2.7 + s.id) * 3;
-          const raised = 1 + recoil * .2;
-          ctx.lineCap = 'round';
-          ctx.strokeStyle = '#150913';
-          ctx.lineWidth = 12 / cam.zoom;
-          ctx.beginPath(); ctx.moveTo(-3, 1); ctx.quadraticCurveTo(7, -8 - flex, 20 * raised, 0); ctx.stroke();
-          ctx.strokeStyle = flash ? '#ffffff' : '#6f315d';
-          ctx.lineWidth = 8 / cam.zoom;
-          ctx.beginPath(); ctx.moveTo(-3, 1); ctx.quadraticCurveTo(7, -8 - flex, 20 * raised, 0); ctx.stroke();
-          ctx.strokeStyle = '#b8ff63';
-          ctx.lineWidth = 1.5 / cam.zoom;
-          ctx.setLineDash([4 / cam.zoom, 4 / cam.zoom]);
-          ctx.beginPath(); ctx.moveTo(0, 1); ctx.quadraticCurveTo(8, -6 - flex, 18 * raised, 0); ctx.stroke();
-          ctx.setLineDash([]);
-          ctx.translate(20 * raised, 0);
-          ctx.fillStyle = '#1b0b18';
-          ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(-4, -7); ctx.lineTo(-1, 0); ctx.lineTo(-4, 7); ctx.closePath(); ctx.fill();
-          ctx.strokeStyle = '#d6ff78'; ctx.lineWidth = 1.5 / cam.zoom; ctx.stroke();
-          ctx.restore();
-          ctx.fillStyle = '#b8ff63'; ctx.globalAlpha = .45 + pulse * .35;
-          ctx.beginPath(); ctx.arc(0, 1, 5 + pulse, 0, Math.PI * 2); ctx.fill();
+        ctx.translate(s.x, s.y + 3);
+
+        // Living anchoring disc with independently flexing roots.
+        ctx.fillStyle = 'rgba(30,10,28,.92)';
+        ctx.beginPath(); ctx.ellipse(0, 7, 23, 16, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.lineCap = 'round';
+        for (let i = 0; i < 8; i++) {
+          const rootAngle = i / 8 * Math.PI * 2 + s.id * .09;
+          const rootPulse = Math.sin(time * 2 + i * 1.43 + s.id) * 2;
+          const innerX = Math.cos(rootAngle) * 10;
+          const innerY = 6 + Math.sin(rootAngle) * 7;
+          const outerX = Math.cos(rootAngle) * (23 + (i % 2) * 4);
+          const outerY = 9 + Math.sin(rootAngle) * (17 + (i % 3));
+          ctx.strokeStyle = '#160912';
+          ctx.lineWidth = 6 / cam.zoom;
+          ctx.beginPath();
+          ctx.moveTo(innerX, innerY);
+          ctx.quadraticCurveTo(Math.cos(rootAngle + .14) * 18, 8 + Math.sin(rootAngle) * 12 + rootPulse, outerX, outerY);
+          ctx.stroke();
+          ctx.strokeStyle = i % 2 ? '#4b1d3f' : '#632851';
+          ctx.lineWidth = 3.4 / cam.zoom;
+          ctx.stroke();
+          ctx.strokeStyle = team;
+          ctx.globalAlpha = .18 + pulse * .18;
+          ctx.lineWidth = 1 / cam.zoom;
+          ctx.stroke();
           ctx.globalAlpha = 1;
-        } else {
-          ctx.rotate(angle * .28 + state.elapsed * .12);
-          for (let i = 0; i < 4; i++) {
-            const a = i * Math.PI / 2;
-            ctx.save(); ctx.rotate(a);
-            ctx.fillStyle = '#4a203d';
-            ctx.beginPath(); ctx.moveTo(-3, -3); ctx.quadraticCurveTo(5, -13, 10, -20); ctx.quadraticCurveTo(14, -9, 5, 2); ctx.closePath(); ctx.fill();
-            ctx.strokeStyle = '#b8ff63'; ctx.lineWidth = 1.4 / cam.zoom; ctx.stroke();
+        }
+
+        ctx.scale(breathe, 1 / breathe);
+        ctx.fillStyle = flash ? '#ffffff' : antiAir ? '#71305c' : '#7f3864';
+        ctx.beginPath(); ctx.ellipse(0, 2, 17, 14, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#2a1024';
+        ctx.lineWidth = 2 / cam.zoom;
+        for (let rib = -2; rib <= 2; rib++) {
+          ctx.beginPath();
+          ctx.moveTo(rib * 5, -9);
+          ctx.quadraticCurveTo(rib * 3.5, 2 + Math.sin(time * 3 + rib + s.id) * 1.2, rib * 5, 12);
+          ctx.stroke();
+        }
+
+        if (!antiAir) {
+          // EARTH TENTACLE: a coiled subterranean muscle and a segmented lash.
+          // Only the renderer changes; the existing earthTentacleStrike combat
+          // effect remains the sole lunge/damage mechanic.
+          for (let coil = 0; coil < 3; coil++) {
+            const coilPulse = 1 + Math.sin(time * 3.1 + coil * 1.7 + s.id) * .06;
+            ctx.save();
+            ctx.translate((coil - 1) * 6, 4 + Math.abs(coil - 1) * 2);
+            ctx.scale(coilPulse, 1 / coilPulse);
+            ctx.fillStyle = coil === 1 ? '#8b416d' : '#612650';
+            ctx.beginPath(); ctx.ellipse(0, 0, 7.5, 6, (coil - 1) * .18, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
           }
-          ctx.fillStyle = '#b8ff63'; ctx.globalAlpha = .62 + pulse * .3;
-          ctx.beginPath(); ctx.arc(0, -1, 6 + pulse * 2, 0, Math.PI * 2); ctx.fill();
+
+          ctx.save();
+          ctx.rotate(angle);
+          const idleFlex = Math.sin(time * 2.6 + s.id) * 3.2;
+          const extension = 21 + recoil * 4;
+          const controlX = 8;
+          const controlY = -8 - idleFlex;
+          const endX = extension;
+          const endY = 0;
+
+          ctx.strokeStyle = '#120811';
+          ctx.lineWidth = 14 / cam.zoom;
+          ctx.beginPath(); ctx.moveTo(-4, 1); ctx.quadraticCurveTo(controlX, controlY, endX, endY); ctx.stroke();
+          ctx.strokeStyle = flash ? '#ffffff' : '#74305f';
+          ctx.lineWidth = 9 / cam.zoom;
+          ctx.stroke();
+          ctx.strokeStyle = '#a34f7b';
+          ctx.lineWidth = 4 / cam.zoom;
+          ctx.globalAlpha = .62;
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+
+          // Contractile rings and a moving bioluminescent impulse show stored force.
+          for (let segment = 1; segment <= 5; segment++) {
+            const t = segment / 6;
+            const oneMinus = 1 - t;
+            const px = oneMinus * oneMinus * -4 + 2 * oneMinus * t * controlX + t * t * endX;
+            const py = oneMinus * oneMinus * 1 + 2 * oneMinus * t * controlY + t * t * endY;
+            const dx = 2 * oneMinus * (controlX + 4) + 2 * t * (endX - controlX);
+            const dy = 2 * oneMinus * (controlY - 1) + 2 * t * (endY - controlY);
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(Math.atan2(dy, dx));
+            ctx.strokeStyle = '#2a1025';
+            ctx.lineWidth = 1.7 / cam.zoom;
+            ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(0, 5); ctx.stroke();
+            ctx.restore();
+          }
+          const impulseT = (time * .62 + s.id * .11) % 1;
+          const impulseOneMinus = 1 - impulseT;
+          const impulseX = impulseOneMinus * impulseOneMinus * -4 + 2 * impulseOneMinus * impulseT * controlX + impulseT * impulseT * endX;
+          const impulseY = impulseOneMinus * impulseOneMinus * 1 + 2 * impulseOneMinus * impulseT * controlY + impulseT * impulseT * endY;
+          ctx.globalAlpha = .35 + pulse * .4;
+          ctx.fillStyle = '#b8ff63';
+          ctx.beginPath(); ctx.arc(impulseX, impulseY, 2.2 + pulse, 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = 1;
+
+          // Four hooked barbs identify the tip as a ground-lashing weapon.
+          ctx.translate(endX, endY);
+          ctx.rotate(recoil * .08);
+          ctx.fillStyle = '#180a16';
+          ctx.beginPath();
+          ctx.moveTo(8, 0); ctx.lineTo(-3, -7); ctx.lineTo(-1, -2);
+          ctx.lineTo(-6, -4); ctx.lineTo(-2, 0);
+          ctx.lineTo(-6, 4); ctx.lineTo(-1, 2); ctx.lineTo(-3, 7);
+          ctx.closePath(); ctx.fill();
+          ctx.strokeStyle = '#d6ff78';
+          ctx.lineWidth = 1.4 / cam.zoom;
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.globalAlpha = .4 + pulse * .35;
+          ctx.fillStyle = '#b8ff63';
+          ctx.beginPath(); ctx.arc(0, 1, 4.5 + pulse * 1.5, 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = 1;
+        } else {
+          // SKYSPORE SENTINEL: rotating sensory fronds surround pressurized
+          // tracking-spore chambers. The existing homing projectile remains intact.
+          const trackingRotation = angle * .34 + time * .16;
+          ctx.save();
+          ctx.rotate(trackingRotation);
+          for (let pod = 0; pod < 5; pod++) {
+            const podAngle = pod / 5 * Math.PI * 2;
+            const podPulse = 1 + Math.sin(time * 3.8 + pod * 1.4 + s.id) * .08;
+            ctx.save();
+            ctx.rotate(podAngle);
+
+            // Flexible airborne sensor whisker.
+            ctx.strokeStyle = '#2a1024';
+            ctx.lineWidth = 3.8 / cam.zoom;
+            ctx.beginPath();
+            ctx.moveTo(6, -1);
+            ctx.quadraticCurveTo(13, -10 - Math.sin(time * 2.2 + pod) * 2, 18, -17);
+            ctx.stroke();
+            ctx.strokeStyle = '#8d4770';
+            ctx.lineWidth = 2 / cam.zoom;
+            ctx.stroke();
+            ctx.fillStyle = '#d6ff78';
+            ctx.globalAlpha = .4 + pulse * .35;
+            ctx.beginPath(); ctx.arc(18, -17, 2.2 + pulse * .7, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Pressurized spore bulb with a forward launch aperture.
+            ctx.translate(10, -5);
+            ctx.scale(podPulse, 1 / podPulse);
+            ctx.fillStyle = '#180a16';
+            ctx.beginPath(); ctx.ellipse(0, 0, 6.5, 9, .25, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = flash ? '#ffffff' : '#5b244b';
+            ctx.beginPath(); ctx.ellipse(0, 0, 5, 7.5, .25, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = .45 + pulse * .32;
+            ctx.fillStyle = '#9be96f';
+            ctx.beginPath(); ctx.ellipse(1, -1, 2.4, 4.2, .25, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = '#120912';
+            ctx.beginPath(); ctx.ellipse(1, -7, 2.6, 1.8, .25, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+          }
+          ctx.restore();
+
+          // Central pressure bladder and orbiting ready spores.
+          ctx.globalAlpha = .62 + pulse * .3;
+          ctx.fillStyle = '#b8ff63';
+          ctx.beginPath(); ctx.arc(0, -1, 6 + pulse * 2.2, 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = .38;
+          ctx.fillStyle = '#f0ffd0';
+          ctx.beginPath(); ctx.arc(-2, -3, 2.2, 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = 1;
+          for (let spore = 0; spore < 4; spore++) {
+            const orbit = time * (1.05 + spore * .06) + spore / 4 * Math.PI * 2 + s.id * .17;
+            const radius = 12 + (spore % 2) * 3;
+            ctx.fillStyle = spore % 2 ? '#d8ff9c' : '#92e66f';
+            ctx.globalAlpha = .42 + pulse * .32;
+            ctx.beginPath();
+            ctx.arc(Math.cos(orbit) * radius, -1 + Math.sin(orbit) * radius * .62, 1.7 + (spore % 2) * .5, 0, Math.PI * 2);
+            ctx.fill();
+          }
           ctx.globalAlpha = 1;
         }
         ctx.restore();
@@ -40926,16 +41205,36 @@ function drawStructure(s) {
           sources.push({ x: tumor.x, y: tumor.y, r: radius, id: tumor.id, team: tumor.team, mobile: false, decaying: tumor.hp <= 0 });
         }
         for (const overlord of units) {
-          if (overlord.type !== 'insectOverlord' || overlord.hp <= 0 || teamFactionId(overlord.team, state.teamFactions) !== 'insects' ||
-              overlord.movementOrderActive || Math.hypot(overlord.x - (overlord.destination?.x ?? overlord.x), overlord.y - (overlord.destination?.y ?? overlord.y)) > 6) continue;
-          sources.push({ x: overlord.x, y: overlord.y, r: 92, id: overlord.id, team: overlord.team, mobile: true });
+          if (overlord.type !== 'insectOverlord' || overlord.hp <= 0 || teamFactionId(overlord.team, state.teamFactions) !== 'insects') continue;
+          const destination = overlord.destination || overlord;
+          const active = !overlord.movementOrderActive && Math.hypot(overlord.x - destination.x, overlord.y - destination.y) <= 6;
+          if (active) {
+            sources.push({
+              x: overlord.x, y: overlord.y, r: 92, id: overlord.id,
+              sourceKey: `overlord-${overlord.id}-active`, team: overlord.team, mobile: true
+            });
+          }
+          const retractTotal = Math.max(.001, Number(overlord.overlordCreepRetractionDuration) || 8);
+          const retractFactor = clamp((Number(overlord.overlordCreepRetractionTimeLeft) || 0) / retractTotal, 0, 1);
+          if (retractFactor > 0 && Number.isFinite(overlord.overlordCreepRetractionX) && Number.isFinite(overlord.overlordCreepRetractionY)) {
+            sources.push({
+              x: overlord.overlordCreepRetractionX,
+              y: overlord.overlordCreepRetractionY,
+              r: 92 * retractFactor,
+              id: overlord.id,
+              sourceKey: `overlord-${overlord.id}-retract`,
+              team: overlord.team,
+              mobile: true,
+              decaying: true
+            });
+          }
         }
-        return sources.sort((a, b) => a.id - b.id);
+        return sources.sort((a, b) => a.id - b.id || String(a.sourceKey || '').localeCompare(String(b.sourceKey || '')));
       }
 
       function creepVisualCacheSignature(sources) {
         return `${terrainRevision}:${COLS}:${ROWS}:` + sources.map(source => [
-          source.id, source.team, Math.round(source.x / 4), Math.round(source.y / 4),
+          source.sourceKey || source.id, source.team, Math.round(source.x / 4), Math.round(source.y / 4),
           Math.round(source.r / 6), source.mobile ? 1 : 0, source.decaying ? 1 : 0
         ].join(',')).join('|');
       }
@@ -40971,6 +41270,29 @@ function drawStructure(s) {
           }
         }
 
+        // Build a separate organic alpha mask. Overlapping circular tile
+        // membranes remove the staircase silhouette, and the final blur feathers
+        // the union without changing the deterministic gameplay tile mask.
+        creepBlendMaskCanvas = createTerrainCacheCanvas(width, height);
+        creepBlendMaskCanvas.width = width;
+        creepBlendMaskCanvas.height = height;
+        creepBlendMaskContext = creepBlendMaskCanvas.getContext('2d', { alpha: true });
+        creepBlendMaskContext.clearRect(0, 0, width, height);
+        creepBlendMaskContext.fillStyle = '#ffffff';
+        for (let ty = 0; ty < ROWS; ty++) {
+          for (let tx = 0; tx < COLS; tx++) {
+            const index = ty * COLS + tx;
+            if (!creepTileMask[index]) continue;
+            const hash = terrainVisualHash(tx, ty, 509);
+            const cx = tx * TILE + TILE / 2 + ((hash >>> 7) % 3) - 1;
+            const cy = ty * TILE + TILE / 2 + ((hash >>> 13) % 3) - 1;
+            const radius = TILE * (.66 + (hash % 9) * .006);
+            creepBlendMaskContext.beginPath();
+            creepBlendMaskContext.arc(cx, cy, radius, 0, Math.PI * 2);
+            creepBlendMaskContext.fill();
+          }
+        }
+
         for (let ty = 0; ty < ROWS; ty++) {
           for (let tx = 0; tx < COLS; tx++) {
             const index = ty * COLS + tx;
@@ -41000,20 +41322,14 @@ function drawStructure(s) {
           }
         }
 
-        // Dark scalloped edges make the occupied tile boundary obvious without
-        // restoring the old circular radius rings.
-        creepCacheContext.fillStyle = 'rgba(25,8,24,.72)';
-        for (let ty = 0; ty < ROWS; ty++) {
-          for (let tx = 0; tx < COLS; tx++) {
-            const index = ty * COLS + tx;
-            if (!creepTileMask[index]) continue;
-            const px = tx * TILE, py = ty * TILE;
-            if (ty === 0 || !creepTileMask[index - COLS]) creepCacheContext.fillRect(px, py, TILE, 2);
-            if (ty === ROWS - 1 || !creepTileMask[index + COLS]) creepCacheContext.fillRect(px, py + TILE - 2, TILE, 2);
-            if (tx === 0 || !creepTileMask[index - 1]) creepCacheContext.fillRect(px, py, 2, TILE);
-            if (tx === COLS - 1 || !creepTileMask[index + 1]) creepCacheContext.fillRect(px + TILE - 2, py, 2, TILE);
-          }
-        }
+        // Feather the organic membrane instead of drawing hard rectangular
+        // border strokes. The soft alpha fringe blends into grass, dirt and sand.
+        creepCacheContext.save();
+        creepCacheContext.globalCompositeOperation = 'destination-in';
+        if ('filter' in creepCacheContext) creepCacheContext.filter = 'blur(6px)';
+        creepCacheContext.drawImage(creepBlendMaskCanvas, 0, 0);
+        if ('filter' in creepCacheContext) creepCacheContext.filter = 'none';
+        creepCacheContext.restore();
         creepCacheKey = key;
         return sources;
       }
@@ -42691,10 +43007,16 @@ function drawStructure(s) {
             if (radius > 0) revealCreep(tumor.x, tumor.y, radius);
           }
           for (const overlord of units) {
-            if (overlord.team !== team || overlord.type !== 'insectOverlord' || overlord.hp <= 0 || overlord.movementOrderActive) continue;
+            if (overlord.team !== team || overlord.type !== 'insectOverlord' || overlord.hp <= 0) continue;
             const destination = overlord.destination || overlord;
-            if (Math.hypot(overlord.x - destination.x, overlord.y - destination.y) > 6) continue;
-            revealCreep(overlord.x, overlord.y, 92);
+            if (!overlord.movementOrderActive && Math.hypot(overlord.x - destination.x, overlord.y - destination.y) <= 6) {
+              revealCreep(overlord.x, overlord.y, 92);
+            }
+            const retractTotal = Math.max(.001, Number(overlord.overlordCreepRetractionDuration) || 8);
+            const retractFactor = clamp((Number(overlord.overlordCreepRetractionTimeLeft) || 0) / retractTotal, 0, 1);
+            if (retractFactor > 0 && Number.isFinite(overlord.overlordCreepRetractionX) && Number.isFinite(overlord.overlordCreepRetractionY)) {
+              revealCreep(overlord.overlordCreepRetractionX, overlord.overlordCreepRetractionY, 92 * retractFactor);
+            }
           }
         }
         for (const n of resourceNodes) n.visible = isVisiblePoint(n.x, n.y);
