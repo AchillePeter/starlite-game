@@ -2948,6 +2948,24 @@
       const attackApproachCache = new WeakMap();
       let visibilityClock = VISIBILITY_INTERVAL;
       let forceFieldClock = 0;
+      const reusableUpdateEntityCache = {
+        livingUnits: [],
+        livingStructures: [],
+        unitsByTeam: new Map(),
+        structuresByTeam: new Map(),
+        hostileUnitsByTeam: new Map(),
+        hostileStructuresByTeam: new Map(),
+        forceFieldProjectorsByTeam: new Map(),
+        hostileVisionMultiplierByTeam: new Map()
+      };
+      const updateEntityBucketPools = {
+        unitsByTeam: new Map(),
+        structuresByTeam: new Map(),
+        hostileUnitsByTeam: new Map(),
+        hostileStructuresByTeam: new Map(),
+        forceFieldProjectorsByTeam: new Map()
+      };
+      const updateEntityTeams = new Set();
       let updateEntityCache = null;
       
       function getCombatSyncState() {
@@ -2965,42 +2983,69 @@
         return getCombatSyncState();
       }
       
+      function resetUpdateEntityBucketMap(cacheMap) {
+        for (const bucket of cacheMap.values()) bucket.length = 0;
+        cacheMap.clear();
+      }
+
+      function updateEntityBucket(cacheMap, poolMap, team) {
+        let bucket = poolMap.get(team);
+        if (!bucket) {
+          bucket = [];
+          poolMap.set(team, bucket);
+        }
+        cacheMap.set(team, bucket);
+        return bucket;
+      }
+
       function rebuildUpdateEntityCache() {
-        const cache = {
-          livingUnits: [],
-          livingStructures: [],
-          unitsByTeam: new Map(),
-          structuresByTeam: new Map(),
-          hostileUnitsByTeam: new Map(),
-          hostileStructuresByTeam: new Map(),
-          forceFieldProjectorsByTeam: new Map()
-        };
-        const teams = new Set(state.activeTeams || []);
+        const cache = reusableUpdateEntityCache;
+        cache.livingUnits.length = 0;
+        cache.livingStructures.length = 0;
+        resetUpdateEntityBucketMap(cache.unitsByTeam);
+        resetUpdateEntityBucketMap(cache.structuresByTeam);
+        resetUpdateEntityBucketMap(cache.hostileUnitsByTeam);
+        resetUpdateEntityBucketMap(cache.hostileStructuresByTeam);
+        resetUpdateEntityBucketMap(cache.forceFieldProjectorsByTeam);
+        cache.hostileVisionMultiplierByTeam.clear();
+
+        const teams = updateEntityTeams;
+        teams.clear();
+        if (state.activeTeams) {
+          for (const team of state.activeTeams) teams.add(team);
+        }
         for (const unit of units) {
           if (unit.hp <= 0) continue;
           cache.livingUnits.push(unit);
           teams.add(unit.team);
-          if (!cache.unitsByTeam.has(unit.team)) cache.unitsByTeam.set(unit.team, []);
-          cache.unitsByTeam.get(unit.team).push(unit);
+          let teamUnits = cache.unitsByTeam.get(unit.team);
+          if (!teamUnits) teamUnits = updateEntityBucket(cache.unitsByTeam, updateEntityBucketPools.unitsByTeam, unit.team);
+          teamUnits.push(unit);
           if (unit.type === 'forceFieldTruck') {
-            if (!cache.forceFieldProjectorsByTeam.has(unit.team)) cache.forceFieldProjectorsByTeam.set(unit.team, []);
-            cache.forceFieldProjectorsByTeam.get(unit.team).push(unit);
+            let projectors = cache.forceFieldProjectorsByTeam.get(unit.team);
+            if (!projectors) projectors = updateEntityBucket(cache.forceFieldProjectorsByTeam, updateEntityBucketPools.forceFieldProjectorsByTeam, unit.team);
+            projectors.push(unit);
           }
         }
         for (const structure of structures) {
           if (structure.hp <= 0) continue;
           cache.livingStructures.push(structure);
           teams.add(structure.team);
-          if (!cache.structuresByTeam.has(structure.team)) cache.structuresByTeam.set(structure.team, []);
-          cache.structuresByTeam.get(structure.team).push(structure);
+          let teamStructures = cache.structuresByTeam.get(structure.team);
+          if (!teamStructures) teamStructures = updateEntityBucket(cache.structuresByTeam, updateEntityBucketPools.structuresByTeam, structure.team);
+          teamStructures.push(structure);
         }
         for (const team of teams) {
-          const hostileUnits = [];
-          const hostileStructures = [];
-          for (const unit of cache.livingUnits) if (unit.team !== team) hostileUnits.push(unit);
+          const hostileUnits = updateEntityBucket(cache.hostileUnitsByTeam, updateEntityBucketPools.hostileUnitsByTeam, team);
+          const hostileStructures = updateEntityBucket(cache.hostileStructuresByTeam, updateEntityBucketPools.hostileStructuresByTeam, team);
+          let reduction = 0;
+          for (const unit of cache.livingUnits) {
+            if (unit.team === team) continue;
+            hostileUnits.push(unit);
+            if (unit.type === 'radar') reduction = Math.max(reduction, unit.enemyVisionReduction || 0);
+          }
           for (const structure of cache.livingStructures) if (structure.team !== team) hostileStructures.push(structure);
-          cache.hostileUnitsByTeam.set(team, hostileUnits);
-          cache.hostileStructuresByTeam.set(team, hostileStructures);
+          cache.hostileVisionMultiplierByTeam.set(team, clamp(1 - reduction, .25, 1));
         }
         updateEntityCache = cache;
         return cache;
@@ -3373,12 +3418,7 @@
       }
       
       function hostileVisionMultiplier(team) {
-        let reduction = 0;
-        for (const radar of cachedHostileUnits(team)) {
-          if (radar.type !== 'radar') continue;
-          reduction = Math.max(reduction, radar.enemyVisionReduction || 0);
-        }
-        return clamp(1 - reduction, .25, 1);
+        return updateEntityCache?.hostileVisionMultiplierByTeam.get(team) ?? 1;
       }
       
       function nearestEnemy(me, radius, needLOS = true) {
@@ -19354,6 +19394,7 @@
     const __imports = Object.create(null);
     const __dep0 = __require("ai.js"); const __dep1 = __require("combat.js"); const __dep2 = __require("data.js"); const __dep3 = __require("prng.js"); const __dep4 = __require("pathing.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("multiplayer.js"); const __dep7 = __require("syncChecksum.js"); const __dep8 = __require("economy.js"); const __dep9 = __require("menu.js"); const __dep10 = __require("rendering.js"); const __dep11 = __require("state.js"); const __dep12 = __require("terrain.js"); const __dep13 = __require("workerBridge.js"); const __dep14 = __require("campaignProgression.js"); const __dep15 = __require("uiLayout.js");
     Object.defineProperty(__imports, "computerBuildPosition", { enumerable: true, get: () => __dep0["computerBuildPosition"] }); Object.defineProperty(__imports, "initializeComputerAIs", { enumerable: true, get: () => __dep0["initializeComputerAIs"] }); Object.defineProperty(__imports, "applyQueuedGameCommand", { enumerable: true, get: () => __dep1["applyQueuedGameCommand"] }); Object.defineProperty(__imports, "getCombatSyncState", { enumerable: true, get: () => __dep1["getCombatSyncState"] }); Object.defineProperty(__imports, "update", { enumerable: true, get: () => __dep1["update"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep2["BUILDING_DATA"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep2["UNIT_DATA"] }); Object.defineProperty(__imports, "COMPUTER_TEAMS", { enumerable: true, get: () => __dep2["COMPUTER_TEAMS"] }); Object.defineProperty(__imports, "CAMPAIGN_MISSIONS", { enumerable: true, get: () => __dep2["CAMPAIGN_MISSIONS"] }); Object.defineProperty(__imports, "campaignMissionDefinition", { enumerable: true, get: () => __dep2["campaignMissionDefinition"] }); Object.defineProperty(__imports, "campaignModeForMission", { enumerable: true, get: () => __dep2["campaignModeForMission"] }); Object.defineProperty(__imports, "STORAGE_KEYS", { enumerable: true, get: () => __dep2["STORAGE_KEYS"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep2["COLORS"] }); Object.defineProperty(__imports, "ENEMY_BUILD_PLAN", { enumerable: true, get: () => __dep2["ENEMY_BUILD_PLAN"] }); Object.defineProperty(__imports, "ENEMY_PLAN_REFERENCE_ANGLE", { enumerable: true, get: () => __dep2["ENEMY_PLAN_REFERENCE_ANGLE"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep2["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep2["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep2["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep2["clamp"] }); Object.defineProperty(__imports, "configureHumanTeams", { enumerable: true, get: () => __dep2["configureHumanTeams"] }); Object.defineProperty(__imports, "configureWorldScale", { enumerable: true, get: () => __dep2["configureWorldScale"] }); Object.defineProperty(__imports, "isComputerTeam", { enumerable: true, get: () => __dep2["isComputerTeam"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep2["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "rotateOffset", { enumerable: true, get: () => __dep2["rotateOffset"] }); Object.defineProperty(__imports, "DEFAULT_FACTION_ID", { enumerable: true, get: () => __dep2["DEFAULT_FACTION_ID"] }); Object.defineProperty(__imports, "factionStartingUnits", { enumerable: true, get: () => __dep2["factionStartingUnits"] }); Object.defineProperty(__imports, "normalizeFactionId", { enumerable: true, get: () => __dep2["normalizeFactionId"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep2["teamFactionId"] }); Object.defineProperty(__imports, "createRandomSeed", { enumerable: true, get: () => __dep3["createRandomSeed"] }); Object.defineProperty(__imports, "getRandomState", { enumerable: true, get: () => __dep3["getRandomState"] }); Object.defineProperty(__imports, "hashStringToSeed", { enumerable: true, get: () => __dep3["hashStringToSeed"] }); Object.defineProperty(__imports, "normalizeSeed", { enumerable: true, get: () => __dep3["normalizeSeed"] }); Object.defineProperty(__imports, "random", { enumerable: true, get: () => __dep3["random"] }); Object.defineProperty(__imports, "setRandomSeed", { enumerable: true, get: () => __dep3["setRandomSeed"] }); Object.defineProperty(__imports, "getPathingSyncState", { enumerable: true, get: () => __dep4["getPathingSyncState"] }); Object.defineProperty(__imports, "setPathingSyncState", { enumerable: true, get: () => __dep4["setPathingSyncState"] }); Object.defineProperty(__imports, "MIN_COMMAND_DELAY_TICKS", { enumerable: true, get: () => __dep5["MIN_COMMAND_DELAY_TICKS"] }); Object.defineProperty(__imports, "applyQueuedCommands", { enumerable: true, get: () => __dep5["applyQueuedCommands"] }); Object.defineProperty(__imports, "resetCommandSync", { enumerable: true, get: () => __dep5["resetCommandSync"] }); Object.defineProperty(__imports, "setQueuedCommandTeam", { enumerable: true, get: () => __dep5["setActiveCommandTeam"] }); Object.defineProperty(__imports, "activateMultiplayerCommandQueue", { enumerable: true, get: () => __dep6["activateMultiplayerCommandQueue"] }); Object.defineProperty(__imports, "confirmLocalCommandsThrough", { enumerable: true, get: () => __dep6["confirmLocalCommandsThrough"] }); Object.defineProperty(__imports, "multiplayerTickReady", { enumerable: true, get: () => __dep6["multiplayerTickReady"] }); Object.defineProperty(__imports, "sendSyncChecksum", { enumerable: true, get: () => __dep6["sendSyncChecksum"] }); Object.defineProperty(__imports, "setMultiplayerCallbacks", { enumerable: true, get: () => __dep6["setMultiplayerCallbacks"] }); Object.defineProperty(__imports, "sourceIdForTeam", { enumerable: true, get: () => __dep6["sourceIdForTeam"] }); Object.defineProperty(__imports, "checksumHex", { enumerable: true, get: () => __dep7["checksumHex"] }); Object.defineProperty(__imports, "deterministicStateHash", { enumerable: true, get: () => __dep7["deterministicStateHash"] }); Object.defineProperty(__imports, "assignHarvest", { enumerable: true, get: () => __dep8["assignHarvest"] }); Object.defineProperty(__imports, "nearestResource", { enumerable: true, get: () => __dep8["nearestResource"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep8["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep8["toast"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep8["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep8["productionTechLevel"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep8["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep8["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep8["insectUpgradeOrders"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep8["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep8["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "showMainMenu", { enumerable: true, get: () => __dep9["showMainMenu"] }); Object.defineProperty(__imports, "draw", { enumerable: true, get: () => __dep10["draw"] }); Object.defineProperty(__imports, "openBuildMenu", { enumerable: true, get: () => __dep10["openBuildMenu"] }); Object.defineProperty(__imports, "addResourceField", { enumerable: true, get: () => __dep11["addResourceField"] }); Object.defineProperty(__imports, "addStructure", { enumerable: true, get: () => __dep11["addStructure"] }); Object.defineProperty(__imports, "getNextEntityId", { enumerable: true, get: () => __dep11["getNextEntityId"] }); Object.defineProperty(__imports, "addUnit", { enumerable: true, get: () => __dep11["addUnit"] }); Object.defineProperty(__imports, "applyRenderInterpolation", { enumerable: true, get: () => __dep11["applyRenderInterpolation"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep11["cam"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep11["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep11["VIEW_W"] }); Object.defineProperty(__imports, "centerCamOn", { enumerable: true, get: () => __dep11["centerCamOn"] }); Object.defineProperty(__imports, "maxZoom", { enumerable: true, get: () => __dep11["maxZoom"] }); Object.defineProperty(__imports, "minZoom", { enumerable: true, get: () => __dep11["minZoom"] }); Object.defineProperty(__imports, "resize", { enumerable: true, get: () => __dep11["resize"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep11["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep11["resourceNodes"] }); Object.defineProperty(__imports, "resetVisibilityGrids", { enumerable: true, get: () => __dep11["resetVisibilityGrids"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep11["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep11["units"] }); Object.defineProperty(__imports, "restoreSimulationPositions", { enumerable: true, get: () => __dep11["restoreSimulationPositions"] }); Object.defineProperty(__imports, "snapshotSimulationState", { enumerable: true, get: () => __dep11["snapshotSimulationState"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep11["state"] }); Object.defineProperty(__imports, "generateTerrain", { enumerable: true, get: () => __dep12["generateTerrain"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep12["isBlocked"] }); Object.defineProperty(__imports, "recomputeVisibility", { enumerable: true, get: () => __dep12["recomputeVisibility"] }); Object.defineProperty(__imports, "resetTerrainGrid", { enumerable: true, get: () => __dep12["resetTerrainGrid"] }); Object.defineProperty(__imports, "safeZones", { enumerable: true, get: () => __dep12["safeZones"] }); Object.defineProperty(__imports, "initializePerformanceWorkers", { enumerable: true, get: () => __dep13["initializePerformanceWorkers"] }); Object.defineProperty(__imports, "setDeterministicLockstepMode", { enumerable: true, get: () => __dep13["setDeterministicLockstepMode"] });
+    Object.defineProperty(__imports, "processDeterministicPathfindingTick", { enumerable: true, get: () => __dep13["processDeterministicPathfindingTick"] });
     Object.defineProperty(__imports, "recordCampaignMissionCompleted", { enumerable: true, get: () => __dep14["recordCampaignMissionCompleted"] }); Object.defineProperty(__imports, "recordCampaignMissionStarted", { enumerable: true, get: () => __dep14["recordCampaignMissionStarted"] }); Object.defineProperty(__imports, "isMobileUI", { enumerable: true, get: () => __dep15["isMobileUI"] });
 
     const {
@@ -19370,7 +19411,7 @@
       addResourceField, addStructure, getNextEntityId, addUnit, applyRenderInterpolation, cam,
       centerCamOn, resize, resourceFields, resourceNodes, resetVisibilityGrids, structures,
       units, restoreSimulationPositions, snapshotSimulationState, state, generateTerrain, isBlocked,
-      recomputeVisibility, resetTerrainGrid, safeZones, initializePerformanceWorkers, setDeterministicLockstepMode, recordCampaignMissionCompleted,
+      recomputeVisibility, resetTerrainGrid, safeZones, initializePerformanceWorkers, setDeterministicLockstepMode, processDeterministicPathfindingTick, recordCampaignMissionCompleted,
       recordCampaignMissionStarted, isMobileUI,
     } = __imports;
 
@@ -22327,21 +22368,25 @@
           snapshotSimulationState();
           state.simulationTick = tick;
           applyQueuedCommands(tick, applyQueuedGameCommand);
+          processDeterministicPathfindingTick(tick);
           update(SIMULATION_STEP);
           updateCampaignMission();
           updateCampaignNarration();
           updateFactionTutorial();
-          if (tick % 30 === 0) {
-            const hash = deterministicStateHash(
-              units,
-              structures,
-              resourceNodes,
-              state.groundTags,
-              deterministicChecksumSyncState()
-            );
-            const pair = { tick, hash: checksumHex(hash) };
-            state.syncChecksums.push(pair);
-            if (state.multiplayerActive) sendSyncChecksum(pair);
+          if (state.multiplayerActive) {
+            if (tick % 30 === 0) {
+              const hash = deterministicStateHash(
+                units,
+                structures,
+                resourceNodes,
+                state.groundTags,
+                deterministicChecksumSyncState()
+              );
+              const pair = { tick, hash: checksumHex(hash) };
+              state.syncChecksums.push(pair);
+              if (state.syncChecksums.length > 120) state.syncChecksums.shift();
+              sendSyncChecksum(pair);
+            }
           }
           if (state.multiplayerActive) {
             confirmLocalCommandsThrough(tick + MIN_COMMAND_DELAY_TICKS - 1);
@@ -27261,8 +27306,8 @@
       const PEER_TIMEOUT_MS = 10000;
       const CHAT_MESSAGE_LIMIT = 60;
       const CHAT_TEXT_LIMIT = 180;
-      const BUILD_VERSION = '2026.07.28.25';
-      const MULTIPLAYER_PROTOCOL_VERSION = 26;
+      const BUILD_VERSION = '2026.08.06.1';
+      const MULTIPLAYER_PROTOCOL_VERSION = 27;
       const VERSION_MISMATCH_CODE = 'STARLITE_VERSION_MISMATCH';
       const PUBLIC_DIRECTORY_ROOM = '__STARLITE_PUBLIC_LOBBIES_V2__';
       const PUBLIC_DIRECTORY_PROTOCOL = 2;
@@ -29300,13 +29345,15 @@
         const token = unit.pathRequestToken;
         unit.pathPending = true;
         unit.pathKey = key;
-        const requestId = requestPathfinding(unit.x, unit.y, gx, gy, route => {
+        const requestId = requestPathfinding(unit.x, unit.y, gx, gy, (route, result = null) => {
           if (!unit || unit.hp <= 0 || unit.pathRequestToken !== token || unit.pathKey !== key) return;
           unit.pathRequestId = 0;
           unit.pathPending = false;
           unit.path = normalizeRoute(route, { x: gx, y: gy });
           unit.pathIdx = 0;
-          unit.repath = .9 + random() * .45;
+          unit.repath = result?.deterministicMainThread
+            ? .7 + random() * .5
+            : .9 + random() * .45;
         });
         if (!requestId) {
           unit.pathPending = false;
@@ -29375,9 +29422,11 @@
           members.push(unit);
         }
       
-        const finish = workerRoute => {
+        const finish = (workerRoute, result = null) => {
           const route = normalizeRoute(
-            workerRoute || computePath(centerX, centerY, target.x, target.y),
+            result?.deterministicMainThread
+              ? workerRoute
+              : (workerRoute || computePath(centerX, centerY, target.x, target.y)),
             target
           );
           applySharedRoute(groupId, members, target, route);
@@ -30714,6 +30763,8 @@ function compileShader(gl, type, source) {
     const __dep0 = __require("combat.js"); const __dep1 = __require("data.js"); const __dep2 = __require("economy.js"); const __dep3 = __require("main.js"); const __dep4 = __require("menu.js"); const __dep5 = __require("commandSync.js"); const __dep6 = __require("state.js"); const __dep7 = __require("terrain.js"); const __dep8 = __require("commandPanel.js"); const __dep9 = __require("uiLayout.js");
     Object.defineProperty(__imports, "burst", { enumerable: true, get: () => __dep0["burst"] }); Object.defineProperty(__imports, "projectileVisualPosition", { enumerable: true, get: () => __dep0["projectileVisualPosition"] }); Object.defineProperty(__imports, "ADRENALINE_RADIUS", { enumerable: true, get: () => __dep1["ADRENALINE_RADIUS"] }); Object.defineProperty(__imports, "BUILDING_DATA", { enumerable: true, get: () => __dep1["BUILDING_DATA"] }); Object.defineProperty(__imports, "INSECT_HIVE_EVOLUTION", { enumerable: true, get: () => __dep1["INSECT_HIVE_EVOLUTION"] }); Object.defineProperty(__imports, "INSECT_UPGRADES", { enumerable: true, get: () => __dep1["INSECT_UPGRADES"] }); Object.defineProperty(__imports, "COLORS", { enumerable: true, get: () => __dep1["COLORS"] }); Object.defineProperty(__imports, "COLS", { enumerable: true, get: () => __dep1["COLS"] }); Object.defineProperty(__imports, "GROUND_TAG_PIXEL_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_PIXEL_SIZE"] }); Object.defineProperty(__imports, "GROUND_TAG_SIZE", { enumerable: true, get: () => __dep1["GROUND_TAG_SIZE"] }); Object.defineProperty(__imports, "HOUSING_CAP", { enumerable: true, get: () => __dep1["HOUSING_CAP"] }); Object.defineProperty(__imports, "HOUSING_UPGRADE", { enumerable: true, get: () => __dep1["HOUSING_UPGRADE"] }); Object.defineProperty(__imports, "LAB_UNIT_LABELS", { enumerable: true, get: () => __dep1["LAB_UNIT_LABELS"] }); Object.defineProperty(__imports, "LAB_UPGRADE_CATEGORIES", { enumerable: true, get: () => __dep1["LAB_UPGRADE_CATEGORIES"] }); Object.defineProperty(__imports, "LOAD_GAS", { enumerable: true, get: () => __dep1["LOAD_GAS"] }); Object.defineProperty(__imports, "MINERS_HUT_UPGRADES", { enumerable: true, get: () => __dep1["MINERS_HUT_UPGRADES"] }); Object.defineProperty(__imports, "PRODUCTION_TECH", { enumerable: true, get: () => __dep1["PRODUCTION_TECH"] }); Object.defineProperty(__imports, "ROBO_MINERS_PER_DROPOFF", { enumerable: true, get: () => __dep1["ROBO_MINERS_PER_DROPOFF"] }); Object.defineProperty(__imports, "ROWS", { enumerable: true, get: () => __dep1["ROWS"] }); Object.defineProperty(__imports, "TILE", { enumerable: true, get: () => __dep1["TILE"] }); Object.defineProperty(__imports, "TURRET_TECH", { enumerable: true, get: () => __dep1["TURRET_TECH"] }); Object.defineProperty(__imports, "UNIT_DATA", { enumerable: true, get: () => __dep1["UNIT_DATA"] }); Object.defineProperty(__imports, "WORLD_H", { enumerable: true, get: () => __dep1["WORLD_H"] }); Object.defineProperty(__imports, "WORLD_W", { enumerable: true, get: () => __dep1["WORLD_W"] }); Object.defineProperty(__imports, "clamp", { enumerable: true, get: () => __dep1["clamp"] }); Object.defineProperty(__imports, "effectiveSightRadius", { enumerable: true, get: () => __dep1["effectiveSightRadius"] }); Object.defineProperty(__imports, "isAirUnit", { enumerable: true, get: () => __dep1["isAirUnit"] }); Object.defineProperty(__imports, "isResourceHarvester", { enumerable: true, get: () => __dep1["isResourceHarvester"] }); Object.defineProperty(__imports, "pointInRect", { enumerable: true, get: () => __dep1["pointInRect"] }); Object.defineProperty(__imports, "colorForTeam", { enumerable: true, get: () => __dep1["teamColor"] }); Object.defineProperty(__imports, "teamLabel", { enumerable: true, get: () => __dep1["teamLabel"] }); Object.defineProperty(__imports, "factionBuildMenuEntries", { enumerable: true, get: () => __dep1["factionBuildMenuEntries"] }); Object.defineProperty(__imports, "factionProductionTypes", { enumerable: true, get: () => __dep1["factionProductionTypes"] }); Object.defineProperty(__imports, "factionUnitRequirements", { enumerable: true, get: () => __dep1["factionUnitRequirements"] }); Object.defineProperty(__imports, "factionCanUseBuilding", { enumerable: true, get: () => __dep1["factionCanUseBuilding"] }); Object.defineProperty(__imports, "factionStructureLabel", { enumerable: true, get: () => __dep1["factionStructureLabel"] }); Object.defineProperty(__imports, "factionUnitLabel", { enumerable: true, get: () => __dep1["factionUnitLabel"] }); Object.defineProperty(__imports, "insectHiveEvolutionSpec", { enumerable: true, get: () => __dep1["insectHiveEvolutionSpec"] }); Object.defineProperty(__imports, "insectHiveTierLabel", { enumerable: true, get: () => __dep1["insectHiveTierLabel"] }); Object.defineProperty(__imports, "teamFactionId", { enumerable: true, get: () => __dep1["teamFactionId"] }); Object.defineProperty(__imports, "normalizeGroundTagDefinition", { enumerable: true, get: () => __dep1["normalizeGroundTagDefinition"] }); Object.defineProperty(__imports, "unitAnimationPose", { enumerable: true, get: () => __dep1["unitAnimationPose"] }); Object.defineProperty(__imports, "unitUpgradeData", { enumerable: true, get: () => __dep1["unitUpgradeData"] }); Object.defineProperty(__imports, "unitUpgradeTiers", { enumerable: true, get: () => __dep1["unitUpgradeTiers"] }); Object.defineProperty(__imports, "LAB_UPGRADE_QUEUE_LIMIT", { enumerable: true, get: () => __dep2["LAB_UPGRADE_QUEUE_LIMIT"] }); Object.defineProperty(__imports, "MAX_LEVEL", { enumerable: true, get: () => __dep2["MAX_LEVEL"] }); Object.defineProperty(__imports, "campaignTechnologyAllows", { enumerable: true, get: () => __dep2["campaignTechnologyAllows"] }); Object.defineProperty(__imports, "HELIAS_FORGE_UPGRADES", { enumerable: true, get: () => __dep2["HELIAS_FORGE_UPGRADES"] }); Object.defineProperty(__imports, "heliasForgeRegistry", { enumerable: true, get: () => __dep2["heliasForgeRegistry"] }); Object.defineProperty(__imports, "heliasForgeUpgradeOrders", { enumerable: true, get: () => __dep2["heliasForgeUpgradeOrders"] }); Object.defineProperty(__imports, "HELIAS_TEMPLE_UPGRADES", { enumerable: true, get: () => __dep2["HELIAS_TEMPLE_UPGRADES"] }); Object.defineProperty(__imports, "heliasTempleRegistry", { enumerable: true, get: () => __dep2["heliasTempleRegistry"] }); Object.defineProperty(__imports, "adrenalineMenuItem", { enumerable: true, get: () => __dep2["adrenalineMenuItem"] }); Object.defineProperty(__imports, "buildingCostFor", { enumerable: true, get: () => __dep2["buildingCostFor"] }); Object.defineProperty(__imports, "canAfford", { enumerable: true, get: () => __dep2["canAfford"] }); Object.defineProperty(__imports, "cancelProductionItem", { enumerable: true, get: () => __dep2["cancelProductionItem"] }); Object.defineProperty(__imports, "cancelTurretTechUpgrade", { enumerable: true, get: () => __dep2["cancelTurretTechUpgrade"] }); Object.defineProperty(__imports, "completedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["completedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "completedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["completedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "committedInsectUpgradeLevel", { enumerable: true, get: () => __dep2["committedInsectUpgradeLevel"] }); Object.defineProperty(__imports, "constructBuilding", { enumerable: true, get: () => __dep2["constructBuilding"] }); Object.defineProperty(__imports, "constructGasExtractor", { enumerable: true, get: () => __dep2["constructGasExtractor"] }); Object.defineProperty(__imports, "fieldHasDropoff", { enumerable: true, get: () => __dep2["fieldHasDropoff"] }); Object.defineProperty(__imports, "fieldHasResources", { enumerable: true, get: () => __dep2["fieldHasResources"] }); Object.defineProperty(__imports, "gasExtractorFor", { enumerable: true, get: () => __dep2["gasExtractorFor"] }); Object.defineProperty(__imports, "hasOperationalPlayerStructure", { enumerable: true, get: () => __dep2["hasOperationalPlayerStructure"] }); Object.defineProperty(__imports, "hasOperationalTeamStructure", { enumerable: true, get: () => __dep2["hasOperationalTeamStructure"] }); Object.defineProperty(__imports, "hasPlayerStructure", { enumerable: true, get: () => __dep2["hasPlayerStructure"] }); Object.defineProperty(__imports, "hasTeamStructure", { enumerable: true, get: () => __dep2["hasTeamStructure"] }); Object.defineProperty(__imports, "housingCapacity", { enumerable: true, get: () => __dep2["housingCapacity"] }); Object.defineProperty(__imports, "incomeRates", { enumerable: true, get: () => __dep2["incomeRates"] }); Object.defineProperty(__imports, "insectHiveLarvae", { enumerable: true, get: () => __dep2["insectHiveLarvae"] }); Object.defineProperty(__imports, "isProductionBuilding", { enumerable: true, get: () => __dep2["isProductionBuilding"] }); Object.defineProperty(__imports, "isPointOnInsectCreep", { enumerable: true, get: () => __dep2["isPointOnInsectCreep"] }); Object.defineProperty(__imports, "creepTumorPlacementStatus", { enumerable: true, get: () => __dep2["creepTumorPlacementStatus"] }); Object.defineProperty(__imports, "insectUpgradeOrders", { enumerable: true, get: () => __dep2["insectUpgradeOrders"] }); Object.defineProperty(__imports, "insectUpgradeRequirementStatus", { enumerable: true, get: () => __dep2["insectUpgradeRequirementStatus"] }); Object.defineProperty(__imports, "isResourceDropoff", { enumerable: true, get: () => __dep2["isResourceDropoff"] }); Object.defineProperty(__imports, "labCommittedUnitUpgradeLevel", { enumerable: true, get: () => __dep2["labCommittedUnitUpgradeLevel"] }); Object.defineProperty(__imports, "labUpgradeForJob", { enumerable: true, get: () => __dep2["labUpgradeForJob"] }); Object.defineProperty(__imports, "labUpgradeOrders", { enumerable: true, get: () => __dep2["labUpgradeOrders"] }); Object.defineProperty(__imports, "playerCreatableUnitTypes", { enumerable: true, get: () => __dep2["playerCreatableUnitTypes"] }); Object.defineProperty(__imports, "populationCap", { enumerable: true, get: () => __dep2["populationCap"] }); Object.defineProperty(__imports, "populationUsed", { enumerable: true, get: () => __dep2["populationUsed"] }); Object.defineProperty(__imports, "productionTechJob", { enumerable: true, get: () => __dep2["productionTechJob"] }); Object.defineProperty(__imports, "productionTechLevel", { enumerable: true, get: () => __dep2["productionTechLevel"] }); Object.defineProperty(__imports, "productionTechPeers", { enumerable: true, get: () => __dep2["productionTechPeers"] }); Object.defineProperty(__imports, "productionTypesFor", { enumerable: true, get: () => __dep2["productionTypesFor"] }); Object.defineProperty(__imports, "queueUnit", { enumerable: true, get: () => __dep2["queueUnit"] }); Object.defineProperty(__imports, "queueUnitAcross", { enumerable: true, get: () => __dep2["queueUnitAcross"] }); Object.defineProperty(__imports, "queueWarpInAcross", { enumerable: true, get: () => __dep2["queueWarpInAcross"] }); Object.defineProperty(__imports, "resolveBuildingPlacement", { enumerable: true, get: () => __dep2["resolveBuildingPlacement"] }); Object.defineProperty(__imports, "roboMinerCapacity", { enumerable: true, get: () => __dep2["roboMinerCapacity"] }); Object.defineProperty(__imports, "roboMinerCommitted", { enumerable: true, get: () => __dep2["roboMinerCommitted"] }); Object.defineProperty(__imports, "startMinersHutConversion", { enumerable: true, get: () => __dep2["startMinersHutConversion"] }); Object.defineProperty(__imports, "startProductionUpgrade", { enumerable: true, get: () => __dep2["startProductionUpgrade"] }); Object.defineProperty(__imports, "gatewayTransformReady", { enumerable: true, get: () => __dep2["gatewayTransformReady"] }); Object.defineProperty(__imports, "warpGateReady", { enumerable: true, get: () => __dep2["warpGateReady"] }); Object.defineProperty(__imports, "warpGateCooldownFor", { enumerable: true, get: () => __dep2["warpGateCooldownFor"] }); Object.defineProperty(__imports, "warpTechnologyResearched", { enumerable: true, get: () => __dep2["warpTechnologyResearched"] }); Object.defineProperty(__imports, "startTurretTechUpgrade", { enumerable: true, get: () => __dep2["startTurretTechUpgrade"] }); Object.defineProperty(__imports, "startUnitUpgrade", { enumerable: true, get: () => __dep2["startUnitUpgrade"] }); Object.defineProperty(__imports, "structureLabel", { enumerable: true, get: () => __dep2["structureLabel"] }); Object.defineProperty(__imports, "teamEconomyState", { enumerable: true, get: () => __dep2["teamEconomyState"] }); Object.defineProperty(__imports, "toast", { enumerable: true, get: () => __dep2["toast"] }); Object.defineProperty(__imports, "turretTechLevelFor", { enumerable: true, get: () => __dep2["turretTechLevelFor"] }); Object.defineProperty(__imports, "unitBuildTimeFor", { enumerable: true, get: () => __dep2["unitBuildTimeFor"] }); Object.defineProperty(__imports, "unitMorphOptions", { enumerable: true, get: () => __dep2["unitMorphOptions"] }); Object.defineProperty(__imports, "unitMorphRequirementStatus", { enumerable: true, get: () => __dep2["unitMorphRequirementStatus"] }); Object.defineProperty(__imports, "upgradeCost", { enumerable: true, get: () => __dep2["upgradeCost"] }); Object.defineProperty(__imports, "upgradeHousing", { enumerable: true, get: () => __dep2["upgradeHousing"] }); Object.defineProperty(__imports, "upgradeStructure", { enumerable: true, get: () => __dep2["upgradeStructure"] }); Object.defineProperty(__imports, "getLivingHQs", { enumerable: true, get: () => __dep3["getLivingHQs"] }); Object.defineProperty(__imports, "playerHQ", { enumerable: true, get: () => __dep3["playerHQ"] }); Object.defineProperty(__imports, "getKeybinds", { enumerable: true, get: () => __dep4["getKeybinds"] }); Object.defineProperty(__imports, "keybindCodeLabel", { enumerable: true, get: () => __dep4["keybindCodeLabel"] }); Object.defineProperty(__imports, "getActiveCommandTeam", { enumerable: true, get: () => __dep5["getActiveCommandTeam"] }); Object.defineProperty(__imports, "queueCommand", { enumerable: true, get: () => __dep5["queueCommand"] }); Object.defineProperty(__imports, "CH", { enumerable: true, get: () => __dep6["CH"] }); Object.defineProperty(__imports, "CW", { enumerable: true, get: () => __dep6["CW"] }); Object.defineProperty(__imports, "canvas", { enumerable: true, get: () => __dep6["canvas"] }); Object.defineProperty(__imports, "resizeGameCanvas", { enumerable: true, get: () => __dep6["resize"] }); Object.defineProperty(__imports, "VIEW_H", { enumerable: true, get: () => __dep6["VIEW_H"] }); Object.defineProperty(__imports, "VIEW_W", { enumerable: true, get: () => __dep6["VIEW_W"] }); Object.defineProperty(__imports, "cam", { enumerable: true, get: () => __dep6["cam"] }); Object.defineProperty(__imports, "ctx", { enumerable: true, get: () => __dep6["ctx"] }); Object.defineProperty(__imports, "resourceFields", { enumerable: true, get: () => __dep6["resourceFields"] }); Object.defineProperty(__imports, "resourceNodes", { enumerable: true, get: () => __dep6["resourceNodes"] }); Object.defineProperty(__imports, "screenToWorld", { enumerable: true, get: () => __dep6["screenToWorld"] }); Object.defineProperty(__imports, "state", { enumerable: true, get: () => __dep6["state"] }); Object.defineProperty(__imports, "structures", { enumerable: true, get: () => __dep6["structures"] }); Object.defineProperty(__imports, "units", { enumerable: true, get: () => __dep6["units"] }); Object.defineProperty(__imports, "dirtTiles", { enumerable: true, get: () => __dep7["dirtTiles"] }); Object.defineProperty(__imports, "isBlocked", { enumerable: true, get: () => __dep7["isBlocked"] }); Object.defineProperty(__imports, "isLocallyVisibleToTeam", { enumerable: true, get: () => __dep7["isLocallyVisibleToTeam"] }); Object.defineProperty(__imports, "sandTiles", { enumerable: true, get: () => __dep7["sandTiles"] }); Object.defineProperty(__imports, "terrain", { enumerable: true, get: () => __dep7["terrain"] }); Object.defineProperty(__imports, "terrainRevision", { enumerable: true, get: () => __dep7["terrainRevision"] }); Object.defineProperty(__imports, "transitionTiles", { enumerable: true, get: () => __dep7["transitionTiles"] }); Object.defineProperty(__imports, "clearCommandMenu", { enumerable: true, get: () => __dep8["clearCommandMenu"] }); Object.defineProperty(__imports, "isCommandConsolePoint", { enumerable: true, get: () => __dep8["isCommandConsolePoint"] }); Object.defineProperty(__imports, "drawCommandPanel", { enumerable: true, get: () => __dep8["drawCommandPanel"] }); Object.defineProperty(__imports, "drawConsoleText", { enumerable: true, get: () => __dep8["drawConsoleText"] }); Object.defineProperty(__imports, "drawPixelResourceIcon", { enumerable: true, get: () => __dep8["drawPixelResourceIcon"] }); Object.defineProperty(__imports, "setCommandMenu", { enumerable: true, get: () => __dep8["setCommandMenu"] }); Object.defineProperty(__imports, "commandConsoleLayout", { enumerable: true, get: () => __dep9["commandConsoleLayout"] }); Object.defineProperty(__imports, "isMobileUI", { enumerable: true, get: () => __dep9["isMobileUI"] });
 
+    Object.defineProperty(__imports, "fogCanvasForRendering", { enumerable: true, get: () => __dep7["fogCanvasForRendering"] });
+
     const {
       ADRENALINE_RADIUS, BUILDING_DATA, INSECT_HIVE_EVOLUTION, INSECT_UPGRADES, COLORS, GROUND_TAG_PIXEL_SIZE,
       GROUND_TAG_SIZE, HOUSING_CAP, HOUSING_UPGRADE, LAB_UNIT_LABELS, LAB_UPGRADE_CATEGORIES, LOAD_GAS,
@@ -30723,7 +30774,7 @@ function compileShader(gl, type, source) {
       factionUnitLabel, insectHiveEvolutionSpec, insectHiveTierLabel, teamFactionId, normalizeGroundTagDefinition, unitAnimationPose,
       unitUpgradeData, unitUpgradeTiers, getKeybinds, keybindCodeLabel, getActiveCommandTeam, queueCommand,
       canvas, resizeGameCanvas, cam, ctx: gameCtx, resourceFields, resourceNodes,
-      screenToWorld, state, structures, units, dirtTiles, isBlocked,
+      screenToWorld, state, structures, units, dirtTiles, fogCanvasForRendering, isBlocked,
       isLocallyVisibleToTeam, sandTiles, terrain, transitionTiles, clearCommandMenu, isCommandConsolePoint,
       drawCommandPanel, drawConsoleText, drawPixelResourceIcon, setCommandMenu, commandConsoleLayout, isMobileUI,
     } = __imports;
@@ -30999,6 +31050,75 @@ function compileShader(gl, type, source) {
         } finally {
           ctx = previousContext;
         }
+      }
+
+      // Canvas2D's native shadow blur rasterizes a temporary mask for every draw
+      // call. These small layered halos keep the same luminous read without ever
+      // entering that expensive path. Blur values are screen-space in Canvas2D,
+      // so convert them back to world units before the camera transform is applied.
+      function softGlowSpread(blur) {
+        return Math.max(.75, (Number(blur) || 0) / Math.max(.25, Number(cam.zoom) || 1));
+      }
+
+      function fillPathWithSoftGlow(glowColor, blur) {
+        const alpha = ctx.globalAlpha;
+        const spread = softGlowSpread(blur);
+        ctx.save();
+        ctx.strokeStyle = glowColor;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        if (typeof ctx.setLineDash === 'function') ctx.setLineDash([]);
+        ctx.globalAlpha = alpha * .065;
+        ctx.lineWidth = spread * 1.15;
+        ctx.stroke();
+        ctx.globalAlpha = alpha * .11;
+        ctx.lineWidth = spread * .72;
+        ctx.stroke();
+        ctx.globalAlpha = alpha * .19;
+        ctx.lineWidth = spread * .38;
+        ctx.stroke();
+        ctx.restore();
+        ctx.fill();
+      }
+
+      function strokePathWithSoftGlow(glowColor, blur) {
+        const alpha = ctx.globalAlpha;
+        const baseWidth = Math.max(.25, Number(ctx.lineWidth) || 1);
+        const spread = softGlowSpread(blur);
+        ctx.save();
+        ctx.strokeStyle = glowColor;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.globalAlpha = alpha * .065;
+        ctx.lineWidth = baseWidth + spread * 1.15;
+        ctx.stroke();
+        ctx.globalAlpha = alpha * .11;
+        ctx.lineWidth = baseWidth + spread * .72;
+        ctx.stroke();
+        ctx.globalAlpha = alpha * .19;
+        ctx.lineWidth = baseWidth + spread * .38;
+        ctx.stroke();
+        ctx.restore();
+        ctx.stroke();
+      }
+
+      function fillRectWithSoftGlow(x, y, width, height, glowColor, blur) {
+        const alpha = ctx.globalAlpha;
+        const spread = softGlowSpread(blur);
+        const cx = x + width * .5;
+        const cy = y + height * .5;
+        const rx = Math.max(.5, Math.abs(width) * .5);
+        const ry = Math.max(.5, Math.abs(height) * .5);
+        ctx.save();
+        ctx.fillStyle = glowColor;
+        ctx.globalAlpha = alpha * .065;
+        ctx.beginPath(); ctx.ellipse(cx, cy, rx + spread * .58, ry + spread * .58, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = alpha * .11;
+        ctx.beginPath(); ctx.ellipse(cx, cy, rx + spread * .36, ry + spread * .36, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = alpha * .19;
+        ctx.beginPath(); ctx.ellipse(cx, cy, rx + spread * .19, ry + spread * .19, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+        ctx.fillRect(x, y, width, height);
       }
 
       function activeCommandTeam() {
@@ -35413,7 +35533,6 @@ function drawHeliasTempleStructure(s, x, y, team, light, flash) {
   ctx.strokeStyle = '#f6d76f'; ctx.lineWidth = 1.5 / cam.zoom;
   for (const yy of [-19, -8, 3]) { ctx.beginPath(); ctx.moveTo(s.x - 7, s.y + yy); ctx.lineTo(s.x + 7, s.y + yy); ctx.stroke(); }
   ctx.globalCompositeOperation = 'lighter';
-  ctx.shadowColor = '#9eeeff'; ctx.shadowBlur = 12;
   ctx.strokeStyle = pulse > .5 ? '#9eeeff' : '#c4a8ff'; ctx.lineWidth = 1.6 / cam.zoom;
   ctx.beginPath();
   for (let i = 0; i <= 7; i++) {
@@ -35421,9 +35540,9 @@ function drawHeliasTempleStructure(s, x, y, team, light, flash) {
     const xx = s.x + Math.sin(state.elapsed * 7 + s.id + i * 1.7) * (7 - i * .55);
     if (!i) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy);
   }
-  ctx.stroke();
+  strokePathWithSoftGlow('#9eeeff', 12);
   ctx.fillStyle = '#fff4b0'; ctx.globalAlpha = .7 + pulse * .3;
-  ctx.beginPath(); ctx.arc(s.x, s.y - 36, 3.5 + pulse * 1.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(s.x, s.y - 36, 3.5 + pulse * 1.5, 0, Math.PI * 2); fillPathWithSoftGlow('#9eeeff', 12);
   ctx.restore();
 }
 
@@ -39164,13 +39283,10 @@ function drawStructure(s) {
           ctx.fillStyle = '#38264f';
           ctx.beginPath(); ctx.ellipse(-1.2, 0, 4.7, 3.6, 0, 0, Math.PI * 2); ctx.fill();
           ctx.globalCompositeOperation = 'lighter';
-          ctx.shadowColor = '#86ecff';
-          ctx.shadowBlur = 8 + phasePulse * 5;
           ctx.globalAlpha = .7 + phasePulse * .25;
           ctx.fillStyle = '#9cf2ff';
-          ctx.beginPath(); ctx.moveTo(3.1, 0); ctx.lineTo(-.9, -2.4); ctx.lineTo(-3.5, 0); ctx.lineTo(-.9, 2.4); ctx.closePath(); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(3.1, 0); ctx.lineTo(-.9, -2.4); ctx.lineTo(-3.5, 0); ctx.lineTo(-.9, 2.4); ctx.closePath(); fillPathWithSoftGlow('#86ecff', 8 + phasePulse * 5);
           ctx.globalAlpha = 1;
-          ctx.shadowBlur = 0;
           ctx.globalCompositeOperation = 'source-over';
 
           // Compact helm at the front of the oval body.
@@ -39201,13 +39317,10 @@ function drawStructure(s) {
 
             // Tighter phase blades keep the footprint compact while remaining legible.
             ctx.globalCompositeOperation = 'lighter';
-            ctx.shadowColor = '#8deaff';
-            ctx.shadowBlur = 7 + strike * 6;
             ctx.fillStyle = '#69dfff';
-            ctx.beginPath(); ctx.moveTo(9.2, -1.8); ctx.lineTo(24.5 + strike * 2.4, 0); ctx.lineTo(9.2, 1.8); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(9.2, -1.8); ctx.lineTo(24.5 + strike * 2.4, 0); ctx.lineTo(9.2, 1.8); ctx.closePath(); fillPathWithSoftGlow('#8deaff', 7 + strike * 6);
             ctx.fillStyle = '#efffff';
             ctx.beginPath(); ctx.moveTo(10, -.55); ctx.lineTo(22.8 + strike * 2.4, 0); ctx.lineTo(10, .55); ctx.closePath(); ctx.fill();
-            ctx.shadowBlur = 0;
             ctx.globalCompositeOperation = 'source-over';
             ctx.restore();
           }
@@ -39275,9 +39388,9 @@ function drawStructure(s) {
           ctx.fillStyle = u.flash > 0 ? '#ffffff' : '#c9ab56';
           ctx.beginPath(); ctx.moveTo(-13, -8); ctx.lineTo(-5, -14); ctx.lineTo(10, -11); ctx.lineTo(14, 0); ctx.lineTo(10, 11); ctx.lineTo(-5, 14); ctx.lineTo(-13, 8); ctx.closePath(); ctx.fill(); ctx.stroke();
           ctx.fillStyle = '#211738'; ctx.beginPath(); ctx.ellipse(0, 0, 8, 10, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = '#8deaff'; ctx.shadowBlur = 12 + firePulse * 8;
-          ctx.fillStyle = firePulse > .45 ? '#ffffff' : '#8deaff'; ctx.beginPath(); ctx.ellipse(2, 0, 4.5, 6, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.fillStyle = firePulse > .45 ? '#ffffff' : '#8deaff'; ctx.beginPath(); ctx.ellipse(2, 0, 4.5, 6, 0, 0, Math.PI * 2); fillPathWithSoftGlow('#8deaff', 12 + firePulse * 8);
+          ctx.globalCompositeOperation = 'source-over';
           // Twin thermal-lance emitters sit above the chassis like the SC2 silhouette.
           for (const side of [-1, 1]) {
             ctx.fillStyle = '#05080d'; ctx.fillRect(6 - kick, side * 10 - 3.5, 25, 7);
@@ -39299,9 +39412,9 @@ function drawStructure(s) {
           ctx.beginPath(); ctx.moveTo(27, 0); ctx.lineTo(10, -5); ctx.lineTo(-7, -16); ctx.lineTo(-21, -12); ctx.lineTo(-14, 0); ctx.lineTo(-21, 12); ctx.lineTo(-7, 16); ctx.lineTo(10, 5); ctx.closePath(); ctx.fill(); ctx.stroke();
           ctx.fillStyle = '#211638'; ctx.beginPath(); ctx.ellipse(-1, 0, 14, 9.5, 0, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#111829'; ctx.beginPath(); ctx.ellipse(8, 0, 9, 5, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = '#8deaff'; ctx.shadowBlur = 14;
-          ctx.globalAlpha = pulse; ctx.fillStyle = '#8deaff'; ctx.beginPath(); ctx.ellipse(10, 0, 6, 3.2, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalAlpha = pulse; ctx.fillStyle = '#8deaff'; ctx.beginPath(); ctx.ellipse(10, 0, 6, 3.2, 0, 0, Math.PI * 2); fillPathWithSoftGlow('#8deaff', 14);
+          ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
           ctx.strokeStyle = '#e2d18c'; ctx.lineWidth = 1.4 / cam.zoom;
           for (const side of [-1, 1]) { ctx.beginPath(); ctx.moveTo(-14, side * 8); ctx.lineTo(-4, side * 16); ctx.lineTo(13, side * 6); ctx.stroke(); }
           // The normal Ark carries three attack drones. Royal Skyark activation
@@ -39353,15 +39466,16 @@ function drawStructure(s) {
             ctx.fillStyle = '#05080d'; ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(-4, -4.5); ctx.lineTo(-1.5, 0); ctx.lineTo(-4, 4.5); ctx.closePath(); ctx.fill();
             ctx.fillStyle = royalDrone ? '#f6d76f' : '#d3b25f'; ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(-3, -2.7); ctx.lineTo(-.7, 0); ctx.lineTo(-3, 2.7); ctx.closePath(); ctx.fill();
             ctx.globalCompositeOperation = 'lighter';
-            ctx.shadowColor = royalDrone ? '#f6d76f' : '#8deaff'; ctx.shadowBlur = firing ? 14 : royalSkyark ? 9 : 6;
-            ctx.fillStyle = firing ? '#ffffff' : royalDrone ? '#fff0a8' : '#aef5ff'; ctx.fillRect(2, -1.15, firing ? 7 : royalSkyark ? 5 : 4, 2.3);
+            const droneGlow = royalDrone ? '#f6d76f' : '#8deaff';
+            ctx.fillStyle = firing ? '#ffffff' : royalDrone ? '#fff0a8' : '#aef5ff';
+            fillRectWithSoftGlow(2, -1.15, firing ? 7 : royalSkyark ? 5 : 4, 2.3, droneGlow, firing ? 14 : royalSkyark ? 9 : 6);
             if (royalSkyark) {
               ctx.globalAlpha = .55;
               ctx.strokeStyle = royalDrone ? '#fff0a8' : '#bff7ff';
               ctx.lineWidth = 1 / cam.zoom;
-              ctx.beginPath(); ctx.arc(0, 0, royalDrone ? 7.5 : 6.5, 0, Math.PI * 2); ctx.stroke();
+              ctx.beginPath(); ctx.arc(0, 0, royalDrone ? 7.5 : 6.5, 0, Math.PI * 2); strokePathWithSoftGlow(droneGlow, firing ? 14 : royalSkyark ? 9 : 6);
             }
-            ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
+            ctx.globalCompositeOperation = 'source-over';
             ctx.restore();
           }
         } else if (u.type === 'heliasObserver') {
@@ -39394,10 +39508,8 @@ function drawStructure(s) {
           ctx.fillStyle = '#d8c86b';
           ctx.beginPath(); ctx.arc(-3.5, 0, 3.2, 0, Math.PI * 2); ctx.fill();
           ctx.globalCompositeOperation = 'lighter';
-          ctx.shadowColor = '#8deaff'; ctx.shadowBlur = 12;
-          ctx.fillStyle = '#bff7ff'; ctx.beginPath(); ctx.ellipse(6, 0, 4.3, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#bff7ff'; ctx.beginPath(); ctx.ellipse(6, 0, 4.3, 3.5, 0, 0, Math.PI * 2); fillPathWithSoftGlow('#8deaff', 12);
           ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(7.2, -.7, 1.25, 0, Math.PI * 2); ctx.fill();
-          ctx.shadowBlur = 0;
 
           ctx.save(); ctx.rotate(spin); ctx.strokeStyle = '#aef5ff'; ctx.lineWidth = 1.2 / cam.zoom;
           ctx.globalAlpha = .5 + Math.sin(state.elapsed * 6 + u.id) * .14;
@@ -39447,10 +39559,9 @@ function drawStructure(s) {
           ctx.fillStyle = '#25183c'; ctx.beginPath(); ctx.ellipse(-1, 0, 9.5, 7.5, 0, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#171d2c'; ctx.beginPath(); ctx.ellipse(2, 0, 6.2, 5, 0, 0, Math.PI * 2); ctx.fill();
           ctx.globalCompositeOperation = 'lighter';
-          ctx.shadowColor = '#8deaff'; ctx.shadowBlur = 11 + firePulse * 6;
           ctx.fillStyle = firePulse > .45 ? '#ffffff' : '#8deaff';
-          ctx.beginPath(); ctx.ellipse(3.5, 0, 4.2, 3.4, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
+          ctx.beginPath(); ctx.ellipse(3.5, 0, 4.2, 3.4, 0, 0, Math.PI * 2); fillPathWithSoftGlow('#8deaff', 11 + firePulse * 6);
+          ctx.globalCompositeOperation = 'source-over';
           ctx.strokeStyle = '#d8f8ff'; ctx.lineWidth = 1.35 / cam.zoom;
           ctx.beginPath(); ctx.arc(-1, 0, 13, -.82, .82); ctx.stroke();
 
@@ -39488,14 +39599,14 @@ function drawStructure(s) {
           // Hollow centre and paired blue engine vanes.
           ctx.fillStyle = '#201637'; ctx.beginPath(); ctx.ellipse(1, 0, 10, 7.2, 0, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#111829'; ctx.beginPath(); ctx.ellipse(6, 0, 6.5, 4.5, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = '#8deaff'; ctx.shadowBlur = 12;
+          ctx.globalCompositeOperation = 'lighter';
           ctx.globalAlpha = pulse; ctx.fillStyle = '#8deaff';
-          ctx.beginPath(); ctx.ellipse(8, 0, 5.5, 2.7, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(8, 0, 5.5, 2.7, 0, 0, Math.PI * 2); fillPathWithSoftGlow('#8deaff', 12);
           for (const side of [-1, 1]) {
             ctx.fillStyle = '#bff7ff';
-            ctx.beginPath(); ctx.ellipse(-8, side * 12, 5, 2, side * .22, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(-8, side * 12, 5, 2, side * .22, 0, Math.PI * 2); fillPathWithSoftGlow('#8deaff', 12);
           }
-          ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.globalCompositeOperation = 'source-over';
+          ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 
           // Twin ion cannons at the forward tips.
           for (const side of [-1, 1]) {
@@ -39528,10 +39639,10 @@ function drawStructure(s) {
           ctx.fillStyle = '#24183f'; ctx.beginPath(); ctx.ellipse(1, 0, 12, 7.5, 0, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#151c2b'; ctx.beginPath(); ctx.ellipse(7, 0, 8, 4.7, 0, 0, Math.PI * 2); ctx.fill();
           ctx.globalCompositeOperation = 'lighter';
-          ctx.shadowColor = charge > .75 ? '#eafcff' : '#8f63ff'; ctx.shadowBlur = 13 + charge * 9;
+          const voidGlow = charge > .75 ? '#eafcff' : '#8f63ff';
           ctx.globalAlpha = .55 + charge * .4;
           ctx.fillStyle = charge > .72 ? '#eafcff' : '#aef5ff';
-          ctx.beginPath(); ctx.moveTo(3, 0); ctx.lineTo(24 - recoil, -3.1); ctx.lineTo(29 - recoil, 0); ctx.lineTo(24 - recoil, 3.1); ctx.closePath(); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(3, 0); ctx.lineTo(24 - recoil, -3.1); ctx.lineTo(29 - recoil, 0); ctx.lineTo(24 - recoil, 3.1); ctx.closePath(); fillPathWithSoftGlow(voidGlow, 13 + charge * 9);
           ctx.globalAlpha = 1;
 
           // Three rotating lens petals around the prismatic core.
@@ -39540,14 +39651,14 @@ function drawStructure(s) {
             ctx.save(); ctx.rotate(i * Math.PI * 2 / 3);
             ctx.fillStyle = i === 0 ? '#eafcff' : '#9b7dff';
             ctx.globalAlpha = .45 + charge * .45;
-            ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(15, -2.6); ctx.lineTo(17, 0); ctx.lineTo(15, 2.6); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(15, -2.6); ctx.lineTo(17, 0); ctx.lineTo(15, 2.6); ctx.closePath(); fillPathWithSoftGlow(voidGlow, 13 + charge * 9);
             ctx.restore();
           }
           ctx.globalAlpha = .6 + charge * .3;
           ctx.strokeStyle = charge > .68 ? '#eafcff' : '#9b7dff'; ctx.lineWidth = (1.3 + charge) / cam.zoom;
-          ctx.beginPath(); ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2); ctx.stroke();
+          ctx.beginPath(); ctx.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2); strokePathWithSoftGlow(voidGlow, 13 + charge * 9);
           ctx.restore();
-          ctx.shadowBlur = 0; ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+          ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 
           // Gold blade ribs keep the silhouette readable underneath the energy.
           ctx.strokeStyle = '#e1cf83'; ctx.lineWidth = 1.5 / cam.zoom;
@@ -39691,14 +39802,11 @@ function drawStructure(s) {
           if (p.style === 'tracer') {
             const tail = p.length || 18;
             ctx.globalCompositeOperation = 'lighter';
-            ctx.shadowColor = p.color;
-            ctx.shadowBlur = 8 + intensity * 5;
             ctx.strokeStyle = p.color;
             ctx.lineWidth = (4 + intensity * 1.5) / cam.zoom;
             ctx.beginPath();
             ctx.moveTo(drawX - Math.cos(angle) * tail, drawY - Math.sin(angle) * tail);
-            ctx.lineTo(drawX, drawY); ctx.stroke();
-            ctx.shadowBlur = 0;
+            ctx.lineTo(drawX, drawY); strokePathWithSoftGlow(p.color, 8 + intensity * 5);
             ctx.strokeStyle = '#fff7cf';
             ctx.lineWidth = (1.2 + intensity * .35) / cam.zoom;
             ctx.beginPath();
@@ -39716,11 +39824,8 @@ function drawStructure(s) {
             ctx.moveTo(drawX - Math.cos(angle) * tail, drawY - Math.sin(angle) * tail);
             ctx.lineTo(drawX, drawY); ctx.stroke();
             ctx.globalAlpha = 1;
-            ctx.shadowColor = p.color;
-            ctx.shadowBlur = 15 + intensity * 5;
             ctx.fillStyle = p.color;
-            ctx.beginPath(); ctx.arc(drawX, drawY, p.radius + 3, 0, Math.PI * 2); ctx.fill();
-            ctx.shadowBlur = 0;
+            ctx.beginPath(); ctx.arc(drawX, drawY, p.radius + 3, 0, Math.PI * 2); fillPathWithSoftGlow(p.color, 15 + intensity * 5);
             ctx.fillStyle = '#f7f0ff';
             ctx.beginPath(); ctx.arc(drawX, drawY, Math.max(2, p.radius - 1), 0, Math.PI * 2); ctx.fill();
             ctx.strokeStyle = p.color; ctx.lineWidth = 1 / cam.zoom; ctx.globalAlpha = .7;
@@ -39728,16 +39833,14 @@ function drawStructure(s) {
           } else if (p.style === 'siege') {
             const tail = p.length || 30;
             ctx.globalCompositeOperation = 'lighter';
-            ctx.shadowColor = p.color; ctx.shadowBlur = 18 + intensity * 7;
             ctx.strokeStyle = p.color; ctx.lineWidth = (p.radius + 6) / cam.zoom;
             ctx.beginPath();
             ctx.moveTo(drawX - Math.cos(angle) * tail, drawY - Math.sin(angle) * tail);
-            ctx.lineTo(drawX, drawY); ctx.stroke();
+            ctx.lineTo(drawX, drawY); strokePathWithSoftGlow(p.color, 18 + intensity * 7);
             ctx.strokeStyle = '#fff1d8'; ctx.lineWidth = 3 / cam.zoom;
             ctx.beginPath();
             ctx.moveTo(drawX - Math.cos(angle) * tail * .72, drawY - Math.sin(angle) * tail * .72);
             ctx.lineTo(drawX, drawY); ctx.stroke();
-            ctx.shadowBlur = 0;
             ctx.translate(drawX, drawY); ctx.rotate(angle);
             ctx.fillStyle = '#fff8e8';
             ctx.beginPath(); ctx.arc(0, 0, p.radius, 0, Math.PI * 2); ctx.fill();
@@ -39748,11 +39851,10 @@ function drawStructure(s) {
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = .78;
             ctx.strokeStyle = p.trailColor;
-            ctx.shadowColor = p.color; ctx.shadowBlur = 13;
             ctx.lineWidth = 2.8 / cam.zoom;
             ctx.beginPath();
             ctx.moveTo(drawX - Math.cos(angle) * tail * 1.85, drawY - Math.sin(angle) * tail * 1.85);
-            ctx.lineTo(drawX, drawY); ctx.stroke();
+            ctx.lineTo(drawX, drawY); strokePathWithSoftGlow(p.color, 13);
             ctx.globalAlpha = 1;
             ctx.translate(drawX, drawY); ctx.rotate(angle);
             ctx.fillStyle = '#18212b';
@@ -39769,14 +39871,12 @@ function drawStructure(s) {
             ctx.stroke();
             ctx.fillStyle = '#ffd36f';
             ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(-21, -5); ctx.lineTo(-21, 5); ctx.closePath(); ctx.fill();
-            ctx.shadowBlur = 0;
           } else if (p.style === 'rocket') {
             const tail = p.length || 24;
             const sideX = -Math.sin(angle), sideY = Math.cos(angle);
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = .72;
             ctx.strokeStyle = p.trailColor;
-            ctx.shadowColor = p.color; ctx.shadowBlur = 11;
             ctx.lineWidth = 2.4 / cam.zoom;
             ctx.beginPath();
             for (let i = 0; i <= 7; i++) {
@@ -39787,7 +39887,7 @@ function drawStructure(s) {
               const ty = p.y - Math.sin(angle) * behind + sideY * weave;
               if (i === 0) ctx.moveTo(tx, ty); else ctx.lineTo(tx, ty);
             }
-            ctx.stroke();
+            strokePathWithSoftGlow(p.color, 11);
             ctx.globalAlpha = 1;
             ctx.translate(drawX, drawY); ctx.rotate(angle);
             ctx.fillStyle = '#252b32';
@@ -39797,15 +39897,12 @@ function drawStructure(s) {
             ctx.fillStyle = '#ffd36f';
             ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(-14, -4); ctx.lineTo(-14, 4); ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#fff4ca'; ctx.fillRect(-10, -1.5, 7, 3);
-            ctx.shadowBlur = 0;
           } else if (p.style === 'nuke') {
             ctx.translate(drawX, drawY); ctx.rotate(angle);
-            ctx.shadowColor = '#b7ff5a'; ctx.shadowBlur = 18 + intensity * 3;
             ctx.fillStyle = '#121a16';
-            ctx.beginPath(); ctx.ellipse(0, 0, p.radius + 4, p.radius * .72, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(0, 0, p.radius + 4, p.radius * .72, 0, 0, Math.PI * 2); fillPathWithSoftGlow('#b7ff5a', 18 + intensity * 3);
             ctx.fillStyle = '#b7ff5a';
             ctx.beginPath(); ctx.ellipse(3, 0, p.radius + 1, p.radius * .56, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.shadowBlur = 0;
             ctx.fillStyle = '#202a22';
             ctx.fillRect(-p.radius - 7, -p.radius + 1, 8, p.radius * 2 - 2);
             ctx.fillStyle = '#0b110d';
@@ -39814,35 +39911,28 @@ function drawStructure(s) {
             ctx.fillRect(p.radius - 1, -3, 6, 6);
           } else if (p.style === 'bomb') {
             ctx.translate(drawX, drawY); ctx.rotate(angle);
-            ctx.shadowColor = p.color; ctx.shadowBlur = 9 + intensity * 3;
             ctx.fillStyle = '#111820';
-            ctx.beginPath(); ctx.ellipse(0, 0, p.radius + 2, p.radius * .72, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(0, 0, p.radius + 2, p.radius * .72, 0, 0, Math.PI * 2); fillPathWithSoftGlow(p.color, 9 + intensity * 3);
             ctx.fillStyle = p.color;
             ctx.beginPath(); ctx.ellipse(2, 0, p.radius, p.radius * .55, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.shadowBlur = 0;
             ctx.fillStyle = '#2a3038';
             ctx.fillRect(-p.radius - 5, -p.radius + 1, 6, p.radius * 2 - 2);
             ctx.fillStyle = '#fff0c5';
             ctx.fillRect(p.radius - 1, -2, 4, 4);
           } else if (p.style === 'shell') {
             ctx.translate(drawX, drawY); ctx.rotate(angle);
-            ctx.shadowColor = p.color; ctx.shadowBlur = 7 + intensity * 3;
             ctx.fillStyle = '#11151c';
-            ctx.fillRect(-p.radius - 2, -p.radius, p.radius * 2 + 4, p.radius * 2);
+            fillRectWithSoftGlow(-p.radius - 2, -p.radius, p.radius * 2 + 4, p.radius * 2, p.color, 7 + intensity * 3);
             ctx.fillStyle = p.color;
             ctx.fillRect(-p.radius, -p.radius + 1, p.radius * 2 + 2, p.radius * 2 - 2);
-            ctx.shadowBlur = 0;
             ctx.fillStyle = '#fff4cf'; ctx.fillRect(p.radius, -2, 5, 4);
           } else {
             ctx.translate(drawX, drawY); ctx.rotate(angle);
             ctx.globalCompositeOperation = 'lighter';
-            ctx.shadowColor = p.color;
-            ctx.shadowBlur = 10 + intensity * 4;
             ctx.fillStyle = p.color;
             ctx.beginPath();
             ctx.moveTo(p.radius + 4, 0); ctx.lineTo(0, -p.radius); ctx.lineTo(-p.radius - 4, 0); ctx.lineTo(0, p.radius);
-            ctx.closePath(); ctx.fill();
-            ctx.shadowBlur = 0;
+            ctx.closePath(); fillPathWithSoftGlow(p.color, 10 + intensity * 4);
             ctx.fillStyle = '#eaf9ff'; ctx.fillRect(-1, -1, 4, 3);
           }
           ctx.restore();
@@ -39905,12 +39995,10 @@ function drawStructure(s) {
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = clamp(1 - progress * 3.8, 0, 1);
             ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = '#dfff94'; ctx.shadowBlur = 35;
-            ctx.beginPath(); ctx.arc(0, 0, radius * (.24 + progress * .34), 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(0, 0, radius * (.24 + progress * .34), 0, Math.PI * 2); fillPathWithSoftGlow('#dfff94', 35);
             ctx.globalAlpha = alpha * .72;
             ctx.fillStyle = '#b7ff5a';
             ctx.beginPath(); ctx.arc(0, 0, blastRadius * .68, 0, Math.PI * 2); ctx.fill();
-            ctx.shadowBlur = 0;
             ctx.globalAlpha = alpha * .9;
             ctx.strokeStyle = '#efffc7';
             ctx.lineWidth = Math.max(2, 11 * alpha) / cam.zoom;
@@ -39945,31 +40033,25 @@ function drawStructure(s) {
             ctx.beginPath(); ctx.ellipse(0, radius * .16, radius * .9, radius * .42, 0, 0, Math.PI * 2); ctx.fill();
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = alpha * .9;
-            ctx.shadowColor = '#ff6b2b';
-            ctx.shadowBlur = e.massive ? 22 : 14;
             ctx.fillStyle = '#ff5f28';
-            ctx.beginPath(); ctx.arc(0, -radius * .08, radius * (.24 + progress * .82), 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(0, -radius * .08, radius * (.24 + progress * .82), 0, Math.PI * 2); fillPathWithSoftGlow('#ff6b2b', e.massive ? 22 : 14);
             ctx.fillStyle = '#ffc247';
             ctx.beginPath(); ctx.arc(-radius * .2, -radius * .24, radius * (.16 + progress * .5), 0, Math.PI * 2); ctx.fill();
             ctx.globalAlpha = clamp(1 - progress * 3.6, 0, 1);
             ctx.fillStyle = '#ffffff';
             ctx.beginPath(); ctx.arc(0, -radius * .08, radius * (.14 + progress * .34), 0, Math.PI * 2); ctx.fill();
-            ctx.shadowBlur = 0;
           } else if (e.type === 'airExplosion') {
             const radius = e.radius || 28;
             ctx.translate(e.x, e.y);
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = alpha * .88;
-            ctx.shadowColor = '#ff7a2b';
-            ctx.shadowBlur = 18;
             ctx.fillStyle = '#ff6b2b';
-            ctx.beginPath(); ctx.arc(0, 0, radius * (.25 + progress * .9), 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(0, 0, radius * (.25 + progress * .9), 0, Math.PI * 2); fillPathWithSoftGlow('#ff7a2b', 18);
             ctx.fillStyle = '#ffd166';
             ctx.beginPath(); ctx.arc(-radius * .18, -radius * .12, radius * (.18 + progress * .55), 0, Math.PI * 2); ctx.fill();
             ctx.globalAlpha = clamp(1 - progress * 3.2, 0, 1);
             ctx.fillStyle = '#ffffff';
             ctx.beginPath(); ctx.arc(0, 0, radius * (.16 + progress * .38), 0, Math.PI * 2); ctx.fill();
-            ctx.shadowBlur = 0;
           } else if (e.type === 'buildingExplosion') {
             const radius = e.radius || 34;
             const width = e.w || radius, height = e.h || radius;
@@ -39992,14 +40074,11 @@ function drawStructure(s) {
                 const [ox, oy, scale] = lobes[i];
                 const r = radius * scale * (.2 + progress * 1.04) * (1 + Math.sin(progress * 19 + i) * .05);
                 ctx.globalAlpha = fireAlpha * (.48 + i * .09);
-                ctx.shadowColor = colors[i];
-                ctx.shadowBlur = 15 + radius * .22;
                 ctx.fillStyle = colors[i];
                 ctx.beginPath();
                 ctx.arc(ox * radius, oy * radius, Math.max(2, r), 0, Math.PI * 2);
-                ctx.fill();
+                fillPathWithSoftGlow(colors[i], 15 + radius * .22);
               }
-              ctx.shadowBlur = 0;
               ctx.globalAlpha = clamp(1 - progress * 3.5, 0, 1);
               ctx.fillStyle = '#ffffff';
               ctx.beginPath(); ctx.arc(0, 0, radius * (.24 + progress * .48), 0, Math.PI * 2); ctx.fill();
@@ -40007,7 +40086,6 @@ function drawStructure(s) {
       
             const smokeIn = clamp((progress - .13) * 3.2, 0, 1);
             ctx.globalCompositeOperation = 'source-over';
-            ctx.shadowBlur = 0;
             const smokeLobes = [[-.42, -.18, .56], [.32, -.3, .68], [-.1, -.58, .76], [.18, -.78, .52]];
             for (let i = 0; i < smokeLobes.length; i++) {
               const [ox, oy, scale] = smokeLobes[i];
@@ -40032,15 +40110,13 @@ function drawStructure(s) {
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = Math.min(1, alpha * 1.6);
             ctx.strokeStyle = e.color;
-            ctx.shadowColor = e.color; ctx.shadowBlur = 10;
             ctx.lineWidth = 2.4 / cam.zoom;
             ctx.beginPath();
             ctx.moveTo(-radius, -radius + arm); ctx.lineTo(-radius, -radius); ctx.lineTo(-radius + arm, -radius);
             ctx.moveTo(radius - arm, -radius); ctx.lineTo(radius, -radius); ctx.lineTo(radius, -radius + arm);
             ctx.moveTo(radius, radius - arm); ctx.lineTo(radius, radius); ctx.lineTo(radius - arm, radius);
             ctx.moveTo(-radius + arm, radius); ctx.lineTo(-radius, radius); ctx.lineTo(-radius, radius - arm);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
+            strokePathWithSoftGlow(e.color, 10);
             ctx.globalAlpha = alpha * .75;
             ctx.lineWidth = 1 / cam.zoom;
             ctx.setLineDash([4 / cam.zoom, 4 / cam.zoom]);
@@ -40054,10 +40130,8 @@ function drawStructure(s) {
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = alpha * .8;
             ctx.strokeStyle = e.color;
-            ctx.shadowColor = e.color; ctx.shadowBlur = 12;
             ctx.lineWidth = Math.max(1, 5 * alpha) / cam.zoom;
-            ctx.beginPath(); ctx.arc(sx, sy, radius, 0, Math.PI * 2); ctx.stroke();
-            ctx.shadowBlur = 0;
+            ctx.beginPath(); ctx.arc(sx, sy, radius, 0, Math.PI * 2); strokePathWithSoftGlow(e.color, 12);
           } else if (e.type === 'flameJet') {
             const flicker = Math.sin(state.elapsed * 42 + (e.seed || 0)) * 2.5;
             const length = Math.max(8, (e.length || 48) * (.9 + alpha * .1));
@@ -40067,21 +40141,19 @@ function drawStructure(s) {
             ctx.globalCompositeOperation = 'lighter';
             ctx.lineCap = 'round';
             ctx.globalAlpha = alpha * .74;
-            ctx.shadowColor = e.color; ctx.shadowBlur = 14;
             ctx.strokeStyle = '#ff3f22';
             ctx.lineWidth = ((12 + alpha * 5) * widthScale) / cam.zoom;
             ctx.beginPath();
-            ctx.moveTo(0, 0); ctx.quadraticCurveTo(length * .48, flicker * widthScale, length, flicker * .25); ctx.stroke();
+            ctx.moveTo(0, 0); ctx.quadraticCurveTo(length * .48, flicker * widthScale, length, flicker * .25); strokePathWithSoftGlow(e.color, 14);
             ctx.globalAlpha = alpha * .9;
             ctx.strokeStyle = e.color;
             ctx.lineWidth = ((7 + alpha * 4) * widthScale) / cam.zoom;
             ctx.beginPath();
             ctx.moveTo(1, 0); ctx.quadraticCurveTo(length * .55, -flicker * .7, length * .92, 0); ctx.stroke();
-            ctx.shadowBlur = 8;
             ctx.strokeStyle = e.innerColor || '#ffe08a';
             ctx.lineWidth = ((2.5 + alpha * 2.5) * Math.min(1.35, widthScale)) / cam.zoom;
             ctx.beginPath();
-            ctx.moveTo(2, 0); ctx.quadraticCurveTo(length * .42, flicker * .35, length * .72, -flicker * .15); ctx.stroke();
+            ctx.moveTo(2, 0); ctx.quadraticCurveTo(length * .42, flicker * .35, length * .72, -flicker * .15); strokePathWithSoftGlow(e.color, 8);
             if (e.mega) {
               ctx.globalAlpha = alpha * .55;
               ctx.strokeStyle = '#fff1a3';
@@ -40091,7 +40163,6 @@ function drawStructure(s) {
               ctx.moveTo(4, 5); ctx.quadraticCurveTo(length * .5, 10 + flicker, length * .86, 6);
               ctx.stroke();
             }
-            ctx.shadowBlur = 0;
           } else if (e.type === 'organicSplash') {
             const radius = Number(e.radius) || 24;
             const intensity = Number(e.intensity) || 1;
@@ -40168,13 +40239,10 @@ function drawStructure(s) {
             ctx.globalCompositeOperation = 'lighter';
             const intensity = e.intensity || 1;
             const scale = (e.scale || 1) * (.72 + alpha * .55);
-            ctx.shadowColor = e.color;
-            ctx.shadowBlur = 8 + intensity * 7;
             ctx.fillStyle = e.color;
             ctx.beginPath();
             ctx.moveTo(0, 0); ctx.lineTo(19 * scale, -6 * scale); ctx.lineTo(12 * scale, 0); ctx.lineTo(19 * scale, 6 * scale);
-            ctx.closePath(); ctx.fill();
-            ctx.shadowBlur = 0;
+            ctx.closePath(); fillPathWithSoftGlow(e.color, 8 + intensity * 7);
             ctx.fillStyle = '#fff8d8';
             ctx.fillRect(1, -2 * scale, 12 * scale, 4 * scale);
             ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, intensity) / cam.zoom;
@@ -40192,16 +40260,13 @@ function drawStructure(s) {
           } else if (e.type === 'swoosh' || e.type === 'slash') {
             ctx.globalAlpha = alpha;
             ctx.globalCompositeOperation = 'lighter';
-            ctx.shadowColor = e.color;
-            ctx.shadowBlur = 8 + (e.intensity || 1) * 5;
             ctx.strokeStyle = e.color;
             ctx.lineWidth = (e.width || 3) / cam.zoom;
             ctx.lineCap = 'round';
             const sweep = (e.arc || .6) * (.35 + progress * .9);
             ctx.beginPath();
             ctx.arc(e.x, e.y, e.radius * (.72 + progress * .3), e.angle - sweep, e.angle + sweep);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
+            strokePathWithSoftGlow(e.color, 8 + (e.intensity || 1) * 5);
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = Math.max(1.2, (e.width || 3) * .35) / cam.zoom;
             ctx.beginPath();
@@ -40228,15 +40293,13 @@ function drawStructure(s) {
             ctx.translate(e.x, e.y); ctx.rotate(e.angle || 0);
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = alpha;
-            ctx.shadowColor = e.color; ctx.shadowBlur = 10 + scale * 5;
             ctx.strokeStyle = e.color; ctx.lineWidth = Math.max(1.5, 2.5 * alpha) / cam.zoom;
             ctx.beginPath();
             ctx.moveTo(-11 * scale, 0); ctx.lineTo(13 * scale, 0);
             ctx.moveTo(0, -8 * scale); ctx.lineTo(0, 8 * scale);
             ctx.moveTo(-6 * scale, -6 * scale); ctx.lineTo(7 * scale, 7 * scale);
             ctx.moveTo(-6 * scale, 6 * scale); ctx.lineTo(7 * scale, -7 * scale);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
+            strokePathWithSoftGlow(e.color, 10 + scale * 5);
             ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0, 0, 2.5 * scale, 0, Math.PI * 2); ctx.fill();
           } else if (e.type === 'shieldPulse' || e.type === 'shieldHit') {
             const radius = (e.radius || 16) * (e.type === 'shieldPulse' ? (.6 + progress * .6) : (1 + progress * .18));
@@ -40244,8 +40307,7 @@ function drawStructure(s) {
             ctx.globalAlpha = alpha * (e.type === 'shieldHit' ? .95 : .65);
             ctx.strokeStyle = e.color;
             ctx.lineWidth = Math.max(1, (e.type === 'shieldHit' ? 4 : 2.5) * alpha) / cam.zoom;
-            ctx.shadowColor = e.color; ctx.shadowBlur = e.type === 'shieldHit' ? 14 : 8;
-            ctx.beginPath(); ctx.arc(e.x, e.y, radius, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(e.x, e.y, radius, 0, Math.PI * 2); strokePathWithSoftGlow(e.color, e.type === 'shieldHit' ? 14 : 8);
             if (e.type === 'shieldHit') {
               ctx.globalAlpha = alpha * .22;
               ctx.fillStyle = e.color;
@@ -40264,24 +40326,19 @@ function drawStructure(s) {
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = alpha;
             ctx.strokeStyle = e.color;
-            ctx.shadowColor = e.color;
-            ctx.shadowBlur = 12;
             ctx.lineWidth = 2.2 / cam.zoom;
             ctx.beginPath();
             ctx.arc(0, 0, 18 + progress * 12, -.35, Math.PI * 1.35);
-            ctx.stroke();
+            strokePathWithSoftGlow(e.color, 12);
             ctx.strokeStyle = '#f4fbff';
             ctx.lineWidth = 1 / cam.zoom;
             ctx.beginPath();
             ctx.arc(0, 0, 10 + progress * 8, Math.PI * .75, Math.PI * 2.35);
             ctx.stroke();
-            ctx.shadowBlur = 0;
           } else if (e.type === 'electricChain' && e.chain?.length > 1) {
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = alpha;
             ctx.strokeStyle = e.color;
-            ctx.shadowColor = e.color;
-            ctx.shadowBlur = 14;
             ctx.lineWidth = 3 / cam.zoom;
             ctx.lineJoin = 'round';
             for (let i = 0; i < e.chain.length - 1; i++) {
@@ -40297,14 +40354,13 @@ function drawStructure(s) {
                 const y = a.y + dy * t + py * jitter;
                 if (step === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
               }
-              ctx.stroke();
+              strokePathWithSoftGlow(e.color, 14);
               ctx.strokeStyle = '#f4fbff';
               ctx.lineWidth = 1.1 / cam.zoom;
               ctx.stroke();
               ctx.strokeStyle = e.color;
               ctx.lineWidth = 3 / cam.zoom;
             }
-            ctx.shadowBlur = 0;
             ctx.fillStyle = '#f4fbff';
             for (const target of e.chain) {
               ctx.beginPath(); ctx.arc(target.x, target.y, 2.5 + progress * 4, 0, Math.PI * 2); ctx.fill();
@@ -40316,9 +40372,8 @@ function drawStructure(s) {
             ctx.globalCompositeOperation = 'lighter';
             ctx.globalAlpha = alpha * .82;
             ctx.strokeStyle = e.color;
-            ctx.shadowColor = e.color; ctx.shadowBlur = 13;
             ctx.lineWidth = Math.max(1.5, 5 * alpha) / cam.zoom;
-            ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); strokePathWithSoftGlow(e.color, 13);
             ctx.globalAlpha = alpha * .45;
             ctx.lineWidth = 2 / cam.zoom;
             ctx.beginPath(); ctx.arc(0, 0, radius * .7, 0, Math.PI * 2); ctx.stroke();
@@ -40328,7 +40383,6 @@ function drawStructure(s) {
               ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(ally.x - tx, ally.y - ty); ctx.stroke();
               ctx.beginPath(); ctx.arc(ally.x - tx, ally.y - ty, 5 + progress * 5, 0, Math.PI * 2); ctx.stroke();
             }
-            ctx.shadowBlur = 0;
             ctx.fillStyle = '#effff5';
             ctx.fillRect(-2, -8, 4, 16); ctx.fillRect(-8, -2, 16, 4);
           } else if (e.type === 'beam' && e.source && e.target) {
@@ -40349,12 +40403,10 @@ function drawStructure(s) {
               const width = e.width || 6.5;
               ctx.globalCompositeOperation = 'lighter';
               ctx.lineCap = 'round';
-              ctx.shadowColor = '#8f63ff';
-              ctx.shadowBlur = 18 + charge * 12;
               ctx.strokeStyle = '#6e42e8';
               ctx.globalAlpha = alpha * (.48 + charge * .22);
               ctx.lineWidth = (width + 7 + charge * 5) / cam.zoom;
-              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); strokePathWithSoftGlow('#8f63ff', 18 + charge * 12);
               ctx.strokeStyle = e.color;
               ctx.globalAlpha = alpha * .9;
               ctx.lineWidth = width / cam.zoom;
@@ -40390,7 +40442,6 @@ function drawStructure(s) {
                 ctx.globalAlpha = alpha * (.55 + charge * .3);
                 ctx.beginPath(); ctx.arc(sx + dx * t, sy + dy * t, pulse, 0, Math.PI * 2); ctx.fill();
               }
-              ctx.shadowBlur = 0;
               ctx.globalAlpha = alpha;
               ctx.fillStyle = '#f4fbff';
               ctx.beginPath(); ctx.arc(tx, ty, 3.5 + progress * 4 + charge * 2, 0, Math.PI * 2); ctx.fill();
@@ -40403,9 +40454,8 @@ function drawStructure(s) {
               ctx.strokeStyle = e.color;
               ctx.lineWidth = (e.width || 3) / cam.zoom;
               if (e.repair) ctx.setLineDash([5 / cam.zoom, 3 / cam.zoom]);
-              if (e.engineer) ctx.shadowColor = e.color, ctx.shadowBlur = 10;
-              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
-              ctx.shadowBlur = 0;
+              ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty);
+              if (e.engineer) strokePathWithSoftGlow(e.color, 10); else ctx.stroke();
               ctx.setLineDash([]);
               ctx.strokeStyle = '#f5fff0';
               ctx.lineWidth = 1 / cam.zoom;
@@ -40436,13 +40486,12 @@ function drawStructure(s) {
             ctx.translate(p.x, p.y);
             ctx.rotate(Math.atan2(p.vy, p.vx));
             ctx.globalCompositeOperation = 'lighter';
-            ctx.shadowColor = p.color; ctx.shadowBlur = 7;
             ctx.beginPath();
             ctx.moveTo(p.size * 1.6, 0);
             ctx.lineTo(-p.size, -p.size * .72);
             ctx.lineTo(-p.size * .45, 0);
             ctx.lineTo(-p.size, p.size * .72);
-            ctx.closePath(); ctx.fill();
+            ctx.closePath(); fillPathWithSoftGlow(p.color, 7);
             ctx.restore();
           } else if (p.shape === 'spark') {
             ctx.save();
@@ -40584,13 +40633,15 @@ function drawStructure(s) {
 
       function drawFog() {
         const { x0, y0, x1, y1 } = visibleTileBounds();
-        for (let y = y0; y <= y1; y++) {
-          for (let x = x0; x <= x1; x++) {
-            if (state.visible[y][x]) continue;
-            ctx.fillStyle = state.explored[y][x] ? 'rgba(5,9,13,.62)' : 'rgba(2,4,7,.96)';
-            ctx.fillRect(x * TILE, y * TILE, TILE + 1, TILE + 1);
-          }
-        }
+        const fogCanvas = fogCanvasForRendering();
+        if (!fogCanvas) return;
+        const width = x1 - x0 + 1;
+        const height = y1 - y0 + 1;
+        const smoothing = ctx.imageSmoothingEnabled;
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(fogCanvas, x0, y0, width, height,
+          x0 * TILE, y0 * TILE, width * TILE, height * TILE);
+        ctx.imageSmoothingEnabled = smoothing;
       }
       
       function drawCommands() {
@@ -42377,7 +42428,18 @@ function drawStructure(s) {
       // interpolated coordinates, then restores authoritative simulation state.
       // This keeps gameplay deterministic at the simulation cadence while allowing
       // smooth presentation on 60/120/144 Hz displays.
-      const interpolationRestore = [];
+      const interpolationRestorePool = [];
+      let interpolationRestoreCount = 0;
+
+      function acquireInterpolationRestoreRecord() {
+        const index = interpolationRestoreCount++;
+        let record = interpolationRestorePool[index];
+        if (!record) {
+          record = { object: null, x: 0, y: 0, heading: undefined, barrelAngle: undefined, zoom: undefined, camera: false };
+          interpolationRestorePool[index] = record;
+        }
+        return record;
+      }
       
       function snapshotObject(object) {
         if (!object || !Number.isFinite(object.x) || !Number.isFinite(object.y)) return;
@@ -42411,14 +42473,13 @@ function drawStructure(s) {
           object.prevX = object.x;
           object.prevY = object.y;
         }
-        const record = {
-          object,
-          x: object.x,
-          y: object.y,
-          heading: object.heading,
-          barrelAngle: object.barrelAngle
-        };
-        interpolationRestore.push(record);
+        const record = acquireInterpolationRestoreRecord();
+        record.object = object;
+        record.x = object.x;
+        record.y = object.y;
+        record.heading = object.heading;
+        record.barrelAngle = object.barrelAngle;
+        record.camera = false;
         object.x = object.prevX + (record.x - object.prevX) * alpha;
         object.y = object.prevY + (record.y - object.prevY) * alpha;
         if (Number.isFinite(record.heading) && Number.isFinite(object.prevHeading)) {
@@ -42430,22 +42491,30 @@ function drawStructure(s) {
       }
       
       function restoreSimulationPositions() {
-        for (let index = interpolationRestore.length - 1; index >= 0; index--) {
-          const record = interpolationRestore[index];
+        for (let index = interpolationRestoreCount - 1; index >= 0; index--) {
+          const record = interpolationRestorePool[index];
           record.object.x = record.x;
           record.object.y = record.y;
-          if (record.camera) { record.object.zoom = record.zoom; continue; }
-          if (record.heading !== undefined) record.object.heading = record.heading;
-          if (record.barrelAngle !== undefined) record.object.barrelAngle = record.barrelAngle;
+          if (record.camera) {
+            record.object.zoom = record.zoom;
+          } else {
+            if (record.heading !== undefined) record.object.heading = record.heading;
+            if (record.barrelAngle !== undefined) record.object.barrelAngle = record.barrelAngle;
+          }
+          record.object = null;
         }
-        interpolationRestore.length = 0;
+        interpolationRestoreCount = 0;
       }
       
       function applyRenderInterpolation(alpha) {
         restoreSimulationPositions();
         const ratio = clamp(Number.isFinite(alpha) ? alpha : 1, 0, 1);
-        const camRecord = { object: cam, x: cam.x, y: cam.y, zoom: cam.zoom, camera: true };
-        interpolationRestore.push(camRecord);
+        const camRecord = acquireInterpolationRestoreRecord();
+        camRecord.object = cam;
+        camRecord.x = cam.x;
+        camRecord.y = cam.y;
+        camRecord.zoom = cam.zoom;
+        camRecord.camera = true;
         const previousCamX = Number.isFinite(cam.prevX) ? cam.prevX : cam.x;
         const previousCamY = Number.isFinite(cam.prevY) ? cam.prevY : cam.y;
         const previousZoom = Number.isFinite(cam.prevZoom) ? cam.prevZoom : cam.zoom;
@@ -42735,6 +42804,7 @@ function drawStructure(s) {
     } = __imports;
 
       Object.defineProperty(__exports, "computePath", { enumerable: true, get: () => computePath }); Object.defineProperty(__exports, "dirtTiles", { enumerable: true, get: () => dirtTiles }); Object.defineProperty(__exports, "generateTerrain", { enumerable: true, get: () => generateTerrain }); Object.defineProperty(__exports, "isBlocked", { enumerable: true, get: () => isBlocked }); Object.defineProperty(__exports, "isLocallyVisibleToTeam", { enumerable: true, get: () => isLocallyVisibleToTeam }); Object.defineProperty(__exports, "isVisiblePoint", { enumerable: true, get: () => isVisiblePoint }); Object.defineProperty(__exports, "isVisibleToTeam", { enumerable: true, get: () => isVisibleToTeam }); Object.defineProperty(__exports, "nearestOpenTile", { enumerable: true, get: () => nearestOpenTile }); Object.defineProperty(__exports, "recomputeVisibility", { enumerable: true, get: () => recomputeVisibility }); Object.defineProperty(__exports, "resetTerrainGrid", { enumerable: true, get: () => resetTerrainGrid }); Object.defineProperty(__exports, "safeZones", { enumerable: true, get: () => safeZones }); Object.defineProperty(__exports, "sandTiles", { enumerable: true, get: () => sandTiles }); Object.defineProperty(__exports, "shotClear", { enumerable: true, get: () => shotClear }); Object.defineProperty(__exports, "terrain", { enumerable: true, get: () => terrain }); Object.defineProperty(__exports, "terrainRevision", { enumerable: true, get: () => terrainRevision }); Object.defineProperty(__exports, "transitionTiles", { enumerable: true, get: () => transitionTiles }); Object.defineProperty(__exports, "walkClear", { enumerable: true, get: () => walkClear });
+      Object.defineProperty(__exports, "fogCanvasForRendering", { enumerable: true, get: () => fogCanvasForRendering });
       // Terrain generation, collision tests, pathfinding, visibility, and fog state.
       // Extracted from the original single-file build; grid dimensions follow the active map mode.
       
@@ -42767,6 +42837,9 @@ function drawStructure(s) {
         for (const row of terrain) row.fill(0);
         safeZones.length = 0;
         terrainRevision++;
+        // Allocate reusable A* storage during world setup rather than on the
+        // first group order. This has no effect on terrain contents or blocking.
+        ensurePathSearchStorage();
       }
       
       const isSafe = (wx, wy) => safeZones.some(z => (wx - z.x) ** 2 + (wy - z.y) ** 2 < z.r * z.r);
@@ -42955,105 +43028,186 @@ function drawStructure(s) {
       // Binary min-heap for A*. Improved nodes are pushed again instead of paying
       // for decrease-key bookkeeping; stale entries are discarded when popped.
       class PathMinHeap {
-        constructor() { this.items = []; }
-        get length() { return this.items.length; }
+        constructor(initialCapacity = 256) {
+          const capacity = Math.max(16, initialCapacity | 0);
+          this.indices = new Int32Array(capacity);
+          this.fScores = new Float64Array(capacity);
+          this.gScores = new Float64Array(capacity);
+          this.size = 0;
+          this.poppedF = 0;
+          this.poppedG = 0;
+        }
+        get length() { return this.size; }
+        reset() { this.size = 0; }
+        ensureCapacity(required) {
+          if (required <= this.indices.length) return;
+          let capacity = this.indices.length;
+          while (capacity < required) capacity *= 2;
+          const indices = new Int32Array(capacity);
+          const fScores = new Float64Array(capacity);
+          const gScores = new Float64Array(capacity);
+          indices.set(this.indices);
+          fScores.set(this.fScores);
+          gScores.set(this.gScores);
+          this.indices = indices;
+          this.fScores = fScores;
+          this.gScores = gScores;
+        }
         push(i, f, g) {
-          const items = this.items;
-          let index = items.length;
-          const node = { i, f, g };
-          items.push(node);
+          const nextSize = this.size + 1;
+          this.ensureCapacity(nextSize);
+          const indices = this.indices;
+          const fScores = this.fScores;
+          const gScores = this.gScores;
+          let index = this.size;
+          this.size = nextSize;
           while (index > 0) {
             const parent = (index - 1) >> 1;
-            const parentNode = items[parent];
-            if (parentNode.f < f || (parentNode.f === f && parentNode.g <= g)) break;
-            items[index] = parentNode;
+            const parentF = fScores[parent], parentG = gScores[parent];
+            if (parentF < f || (parentF === f && parentG <= g)) break;
+            indices[index] = indices[parent];
+            fScores[index] = parentF;
+            gScores[index] = parentG;
             index = parent;
           }
-          items[index] = node;
+          indices[index] = i;
+          fScores[index] = f;
+          gScores[index] = g;
         }
         pop() {
-          const items = this.items;
-          if (!items.length) return null;
-          const root = items[0];
-          const tail = items.pop();
-          if (!items.length) return root;
+          if (!this.size) return -1;
+          const indices = this.indices;
+          const fScores = this.fScores;
+          const gScores = this.gScores;
+          const rootI = indices[0], rootF = fScores[0], rootG = gScores[0];
+          const tailSlot = this.size - 1;
+          const tailI = indices[tailSlot], tailF = fScores[tailSlot], tailG = gScores[tailSlot];
+          this.size = tailSlot;
+          this.poppedF = rootF;
+          this.poppedG = rootG;
+          if (!tailSlot) return rootI;
           let index = 0;
-          const length = items.length;
+          const length = tailSlot;
           while (true) {
             const left = index * 2 + 1;
             if (left >= length) break;
             const right = left + 1;
             let child = left;
             if (right < length) {
-              const leftNode = items[left], rightNode = items[right];
-              if (rightNode.f < leftNode.f || (rightNode.f === leftNode.f && rightNode.g < leftNode.g)) child = right;
+              const leftF = fScores[left], rightF = fScores[right];
+              if (rightF < leftF || (rightF === leftF && gScores[right] < gScores[left])) child = right;
             }
-            const childNode = items[child];
-            if (childNode.f > tail.f || (childNode.f === tail.f && childNode.g >= tail.g)) break;
-            items[index] = childNode;
+            const childF = fScores[child], childG = gScores[child];
+            if (childF > tailF || (childF === tailF && childG >= tailG)) break;
+            indices[index] = indices[child];
+            fScores[index] = childF;
+            gScores[index] = childG;
             index = child;
           }
-          items[index] = tail;
-          return root;
+          indices[index] = tailI;
+          fScores[index] = tailF;
+          gScores[index] = tailG;
+          return rootI;
         }
+      }
+
+      // Reused flat search storage. Each path owns two consecutive generation
+      // values: `generation` means discovered/open and `generation + 1` means
+      // closed. Stale scores and predecessors are ignored unless their stamp is
+      // from the current search, so no grid-sized clear is needed between calls.
+      let pathGScores = new Float64Array(0);
+      let pathCameFrom = new Int32Array(0);
+      let pathNodeGeneration = new Uint32Array(0);
+      let pathSearchGeneration = 0;
+      const pathOpen = new PathMinHeap();
+
+      function ensurePathSearchStorage() {
+        const required = __imports.COLS * __imports.ROWS;
+        if (pathGScores.length === required) return;
+        pathGScores = new Float64Array(required);
+        pathGScores.fill(Infinity);
+        pathCameFrom = new Int32Array(required);
+        pathCameFrom.fill(-1);
+        pathNodeGeneration = new Uint32Array(required);
+        pathSearchGeneration = 0;
+        pathOpen.reset();
+        pathOpen.ensureCapacity(Math.max(256, required));
+      }
+
+      function nextPathSearchGeneration() {
+        pathSearchGeneration = (pathSearchGeneration + 2) >>> 0;
+        if (pathSearchGeneration === 0) {
+          // This runs only after roughly 2.1 billion path calls. Clearing the
+          // stamps at wrap prevents an ancient search from becoming current.
+          pathNodeGeneration.fill(0);
+          pathSearchGeneration = 2;
+        }
+        return pathSearchGeneration;
       }
       
       function computePath(sx, sy, gx, gy) {
-        let sTx = clamp(Math.floor(sx / TILE), 0, __imports.COLS - 1);
-        let sTy = clamp(Math.floor(sy / TILE), 0, __imports.ROWS - 1);
-        let gTx = clamp(Math.floor(gx / TILE), 0, __imports.COLS - 1);
-        let gTy = clamp(Math.floor(gy / TILE), 0, __imports.ROWS - 1);
+        pathOpen.reset();
+        const cols = __imports.COLS, rows = __imports.ROWS;
+        let sTx = clamp(Math.floor(sx / TILE), 0, cols - 1);
+        let sTy = clamp(Math.floor(sy / TILE), 0, rows - 1);
+        let gTx = clamp(Math.floor(gx / TILE), 0, cols - 1);
+        let gTy = clamp(Math.floor(gy / TILE), 0, rows - 1);
         if (terrain[sTy][sTx] !== 0) { const o = nearestOpenTile(sTx, sTy); sTx = o.tx; sTy = o.ty; }
         let goalWorld = { x: gx, y: gy };
         if (terrain[gTy][gTx] !== 0) {
           const o = nearestOpenTile(gTx, gTy); gTx = o.tx; gTy = o.ty;
           goalWorld = { x: gTx * TILE + TILE / 2, y: gTy * TILE + TILE / 2 };
         }
+        ensurePathSearchStorage();
+        const openGeneration = nextPathSearchGeneration();
         if (sTx === gTx && sTy === gTy) return [goalWorld];
       
-        const idx = (x, y) => y * __imports.COLS + x;
+        const idx = (x, y) => y * cols + x;
         const startI = idx(sTx, sTy), goalI = idx(gTx, gTy);
-        const came = new Map();
-        const g = new Map([[startI, 0]]);
-        const closed = new Set();
+        const closedGeneration = openGeneration + 1;
+        pathNodeGeneration[startI] = openGeneration;
+        pathGScores[startI] = 0;
+        pathCameFrom[startI] = -1;
         const h = (x, y) => { const dx = Math.abs(x - gTx), dy = Math.abs(y - gTy); return (dx + dy) + (1.4142 - 2) * Math.min(dx, dy); };
-        const open = new PathMinHeap();
-        open.push(startI, h(sTx, sTy), 0);
+        pathOpen.push(startI, h(sTx, sTy), 0);
         let guard = 0;
-        while (open.length && guard++ < 20000) {
-          const cur = open.pop();
-          if (!cur) break;
-          const bestKnown = g.get(cur.i);
-          if (closed.has(cur.i) || bestKnown === undefined || cur.g !== bestKnown) continue;
-          if (cur.i === goalI) break;
-          closed.add(cur.i);
-          const cx = cur.i % __imports.COLS, cy = (cur.i / __imports.COLS) | 0;
+        while (pathOpen.length && guard++ < 20000) {
+          const curI = pathOpen.pop();
+          if (curI < 0) break;
+          const curG = pathOpen.poppedG;
+          if (pathNodeGeneration[curI] === closedGeneration
+            || pathNodeGeneration[curI] !== openGeneration
+            || curG !== pathGScores[curI]) continue;
+          if (curI === goalI) break;
+          pathNodeGeneration[curI] = closedGeneration;
+          const cx = curI % cols, cy = (curI / cols) | 0;
           for (const [ox, oy, cost] of NB) {
             const nx = cx + ox, ny = cy + oy;
-            if (nx < 0 || ny < 0 || nx >= __imports.COLS || ny >= __imports.ROWS) continue;
+            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
             if (terrain[ny][nx] !== 0) continue;
             if (ox !== 0 && oy !== 0) {                  // no cutting through blocked corners
               if (terrain[cy][nx] !== 0 || terrain[ny][cx] !== 0) continue;
             }
             const ni = idx(nx, ny);
-            if (closed.has(ni)) continue;
-            const tentative = cur.g + cost;
-            const known = g.get(ni);
+            if (pathNodeGeneration[ni] === closedGeneration) continue;
+            const tentative = curG + cost;
+            const known = pathNodeGeneration[ni] === openGeneration ? pathGScores[ni] : undefined;
             if (known === undefined || tentative < known) {
-              came.set(ni, cur.i);
-              g.set(ni, tentative);
-              open.push(ni, tentative + h(nx, ny), tentative);
+              pathCameFrom[ni] = curI;
+              pathGScores[ni] = tentative;
+              pathNodeGeneration[ni] = openGeneration;
+              pathOpen.push(ni, tentative + h(nx, ny), tentative);
             }
           }
         }
-        if (!came.has(goalI)) return null;
+        if (pathNodeGeneration[goalI] !== openGeneration || pathCameFrom[goalI] < 0) return null;
         // Reconstruct tile path.
         const tiles = [];
         let ci = goalI;
-        while (ci !== startI) { tiles.push(ci); ci = came.get(ci); if (ci === undefined) return null; }
+        while (ci !== startI) { tiles.push(ci); ci = pathCameFrom[ci]; if (ci < 0) return null; }
         tiles.reverse();
         // Build world waypoints, then string-pull to remove needless zig-zag.
-        const raw = tiles.map(i => ({ x: (i % __imports.COLS) * TILE + TILE / 2, y: (((i / __imports.COLS) | 0)) * TILE + TILE / 2 }));
+        const raw = tiles.map(i => ({ x: (i % cols) * TILE + TILE / 2, y: (((i / cols) | 0)) * TILE + TILE / 2 }));
         raw[raw.length - 1] = goalWorld;
         const pts = [{ x: sx, y: sy }, ...raw];
         const out = [pts[0]];
@@ -43071,6 +43225,81 @@ function drawStructure(s) {
       // ---------------------------------------------------------------------------
       // Visibility / fog
       // ---------------------------------------------------------------------------
+      const FOG_EXPLORED_RGBA = Object.freeze([5, 9, 13, Math.round(.62 * 255)]);
+      const FOG_UNEXPLORED_RGBA = Object.freeze([2, 4, 7, Math.round(.96 * 255)]);
+      let fogCanvas = null;
+      let fogContext = null;
+      let fogImageData = null;
+      let fogCacheCols = 0;
+      let fogCacheRows = 0;
+
+      function createFogCanvas(cols, rows) {
+        if (typeof globalThis.OffscreenCanvas === 'function') return new globalThis.OffscreenCanvas(cols, rows);
+        const documentRef = globalThis.document;
+        if (!documentRef?.createElement) return null;
+        const canvas = documentRef.createElement('canvas');
+        canvas.width = cols;
+        canvas.height = rows;
+        canvas.style.display = 'none';
+        canvas.setAttribute('aria-hidden', 'true');
+        return canvas;
+      }
+
+      function ensureFogCanvas() {
+        const cols = Math.max(1, __imports.COLS | 0);
+        const rows = Math.max(1, __imports.ROWS | 0);
+        if (!fogCanvas) fogCanvas = createFogCanvas(cols, rows);
+        if (!fogCanvas) return null;
+        const resized = fogCanvas.width !== cols || fogCanvas.height !== rows;
+        if (resized) {
+          fogCanvas.width = cols;
+          fogCanvas.height = rows;
+        }
+        if (!fogContext || resized) fogContext = fogCanvas.getContext('2d', { alpha: true });
+        if (!fogContext) return null;
+        if (!fogImageData || fogCacheCols !== cols || fogCacheRows !== rows) {
+          const imageData = typeof fogContext.createImageData === 'function'
+            ? fogContext.createImageData(cols, rows)
+            : null;
+          fogImageData = imageData?.data
+            ? imageData
+            : { data: new Uint8ClampedArray(cols * rows * 4), width: cols, height: rows };
+          fogCacheCols = cols;
+          fogCacheRows = rows;
+        }
+        return { canvas: fogCanvas, context: fogContext, imageData: fogImageData, cols, rows };
+      }
+
+      function repaintFogCanvas() {
+        const cache = ensureFogCanvas();
+        if (!cache) return;
+        const pixels = cache.imageData.data;
+        let offset = 0;
+        for (let y = 0; y < cache.rows; y++) {
+          const visibleRow = __imports.state.visible[y];
+          const exploredRow = __imports.state.explored[y];
+          for (let x = 0; x < cache.cols; x++, offset += 4) {
+            if (visibleRow[x]) {
+              pixels[offset] = 0;
+              pixels[offset + 1] = 0;
+              pixels[offset + 2] = 0;
+              pixels[offset + 3] = 0;
+              continue;
+            }
+            const color = exploredRow[x] ? FOG_EXPLORED_RGBA : FOG_UNEXPLORED_RGBA;
+            pixels[offset] = color[0];
+            pixels[offset + 1] = color[1];
+            pixels[offset + 2] = color[2];
+            pixels[offset + 3] = color[3];
+          }
+        }
+        cache.context.putImageData(cache.imageData, 0, 0);
+      }
+
+      function fogCanvasForRendering() {
+        return fogCanvas;
+      }
+
       function recomputeVisibility(team = getActiveCommandTeam() || __imports.state.activeCommandTeam || HUMAN_TEAM) {
         if (typeof globalThis !== 'undefined' && Number.isFinite(globalThis.__fogRecomputeCount)) globalThis.__fogRecomputeCount++;
         for (let y = 0; y < __imports.ROWS; y++) __imports.state.visible[y].fill(false);
@@ -43142,6 +43371,7 @@ function drawStructure(s) {
           }
         }
         for (const n of __imports.resourceNodes) n.visible = isVisiblePoint(n.x, n.y);
+        repaintFogCanvas();
       }
       function isVisiblePoint(x, y) {
         const tx = clamp(Math.floor(x / TILE), 0, __imports.COLS - 1);
@@ -43372,16 +43602,19 @@ function drawStructure(s) {
 
   __define("workerBridge.js", function (__exports, __require) {
     const __imports = Object.create(null);
+    // Resolve terrain lazily because terrain.js imports this bridge during startup.
+    // The live module object is cached only after both factories have initialized.
+    let __terrainModule = null;
     
     
 
 
-      Object.defineProperty(__exports, "cancelPathfindingRequest", { enumerable: true, get: () => cancelPathfindingRequest }); Object.defineProperty(__exports, "initializePerformanceWorkers", { enumerable: true, get: () => initializePerformanceWorkers }); Object.defineProperty(__exports, "performanceWorkerStatus", { enumerable: true, get: () => performanceWorkerStatus }); Object.defineProperty(__exports, "requestAIAnalysis", { enumerable: true, get: () => requestAIAnalysis }); Object.defineProperty(__exports, "requestPathfinding", { enumerable: true, get: () => requestPathfinding }); Object.defineProperty(__exports, "setDeterministicLockstepMode", { enumerable: true, get: () => setDeterministicLockstepMode }); Object.defineProperty(__exports, "syncPathfindingTerrain", { enumerable: true, get: () => syncPathfindingTerrain });
+      Object.defineProperty(__exports, "cancelPathfindingRequest", { enumerable: true, get: () => cancelPathfindingRequest }); Object.defineProperty(__exports, "initializePerformanceWorkers", { enumerable: true, get: () => initializePerformanceWorkers }); Object.defineProperty(__exports, "performanceWorkerStatus", { enumerable: true, get: () => performanceWorkerStatus }); Object.defineProperty(__exports, "processDeterministicPathfindingTick", { enumerable: true, get: () => processDeterministicPathfindingTick }); Object.defineProperty(__exports, "requestAIAnalysis", { enumerable: true, get: () => requestAIAnalysis }); Object.defineProperty(__exports, "requestPathfinding", { enumerable: true, get: () => requestPathfinding }); Object.defineProperty(__exports, "setDeterministicLockstepMode", { enumerable: true, get: () => setDeterministicLockstepMode }); Object.defineProperty(__exports, "syncPathfindingTerrain", { enumerable: true, get: () => syncPathfindingTerrain });
       // Background computation bridge for pathfinding and computer-player analysis.
       // Workers are created from Blob sources so the modular game and generated
-      // standalone builds do not need separate worker URLs. Every public request
-      // returns false when workers are unavailable, allowing callers to use their
-      // existing synchronous fallback without changing gameplay.
+      // standalone builds do not need separate worker URLs. Lockstep path requests
+      // use the deterministic per-tick FIFO below; other worker-unavailable modes
+      // return false so callers retain their synchronous compatibility fallback.
       
       const PATH_WORKER_SOURCE = String.raw`
       let terrain = null;
@@ -43648,6 +43881,18 @@ function drawStructure(s) {
       let aiRequestId = 1;
       const pathCallbacks = new Map();
       const aiCallbacks = new Map();
+      const DETERMINISTIC_PATH_REQUESTS_PER_TICK = 1;
+      let deterministicPathQueue = [];
+      let deterministicPathQueueHead = 0;
+      let deterministicPathTick = -1;
+      let deterministicPathsProcessedLastTick = 0;
+
+      function resetDeterministicPathQueue() {
+        deterministicPathQueue.length = 0;
+        deterministicPathQueueHead = 0;
+        deterministicPathTick = -1;
+        deterministicPathsProcessedLastTick = 0;
+      }
       
       function createBlobWorker(source, name) {
         if (typeof Worker !== 'function' || typeof Blob !== 'function' || typeof URL?.createObjectURL !== 'function') return null;
@@ -43710,6 +43955,7 @@ function drawStructure(s) {
       
       function setDeterministicLockstepMode(enabled) {
         deterministicLockstepMode = !!enabled;
+        resetDeterministicPathQueue();
         if (!deterministicLockstepMode) return false;
         if (pathWorker) pathWorker.terminate();
         if (aiWorker) aiWorker.terminate();
@@ -43738,12 +43984,61 @@ function drawStructure(s) {
       }
       
       function requestPathfinding(sx, sy, gx, gy, callback) {
+        if (typeof callback !== 'function') return false;
+        if (deterministicLockstepMode) {
+          const id = pathRequestId++;
+          pathCallbacks.set(id, callback);
+          deterministicPathQueue.push({ id, sx, sy, gx, gy });
+          return id;
+        }
         initializePerformanceWorkers();
-        if (!pathWorker || pathTerrainRevision < 0 || typeof callback !== 'function') return false;
+        if (!pathWorker || pathTerrainRevision < 0) return false;
         const id = pathRequestId++;
         pathCallbacks.set(id, callback);
         pathWorker.postMessage({ type: 'path', id, sx, sy, gx, gy, revision: pathTerrainRevision });
         return id;
+      }
+
+      function processDeterministicPathfindingTick(tick) {
+        if (!deterministicLockstepMode) return 0;
+        const normalizedTick = Math.max(0, Math.trunc(Number(tick) || 0));
+        if (normalizedTick === deterministicPathTick) return 0;
+        deterministicPathTick = normalizedTick;
+        deterministicPathsProcessedLastTick = 0;
+
+        // Snapshot the tail: requests created by callbacks are always deferred to
+        // the following simulation tick, preserving a strict FIFO boundary.
+        const queuedThrough = deterministicPathQueue.length;
+        while (deterministicPathsProcessedLastTick < DETERMINISTIC_PATH_REQUESTS_PER_TICK
+          && deterministicPathQueueHead < queuedThrough) {
+          const job = deterministicPathQueue[deterministicPathQueueHead++];
+          const callback = pathCallbacks.get(job.id);
+          if (!callback) continue;
+          pathCallbacks.delete(job.id);
+          let path = null;
+          let error = null;
+          try {
+            const computePath = (__terrainModule ||= __require("terrain.js")).computePath;
+            if (typeof computePath !== 'function') throw new Error('terrain.computePath unavailable');
+            path = computePath(job.sx, job.sy, job.gx, job.gy);
+          } catch (reason) {
+            error = String(reason?.message || reason || 'pathfinding-failed');
+          }
+          deterministicPathsProcessedLastTick++;
+          callback(path, {
+            type: 'pathResult', id: job.id, revision: pathTerrainRevision,
+            deterministicMainThread: true, tick: normalizedTick, error
+          });
+        }
+
+        if (deterministicPathQueueHead === deterministicPathQueue.length) {
+          deterministicPathQueue.length = 0;
+          deterministicPathQueueHead = 0;
+        } else if (deterministicPathQueueHead >= 1024) {
+          deterministicPathQueue = deterministicPathQueue.slice(deterministicPathQueueHead);
+          deterministicPathQueueHead = 0;
+        }
+        return deterministicPathsProcessedLastTick;
       }
       
       function cancelPathfindingRequest(id) {
@@ -43767,7 +44062,11 @@ function drawStructure(s) {
           ai: !!aiWorker,
           terrainRevision: pathTerrainRevision,
           pendingPaths: pathCallbacks.size,
-          pendingAI: aiCallbacks.size
+          pendingAI: aiCallbacks.size,
+          deterministicPathBudget: DETERMINISTIC_PATH_REQUESTS_PER_TICK,
+          deterministicPathQueueDepth: deterministicPathQueue.length - deterministicPathQueueHead,
+          deterministicPathTick,
+          deterministicPathsProcessedLastTick
         };
       }
 
