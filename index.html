@@ -30722,7 +30722,7 @@ function compileShader(gl, type, source) {
       teamLabel, factionBuildMenuEntries, factionProductionTypes, factionUnitRequirements, factionCanUseBuilding, factionStructureLabel,
       factionUnitLabel, insectHiveEvolutionSpec, insectHiveTierLabel, teamFactionId, normalizeGroundTagDefinition, unitAnimationPose,
       unitUpgradeData, unitUpgradeTiers, getKeybinds, keybindCodeLabel, getActiveCommandTeam, queueCommand,
-      canvas, resizeGameCanvas, cam, ctx, resourceFields, resourceNodes,
+      canvas, resizeGameCanvas, cam, ctx: gameCtx, resourceFields, resourceNodes,
       screenToWorld, state, structures, units, dirtTiles, isBlocked,
       isLocallyVisibleToTeam, sandTiles, terrain, transitionTiles, clearCommandMenu, isCommandConsolePoint,
       drawCommandPanel, drawConsoleText, drawPixelResourceIcon, setCommandMenu, commandConsoleLayout, isMobileUI,
@@ -30747,6 +30747,259 @@ function compileShader(gl, type, source) {
       let heliasPowerFieldMaskCanvas = null;
       let heliasPowerFieldMaskContext = null;
       let heliasPowerFieldMaskKey = '';
+      // Entity vector art is routed through this mutable renderer-local context
+      // only while a sprite is baked. The imported gameplay canvas context itself
+      // is never replaced or exposed outside rendering.js.
+      let ctx = gameCtx;
+
+      const ENTITY_SPRITE_CACHE_LIMIT = 192;
+      const ENTITY_SPRITE_CACHE_MAX_BYTES = 72 * 1024 * 1024;
+      const entitySpriteCache = new Map();
+      const entitySpriteSlots = new Map();
+      let entitySpriteCacheBytes = 0;
+      let entitySpriteCacheUnavailable = false;
+      let entitySpriteCacheWarningShown = false;
+
+      const UNIT_CLOCK_ANIMATED_TYPES = new Set([
+        'forceFieldTruck', 'radar', 'antiAirFighter', 'bomber', 'helicopter', 'doubleChopper',
+        'insectOverlord', 'insectWasp', 'insectSkyblight', 'insectBroodReaver', 'insectBroodCarrier',
+        'insectSwarmling', 'insectBurstling', 'insectSpitter', 'insectQueen', 'forager', 'roboMiner',
+        'mechanic', 'healer', 'mecha', 'jeep', 'armoredJeep', 'heliasVanguard', 'heliasSentry',
+        'heliasCarrier', 'heliasObserver', 'heliasPhoenix', 'heliasVoidRay'
+      ]);
+      const UNIT_INTERNAL_HEADING_TYPES = new Set([
+        'insectOverlord', 'mecha', 'jeep', 'armoredJeep', 'titanTank', 'heliasCarrier'
+      ]);
+
+      const UNIT_SPRITE_VISUAL_KEYS = Object.freeze([
+        'type', 'team', 'radius', 'animation', 'carryType', 'carrying', 'acePilot', 'antiAirMissiles',
+        'attackSpeedBoost', 'canBombTroops', 'doubleBlades', 'doubleGatling', 'doubleMachineGun',
+        'doubleMissiles', 'electroJeep', 'enemyVisionReduction', 'engineer', 'extendedRangeOptics',
+        'fortressLock', 'fortressMode', 'gatlingGun', 'heavyShells', 'industrialCargoSystem',
+        'javelinMissile', 'megaBurner', 'mortarSetup', 'mountedMissile', 'nukeBombs', 'phase',
+        'poweredGatheringTools', 'queenInjectAutocast', 'queenInjectCooldownLeft',
+        'queenPulseCooldownLeft', 'rapidExtraction', 'reactivePlating', 'reinforcedCargoPods',
+        'rocketLauncher', 'splashHealing', 'templeSkyarkBoostUntil', 'voidRayCharge'
+      ]);
+
+      const STRUCTURE_SPRITE_VISUAL_KEYS = Object.freeze([
+        'type', 'team', 'w', 'h', 'level', 'barrelAngle', 'campaignActive', 'campaignLabel',
+        'creepGrowth', 'creepTumorSpreadCooldownLeft', 'creepTumorSpreadUsed', 'damage', 'heading',
+        'hutUpgrade', 'larvaCount', 'larvaInjectTimeLeft', 'powered', 'radarRange', 'range',
+        'templeMineArmLeft', 'warpGate', 'warpGateCooldownLeft'
+      ]);
+
+      function spriteResolutionForZoom() {
+        const zoom = Number(cam.zoom) || 1;
+        const pixelRatio = Math.max(1, Math.min(3, Number(state.canvasPixelRatio) || Number(globalThis.devicePixelRatio) || 1));
+        const effectiveZoom = zoom * pixelRatio;
+        return effectiveZoom < .72 ? 1.5 : effectiveZoom < 1.35 ? 2.25 : 3;
+      }
+
+      function spriteSignatureValue(value) {
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'number') return Number.isFinite(value) ? String(value) : '0';
+        if (typeof value === 'boolean') return value ? '1' : '0';
+        return String(value).replace(/[|:]/g, '_');
+      }
+
+      function spritePrimitiveSignature(entity, keys) {
+        let signature = '';
+        for (const key of keys) signature += `${key}:${spriteSignatureValue(entity?.[key])}|`;
+        return signature;
+      }
+
+      function spriteJobSignature(job) {
+        if (!job) return '';
+        return [job.type, job.kind, job.researchKind, job.upgradeId, job.toLevel,
+          job.timeLeft, job.total, job.totalTime, job.consumedLarva ? 1 : 0]
+          .map(spriteSignatureValue).join(':');
+      }
+
+      function unitSpriteSignatures(u, faction, team, light, resolution) {
+        const target = u.target && u.target.hp > 0
+          ? `${u.target.id || ''}:${u.target.team || ''}:${u.target.x || 0}:${u.target.y || 0}:${u.target.hp || 0}`
+          : '';
+        const permanent = `${u.type}|${faction}|${team}|${light}|z${cam.zoom}|r${resolution}|ui${isMobileUI() ? 1 : 0}|` +
+          spritePrimitiveSignature(u, UNIT_SPRITE_VISUAL_KEYS);
+        const clockPose = UNIT_CLOCK_ANIMATED_TYPES.has(u.type)
+          ? `${state.elapsed}:${u.id}:${u.flightPhase || 0}`
+          : 'still';
+        const pose = `${clockPose}|h${UNIT_INTERNAL_HEADING_TYPES.has(u.type) ? u.heading || 0 : 0}` +
+          `|m${u.motionPhase || 0}|a${u.attackAnim || 0}|t${target}`;
+        const slotKey = UNIT_CLOCK_ANIMATED_TYPES.has(u.type) || UNIT_INTERNAL_HEADING_TYPES.has(u.type)
+          ? `unit:${u.id}|${u.type}|${faction}|${team}|z${cam.zoom}|r${resolution}`
+          : `unit-static:${permanent}`;
+        return { slotKey, key: `u|${permanent}|p${pose}` };
+      }
+
+      function structureSpriteSignatures(s, faction, team, light, resolution) {
+        const queue = Array.isArray(s.queue) ? s.queue.map(spriteJobSignature).join(',') : '';
+        const jobs = [s.conversionJob, s.gatewayTransformJob, s.hiveEvolutionJob, s.labJob,
+          s.researchJob, s.turretTechJob, s.upgradeJob, s.warpInJob].map(spriteJobSignature).join(',');
+        const target = s.target && s.target.hp > 0 ? `${s.target.id || ''}:${s.target.team || ''}` : '';
+        const researchCount = (s.insectUpgradeJob ? 1 : 0) +
+          (Array.isArray(s.insectUpgradeQueue) ? s.insectUpgradeQueue.filter(Boolean).length : 0);
+        const powered = faction === 'helias' && !renderHeliasStructurePowered(s) ? 0 : 1;
+        const details = structureDetailsVisible(s) ? 1 : 0;
+        const permanent = `${s.type}|${faction}|${team}|${light}|z${cam.zoom}|r${resolution}|ui${isMobileUI() ? 1 : 0}|` +
+          spritePrimitiveSignature(s, STRUCTURE_SPRITE_VISUAL_KEYS);
+        const pose = `${state.elapsed}:${s.id}|q${queue}|j${jobs}|t${target}|r${researchCount}|p${powered}|d${details}`;
+        return {
+          slotKey: `structure:${s.id}|${s.type}|${faction}|${team}|z${cam.zoom}|r${resolution}`,
+          key: `s|${permanent}|p${pose}`
+        };
+      }
+
+      function createEntitySpriteCanvas(width, height) {
+        if (typeof OffscreenCanvas === 'function') return new OffscreenCanvas(width, height);
+        if (typeof document === 'undefined') return null;
+        const surface = document.createElement('canvas');
+        surface.width = width;
+        surface.height = height;
+        surface.hidden = true;
+        surface.setAttribute('aria-hidden', 'true');
+        return surface;
+      }
+
+      function removeEntitySpriteEntry(key, entry) {
+        entitySpriteCache.delete(key);
+        entitySpriteCacheBytes = Math.max(0, entitySpriteCacheBytes - (entry.bytes || 0));
+        if (entitySpriteSlots.get(entry.slotKey) === key) entitySpriteSlots.delete(entry.slotKey);
+      }
+
+      function trimEntitySpriteCache(protectedKey = '') {
+        while ((entitySpriteCache.size > ENTITY_SPRITE_CACHE_LIMIT || entitySpriteCacheBytes > ENTITY_SPRITE_CACHE_MAX_BYTES) && entitySpriteCache.size > 1) {
+          const oldestKey = entitySpriteCache.keys().next().value;
+          if (oldestKey === protectedKey) {
+            const protectedEntry = entitySpriteCache.get(oldestKey);
+            entitySpriteCache.delete(oldestKey);
+            entitySpriteCache.set(oldestKey, protectedEntry);
+            continue;
+          }
+          removeEntitySpriteEntry(oldestKey, entitySpriteCache.get(oldestKey));
+        }
+      }
+
+      function getCachedEntitySprite(key) {
+        const hit = entitySpriteCache.get(key);
+        if (!hit) return null;
+        entitySpriteCache.delete(key);
+        entitySpriteCache.set(key, hit);
+        return hit;
+      }
+
+      function cachedEntitySprite(key, slotKey, logicalWidth, logicalHeight, resolution, bake) {
+        if (entitySpriteCacheUnavailable) return null;
+        const hit = getCachedEntitySprite(key);
+        if (hit) return hit;
+
+        let entry = null;
+        const previousKey = entitySpriteSlots.get(slotKey);
+        if (previousKey) {
+          entry = entitySpriteCache.get(previousKey) || null;
+          if (entry) removeEntitySpriteEntry(previousKey, entry);
+        }
+
+        const width = Math.max(1, Math.ceil(logicalWidth * resolution));
+        const height = Math.max(1, Math.ceil(logicalHeight * resolution));
+        try {
+          if (!entry) {
+            const surface = createEntitySpriteCanvas(width, height);
+            if (!surface) return null;
+            const spriteContext = surface.getContext('2d', { alpha: true, desynchronized: true });
+            if (!spriteContext) {
+              entitySpriteCacheUnavailable = true;
+              return null;
+            }
+            entry = { surface, context: spriteContext };
+          } else if (entry.surface.width !== width || entry.surface.height !== height) {
+            entry.surface.width = width;
+            entry.surface.height = height;
+          }
+
+          const spriteContext = entry.context;
+          spriteContext.setTransform(1, 0, 0, 1, 0, 0);
+          spriteContext.globalAlpha = 1;
+          spriteContext.globalCompositeOperation = 'source-over';
+          spriteContext.clearRect(0, 0, width, height);
+          spriteContext.imageSmoothingEnabled = true;
+          bake(spriteContext, width, height, resolution);
+
+          entry.key = key;
+          entry.slotKey = slotKey;
+          entry.logicalWidth = logicalWidth;
+          entry.logicalHeight = logicalHeight;
+          entry.resolution = resolution;
+          entry.bytes = width * height * 4;
+          entitySpriteCache.set(key, entry);
+          entitySpriteSlots.set(slotKey, key);
+          entitySpriteCacheBytes += entry.bytes;
+          trimEntitySpriteCache(key);
+          return entry;
+        } catch (error) {
+          entitySpriteCacheUnavailable = true;
+          if (!entitySpriteCacheWarningShown && typeof console !== 'undefined') {
+            entitySpriteCacheWarningShown = true;
+            console.warn('Entity sprite cache unavailable; using procedural rendering.', error);
+          }
+          return null;
+        }
+      }
+
+      const entitySpriteBakeQueue = new Map();
+      let entitySpriteBakeScheduled = false;
+
+      function scheduleEntitySpriteBakeQueue() {
+        if (entitySpriteBakeScheduled || !entitySpriteBakeQueue.size || entitySpriteCacheUnavailable) return;
+        entitySpriteBakeScheduled = true;
+        const run = deadline => {
+          entitySpriteBakeScheduled = false;
+          let completed = 0;
+          while (entitySpriteBakeQueue.size) {
+            const [slotKey, job] = entitySpriteBakeQueue.entries().next().value;
+            entitySpriteBakeQueue.delete(slotKey);
+            if (!getCachedEntitySprite(job.key) && job.isCurrent()) job.bake();
+            completed++;
+            // A fallback timer deliberately handles one sprite at a time. Native
+            // idle callbacks may fill more of the browser's reported idle budget.
+            if (completed >= 4 || (deadline?.didTimeout && completed >= 1) ||
+                (!deadline?.didTimeout && (deadline?.timeRemaining?.() || 0) < 2) || !deadline?.timeRemaining) break;
+          }
+          if (entitySpriteBakeQueue.size) scheduleEntitySpriteBakeQueue();
+        };
+        if (typeof globalThis.requestIdleCallback === 'function') {
+          globalThis.requestIdleCallback(run, { timeout: 120 });
+        } else if (typeof globalThis.setTimeout === 'function') {
+          globalThis.setTimeout(() => run({ didTimeout: true, timeRemaining: () => 0 }), 0);
+        } else {
+          entitySpriteBakeScheduled = false;
+        }
+      }
+
+      function queueEntitySpriteBake(key, slotKey, isCurrent, bake) {
+        if (entitySpriteCacheUnavailable || entitySpriteCache.has(key)) return;
+        // One pending job per reusable animation slot keeps a busy frame from
+        // accumulating obsolete poses while the browser has no idle budget.
+        entitySpriteBakeQueue.set(slotKey, { key, isCurrent, bake });
+        while (entitySpriteBakeQueue.size > ENTITY_SPRITE_CACHE_LIMIT) {
+          entitySpriteBakeQueue.delete(entitySpriteBakeQueue.keys().next().value);
+        }
+        scheduleEntitySpriteBakeQueue();
+      }
+
+      function bakeWithEntitySpriteContext(spriteContext, transform, drawBody) {
+        const previousContext = ctx;
+        ctx = spriteContext;
+        try {
+          spriteContext.save();
+          transform(spriteContext);
+          drawBody();
+          spriteContext.restore();
+        } finally {
+          ctx = previousContext;
+        }
+      }
 
       function activeCommandTeam() {
         return getActiveCommandTeam() || state.activeCommandTeam || 'player';
@@ -37004,51 +37257,81 @@ function drawStructure(s) {
   const pendingOrganicDrone = s.underConstruction && !s.constructionStarted && constructionFaction === 'insects';
   if (s.underConstruction && !heliasConstruction && !insectConstruction) ctx.globalAlpha = s.constructionStarted ? .7 : pendingOrganicDrone ? .82 : .46;
 
-  if (heliasConstruction) drawHeliasConstructionOrb(s, x, y, team, light, flash);
-  else if (insectConstruction) drawInsectConstructionBubo(s, x, y, team, light, flash);
-  else if (pendingOrganicDrone) {
-    ctx.save();
-    ctx.strokeStyle = '#b8ff63';
-    ctx.lineWidth = 2 / cam.zoom;
-    ctx.setLineDash([5 / cam.zoom, 4 / cam.zoom]);
-    ctx.beginPath(); ctx.ellipse(s.x, s.y, Math.max(12, s.w * .34), Math.max(9, s.h * .28), 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(169,93,143,.32)';
-    ctx.beginPath(); ctx.ellipse(s.x, s.y, Math.max(9, s.w * .22), Math.max(7, s.h * .18), 0, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-  } else if ((s.type === 'hq' || s.type === 'broodHive') && teamFactionId(s.team, state.teamFactions) === 'insects') drawInsectHiveStructure(s, x, y, team, light, flash);
-  else if (s.type === 'gasExtractor' && teamFactionId(s.team, state.teamFactions) === 'insects') drawInsectGasExtractorStructure(s, x, y, team, light, flash);
-  else if (s.type === 'spawningNest') drawSpawningNestStructure(s, x, y, team, light, flash);
-  else if (drawZglengloBioTechStructure(s, x, y, team, light, flash)) { /* dedicated renderer applied */ }
-  else if (s.type === 'creepTumor') drawCreepTumorStructure(s, x, y, team, light, flash);
-  else if (s.type === 'thornmawCrawler') drawInsectDefenseStructure(s, x, y, team, light, flash, false);
-  else if (s.type === 'skysporeSentinel') drawInsectDefenseStructure(s, x, y, team, light, flash, true);
-  else if (s.type === 'heliasTempleMine') drawHeliasTempleMineStructure(s);
-  else if (s.type === 'heliasPylon') drawHeliasPylonStructure(s, x, y, team, light, flash);
-  else if (s.type === 'heliasTemple') drawHeliasTempleStructure(s, x, y, team, light, flash);
-  else if (s.type === 'heliasGateway') drawHeliasGatewayStructure(s, x, y, team, light, flash);
-  else if (s.type === 'heliasCyberCore') drawHeliasCyberCoreStructure(s, x, y, team, light, flash);
-  else if (s.type === 'heliasForge') drawHeliasTechStructure(s, x, y, team, light, flash, 'FORGE', 'forge');
-  else if (s.type === 'heliasTurret') drawHeliasTurretStructure(s, x, y, team, light, flash);
-  else if (s.type === 'heliasRoboticsFacility') drawHeliasRoboticsFacilityStructure(s, x, y, team, light, flash);
-  else if (s.type === 'heliasStargate') drawHeliasStargateStructure(s, x, y, team, light, flash);
-  else if (s.type === 'hq') drawHQStructure(s, x, y, team, light, flash);
-  else if (s.type === 'turret') drawGroundTurretStructure(s, x, y, team, light, flash);
-  else if (s.type === 'antiAirTurret') drawAntiAirTurretStructure(s, x, y, team, light, flash);
-  else if (s.type === 'radarTurret') drawRadarTurretStructure(s, x, y, team, light, flash);
-  else if (s.type === 'barracks') drawBarracksStructure(s, x, y, team, light, flash);
-  else if (s.type === 'garage') drawGarageStructure(s, x, y, team, light, flash);
-  else if (s.type === 'airBay') drawAirBayStructure(s, x, y, team, light, flash);
-  else if (s.type === 'supportCamp') drawSupportStructure(s, x, y, team, light, flash);
-  else if (s.type === 'gasExtractor' && teamFactionId(s.team, state.teamFactions) === 'helias') drawHeliasAssimilatorStructure(s, x, y, team, light, flash);
-  else if (s.type === 'gasExtractor') drawGasExtractorStructure(s, x, y, team, light, flash);
-  else if (s.type === 'minersHut') drawMinersHutStructure(s, x, y, team, light, flash);
-  else if (s.type === 'housing') drawHousingStructure(s, x, y, team, light, flash);
-  else if (s.type === 'researchFacility') drawResearchStructure(s, x, y, team, light, flash);
-  else if (s.type === 'laboratory') drawLaboratoryStructure(s, x, y, team, light, flash);
-  else if (s.type === 'campaignPowerGenerator') drawCampaignPowerGeneratorStructure(s, x, y, team, light, flash);
-  else if (s.type === 'campaignExtractionBeacon') drawCampaignExtractionBeaconStructure(s, x, y, team, light, flash);
-  else drawResourceMineStructure(s, x, y, team, light, flash);
+  const drawStructureVectorBody = () => {
+    if (heliasConstruction) drawHeliasConstructionOrb(s, x, y, team, light, flash);
+    else if (insectConstruction) drawInsectConstructionBubo(s, x, y, team, light, flash);
+    else if (pendingOrganicDrone) {
+      ctx.save();
+      ctx.strokeStyle = '#b8ff63';
+      ctx.lineWidth = 2 / cam.zoom;
+      ctx.setLineDash([5 / cam.zoom, 4 / cam.zoom]);
+      ctx.beginPath(); ctx.ellipse(s.x, s.y, Math.max(12, s.w * .34), Math.max(9, s.h * .28), 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(169,93,143,.32)';
+      ctx.beginPath(); ctx.ellipse(s.x, s.y, Math.max(9, s.w * .22), Math.max(7, s.h * .18), 0, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    } else if ((s.type === 'hq' || s.type === 'broodHive') && teamFactionId(s.team, state.teamFactions) === 'insects') drawInsectHiveStructure(s, x, y, team, light, flash);
+    else if (s.type === 'gasExtractor' && teamFactionId(s.team, state.teamFactions) === 'insects') drawInsectGasExtractorStructure(s, x, y, team, light, flash);
+    else if (s.type === 'spawningNest') drawSpawningNestStructure(s, x, y, team, light, flash);
+    else if (drawZglengloBioTechStructure(s, x, y, team, light, flash)) { /* dedicated renderer applied */ }
+    else if (s.type === 'creepTumor') drawCreepTumorStructure(s, x, y, team, light, flash);
+    else if (s.type === 'thornmawCrawler') drawInsectDefenseStructure(s, x, y, team, light, flash, false);
+    else if (s.type === 'skysporeSentinel') drawInsectDefenseStructure(s, x, y, team, light, flash, true);
+    else if (s.type === 'heliasTempleMine') drawHeliasTempleMineStructure(s);
+    else if (s.type === 'heliasPylon') drawHeliasPylonStructure(s, x, y, team, light, flash);
+    else if (s.type === 'heliasTemple') drawHeliasTempleStructure(s, x, y, team, light, flash);
+    else if (s.type === 'heliasGateway') drawHeliasGatewayStructure(s, x, y, team, light, flash);
+    else if (s.type === 'heliasCyberCore') drawHeliasCyberCoreStructure(s, x, y, team, light, flash);
+    else if (s.type === 'heliasForge') drawHeliasTechStructure(s, x, y, team, light, flash, 'FORGE', 'forge');
+    else if (s.type === 'heliasTurret') drawHeliasTurretStructure(s, x, y, team, light, flash);
+    else if (s.type === 'heliasRoboticsFacility') drawHeliasRoboticsFacilityStructure(s, x, y, team, light, flash);
+    else if (s.type === 'heliasStargate') drawHeliasStargateStructure(s, x, y, team, light, flash);
+    else if (s.type === 'hq') drawHQStructure(s, x, y, team, light, flash);
+    else if (s.type === 'turret') drawGroundTurretStructure(s, x, y, team, light, flash);
+    else if (s.type === 'antiAirTurret') drawAntiAirTurretStructure(s, x, y, team, light, flash);
+    else if (s.type === 'radarTurret') drawRadarTurretStructure(s, x, y, team, light, flash);
+    else if (s.type === 'barracks') drawBarracksStructure(s, x, y, team, light, flash);
+    else if (s.type === 'garage') drawGarageStructure(s, x, y, team, light, flash);
+    else if (s.type === 'airBay') drawAirBayStructure(s, x, y, team, light, flash);
+    else if (s.type === 'supportCamp') drawSupportStructure(s, x, y, team, light, flash);
+    else if (s.type === 'gasExtractor' && teamFactionId(s.team, state.teamFactions) === 'helias') drawHeliasAssimilatorStructure(s, x, y, team, light, flash);
+    else if (s.type === 'gasExtractor') drawGasExtractorStructure(s, x, y, team, light, flash);
+    else if (s.type === 'minersHut') drawMinersHutStructure(s, x, y, team, light, flash);
+    else if (s.type === 'housing') drawHousingStructure(s, x, y, team, light, flash);
+    else if (s.type === 'researchFacility') drawResearchStructure(s, x, y, team, light, flash);
+    else if (s.type === 'laboratory') drawLaboratoryStructure(s, x, y, team, light, flash);
+    else if (s.type === 'campaignPowerGenerator') drawCampaignPowerGeneratorStructure(s, x, y, team, light, flash);
+    else if (s.type === 'campaignExtractionBeacon') drawCampaignExtractionBeaconStructure(s, x, y, team, light, flash);
+    else drawResourceMineStructure(s, x, y, team, light, flash);
+  };
+
+  const structureUsesProceduralBody = menuPreviewRenderActive || s.underConstruction || flash || (Number(s.recoil) || 0) > 0;
+  if (structureUsesProceduralBody) {
+    drawStructureVectorBody();
+  } else {
+    const faction = teamFactionId(s.team, state.teamFactions);
+    const resolution = spriteResolutionForZoom();
+    const signatures = structureSpriteSignatures(s, faction, team, light, resolution);
+    const logicalWidth = Math.max(128, s.w + 120);
+    const logicalHeight = Math.max(128, s.h + 126);
+    const bakeStructureSprite = () => cachedEntitySprite(signatures.key, signatures.slotKey, logicalWidth, logicalHeight, resolution,
+      (spriteContext, width, height, scale) => bakeWithEntitySpriteContext(spriteContext,
+        target => target.setTransform(scale, 0, 0, scale, width / 2 - s.x * scale, height / 2 - s.y * scale),
+        drawStructureVectorBody));
+    const sprite = getCachedEntitySprite(signatures.key);
+    if (sprite) {
+      ctx.drawImage(sprite.surface, s.x - sprite.logicalWidth / 2, s.y - sprite.logicalHeight / 2,
+        sprite.logicalWidth, sprite.logicalHeight);
+    } else {
+      drawStructureVectorBody();
+      queueEntitySpriteBake(signatures.key, signatures.slotKey, () => {
+        if (s.hp <= 0 || s.underConstruction || s.flash > 0 || (Number(s.recoil) || 0) > 0) return false;
+        const currentFaction = teamFactionId(s.team, state.teamFactions);
+        const currentResolution = spriteResolutionForZoom();
+        return structureSpriteSignatures(s, currentFaction, colorForTeam(s.team), colorForTeam(s.team, 'light'), currentResolution).key === signatures.key;
+      }, bakeStructureSprite);
+    }
+  }
 
   drawHeliasUnpoweredOverlay(s, x, y);
   drawStructureUpgradeDetails(s, x, y, team);
@@ -37313,14 +37596,9 @@ function drawStructure(s) {
           return;
         }
 
-        ctx.save();
-        ctx.translate(x, y + hover);
-        ctx.rotate(u.heading);
-        if (u.aceSpin > 0) ctx.rotate((.58 - u.aceSpin) * Math.PI * 8);
         const pose = unitAnimationPose(u);
         const recoilShift = u.type !== 'mecha' && u.type !== 'titanTank' && u.recoil > 0 ? -Math.min(5, u.recoil * 29) : 0;
-        ctx.translate(pose.x + recoilShift, pose.y);
-        ctx.rotate(pose.rotation);
+        const drawUnitVectorBody = () => {
       
         // Only an opted-in animation profile supplies a pose. The close-combat
         // infantry profile currently animates its opposing feet and arms.
@@ -39283,6 +39561,47 @@ function drawStructure(s) {
           ctx.fillStyle = light; ctx.fillRect(1, -4, 15, 8);
           ctx.fillStyle = '#10161f'; ctx.fillRect(-6, -5, 9, 10);
           ctx.fillStyle = team; ctx.fillRect(-13, -11, 5, 22); ctx.fillRect(8, -11, 5, 22);
+        }
+        };
+
+        ctx.save();
+        ctx.translate(x, y + hover);
+        ctx.rotate(u.heading);
+        if (u.aceSpin > 0) ctx.rotate((.58 - u.aceSpin) * Math.PI * 8);
+        ctx.translate(pose.x + recoilShift, pose.y);
+        ctx.rotate(pose.rotation);
+
+        const carrierDronesEngaged = u.type === 'heliasCarrier' && renderCelestialArkDronesEngaged(u, u.target);
+        const unitUsesProceduralBody = menuPreviewRenderActive || u.flash > 0 || u.recoil > 0 || u.aceSpin > 0 ||
+          (u.moving && u.moveSpeed > 1) || (u.attackAnim || 0) > 0 || carrierDronesEngaged;
+        if (unitUsesProceduralBody) {
+          drawUnitVectorBody();
+        } else {
+          const faction = teamFactionId(u.team, state.teamFactions);
+          const resolution = spriteResolutionForZoom();
+          const signatures = unitSpriteSignatures(u, faction, team, light, resolution);
+          const logicalSize = Math.max(128, u.radius * 2 + 116);
+          const bakeUnitSprite = () => cachedEntitySprite(signatures.key, signatures.slotKey, logicalSize, logicalSize, resolution,
+            (spriteContext, width, height, scale) => bakeWithEntitySpriteContext(spriteContext,
+              target => target.setTransform(scale, 0, 0, scale, width / 2, height / 2),
+              drawUnitVectorBody));
+          const sprite = getCachedEntitySprite(signatures.key);
+          if (sprite) {
+            ctx.drawImage(sprite.surface, -sprite.logicalWidth / 2, -sprite.logicalHeight / 2,
+              sprite.logicalWidth, sprite.logicalHeight);
+          } else {
+            drawUnitVectorBody();
+            queueEntitySpriteBake(signatures.key, signatures.slotKey, () => {
+              const currentPose = unitAnimationPose(u);
+              const transient = u.hp <= 0 || u.flash > 0 || u.recoil > 0 || u.aceSpin > 0 ||
+                (u.moving && u.moveSpeed > 1) || (u.attackAnim || 0) > 0 ||
+                (u.type === 'heliasCarrier' && renderCelestialArkDronesEngaged(u, u.target));
+              if (transient || currentPose.walking) return false;
+              const currentFaction = teamFactionId(u.team, state.teamFactions);
+              const currentResolution = spriteResolutionForZoom();
+              return unitSpriteSignatures(u, currentFaction, colorForTeam(u.team), colorForTeam(u.team, 'light'), currentResolution).key === signatures.key;
+            }, bakeUnitSprite);
+          }
         }
         ctx.restore();
         const largeHelias = u.type === 'heliasColossus' || u.type === 'heliasImmortal' || u.type === 'heliasVoidRay' || u.type === 'heliasCarrier';
