@@ -4657,17 +4657,23 @@
         if (!u || u.type !== 'insectOverlord') return;
         const destination = u.destination || u;
         const fieldActive = !u.movementOrderActive && dist(u, destination) <= 6;
+        const wasDeployed = u.overlordCreepFieldActive === true;
         const duration = Math.max(.001, Number(u.overlordCreepRetractionDuration) || INSECT_OVERLORD_CREEP_RETRACTION_TIME);
         u.overlordCreepRetractionDuration = duration;
 
         if (fieldActive) {
+          // Remember the authoritative deployed centre every simulation tick. A
+          // newly produced Overlord that is already travelling has never deployed,
+          // so it cannot accidentally leave a phantom field behind at its spawn.
           u.overlordCreepFieldActive = true;
+          u.overlordCreepDeployedX = u.x;
+          u.overlordCreepDeployedY = u.y;
         } else {
-          // Capture the last deployed position once, exactly when movement begins.
-          // The residual field then contracts in place while the Overlord travels.
-          if (u.overlordCreepFieldActive !== false) {
-            u.overlordCreepRetractionX = u.x;
-            u.overlordCreepRetractionY = u.y;
+          // Capture the previous field only on the deployed -> moving transition.
+          // It contracts in place while the Overlord continues travelling.
+          if (wasDeployed) {
+            u.overlordCreepRetractionX = Number.isFinite(u.overlordCreepDeployedX) ? u.overlordCreepDeployedX : u.x;
+            u.overlordCreepRetractionY = Number.isFinite(u.overlordCreepDeployedY) ? u.overlordCreepDeployedY : u.y;
             u.overlordCreepRetractionTimeLeft = duration;
           }
           u.overlordCreepFieldActive = false;
@@ -36872,6 +36878,24 @@ function drawStructureUpgradeDetails(s, x, y, team) {
         }
       }
 
+      // Canonical routing for the three newly upgraded Zglenglo functional
+      // organisms. This keeps the live match and menu-preview renderer on the same
+      // detailed implementations and prevents generic gas/turret branches from
+      // silently replacing them later.
+      const ZGLENGLO_FUNCTIONAL_STRUCTURE_RENDERERS = Object.freeze({
+        gasExtractor: (s, x, y, team, light, flash) => drawInsectGasExtractorStructure(s, x, y, team, light, flash),
+        thornmawCrawler: (s, x, y, team, light, flash) => drawInsectDefenseStructure(s, x, y, team, light, flash, false),
+        skysporeSentinel: (s, x, y, team, light, flash) => drawInsectDefenseStructure(s, x, y, team, light, flash, true)
+      });
+
+      function drawZglengloFunctionalStructure(s, x, y, team, light, flash) {
+        if (teamFactionId(s.team, state.teamFactions) !== 'insects') return false;
+        const renderer = ZGLENGLO_FUNCTIONAL_STRUCTURE_RENDERERS[s.type];
+        if (!renderer) return false;
+        renderer(s, x, y, team, light, flash);
+        return true;
+      }
+
       function ensureHeliasPowerFieldMask() {
         const width = Math.max(1, Math.ceil(WORLD_W * HELIAS_POWER_FIELD_MASK_SCALE));
         const height = Math.max(1, Math.ceil(WORLD_H * HELIAS_POWER_FIELD_MASK_SCALE));
@@ -37184,12 +37208,10 @@ function drawStructure(s) {
     ctx.beginPath(); ctx.ellipse(s.x, s.y, Math.max(9, s.w * .22), Math.max(7, s.h * .18), 0, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   } else if ((s.type === 'hq' || s.type === 'broodHive') && teamFactionId(s.team, state.teamFactions) === 'insects') drawInsectHiveStructure(s, x, y, team, light, flash);
-  else if (s.type === 'gasExtractor' && teamFactionId(s.team, state.teamFactions) === 'insects') drawInsectGasExtractorStructure(s, x, y, team, light, flash);
+  else if (drawZglengloFunctionalStructure(s, x, y, team, light, flash)) { /* dedicated functional-organism renderer applied */ }
   else if (s.type === 'spawningNest') drawSpawningNestStructure(s, x, y, team, light, flash);
   else if (drawZglengloBioTechStructure(s, x, y, team, light, flash)) { /* dedicated renderer applied */ }
   else if (s.type === 'creepTumor') drawCreepTumorStructure(s, x, y, team, light, flash);
-  else if (s.type === 'thornmawCrawler') drawInsectDefenseStructure(s, x, y, team, light, flash, false);
-  else if (s.type === 'skysporeSentinel') drawInsectDefenseStructure(s, x, y, team, light, flash, true);
   else if (s.type === 'heliasTempleMine') drawHeliasTempleMineStructure(s);
   else if (s.type === 'heliasPylon') drawHeliasPylonStructure(s, x, y, team, light, flash);
   else if (s.type === 'heliasTemple') drawHeliasTempleStructure(s, x, y, team, light, flash);
@@ -41270,25 +41292,52 @@ function drawStructure(s) {
           }
         }
 
-        // Build a separate organic alpha mask. Overlapping circular tile
-        // membranes remove the staircase silhouette, and the final blur feathers
-        // the union without changing the deterministic gameplay tile mask.
+        // Build a source-shaped alpha membrane with its own radial falloff.
+        // This does not depend on CanvasRenderingContext2D.filter support: every
+        // browser gets a naturally feathered, non-square boundary. Deterministic
+        // peripheral lobes break the perfect-circle silhouette without changing
+        // the authoritative gameplay creep calculations above.
         creepBlendMaskCanvas = createTerrainCacheCanvas(width, height);
         creepBlendMaskCanvas.width = width;
         creepBlendMaskCanvas.height = height;
         creepBlendMaskContext = creepBlendMaskCanvas.getContext('2d', { alpha: true });
         creepBlendMaskContext.clearRect(0, 0, width, height);
-        creepBlendMaskContext.fillStyle = '#ffffff';
-        for (let ty = 0; ty < ROWS; ty++) {
-          for (let tx = 0; tx < COLS; tx++) {
-            const index = ty * COLS + tx;
-            if (!creepTileMask[index]) continue;
-            const hash = terrainVisualHash(tx, ty, 509);
-            const cx = tx * TILE + TILE / 2 + ((hash >>> 7) % 3) - 1;
-            const cy = ty * TILE + TILE / 2 + ((hash >>> 13) % 3) - 1;
-            const radius = TILE * (.66 + (hash % 9) * .006);
+        for (const source of sources) {
+          const sourceHash = terrainVisualHash(
+            Math.floor(source.x / TILE) + source.id * 3,
+            Math.floor(source.y / TILE) + source.id * 5,
+            source.mobile ? 619 : source.decaying ? 613 : 607
+          );
+          const outerRadius = Math.max(3, source.r + TILE * .42);
+          const innerRadius = Math.max(0, source.r - TILE * (.58 + (sourceHash % 5) * .025));
+          const core = creepBlendMaskContext.createRadialGradient(
+            source.x, source.y, innerRadius,
+            source.x, source.y, outerRadius
+          );
+          core.addColorStop(0, 'rgba(255,255,255,1)');
+          core.addColorStop(.72, 'rgba(255,255,255,.96)');
+          core.addColorStop(.9, 'rgba(255,255,255,.48)');
+          core.addColorStop(1, 'rgba(255,255,255,0)');
+          creepBlendMaskContext.fillStyle = core;
+          creepBlendMaskContext.beginPath();
+          creepBlendMaskContext.arc(source.x, source.y, outerRadius, 0, Math.PI * 2);
+          creepBlendMaskContext.fill();
+
+          const lobeCount = 9 + (sourceHash % 5);
+          for (let lobe = 0; lobe < lobeCount; lobe++) {
+            const lobeHash = terrainVisualHash(source.id + lobe * 17, lobe + (sourceHash & 255), 631);
+            const angle = lobe / lobeCount * Math.PI * 2 + ((sourceHash >>> 9) % 360) * Math.PI / 180;
+            const distance = source.r * (.77 + (lobeHash % 17) * .006);
+            const lobeRadius = Math.max(4, source.r * (.12 + ((lobeHash >>> 6) % 9) * .008));
+            const lx = source.x + Math.cos(angle) * distance;
+            const ly = source.y + Math.sin(angle) * distance * (.92 + ((lobeHash >>> 12) % 9) * .01);
+            const lobeGradient = creepBlendMaskContext.createRadialGradient(lx, ly, 0, lx, ly, lobeRadius);
+            lobeGradient.addColorStop(0, 'rgba(255,255,255,.62)');
+            lobeGradient.addColorStop(.58, 'rgba(255,255,255,.32)');
+            lobeGradient.addColorStop(1, 'rgba(255,255,255,0)');
+            creepBlendMaskContext.fillStyle = lobeGradient;
             creepBlendMaskContext.beginPath();
-            creepBlendMaskContext.arc(cx, cy, radius, 0, Math.PI * 2);
+            creepBlendMaskContext.arc(lx, ly, lobeRadius, 0, Math.PI * 2);
             creepBlendMaskContext.fill();
           }
         }
@@ -41322,13 +41371,12 @@ function drawStructure(s) {
           }
         }
 
-        // Feather the organic membrane instead of drawing hard rectangular
-        // border strokes. The soft alpha fringe blends into grass, dirt and sand.
+        // Clip the tile texture through the source-shaped membrane. Because the
+        // mask itself contains the falloff, this remains blended even when canvas
+        // filters are unavailable or disabled by the browser/GPU backend.
         creepCacheContext.save();
         creepCacheContext.globalCompositeOperation = 'destination-in';
-        if ('filter' in creepCacheContext) creepCacheContext.filter = 'blur(6px)';
         creepCacheContext.drawImage(creepBlendMaskCanvas, 0, 0);
-        if ('filter' in creepCacheContext) creepCacheContext.filter = 'none';
         creepCacheContext.restore();
         creepCacheKey = key;
         return sources;
