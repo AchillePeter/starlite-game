@@ -44077,5 +44077,30 @@ function drawStructure(s) {
       catch (error) { showError('STANDALONE BOOT ERROR', error); console.error(error); }
     })();
   </script>
+
+<script>
+/* Landing deep-link: /play/#campaign|#multiplayer|#computer auto-opens that gate. */
+(function(){
+  function target(){
+    var h=(location.hash||'').replace('#','').toLowerCase();
+    if(h==='multiplayer'||h==='online') return 'online';
+    if(h==='campaign') return 'campaign';
+    if(h==='computer'||h==='vs'||h==='skirmish') return 'computer';
+    return null;
+  }
+  function go(){
+    var want=target(); if(!want) return;
+    var tries=0;
+    var timer=setInterval(function(){
+      tries++;
+      var btn=document.querySelector('#starlite-menu [data-category="'+want+'"]');
+      if(btn){ clearInterval(timer); btn.click(); }
+      else if(tries>60){ clearInterval(timer); }
+    },100);
+  }
+  if(document.readyState==='complete') go();
+  else window.addEventListener('load',go);
+})();
+</script>
 </body>
 </html>
