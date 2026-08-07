@@ -1,7 +1,7 @@
-<!doctype html><html lang="fr"><head>
+<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Factions & unités — StarLite II</title>
-<meta name="description" content="Encyclopédie des 39 unités de StarLite II : Zglenglo, Helias et Humains. Stats, rôles et conseils tactiques.">
+<title>Factions & units — StarLite II</title>
+<meta name="description" content="Encyclopedia of all 39 StarLite II units: Zglenglo, Helias and Humans. Stats, roles and tactical notes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -12,189 +12,188 @@
 <a class="brand" href="/"><b>STARLITE</b> II</a>
 <nav class="nav-links">
 <a href="/guide/">Guide</a>
-<a href="/factions/">Factions &amp; unités</a>
+<a href="/factions/">Factions &amp; units</a>
 <a href="/devlog/">Devlog</a>
-<a href="/play/" class="nav-cta">&#9654; Jouer</a>
+<a href="/play/" class="nav-cta">&#9654; Play</a>
 </nav></div></header>
 <main class="wrap doc" style="max-width:1000px">
-<p class="eyebrow">Base de données tactique</p>
-<h1>Factions &amp; unités</h1>
-<p class="lead">Les 39 unités de StarLite II, réparties entre trois doctrines opposées. Statistiques tirées directement du moteur de jeu.</p>
+<p class="eyebrow">Tactical database</p>
+<h1>Factions &amp; units</h1>
+<p class="lead">All 39 units of StarLite II, split across three opposing doctrines. Stats pulled straight from the game engine.</p>
 <div class="factions" style="margin-top:30px">
-<a class="fac" style="--edge:var(--brood)" href="#insect"><span class="tag">LE BROOD</span><h3>Zglenglo</h3><div class="sub">Évolution · régénération · nombre</div></a><a class="fac" style="--edge:var(--warp)" href="#helias"><span class="tag">THE HELIAS</span><h3>Helias</h3><div class="sub">Boucliers · warp · énergie focalisée</div></a><a class="fac" style="--edge:var(--iron)" href="#human"><span class="tag">HUMANS</span><h3>Humains</h3><div class="sub">Blindage · industrie · polyvalence</div></a>
+<a class="fac" style="--edge:var(--brood)" href="#insect"><span class="tag">THE BROOD</span><h3>Zglenglo</h3><div class="sub">Evolution · regeneration · numbers</div></a><a class="fac" style="--edge:var(--warp)" href="#helias"><span class="tag">THE HELIAS</span><h3>Helias</h3><div class="sub">Shields · warp · focused energy</div></a><a class="fac" style="--edge:var(--iron)" href="#human"><span class="tag">HUMANS</span><h3>Humans</h3><div class="sub">Armor · industry · combined arms</div></a>
 </div>
 <section class="fac-block" style="--edge:var(--brood)" id="insect">
-<div class="band"><h2>Zglenglo</h2><span class="tag">LE BROOD</span></div>
-<p class="fac-intro">Les Zglenglo ne construisent pas, ils prolifèrent. Leur force naît de la masse : des unités bon marché produites en flux continu, une ruche qui évolue par paliers, et une couverture de creep qui étend leur vision. Jouer Zglenglo, c&#x27;est accepter d&#x27;échanger la qualité individuelle contre l&#x27;écrasement par le nombre — jusqu&#x27;aux Titans de couvée de niveau 3.</p>
+<div class="band"><h2>Zglenglo</h2><span class="tag">THE BROOD</span></div>
+<p class="fac-intro">The Zglenglo don&#x27;t build, they proliferate. Their strength is mass: cheap units produced in a constant stream, a hive that evolves in tiers, and a creep spread that extends their vision. Playing Zglenglo means trading individual quality for sheer overwhelming numbers — all the way up to the level-3 Brood Titans.</p>
 <div class="units"><div class="unit" style="--edge:var(--brood)">
-<div class="u-top"><span class="u-name">OVERLORD</span><span class="u-role">Ravitaillement</span></div>
-<div class="u-desc">Overlord suspendu, +8 de population. Aucune arme : gardez-le en sécurité.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">210</span></div><div><span class="lbl">DÉG</span><span class="val">—</span></div><div><span class="lbl">PORTÉE</span><span class="val">mêlée</span></div><div><span class="lbl">VIT</span><span class="val">34</span></div></div>
-<div class="cost">Coût&nbsp;: <b>100&nbsp;min</b> &middot; pop&nbsp;0</div></div><div class="unit" style="--edge:var(--brood)">
-<div class="u-top"><span class="u-name">SWARMLING</span><span class="u-role">Nuée T1</span></div>
-<div class="u-desc">Unité de nuée bondissante. Submerge par le nombre — voir l&#x27;analyse de perf sur les grandes nuées.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">36</span></div><div><span class="lbl">DÉG</span><span class="val">6</span></div><div><span class="lbl">PORTÉE</span><span class="val">16</span></div><div><span class="lbl">VIT</span><span class="val">102</span></div></div>
-<div class="cost">Coût&nbsp;: <b>30&nbsp;min</b> &middot; pop&nbsp;1</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-top"><span class="u-name">OVERLORD</span><span class="u-role">Supply</span></div>
+<div class="u-desc">Suspended overlord, +8 population. No weapon: keep it safe.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">210</span></div><div><span class="lbl">DMG</span><span class="val">—</span></div><div><span class="lbl">RANGE</span><span class="val">melee</span></div><div><span class="lbl">SPD</span><span class="val">34</span></div></div>
+<div class="cost">Cost: <b>100 min</b> &middot; pop 0</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-top"><span class="u-name">SWARMLING</span><span class="u-role">Swarm T1</span></div>
+<div class="u-desc">Bounding swarm unit. Overwhelms by numbers — see the perf note on large swarms.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">36</span></div><div><span class="lbl">DMG</span><span class="val">6</span></div><div><span class="lbl">RANGE</span><span class="val">16</span></div><div><span class="lbl">SPD</span><span class="val">102</span></div></div>
+<div class="cost">Cost: <b>30 min</b> &middot; pop 1</div></div><div class="unit" style="--edge:var(--brood)">
 <div class="u-top"><span class="u-name">QUEEN</span><span class="u-role">Support T1</span></div>
-<div class="u-desc">Reine à injection de larves. Cœur de la production et de l&#x27;évolution du brood.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">175</span></div><div><span class="lbl">DÉG</span><span class="val">13</span></div><div><span class="lbl">PORTÉE</span><span class="val">105</span></div><div><span class="lbl">VIT</span><span class="val">48</span></div></div>
-<div class="cost">Coût&nbsp;: <b>200&nbsp;min</b> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-desc">Larva-injecting queen. Heart of the brood&#x27;s production and evolution.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">175</span></div><div><span class="lbl">DMG</span><span class="val">13</span></div><div><span class="lbl">RANGE</span><span class="val">105</span></div><div><span class="lbl">SPD</span><span class="val">48</span></div></div>
+<div class="cost">Cost: <b>200 min</b> &middot; pop 2</div></div><div class="unit" style="--edge:var(--brood)">
 <div class="u-top"><span class="u-name">BURSTLING</span><span class="u-role">Kamikaze T2</span></div>
-<div class="u-desc">Éclate au contact pour des dégâts de zone. Redoutable contre l&#x27;infanterie massée.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">52</span></div><div><span class="lbl">DÉG</span><span class="val">82</span></div><div><span class="lbl">PORTÉE</span><span class="val">14</span></div><div><span class="lbl">VIT</span><span class="val">96</span></div></div>
-<div class="cost">Coût&nbsp;: <b>75&nbsp;min</b> &middot; <span class="g">30&nbsp;gaz</span> &middot; pop&nbsp;1</div></div><div class="unit" style="--edge:var(--brood)">
-<div class="u-top"><span class="u-name">SPITTER</span><span class="u-role">Tir T2</span></div>
-<div class="u-desc">Cracheur à distance. Le tir de base solide de la faction insecte.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">92</span></div><div><span class="lbl">DÉG</span><span class="val">17</span></div><div><span class="lbl">PORTÉE</span><span class="val">126</span></div><div><span class="lbl">VIT</span><span class="val">53</span></div></div>
-<div class="cost">Coût&nbsp;: <b>90&nbsp;min</b> &middot; <span class="g">45&nbsp;gaz</span> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-desc">Bursts on contact for splash damage. Brutal against massed infantry.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">52</span></div><div><span class="lbl">DMG</span><span class="val">82</span></div><div><span class="lbl">RANGE</span><span class="val">14</span></div><div><span class="lbl">SPD</span><span class="val">96</span></div></div>
+<div class="cost">Cost: <b>75 min</b> &middot; <span class="g">30 gas</span> &middot; pop 1</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-top"><span class="u-name">SPITTER</span><span class="u-role">Ranged T2</span></div>
+<div class="u-desc">Ranged spitter. The solid baseline attacker of the insect faction.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">92</span></div><div><span class="lbl">DMG</span><span class="val">17</span></div><div><span class="lbl">RANGE</span><span class="val">126</span></div><div><span class="lbl">SPD</span><span class="val">53</span></div></div>
+<div class="cost">Cost: <b>90 min</b> &middot; <span class="g">45 gas</span> &middot; pop 2</div></div><div class="unit" style="--edge:var(--brood)">
 <div class="u-top"><span class="u-name">ACID BEETLE</span><span class="u-role">Tank T2</span></div>
-<div class="u-desc">Scarabée acide très résistant. Absorbe les dégâts en tête de nuée.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">330</span></div><div><span class="lbl">DÉG</span><span class="val">29</span></div><div><span class="lbl">PORTÉE</span><span class="val">76</span></div><div><span class="lbl">VIT</span><span class="val">35</span></div></div>
-<div class="cost">Coût&nbsp;: <b>165&nbsp;min</b> &middot; <span class="g">110&nbsp;gaz</span> &middot; pop&nbsp;3</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-desc">Very tanky acid beetle. Soaks damage at the head of the swarm.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">330</span></div><div><span class="lbl">DMG</span><span class="val">29</span></div><div><span class="lbl">RANGE</span><span class="val">76</span></div><div><span class="lbl">SPD</span><span class="val">35</span></div></div>
+<div class="cost">Cost: <b>165 min</b> &middot; <span class="g">110 gas</span> &middot; pop 3</div></div><div class="unit" style="--edge:var(--brood)">
 <div class="u-top"><span class="u-name">VENOM WASP</span><span class="u-role">Air T2</span></div>
-<div class="u-desc">Guêpe venimeuse rapide. Cadence élevée pour du harcèlement aérien.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">185</span></div><div><span class="lbl">DÉG</span><span class="val">15</span></div><div><span class="lbl">PORTÉE</span><span class="val">120</span></div><div><span class="lbl">VIT</span><span class="val">108</span></div></div>
-<div class="cost">Coût&nbsp;: <b>155&nbsp;min</b> &middot; <span class="g">130&nbsp;gaz</span> &middot; pop&nbsp;3</div></div><div class="unit" style="--edge:var(--brood)">
-<div class="u-top"><span class="u-name">SIEGE SPITTER</span><span class="u-role">Siège T2</span></div>
-<div class="u-desc">Cracheur de siège longue portée à dégâts de zone. Casse les positions retranchées.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">190</span></div><div><span class="lbl">DÉG</span><span class="val">46</span></div><div><span class="lbl">PORTÉE</span><span class="val">178</span></div><div><span class="lbl">VIT</span><span class="val">43</span></div></div>
-<div class="cost">Coût&nbsp;: <b>180&nbsp;min</b> &middot; <span class="g">130&nbsp;gaz</span> &middot; pop&nbsp;3</div></div><div class="unit" style="--edge:var(--brood)">
-<div class="u-top"><span class="u-name">SKYBLIGHT</span><span class="u-role">Air lourd T2</span></div>
-<div class="u-desc">Fléau aérien à forte portée. Domine le ciel en milieu de partie.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">245</span></div><div><span class="lbl">DÉG</span><span class="val">31</span></div><div><span class="lbl">PORTÉE</span><span class="val">152</span></div><div><span class="lbl">VIT</span><span class="val">94</span></div></div>
-<div class="cost">Coût&nbsp;: <b>180&nbsp;min</b> &middot; <span class="g">155&nbsp;gaz</span> &middot; pop&nbsp;3</div></div><div class="unit" style="--edge:var(--brood)">
-<div class="u-top"><span class="u-name">BROOD CARRIER</span><span class="u-role">Porteur T3</span></div>
-<div class="u-desc">Transporteur de couvée. Projette la menace de la nuée en profondeur.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">470</span></div><div><span class="lbl">DÉG</span><span class="val">28</span></div><div><span class="lbl">PORTÉE</span><span class="val">170</span></div><div><span class="lbl">VIT</span><span class="val">68</span></div></div>
-<div class="cost">Coût&nbsp;: <b>365&nbsp;min</b> &middot; <span class="g">350&nbsp;gaz</span> &middot; pop&nbsp;5</div></div><div class="unit" style="--edge:var(--brood)">
-<div class="u-top"><span class="u-name">BROOD REAVER</span><span class="u-role">Siège T3</span></div>
-<div class="u-desc">Faucheur de couvée, artillerie vivante. Portée écrasante, très lent à cadencer.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">430</span></div><div><span class="lbl">DÉG</span><span class="val">48</span></div><div><span class="lbl">PORTÉE</span><span class="val">238</span></div><div><span class="lbl">VIT</span><span class="val">54</span></div></div>
-<div class="cost">Coût&nbsp;: <b>380&nbsp;min</b> &middot; <span class="g">355&nbsp;gaz</span> &middot; pop&nbsp;5</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-desc">Fast venom wasp. High fire rate for aerial harassment.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">185</span></div><div><span class="lbl">DMG</span><span class="val">15</span></div><div><span class="lbl">RANGE</span><span class="val">120</span></div><div><span class="lbl">SPD</span><span class="val">108</span></div></div>
+<div class="cost">Cost: <b>155 min</b> &middot; <span class="g">130 gas</span> &middot; pop 3</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-top"><span class="u-name">SIEGE SPITTER</span><span class="u-role">Siege T2</span></div>
+<div class="u-desc">Long-range siege spitter with splash. Cracks entrenched positions.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">190</span></div><div><span class="lbl">DMG</span><span class="val">46</span></div><div><span class="lbl">RANGE</span><span class="val">178</span></div><div><span class="lbl">SPD</span><span class="val">43</span></div></div>
+<div class="cost">Cost: <b>180 min</b> &middot; <span class="g">130 gas</span> &middot; pop 3</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-top"><span class="u-name">SKYBLIGHT</span><span class="u-role">Heavy air T2</span></div>
+<div class="u-desc">High-range aerial blight. Dominates the skies in the mid-game.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">245</span></div><div><span class="lbl">DMG</span><span class="val">31</span></div><div><span class="lbl">RANGE</span><span class="val">152</span></div><div><span class="lbl">SPD</span><span class="val">94</span></div></div>
+<div class="cost">Cost: <b>180 min</b> &middot; <span class="g">155 gas</span> &middot; pop 3</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-top"><span class="u-name">BROOD CARRIER</span><span class="u-role">Carrier T3</span></div>
+<div class="u-desc">Brood carrier. Projects the swarm&#x27;s threat deep into enemy ground.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">470</span></div><div><span class="lbl">DMG</span><span class="val">28</span></div><div><span class="lbl">RANGE</span><span class="val">170</span></div><div><span class="lbl">SPD</span><span class="val">68</span></div></div>
+<div class="cost">Cost: <b>365 min</b> &middot; <span class="g">350 gas</span> &middot; pop 5</div></div><div class="unit" style="--edge:var(--brood)">
+<div class="u-top"><span class="u-name">BROOD REAVER</span><span class="u-role">Siege T3</span></div>
+<div class="u-desc">Brood Reaver, living artillery. Crushing range, very slow to cycle.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">430</span></div><div><span class="lbl">DMG</span><span class="val">48</span></div><div><span class="lbl">RANGE</span><span class="val">238</span></div><div><span class="lbl">SPD</span><span class="val">54</span></div></div>
+<div class="cost">Cost: <b>380 min</b> &middot; <span class="g">355 gas</span> &middot; pop 5</div></div><div class="unit" style="--edge:var(--brood)">
 <div class="u-top"><span class="u-name">BROOD TITAN</span><span class="u-role">Titan T3</span></div>
-<div class="u-desc">Titan de couvée au corps-à-corps. Cleave massif — requiert une ruche de niveau 3.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">960</span></div><div><span class="lbl">DÉG</span><span class="val">98</span></div><div><span class="lbl">PORTÉE</span><span class="val">28</span></div><div><span class="lbl">VIT</span><span class="val">24</span></div></div>
-<div class="cost">Coût&nbsp;: <b>430&nbsp;min</b> &middot; <span class="g">360&nbsp;gaz</span> &middot; pop&nbsp;7</div></div></div></section><section class="fac-block" style="--edge:var(--warp)" id="helias">
+<div class="u-desc">Melee Brood Titan. Massive cleave — requires a level-3 hive.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">960</span></div><div><span class="lbl">DMG</span><span class="val">98</span></div><div><span class="lbl">RANGE</span><span class="val">28</span></div><div><span class="lbl">SPD</span><span class="val">24</span></div></div>
+<div class="cost">Cost: <b>430 min</b> &middot; <span class="g">360 gas</span> &middot; pop 7</div></div></div></section><section class="fac-block" style="--edge:var(--warp)" id="helias">
 <div class="band"><h2>Helias</h2><span class="tag">THE HELIAS</span></div>
-<p class="fac-intro">Les Helias combattent derrière des boucliers qui se régénèrent hors combat, récompensant les engagements par à-coups et le micro-management. Des unités chères mais puissantes, une mobilité par warp, et des armes à énergie qui montent en puissance : une faction exigeante qui pardonne peu, mais plafonne très haut.</p>
+<p class="fac-intro">The Helias fight behind shields that regenerate out of combat, rewarding hit-and-run engagements and micro-management. Expensive but powerful units, warp mobility, and ramping energy weapons: a demanding faction that punishes mistakes, but has a very high ceiling.</p>
 <div class="units"><div class="unit" style="--edge:var(--warp)">
-<div class="u-top"><span class="u-name">SUNBLADE</span><span class="u-role">Contact T1</span></div>
-<div class="u-desc">Sunblade à bouclier régénérant. Fantassin de mêlée endurant de la faction warp.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">140</span></div><div><span class="lbl">DÉG</span><span class="val">18</span></div><div><span class="lbl">PORTÉE</span><span class="val">20</span></div><div><span class="lbl">VIT</span><span class="val">72</span></div></div>
-<div class="cost">Coût&nbsp;: <b>100&nbsp;min</b> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--warp)">
-<div class="u-top"><span class="u-name">VEIL EYE</span><span class="u-role">Détecteur T2</span></div>
-<div class="u-desc">Veil Eye, vision étendue et détection. Révèle furtifs et embuscades.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">40</span></div><div><span class="lbl">DÉG</span><span class="val">—</span></div><div><span class="lbl">PORTÉE</span><span class="val">mêlée</span></div><div><span class="lbl">VIT</span><span class="val">94</span></div></div>
-<div class="cost">Coût&nbsp;: <b>25&nbsp;min</b> &middot; <span class="g">75&nbsp;gaz</span> &middot; pop&nbsp;1</div></div><div class="unit" style="--edge:var(--warp)">
-<div class="u-top"><span class="u-name">RIFT LANCER</span><span class="u-role">Tir T2</span></div>
-<div class="u-desc">Rift Lancer à distance. Tir fiable protégé par bouclier.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">160</span></div><div><span class="lbl">DÉG</span><span class="val">23</span></div><div><span class="lbl">PORTÉE</span><span class="val">130</span></div><div><span class="lbl">VIT</span><span class="val">64</span></div></div>
-<div class="cost">Coût&nbsp;: <b>125&nbsp;min</b> &middot; <span class="g">50&nbsp;gaz</span> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--warp)">
-<div class="u-top"><span class="u-name">PRISM WARDEN</span><span class="u-role">Soutien T2</span></div>
-<div class="u-desc">Prism Warden. Contrôle et soutien énergétique de la ligne Helias.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">100</span></div><div><span class="lbl">DÉG</span><span class="val">12</span></div><div><span class="lbl">PORTÉE</span><span class="val">118</span></div><div><span class="lbl">VIT</span><span class="val">58</span></div></div>
-<div class="cost">Coût&nbsp;: <b>100&nbsp;min</b> &middot; <span class="g">100&nbsp;gaz</span> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--warp)">
-<div class="u-top"><span class="u-name">AURORA WING</span><span class="u-role">Air rapide T2</span></div>
-<div class="u-desc">Aurora Wing très mobile. Frappe et se replie avant la riposte.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">180</span></div><div><span class="lbl">DÉG</span><span class="val">20</span></div><div><span class="lbl">PORTÉE</span><span class="val">158</span></div><div><span class="lbl">VIT</span><span class="val">148</span></div></div>
-<div class="cost">Coût&nbsp;: <b>150&nbsp;min</b> &middot; <span class="g">100&nbsp;gaz</span> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--warp)">
+<div class="u-top"><span class="u-name">SUNBLADE</span><span class="u-role">Melee T1</span></div>
+<div class="u-desc">Sunblade with regenerating shield. Durable melee trooper of the warp faction.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">140</span></div><div><span class="lbl">DMG</span><span class="val">18</span></div><div><span class="lbl">RANGE</span><span class="val">20</span></div><div><span class="lbl">SPD</span><span class="val">72</span></div></div>
+<div class="cost">Cost: <b>100 min</b> &middot; pop 2</div></div><div class="unit" style="--edge:var(--warp)">
+<div class="u-top"><span class="u-name">VEIL EYE</span><span class="u-role">Detector T2</span></div>
+<div class="u-desc">Veil Eye, extended vision and detection. Reveals stealth and ambushes.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">40</span></div><div><span class="lbl">DMG</span><span class="val">—</span></div><div><span class="lbl">RANGE</span><span class="val">melee</span></div><div><span class="lbl">SPD</span><span class="val">94</span></div></div>
+<div class="cost">Cost: <b>25 min</b> &middot; <span class="g">75 gas</span> &middot; pop 1</div></div><div class="unit" style="--edge:var(--warp)">
+<div class="u-top"><span class="u-name">RIFT LANCER</span><span class="u-role">Ranged T2</span></div>
+<div class="u-desc">Ranged Rift Lancer. Reliable shielded attacker.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">160</span></div><div><span class="lbl">DMG</span><span class="val">23</span></div><div><span class="lbl">RANGE</span><span class="val">130</span></div><div><span class="lbl">SPD</span><span class="val">64</span></div></div>
+<div class="cost">Cost: <b>125 min</b> &middot; <span class="g">50 gas</span> &middot; pop 2</div></div><div class="unit" style="--edge:var(--warp)">
+<div class="u-top"><span class="u-name">PRISM WARDEN</span><span class="u-role">Support T2</span></div>
+<div class="u-desc">Prism Warden. Control and energy support for the Helias line.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">100</span></div><div><span class="lbl">DMG</span><span class="val">12</span></div><div><span class="lbl">RANGE</span><span class="val">118</span></div><div><span class="lbl">SPD</span><span class="val">58</span></div></div>
+<div class="cost">Cost: <b>100 min</b> &middot; <span class="g">100 gas</span> &middot; pop 2</div></div><div class="unit" style="--edge:var(--warp)">
+<div class="u-top"><span class="u-name">AURORA WING</span><span class="u-role">Fast air T2</span></div>
+<div class="u-desc">Highly mobile Aurora Wing. Strikes and retreats before the reply.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">180</span></div><div><span class="lbl">DMG</span><span class="val">20</span></div><div><span class="lbl">RANGE</span><span class="val">158</span></div><div><span class="lbl">SPD</span><span class="val">148</span></div></div>
+<div class="cost">Cost: <b>150 min</b> &middot; <span class="g">100 gas</span> &middot; pop 2</div></div><div class="unit" style="--edge:var(--warp)">
 <div class="u-top"><span class="u-name">BULWARK</span><span class="u-role">Tank T2</span></div>
-<div class="u-desc">Bulwark lourdement blindé. Point d&#x27;ancrage à bouclier épais.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">300</span></div><div><span class="lbl">DÉG</span><span class="val">58</span></div><div><span class="lbl">PORTÉE</span><span class="val">132</span></div><div><span class="lbl">VIT</span><span class="val">42</span></div></div>
-<div class="cost">Coût&nbsp;: <b>275&nbsp;min</b> &middot; <span class="g">100&nbsp;gaz</span> &middot; pop&nbsp;4</div></div><div class="unit" style="--edge:var(--warp)">
-<div class="u-top"><span class="u-name">NULL SPEAR</span><span class="u-role">Air focalisé T2</span></div>
-<div class="u-desc">Null Spear à faisceau qui monte en puissance. Fond les grosses cibles.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">280</span></div><div><span class="lbl">DÉG</span><span class="val">9</span></div><div><span class="lbl">PORTÉE</span><span class="val">168</span></div><div><span class="lbl">VIT</span><span class="val">78</span></div></div>
-<div class="cost">Coût&nbsp;: <b>250&nbsp;min</b> &middot; <span class="g">150&nbsp;gaz</span> &middot; pop&nbsp;4</div></div><div class="unit" style="--edge:var(--warp)">
-<div class="u-top"><span class="u-name">SKYSTRIDER</span><span class="u-role">Siège T3</span></div>
-<div class="u-desc">Skystrider, marcheur de siège à dégâts de zone. Ravage l&#x27;infanterie à longue portée.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">420</span></div><div><span class="lbl">DÉG</span><span class="val">72</span></div><div><span class="lbl">PORTÉE</span><span class="val">205</span></div><div><span class="lbl">VIT</span><span class="val">38</span></div></div>
-<div class="cost">Coût&nbsp;: <b>300&nbsp;min</b> &middot; <span class="g">200&nbsp;gaz</span> &middot; pop&nbsp;6</div></div><div class="unit" style="--edge:var(--warp)">
-<div class="u-top"><span class="u-name">CELESTIAL ARK</span><span class="u-role">Porte-nefs T3</span></div>
-<div class="u-desc">Celestial Ark et ses intercepteurs. Capital ship de fin de partie.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">520</span></div><div><span class="lbl">DÉG</span><span class="val">48</span></div><div><span class="lbl">PORTÉE</span><span class="val">188</span></div><div><span class="lbl">VIT</span><span class="val">52</span></div></div>
-<div class="cost">Coût&nbsp;: <b>350&nbsp;min</b> &middot; <span class="g">250&nbsp;gaz</span> &middot; pop&nbsp;6</div></div></div></section><section class="fac-block" style="--edge:var(--iron)" id="human">
-<div class="band"><h2>Humains</h2><span class="tag">HUMANS</span></div>
-<p class="fac-intro">La faction humaine mise sur l&#x27;industrie et l&#x27;équilibre. Une économie robuste alimente une armée mixte — infanterie, blindés, aviation et soutien — sans faiblesse criante. C&#x27;est la faction la plus lisible pour apprendre le jeu, et la plus flexible pour s&#x27;adapter à n&#x27;importe quel adversaire.</p>
+<div class="u-desc">Heavily armored Bulwark. Thick-shielded anchor point.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">300</span></div><div><span class="lbl">DMG</span><span class="val">58</span></div><div><span class="lbl">RANGE</span><span class="val">132</span></div><div><span class="lbl">SPD</span><span class="val">42</span></div></div>
+<div class="cost">Cost: <b>275 min</b> &middot; <span class="g">100 gas</span> &middot; pop 4</div></div><div class="unit" style="--edge:var(--warp)">
+<div class="u-top"><span class="u-name">NULL SPEAR</span><span class="u-role">Focused air T2</span></div>
+<div class="u-desc">Null Spear with a ramping beam. Melts high-value targets.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">280</span></div><div><span class="lbl">DMG</span><span class="val">9</span></div><div><span class="lbl">RANGE</span><span class="val">168</span></div><div><span class="lbl">SPD</span><span class="val">78</span></div></div>
+<div class="cost">Cost: <b>250 min</b> &middot; <span class="g">150 gas</span> &middot; pop 4</div></div><div class="unit" style="--edge:var(--warp)">
+<div class="u-top"><span class="u-name">SKYSTRIDER</span><span class="u-role">Siege T3</span></div>
+<div class="u-desc">Skystrider, siege walker with splash. Wrecks infantry at long range.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">420</span></div><div><span class="lbl">DMG</span><span class="val">72</span></div><div><span class="lbl">RANGE</span><span class="val">205</span></div><div><span class="lbl">SPD</span><span class="val">38</span></div></div>
+<div class="cost">Cost: <b>300 min</b> &middot; <span class="g">200 gas</span> &middot; pop 6</div></div><div class="unit" style="--edge:var(--warp)">
+<div class="u-top"><span class="u-name">CELESTIAL ARK</span><span class="u-role">Carrier T3</span></div>
+<div class="u-desc">Celestial Ark and its interceptors. Late-game capital ship.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">520</span></div><div><span class="lbl">DMG</span><span class="val">48</span></div><div><span class="lbl">RANGE</span><span class="val">188</span></div><div><span class="lbl">SPD</span><span class="val">52</span></div></div>
+<div class="cost">Cost: <b>350 min</b> &middot; <span class="g">250 gas</span> &middot; pop 6</div></div></div></section><section class="fac-block" style="--edge:var(--iron)" id="human">
+<div class="band"><h2>Humans</h2><span class="tag">HUMANS</span></div>
+<p class="fac-intro">The human faction is built on industry and balance. A robust economy feeds a mixed army — infantry, armor, aviation and support — with no glaring weakness. It&#x27;s the most readable faction to learn the game with, and the most flexible against any opponent.</p>
 <div class="units"><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">FORAGER</span><span class="u-role">Économie</span></div>
-<div class="u-desc">Récolteur de base. Sans lui, aucune armée ne sort — protégez la ligne de récolte avant tout.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">40</span></div><div><span class="lbl">DÉG</span><span class="val">—</span></div><div><span class="lbl">PORTÉE</span><span class="val">14</span></div><div><span class="lbl">VIT</span><span class="val">62</span></div></div>
-<div class="cost">Coût&nbsp;: <b>50&nbsp;min</b> &middot; pop&nbsp;1</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">CLOSE-COMBAT INFANTRY</span><span class="u-role">Assaut T1</span></div>
-<div class="u-desc">Infanterie de contact bon marché. Efficace en masse tôt, fragile face aux dégâts de zone.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">62</span></div><div><span class="lbl">DÉG</span><span class="val">9</span></div><div><span class="lbl">PORTÉE</span><span class="val">18</span></div><div><span class="lbl">VIT</span><span class="val">72</span></div></div>
-<div class="cost">Coût&nbsp;: <b>35&nbsp;min</b> &middot; pop&nbsp;1</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">HEALER</span><span class="u-role">Soutien</span></div>
-<div class="u-desc">Soigne l&#x27;infanterie en campagne. Multiplie la valeur d&#x27;une armée de contact.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">52</span></div><div><span class="lbl">DÉG</span><span class="val">—</span></div><div><span class="lbl">PORTÉE</span><span class="val">58</span></div><div><span class="lbl">VIT</span><span class="val">52</span></div></div>
-<div class="cost">Coût&nbsp;: <b>55&nbsp;min</b> &middot; <span class="g">40&nbsp;gaz</span> &middot; pop&nbsp;1</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">MG JEEP</span><span class="u-role">Éclaireur</span></div>
-<div class="u-desc">Jeep mitrailleuse rapide. Idéale pour harceler récolteurs et éclairer la carte.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">92</span></div><div><span class="lbl">DÉG</span><span class="val">4.5</span></div><div><span class="lbl">PORTÉE</span><span class="val">78</span></div><div><span class="lbl">VIT</span><span class="val">82</span></div></div>
-<div class="cost">Coût&nbsp;: <b>80&nbsp;min</b> &middot; <span class="g">30&nbsp;gaz</span> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">MG HELICOPTER</span><span class="u-role">Air léger</span></div>
-<div class="u-desc">Hélicoptère mitrailleur. Mobilité verticale pour contourner les lignes.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">230</span></div><div><span class="lbl">DÉG</span><span class="val">6.5</span></div><div><span class="lbl">PORTÉE</span><span class="val">105</span></div><div><span class="lbl">VIT</span><span class="val">96</span></div></div>
-<div class="cost">Coût&nbsp;: <b>180&nbsp;min</b> &middot; <span class="g">130&nbsp;gaz</span> &middot; pop&nbsp;3</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">MECHANIC</span><span class="u-role">Soutien</span></div>
-<div class="u-desc">Répare véhicules et structures sur le terrain. Gardez-le derrière la ligne de front.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">58</span></div><div><span class="lbl">DÉG</span><span class="val">—</span></div><div><span class="lbl">PORTÉE</span><span class="val">18</span></div><div><span class="lbl">VIT</span><span class="val">55</span></div></div>
-<div class="cost">Coût&nbsp;: <b>70&nbsp;min</b> &middot; <span class="g">25&nbsp;gaz</span> &middot; pop&nbsp;1</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">LONG-RANGE INFANTRY</span><span class="u-role">Tir T1</span></div>
-<div class="u-desc">Fantassin à distance. Formez un mur de tir derrière vos unités de contact.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">92</span></div><div><span class="lbl">DÉG</span><span class="val">17</span></div><div><span class="lbl">PORTÉE</span><span class="val">112</span></div><div><span class="lbl">VIT</span><span class="val">48</span></div></div>
-<div class="cost">Coût&nbsp;: <b>90&nbsp;min</b> &middot; <span class="g">60&nbsp;gaz</span> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">FORAGER</span><span class="u-role">Economy</span></div>
+<div class="u-desc">Basic harvester. No army moves without it — protect your harvesting line above all.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">40</span></div><div><span class="lbl">DMG</span><span class="val">—</span></div><div><span class="lbl">RANGE</span><span class="val">14</span></div><div><span class="lbl">SPD</span><span class="val">62</span></div></div>
+<div class="cost">Cost: <b>50 min</b> &middot; pop 1</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">CLOSE-COMBAT INFANTRY</span><span class="u-role">Assault T1</span></div>
+<div class="u-desc">Cheap close-combat infantry. Strong in numbers early, fragile against splash.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">62</span></div><div><span class="lbl">DMG</span><span class="val">9</span></div><div><span class="lbl">RANGE</span><span class="val">18</span></div><div><span class="lbl">SPD</span><span class="val">72</span></div></div>
+<div class="cost">Cost: <b>35 min</b> &middot; pop 1</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">HEALER</span><span class="u-role">Support</span></div>
+<div class="u-desc">Heals infantry on campaign. Multiplies the value of a close-combat army.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">52</span></div><div><span class="lbl">DMG</span><span class="val">—</span></div><div><span class="lbl">RANGE</span><span class="val">58</span></div><div><span class="lbl">SPD</span><span class="val">52</span></div></div>
+<div class="cost">Cost: <b>55 min</b> &middot; <span class="g">40 gas</span> &middot; pop 1</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">MG JEEP</span><span class="u-role">Scout</span></div>
+<div class="u-desc">Fast MG jeep. Ideal for harassing harvesters and scouting the map.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">92</span></div><div><span class="lbl">DMG</span><span class="val">4.5</span></div><div><span class="lbl">RANGE</span><span class="val">78</span></div><div><span class="lbl">SPD</span><span class="val">82</span></div></div>
+<div class="cost">Cost: <b>80 min</b> &middot; <span class="g">30 gas</span> &middot; pop 2</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">MG HELICOPTER</span><span class="u-role">Light air</span></div>
+<div class="u-desc">MG helicopter. Vertical mobility to flank enemy lines.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">230</span></div><div><span class="lbl">DMG</span><span class="val">6.5</span></div><div><span class="lbl">RANGE</span><span class="val">105</span></div><div><span class="lbl">SPD</span><span class="val">96</span></div></div>
+<div class="cost">Cost: <b>180 min</b> &middot; <span class="g">130 gas</span> &middot; pop 3</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">MECHANIC</span><span class="u-role">Support</span></div>
+<div class="u-desc">Repairs vehicles and structures in the field. Keep it behind the front line.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">58</span></div><div><span class="lbl">DMG</span><span class="val">—</span></div><div><span class="lbl">RANGE</span><span class="val">18</span></div><div><span class="lbl">SPD</span><span class="val">55</span></div></div>
+<div class="cost">Cost: <b>70 min</b> &middot; <span class="g">25 gas</span> &middot; pop 1</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">LONG-RANGE INFANTRY</span><span class="u-role">Ranged T1</span></div>
+<div class="u-desc">Ranged trooper. Form a firing wall behind your close-combat units.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">92</span></div><div><span class="lbl">DMG</span><span class="val">17</span></div><div><span class="lbl">RANGE</span><span class="val">112</span></div><div><span class="lbl">SPD</span><span class="val">48</span></div></div>
+<div class="cost">Cost: <b>90 min</b> &middot; <span class="g">60 gas</span> &middot; pop 2</div></div><div class="unit" style="--edge:var(--iron)">
 <div class="u-top"><span class="u-name">ARMORED JEEP</span><span class="u-role">Raid</span></div>
-<div class="u-desc">Jeep blindée plus résistante. Encaisse mieux les échanges de harcèlement.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">185</span></div><div><span class="lbl">DÉG</span><span class="val">14</span></div><div><span class="lbl">PORTÉE</span><span class="val">88</span></div><div><span class="lbl">VIT</span><span class="val">66</span></div></div>
-<div class="cost">Coût&nbsp;: <b>135&nbsp;min</b> &middot; <span class="g">80&nbsp;gaz</span> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-desc">Tougher armored jeep. Trades better in harassment exchanges.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">185</span></div><div><span class="lbl">DMG</span><span class="val">14</span></div><div><span class="lbl">RANGE</span><span class="val">88</span></div><div><span class="lbl">SPD</span><span class="val">66</span></div></div>
+<div class="cost">Cost: <b>135 min</b> &middot; <span class="g">80 gas</span> &middot; pop 2</div></div><div class="unit" style="--edge:var(--iron)">
 <div class="u-top"><span class="u-name">RADAR OPERATOR</span><span class="u-role">Vision</span></div>
-<div class="u-desc">Opérateur radar déployable. Étend la vision et révèle les approches.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">68</span></div><div><span class="lbl">DÉG</span><span class="val">—</span></div><div><span class="lbl">PORTÉE</span><span class="val">mêlée</span></div><div><span class="lbl">VIT</span><span class="val">50</span></div></div>
-<div class="cost">Coût&nbsp;: <b>105&nbsp;min</b> &middot; <span class="g">120&nbsp;gaz</span> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">DOUBLE-PROPELLER CHOPPER</span><span class="u-role">Air lourd</span></div>
-<div class="u-desc">Chopper bi-rotor. Plus de puissance de feu aérienne, plus lent à repositionner.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">410</span></div><div><span class="lbl">DÉG</span><span class="val">5</span></div><div><span class="lbl">PORTÉE</span><span class="val">128</span></div><div><span class="lbl">VIT</span><span class="val">72</span></div></div>
-<div class="cost">Coût&nbsp;: <b>290&nbsp;min</b> &middot; <span class="g">250&nbsp;gaz</span> &middot; pop&nbsp;5</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">ROBO-MINER</span><span class="u-role">Économie</span></div>
-<div class="u-desc">Mineur automatisé à plus haut rendement. Rentabilise les gisements tenus dans la durée.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">160</span></div><div><span class="lbl">DÉG</span><span class="val">—</span></div><div><span class="lbl">PORTÉE</span><span class="val">16</span></div><div><span class="lbl">VIT</span><span class="val">76</span></div></div>
-<div class="cost">Coût&nbsp;: <b>145&nbsp;min</b> &middot; <span class="g">70&nbsp;gaz</span> &middot; pop&nbsp;2</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">MORTAR TEAM</span><span class="u-role">Siège T1</span></div>
-<div class="u-desc">Équipe de mortier à dégâts de zone. Dévastateur sur les groupes serrés, vulnérable au rush.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">105</span></div><div><span class="lbl">DÉG</span><span class="val">62</span></div><div><span class="lbl">PORTÉE</span><span class="val">225</span></div><div><span class="lbl">VIT</span><span class="val">35</span></div></div>
-<div class="cost">Coût&nbsp;: <b>165&nbsp;min</b> &middot; <span class="g">170&nbsp;gaz</span> &middot; pop&nbsp;3</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">HEAVY FLAME JEEP</span><span class="u-role">Anti-groupe</span></div>
-<div class="u-desc">Jeep lance-flammes. Nettoie l&#x27;infanterie agglutinée à courte portée.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">290</span></div><div><span class="lbl">DÉG</span><span class="val">12</span></div><div><span class="lbl">PORTÉE</span><span class="val">66</span></div><div><span class="lbl">VIT</span><span class="val">35</span></div></div>
-<div class="cost">Coût&nbsp;: <b>185&nbsp;min</b> &middot; <span class="g">155&nbsp;gaz</span> &middot; pop&nbsp;3</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">FORCE FIELD TRUCK</span><span class="u-role">Soutien</span></div>
-<div class="u-desc">Camion à champ de force. Bulle protectrice mobile pour absorber les salves.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">260</span></div><div><span class="lbl">DÉG</span><span class="val">—</span></div><div><span class="lbl">PORTÉE</span><span class="val">mêlée</span></div><div><span class="lbl">VIT</span><span class="val">31</span></div></div>
-<div class="cost">Coût&nbsp;: <b>230&nbsp;min</b> &middot; <span class="g">210&nbsp;gaz</span> &middot; pop&nbsp;3</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-desc">Deployable radar operator. Extends vision and reveals approaches.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">68</span></div><div><span class="lbl">DMG</span><span class="val">—</span></div><div><span class="lbl">RANGE</span><span class="val">melee</span></div><div><span class="lbl">SPD</span><span class="val">50</span></div></div>
+<div class="cost">Cost: <b>105 min</b> &middot; <span class="g">120 gas</span> &middot; pop 2</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">DOUBLE-PROPELLER CHOPPER</span><span class="u-role">Heavy air</span></div>
+<div class="u-desc">Twin-rotor chopper. More air firepower, slower to reposition.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">410</span></div><div><span class="lbl">DMG</span><span class="val">5</span></div><div><span class="lbl">RANGE</span><span class="val">128</span></div><div><span class="lbl">SPD</span><span class="val">72</span></div></div>
+<div class="cost">Cost: <b>290 min</b> &middot; <span class="g">250 gas</span> &middot; pop 5</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">ROBO-MINER</span><span class="u-role">Economy</span></div>
+<div class="u-desc">Automated miner with higher yield. Pays off on nodes you hold long-term.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">160</span></div><div><span class="lbl">DMG</span><span class="val">—</span></div><div><span class="lbl">RANGE</span><span class="val">16</span></div><div><span class="lbl">SPD</span><span class="val">76</span></div></div>
+<div class="cost">Cost: <b>145 min</b> &middot; <span class="g">70 gas</span> &middot; pop 2</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">MORTAR TEAM</span><span class="u-role">Siege T1</span></div>
+<div class="u-desc">Mortar team with splash damage. Devastating on clustered groups, weak to rushes.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">105</span></div><div><span class="lbl">DMG</span><span class="val">62</span></div><div><span class="lbl">RANGE</span><span class="val">225</span></div><div><span class="lbl">SPD</span><span class="val">35</span></div></div>
+<div class="cost">Cost: <b>165 min</b> &middot; <span class="g">170 gas</span> &middot; pop 3</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">HEAVY FLAME JEEP</span><span class="u-role">Anti-cluster</span></div>
+<div class="u-desc">Flame jeep. Clears massed infantry at close range.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">290</span></div><div><span class="lbl">DMG</span><span class="val">12</span></div><div><span class="lbl">RANGE</span><span class="val">66</span></div><div><span class="lbl">SPD</span><span class="val">35</span></div></div>
+<div class="cost">Cost: <b>185 min</b> &middot; <span class="g">155 gas</span> &middot; pop 3</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">FORCE FIELD TRUCK</span><span class="u-role">Support</span></div>
+<div class="u-desc">Force-field truck. Mobile protective bubble to soak incoming volleys.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">260</span></div><div><span class="lbl">DMG</span><span class="val">—</span></div><div><span class="lbl">RANGE</span><span class="val">melee</span></div><div><span class="lbl">SPD</span><span class="val">31</span></div></div>
+<div class="cost">Cost: <b>230 min</b> &middot; <span class="g">210 gas</span> &middot; pop 3</div></div><div class="unit" style="--edge:var(--iron)">
 <div class="u-top"><span class="u-name">ANTI-AIR FIGHTER JET</span><span class="u-role">Anti-air</span></div>
-<div class="u-desc">Chasseur dédié à l&#x27;interception. Indispensable contre Skyblight et Aurora Wing.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">320</span></div><div><span class="lbl">DÉG</span><span class="val">48</span></div><div><span class="lbl">PORTÉE</span><span class="val">178</span></div><div><span class="lbl">VIT</span><span class="val">148</span></div></div>
-<div class="cost">Coût&nbsp;: <b>340&nbsp;min</b> &middot; <span class="g">310&nbsp;gaz</span> &middot; pop&nbsp;5</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">WAR MECHA</span><span class="u-role">Assaut lourd</span></div>
-<div class="u-desc">War Mecha polyvalent. Colonne vertébrale de l&#x27;armée humaine en milieu de partie.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">820</span></div><div><span class="lbl">DÉG</span><span class="val">22</span></div><div><span class="lbl">PORTÉE</span><span class="val">158</span></div><div><span class="lbl">VIT</span><span class="val">27</span></div></div>
-<div class="cost">Coût&nbsp;: <b>420&nbsp;min</b> &middot; <span class="g">360&nbsp;gaz</span> &middot; pop&nbsp;6</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">BOMBER</span><span class="u-role">Bombardier</span></div>
-<div class="u-desc">Frappe de zone au sol. Coûteux mais décisif sur une base massée.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">520</span></div><div><span class="lbl">DÉG</span><span class="val">135</span></div><div><span class="lbl">PORTÉE</span><span class="val">8</span></div><div><span class="lbl">VIT</span><span class="val">86</span></div></div>
-<div class="cost">Coût&nbsp;: <b>440&nbsp;min</b> &middot; <span class="g">390&nbsp;gaz</span> &middot; pop&nbsp;7</div></div><div class="unit" style="--edge:var(--iron)">
-<div class="u-top"><span class="u-name">TITAN TANK</span><span class="u-role">Char lourd</span></div>
-<div class="u-desc">Titan Tank, mode forteresse. Point d&#x27;ancrage défensif contre les poussées frontales.</div>
-<div class="u-stats"><div><span class="lbl">PV</span><span class="val">980</span></div><div><span class="lbl">DÉG</span><span class="val">145</span></div><div><span class="lbl">PORTÉE</span><span class="val">122</span></div><div><span class="lbl">VIT</span><span class="val">20</span></div></div>
-<div class="cost">Coût&nbsp;: <b>480&nbsp;min</b> &middot; <span class="g">420&nbsp;gaz</span> &middot; pop&nbsp;7</div></div></div></section>
+<div class="u-desc">Dedicated interceptor jet. Essential against Skyblight and Aurora Wing.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">320</span></div><div><span class="lbl">DMG</span><span class="val">48</span></div><div><span class="lbl">RANGE</span><span class="val">178</span></div><div><span class="lbl">SPD</span><span class="val">148</span></div></div>
+<div class="cost">Cost: <b>340 min</b> &middot; <span class="g">310 gas</span> &middot; pop 5</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">WAR MECHA</span><span class="u-role">Heavy assault</span></div>
+<div class="u-desc">Versatile War Mecha. Backbone of the human army in the mid-game.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">820</span></div><div><span class="lbl">DMG</span><span class="val">22</span></div><div><span class="lbl">RANGE</span><span class="val">158</span></div><div><span class="lbl">SPD</span><span class="val">27</span></div></div>
+<div class="cost">Cost: <b>420 min</b> &middot; <span class="g">360 gas</span> &middot; pop 6</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">BOMBER</span><span class="u-role">Bomber</span></div>
+<div class="u-desc">Ground splash strikes. Costly but decisive on a massed base.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">520</span></div><div><span class="lbl">DMG</span><span class="val">135</span></div><div><span class="lbl">RANGE</span><span class="val">8</span></div><div><span class="lbl">SPD</span><span class="val">86</span></div></div>
+<div class="cost">Cost: <b>440 min</b> &middot; <span class="g">390 gas</span> &middot; pop 7</div></div><div class="unit" style="--edge:var(--iron)">
+<div class="u-top"><span class="u-name">TITAN TANK</span><span class="u-role">Heavy tank</span></div>
+<div class="u-desc">Titan Tank, fortress mode. Defensive anchor against frontal pushes.</div>
+<div class="u-stats"><div><span class="lbl">HP</span><span class="val">980</span></div><div><span class="lbl">DMG</span><span class="val">145</span></div><div><span class="lbl">RANGE</span><span class="val">122</span></div><div><span class="lbl">SPD</span><span class="val">20</span></div></div>
+<div class="cost">Cost: <b>480 min</b> &middot; <span class="g">420 gas</span> &middot; pop 7</div></div></div></section>
 </main>
 <footer><div class="wrap foot-in">
-<div>StarLite II &mdash; RTS navigateur &middot; par Achille Peter</div>
+<div>StarLite II &mdash; browser RTS &middot; by Achille Peter</div>
 <div class="foot-links">
-<a href="/">Accueil</a><a href="/guide/">Guide</a><a href="/factions/">Unités</a>
-<a href="/devlog/">Devlog</a><a href="/confidentialite.html">Confidentialité</a>
-<a href="/contact.html">Contact</a></div>
+<a href="/">Home</a><a href="/guide/">Guide</a><a href="/factions/">Units</a>
+<a href="/devlog/">Devlog</a><a href="/privacy.html">Privacy</a><a href="/contact.html">Contact</a></div>
 </div></footer>
 </body></html>
