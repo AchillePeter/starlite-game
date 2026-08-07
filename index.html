@@ -1,7 +1,7 @@
-<!doctype html><html lang="fr"><head>
+<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StarLite II — RTS de stratégie en temps réel dans le navigateur</title>
-<meta name="description" content="StarLite II, jeu de stratégie temps réel jouable gratuitement dans le navigateur. Trois factions, 39 unités, mode solo contre l&#x27;IA et duel multijoueur en ligne.">
+<title>StarLite II — real-time strategy in your browser</title>
+<meta name="description" content="StarLite II, a free real-time strategy game playable in the browser. Three factions, 39 units, solo campaign, skirmish vs. AI and online multiplayer duels.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -12,54 +12,56 @@
 <a class="brand" href="/"><b>STARLITE</b> II</a>
 <nav class="nav-links">
 <a href="/guide/">Guide</a>
-<a href="/factions/">Factions &amp; unités</a>
+<a href="/factions/">Factions &amp; units</a>
 <a href="/devlog/">Devlog</a>
-<a href="/play/" class="nav-cta">&#9654; Jouer</a>
+<a href="/play/" class="nav-cta">&#9654; Play</a>
 </nav></div></header>
 <main>
-<section class="hero"><div class="scan"></div><div class="wrap hero-grid">
-<div>
-<p class="eyebrow">RTS navigateur &middot; temps réel &middot; multijoueur</p>
-<h1>Trois espèces.<br>Une seule carte.<br>Aucune trêve.</h1>
-<p class="lead">StarLite II est un jeu de stratégie en temps réel qui tourne entièrement dans votre navigateur — sans installation. Récoltez, construisez, faites évoluer votre armée et écrasez l'adversaire, contre l'IA ou en duel en ligne.</p>
-<div class="cta-row">
-<a class="btn btn-primary" href="/play/">&#9654; Lancer une partie</a>
-<a class="btn btn-ghost" href="/guide/">Lire le guide</a>
+<section class="menu-hero"><div class="scan"></div><div class="wrap">
+<div class="menu-brand">
+<p class="kick">Tactical command</p>
+<h1>Star<span>Lite II</span></h1>
 </div>
+<p class="menu-sub">A real-time strategy game that runs entirely in your browser — no install. Three factions, 39 units, solo campaign, skirmish vs. the AI, and online duels.</p>
+<p class="menu-heading">// Choose how to play</p>
+<div class="gates">
+<a class="gate" style="--edge:var(--warp)" href="/play/#multiplayer">
+<span class="scene"><span class="grid"></span></span>
+<span class="corner">01</span>
+<span class="label"><small>Online 1v1 duel</small><strong>MULTIPLAYER</strong></span></a>
+<a class="gate" style="--edge:var(--iron)" href="/play/#computer">
+<span class="scene"><span class="grid"></span></span>
+<span class="corner">02</span>
+<span class="label"><small>Skirmish vs. AI</small><strong>VS. COMPUTER</strong></span></a>
+<a class="gate" style="--edge:var(--brood)" href="/play/#campaign">
+<span class="scene"><span class="grid"></span></span>
+<span class="corner">03</span>
+<span class="label"><small>Story missions</small><strong>CAMPAIGN</strong></span></a>
 </div>
-<div class="readout" aria-hidden="true">
-<div class="r-head"><span>// STATUS_TACTIQUE</span><span>LIVE</span></div>
-<div class="r-row"><span><span class="dot" style="background:var(--brood)"></span>Zglenglo</span><span>brood · évolution</span></div>
-<div class="r-row"><span><span class="dot" style="background:var(--warp)"></span>Helias</span><span>boucliers · warp</span></div>
-<div class="r-row"><span><span class="dot" style="background:var(--iron)"></span>Humains</span><span>blindage · industrie</span></div>
-<div class="r-row"><span>Unités jouables</span><span>39</span></div>
-<div class="r-row"><span>Mode duel en ligne</span><span>lockstep déterministe</span></div>
-<div class="r-row"><span>Installation</span><span>0 &mdash; 100% navigateur</span></div>
-</div>
+<p class="gate-note">Each mode launches the game instantly. New here? Start with <a href="/play/#computer">a match against the AI</a> or read the <a href="/guide/">quick guide</a> below.</p>
 </div></section>
 
 <div class="wrap">
 <div class="strip">
-<div><div class="k">01 / ÉCONOMIE</div><h3>Récolter pour dominer</h3><p>Chaque faction démarre par sa ligne de récolte. Sécurisez vos ressources avant de projeter votre armée.</p></div>
-<div><div class="k">02 / ARMÉE</div><h3>Trois doctrines</h3><p>Le nombre des Zglenglo, les boucliers Helias, la polyvalence humaine. Trois manières incompatibles de gagner.</p></div>
-<div><div class="k">03 / DUEL</div><h3>Multijoueur en ligne</h3><p>Affrontez un autre joueur en temps réel via un netcode lockstep déterministe, directement dans le navigateur.</p></div>
+<div><div class="k">01 / ECONOMY</div><h3>Harvest to dominate</h3><p>Every faction starts with its harvesting line. Secure your resources before projecting your army.</p></div>
+<div><div class="k">02 / ARMY</div><h3>Three doctrines</h3><p>The Zglenglo's numbers, the Helias shields, human versatility. Three incompatible ways to win.</p></div>
+<div><div class="k">03 / DUEL</div><h3>Online multiplayer</h3><p>Face another player in real time over a deterministic lockstep netcode, right in the browser.</p></div>
 </div>
 
-<h2>Choisissez votre espèce</h2>
+<h2>Choose your species</h2>
 <div class="factions">
-<a class="fac" style="--edge:var(--brood)" href="/factions/#insect"><span class="tag">LE BROOD</span><h3>Zglenglo</h3><div class="sub">Évolution · régénération · nombre</div><p>Les Zglenglo ne construisent pas, ils prolifèrent. Leur force naît de la masse : des unités bon marché produites en flux continu, une ruche qui évolue…</p></a><a class="fac" style="--edge:var(--warp)" href="/factions/#helias"><span class="tag">THE HELIAS</span><h3>Helias</h3><div class="sub">Boucliers · warp · énergie focalisée</div><p>Les Helias combattent derrière des boucliers qui se régénèrent hors combat, récompensant les engagements par à-coups et le micro-management. Des unité…</p></a><a class="fac" style="--edge:var(--iron)" href="/factions/#human"><span class="tag">HUMANS</span><h3>Humains</h3><div class="sub">Blindage · industrie · polyvalence</div><p>La faction humaine mise sur l&#x27;industrie et l&#x27;équilibre. Une économie robuste alimente une armée mixte — infanterie, blindés, aviation et soutien — san…</p></a>
+<a class="fac" style="--edge:var(--brood)" href="/factions/#insect"><span class="tag">THE BROOD</span><h3>Zglenglo</h3><div class="sub">Evolution · regeneration · numbers</div><p>The Zglenglo don&#x27;t build, they proliferate. Their strength is mass: cheap units produced in a constant stream, a hive that evolves in tiers, and a cre…</p></a><a class="fac" style="--edge:var(--warp)" href="/factions/#helias"><span class="tag">THE HELIAS</span><h3>Helias</h3><div class="sub">Shields · warp · focused energy</div><p>The Helias fight behind shields that regenerate out of combat, rewarding hit-and-run engagements and micro-management. Expensive but powerful units, w…</p></a><a class="fac" style="--edge:var(--iron)" href="/factions/#human"><span class="tag">HUMANS</span><h3>Humans</h3><div class="sub">Armor · industry · combined arms</div><p>The human faction is built on industry and balance. A robust economy feeds a mixed army — infantry, armor, aviation and support — with no glaring weak…</p></a>
 </div>
 
 <div class="callout" style="margin:40px 0 60px">
-<strong>Nouveau sur StarLite&nbsp;II&nbsp;?</strong> Le <a href="/guide/">guide de prise en main</a> couvre les commandes, l'économie et les premières stratégies. Ou lancez directement une partie contre l'IA pour apprendre sur le tas.
+<strong>New to StarLite&nbsp;II?</strong> The <a href="/guide/">quick-start guide</a> covers the controls, the economy and opening strategies. Or jump straight into <a href="/play/#computer">a match against the AI</a> to learn as you go.
 </div>
 </div>
 </main>
 <footer><div class="wrap foot-in">
-<div>StarLite II &mdash; RTS navigateur &middot; par Achille Peter</div>
+<div>StarLite II &mdash; browser RTS &middot; by Achille Peter</div>
 <div class="foot-links">
-<a href="/">Accueil</a><a href="/guide/">Guide</a><a href="/factions/">Unités</a>
-<a href="/devlog/">Devlog</a><a href="/confidentialite.html">Confidentialité</a>
-<a href="/contact.html">Contact</a></div>
+<a href="/">Home</a><a href="/guide/">Guide</a><a href="/factions/">Units</a>
+<a href="/devlog/">Devlog</a><a href="/privacy.html">Privacy</a><a href="/contact.html">Contact</a></div>
 </div></footer>
 </body></html>
