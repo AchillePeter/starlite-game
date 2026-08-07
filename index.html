@@ -7,33 +7,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="icon" href="/assets/favicon.png">
-</head><body><header class="nav"><div class="wrap nav-in">
+</head><body class="home"><section class="home-hero" id="home-hero">
+  <div class="home-loading" id="home-loading"><span class="spark"></span>Booting StarLite II…</div>
+  <iframe id="game-frame" src="/play/" title="StarLite II" loading="eager" scrolling="no" allow="fullscreen; autoplay"></iframe>
+  <div class="hero-controls">
+    <button type="button" class="hero-btn" id="fs-btn" aria-label="Play fullscreen">&#9974; Fullscreen</button>
+    <a class="hero-btn" href="/play/" target="_blank" rel="noopener" aria-label="Open in new tab">&#8599;</a>
+  </div>
+  <a class="hero-scroll" href="#more" aria-label="Scroll for info">MORE BELOW <span>&#9662;</span></a>
+</section><header class="nav"><div class="wrap nav-in">
 <a class="brand" href="/"><b>STARLITE</b> II</a>
 <nav class="nav-links">
 <a href="/guide/">Guide</a>
 <a href="/factions/">Factions &amp; units</a>
 <a href="/devlog/">Devlog</a>
 <a href="/play/" class="nav-cta">&#9654; Play fullscreen</a>
-</nav></div></header><main>
-<section class="embed-hero">
-  <div class="wrap embed-wrap">
-    <div class="embed-bar">
-      <span class="embed-tag"><span class="live-dot"></span>LIVE · TACTICAL COMMAND</span>
-      <div class="embed-actions">
-        <button type="button" class="embed-btn" id="fs-btn" aria-label="Play fullscreen">&#9974; Fullscreen</button>
-        <a class="embed-btn" href="/play/" target="_blank" rel="noopener">Open full game &#8599;</a>
-      </div>
-    </div>
-    <div class="embed-frame" id="embed-frame">
-      <div class="embed-loading" id="embed-loading"><span class="spark"></span>Booting StarLite II…</div>
-      <iframe id="game-frame" src="/play/" title="StarLite II — game menu"
-        loading="eager" scrolling="no" allow="fullscreen; autoplay"></iframe>
-    </div>
-    <p class="embed-hint">Pick a mode above to start playing right here — or hit <strong>Fullscreen</strong> for the full experience. Scroll down for the guide, factions and units.</p>
-  </div>
-</section>
-
-<div class="wrap">
+</nav></div></header><main class="wrap" id="more">
   <section class="intro-block">
     <p class="eyebrow">// StarLite II</p>
     <h2>A real-time strategy game in your browser</h2>
@@ -52,7 +41,6 @@
   <div class="callout" style="margin:40px 0 60px">
     <strong>New to StarLite&nbsp;II?</strong> The <a href="/guide/">quick-start guide</a> covers controls, economy and opening strategies. Or just pick <em>Vs. Computer</em> in the menu above to learn as you play.
   </div>
-</div>
 </main><footer><div class="wrap foot-in">
 <div>StarLite II &mdash; browser RTS &middot; by Achille Peter</div>
 <div class="foot-links">
@@ -60,16 +48,25 @@
 <a href="/devlog/">Devlog</a><a href="/privacy.html">Privacy</a><a href="/contact.html">Contact</a></div>
 </div></footer><script>
 (function(){
-  var frame=document.getElementById('embed-frame');
+  var hero=document.getElementById('home-hero');
   var iframe=document.getElementById('game-frame');
   var btn=document.getElementById('fs-btn');
-  var loading=document.getElementById('embed-loading');
+  var loading=document.getElementById('home-loading');
+  var nav=document.querySelector('header.nav');
   if(iframe){iframe.addEventListener('load',function(){if(loading)loading.style.display='none';});}
   if(btn){btn.addEventListener('click',function(){
-    var el=frame||iframe;
+    var el=hero||iframe;
     if(el.requestFullscreen)el.requestFullscreen();
     else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
     else window.open('/play/','_blank','noopener');
   });}
+  // Reveal the site nav only after the hero is scrolled past.
+  if(nav){
+    var onScroll=function(){
+      if(window.scrollY > (window.innerHeight*0.6)) nav.classList.add('nav-shown');
+      else nav.classList.remove('nav-shown');
+    };
+    window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  }
 })();
 </script></body></html>
