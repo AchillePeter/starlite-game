@@ -1,0 +1,51 @@
+<!doctype html><html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Devlog — StarLite II</title>
+<meta name="description" content="Journal de développement de StarLite II : optimisation du rendu, netcode lockstep déterministe et architecture single-file d&#x27;un RTS navigateur.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="/assets/favicon.png">
+</head><body>
+<header class="nav"><div class="wrap nav-in">
+<a class="brand" href="/"><b>STARLITE</b> II</a>
+<nav class="nav-links">
+<a href="/guide/">Guide</a>
+<a href="/factions/">Factions &amp; unités</a>
+<a href="/devlog/">Devlog</a>
+<a href="/play/" class="nav-cta">&#9654; Jouer</a>
+</nav></div></header>
+<main class="wrap doc">
+<p class="eyebrow">Journal de développement</p>
+<h1>Devlog</h1>
+<p class="lead">StarLite II est développé en solo, comme un jeu navigateur d'un seul fichier. Voici les coulisses techniques — netcode, performance, rendu.</p>
+
+<article style="margin:34px 0;padding-bottom:30px;border-bottom:1px solid var(--panel-line)">
+<h2 style="margin-top:0">Optimiser le rendu des grandes nuées</h2>
+<p class="eyebrow" style="letter-spacing:.16em">Performance &middot; moteur de rendu</p>
+<p>Une nuée de 300 Zglenglo en mouvement est le pire cas que le moteur puisse affronter. Le cache de sprites est volontairement contourné pour les unités en déplacement (afin de garder l'animation de marche fluide), si bien qu'une nuée mobile retombe intégralement sur le tracé vectoriel procédural, image par image.</p>
+<p>Le chantier en cours : un atlas de poses de marche (précalculer quelques images discrètes du cycle de marche au lieu d'un tracé 100&nbsp;% procédural), plus une résolution de collision consciente de la densité. Ce sont les deux prochains gros gains pour ce scénario précis.</p>
+</article>
+
+<article style="margin:34px 0;padding-bottom:30px;border-bottom:1px solid var(--panel-line)">
+<h2 style="margin-top:0">Un netcode lockstep déterministe</h2>
+<p class="eyebrow" style="letter-spacing:.16em">Multijoueur &middot; réseau</p>
+<p>Le duel en ligne repose sur un modèle <em>lockstep déterministe</em> : au lieu de synchroniser l'état complet du jeu, les deux clients n'échangent que les ordres et rejouent la même simulation, tick par tick. Cela suppose un déterminisme parfait — même générateur pseudo-aléatoire, même ordre de résolution, mêmes calculs de chemin.</p>
+<p>Un relais WebSocket léger achemine les commandes ordonnées entre les pairs, et un système de sommes de contrôle périodiques permet de détecter toute divergence de simulation entre les deux machines.</p>
+</article>
+
+<article style="margin:34px 0">
+<h2 style="margin-top:0">Tout un RTS dans un seul fichier HTML</h2>
+<p class="eyebrow" style="letter-spacing:.16em">Architecture</p>
+<p>StarLite II tient dans un unique fichier HTML — moteur, rendu, IA, netcode et données de jeu compris. Ce choix rend le déploiement trivial et le partage instantané : une seule page à mettre à jour. Le code est organisé en modules internes qui reproduisent une architecture classique tout en restant packagés dans ce fichier unique.</p>
+</article>
+</main>
+<footer><div class="wrap foot-in">
+<div>StarLite II &mdash; RTS navigateur &middot; par Achille Peter</div>
+<div class="foot-links">
+<a href="/">Accueil</a><a href="/guide/">Guide</a><a href="/factions/">Unités</a>
+<a href="/devlog/">Devlog</a><a href="/confidentialite.html">Confidentialité</a>
+<a href="/contact.html">Contact</a></div>
+</div></footer>
+</body></html>
