@@ -1,67 +1,75 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>StarLite II — real-time strategy in your browser</title>
-<meta name="description" content="StarLite II, a free real-time strategy game playable in the browser. Three factions, 39 units, solo campaign, skirmish vs. AI and online multiplayer duels.">
+<meta name="description" content="Play StarLite II free in your browser. A real-time strategy game with three factions, 39 units, solo campaign, skirmish vs. AI and online multiplayer duels.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/site.css">
 <link rel="icon" href="/assets/favicon.png">
-</head><body>
-<header class="nav"><div class="wrap nav-in">
+</head><body><header class="nav"><div class="wrap nav-in">
 <a class="brand" href="/"><b>STARLITE</b> II</a>
 <nav class="nav-links">
 <a href="/guide/">Guide</a>
 <a href="/factions/">Factions &amp; units</a>
 <a href="/devlog/">Devlog</a>
-<a href="/play/" class="nav-cta">&#9654; Play</a>
-</nav></div></header>
-<main>
-<section class="menu-hero"><div class="scan"></div><div class="wrap">
-<div class="menu-brand">
-<p class="kick">Tactical command</p>
-<h1>Star<span>Lite II</span></h1>
-</div>
-<p class="menu-sub">A real-time strategy game that runs entirely in your browser — no install. Three factions, 39 units, solo campaign, skirmish vs. the AI, and online duels.</p>
-<p class="menu-heading">// Choose how to play</p>
-<div class="gates">
-<a class="gate" style="--edge:var(--warp)" href="/play/#multiplayer">
-<span class="scene"><span class="grid"></span></span>
-<span class="corner">01</span>
-<span class="label"><small>Online 1v1 duel</small><strong>MULTIPLAYER</strong></span></a>
-<a class="gate" style="--edge:var(--iron)" href="/play/#computer">
-<span class="scene"><span class="grid"></span></span>
-<span class="corner">02</span>
-<span class="label"><small>Skirmish vs. AI</small><strong>VS. COMPUTER</strong></span></a>
-<a class="gate" style="--edge:var(--brood)" href="/play/#campaign">
-<span class="scene"><span class="grid"></span></span>
-<span class="corner">03</span>
-<span class="label"><small>Story missions</small><strong>CAMPAIGN</strong></span></a>
-</div>
-<p class="gate-note">Each mode launches the game instantly. New here? Start with <a href="/play/#computer">a match against the AI</a> or read the <a href="/guide/">quick guide</a> below.</p>
-</div></section>
+<a href="/play/" class="nav-cta">&#9654; Play fullscreen</a>
+</nav></div></header><main>
+<section class="embed-hero">
+  <div class="wrap embed-wrap">
+    <div class="embed-bar">
+      <span class="embed-tag"><span class="live-dot"></span>LIVE · TACTICAL COMMAND</span>
+      <div class="embed-actions">
+        <button type="button" class="embed-btn" id="fs-btn" aria-label="Play fullscreen">&#9974; Fullscreen</button>
+        <a class="embed-btn" href="/play/" target="_blank" rel="noopener">Open full game &#8599;</a>
+      </div>
+    </div>
+    <div class="embed-frame" id="embed-frame">
+      <div class="embed-loading" id="embed-loading"><span class="spark"></span>Booting StarLite II…</div>
+      <iframe id="game-frame" src="/play/" title="StarLite II — game menu"
+        loading="eager" scrolling="no" allow="fullscreen; autoplay"></iframe>
+    </div>
+    <p class="embed-hint">Pick a mode above to start playing right here — or hit <strong>Fullscreen</strong> for the full experience. Scroll down for the guide, factions and units.</p>
+  </div>
+</section>
 
 <div class="wrap">
-<div class="strip">
-<div><div class="k">01 / ECONOMY</div><h3>Harvest to dominate</h3><p>Every faction starts with its harvesting line. Secure your resources before projecting your army.</p></div>
-<div><div class="k">02 / ARMY</div><h3>Three doctrines</h3><p>The Zglenglo's numbers, the Helias shields, human versatility. Three incompatible ways to win.</p></div>
-<div><div class="k">03 / DUEL</div><h3>Online multiplayer</h3><p>Face another player in real time over a deterministic lockstep netcode, right in the browser.</p></div>
-</div>
+  <section class="intro-block">
+    <p class="eyebrow">// StarLite II</p>
+    <h2>A real-time strategy game in your browser</h2>
+    <p class="lead">Harvest, build, evolve your army and crush the enemy — solo campaign, skirmish against the AI, or online 1v1 duels. Three factions, 39 units, deterministic lockstep multiplayer. No install, nothing to download.</p>
+  </section>
 
-<h2>Choose your species</h2>
-<div class="factions">
-<a class="fac" style="--edge:var(--brood)" href="/factions/#insect"><span class="tag">THE BROOD</span><h3>Zglenglo</h3><div class="sub">Evolution · regeneration · numbers</div><p>The Zglenglo don&#x27;t build, they proliferate. Their strength is mass: cheap units produced in a constant stream, a hive that evolves in tiers, and a cre…</p></a><a class="fac" style="--edge:var(--warp)" href="/factions/#helias"><span class="tag">THE HELIAS</span><h3>Helias</h3><div class="sub">Shields · warp · focused energy</div><p>The Helias fight behind shields that regenerate out of combat, rewarding hit-and-run engagements and micro-management. Expensive but powerful units, w…</p></a><a class="fac" style="--edge:var(--iron)" href="/factions/#human"><span class="tag">HUMANS</span><h3>Humans</h3><div class="sub">Armor · industry · combined arms</div><p>The human faction is built on industry and balance. A robust economy feeds a mixed army — infantry, armor, aviation and support — with no glaring weak…</p></a>
-</div>
+  <div class="strip">
+    <div><div class="k">01 / ECONOMY</div><h3>Harvest to dominate</h3><p>Every faction starts with its harvesting line. Secure resources before projecting your army.</p></div>
+    <div><div class="k">02 / ARMY</div><h3>Three doctrines</h3><p>The Zglenglo's numbers, the Helias shields, human versatility. Three incompatible ways to win.</p></div>
+    <div><div class="k">03 / DUEL</div><h3>Online multiplayer</h3><p>Face another player in real time over a deterministic lockstep netcode, right in the browser.</p></div>
+  </div>
 
-<div class="callout" style="margin:40px 0 60px">
-<strong>New to StarLite&nbsp;II?</strong> The <a href="/guide/">quick-start guide</a> covers the controls, the economy and opening strategies. Or jump straight into <a href="/play/#computer">a match against the AI</a> to learn as you go.
+  <h2>Choose your species</h2>
+  <div class="factions"><a class="fac" style="--edge:var(--brood)" href="/factions/#insect"><span class="tag">THE BROOD</span><h3>Zglenglo</h3><div class="sub">Evolution · regeneration · numbers</div><p>The Zglenglo don&#x27;t build, they proliferate. Their strength is mass: cheap units in a constant stream, a hive that evolves in tiers, and creep that extends their vision…</p></a><a class="fac" style="--edge:var(--warp)" href="/factions/#helias"><span class="tag">THE HELIAS</span><h3>Helias</h3><div class="sub">Shields · warp · focused energy</div><p>The Helias fight behind shields that regenerate out of combat, rewarding hit-and-run play and micro. Expensive but powerful units with a very high skill ceiling…</p></a><a class="fac" style="--edge:var(--iron)" href="/factions/#human"><span class="tag">HUMANS</span><h3>Humans</h3><div class="sub">Armor · industry · combined arms</div><p>The human faction is built on industry and balance. A robust economy feeds a mixed army with no glaring weakness — the most flexible faction against any opponent…</p></a></div>
+
+  <div class="callout" style="margin:40px 0 60px">
+    <strong>New to StarLite&nbsp;II?</strong> The <a href="/guide/">quick-start guide</a> covers controls, economy and opening strategies. Or just pick <em>Vs. Computer</em> in the menu above to learn as you play.
+  </div>
 </div>
-</div>
-</main>
-<footer><div class="wrap foot-in">
+</main><footer><div class="wrap foot-in">
 <div>StarLite II &mdash; browser RTS &middot; by Achille Peter</div>
 <div class="foot-links">
 <a href="/">Home</a><a href="/guide/">Guide</a><a href="/factions/">Units</a>
 <a href="/devlog/">Devlog</a><a href="/privacy.html">Privacy</a><a href="/contact.html">Contact</a></div>
-</div></footer>
-</body></html>
+</div></footer><script>
+(function(){
+  var frame=document.getElementById('embed-frame');
+  var iframe=document.getElementById('game-frame');
+  var btn=document.getElementById('fs-btn');
+  var loading=document.getElementById('embed-loading');
+  if(iframe){iframe.addEventListener('load',function(){if(loading)loading.style.display='none';});}
+  if(btn){btn.addEventListener('click',function(){
+    var el=frame||iframe;
+    if(el.requestFullscreen)el.requestFullscreen();
+    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+    else window.open('/play/','_blank','noopener');
+  });}
+})();
+</script></body></html>
